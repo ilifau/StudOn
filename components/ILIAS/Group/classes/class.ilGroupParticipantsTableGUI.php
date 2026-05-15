@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\User\Profile\Profile;
+use ILIAS\User\Profile\Data as ProfileData;
+
 /**
 *
 * @author Stefan Meyer <smeyer.ilias@gmx.de>
@@ -32,6 +35,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
     protected ilAccessHandler $access;
     protected ilRbacReview $rbacreview;
     protected ilObjUser $user;
+    protected Profile $profile;
 
     protected array $cached_user_names = [];
 
@@ -52,6 +56,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
         $this->access = $DIC->access();
         $this->rbacreview = $DIC->rbac()->review();
         $this->user = $DIC->user();
+        $this->profile = $DIC['user']->getProfile();
 
 
         $this->setPrefix('participants');
@@ -161,12 +166,12 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
                 case 'consultation_hour':
                     $this->tpl->setCurrentBlock('custom_fields');
                     $dts = array();
-                    foreach ((array) $a_set['consultation_hours'] as $ch) {
+                    foreach ((array) ($a_set['consultation_hours'] ?? []) as $ch) {
                         $tmp = ilDatePresentation::formatPeriod(
                             new ilDateTime($ch['dt'], IL_CAL_UNIX),
                             new ilDateTime($ch['dtend'], IL_CAL_UNIX)
                         );
-                        if ($ch['explanation']) {
+                        if (isset($ch['explanation'])) {
                             $tmp .= ' ' . $ch['explanation'];
                         }
                         $dts[] = $tmp;
@@ -260,7 +265,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
                 // fau.
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
-                    $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
+                    $this->tpl->setVariable('VAL_CUST', is_array($a_set[$field] ?? '') ? implode(', ', $a_set[$field]) : (string) ($a_set[$field] ?? ''));
                     $this->tpl->parseCurrentBlock();
                     break;
             }
@@ -425,17 +430,22 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 
         // Custom user data fields
         if ($udf_ids) {
-            $data = ilUserDefinedData::lookupData($filtered_user_ids, $udf_ids);
-            foreach ($data as $usr_id => $fields) {
-                $usr_id = (int) $usr_id;
-                if (!$this->checkAcceptance($usr_id)) {
-                    continue;
-                }
+            global $DIC;
+            $DIC->logger()->root()->dump($filtered_user_ids);
+            $a_user_data = array_reduce(
+                iterator_to_array($this->profile->getDataForMultiple($filtered_user_ids)),
+                function (array $c, ProfileData $v) use ($udf_ids): array {
+                    if (!$this->checkAcceptance($v->getId())) {
+                        return $c;
+                    }
 
-                foreach ($fields as $field_id => $value) {
-                    $a_user_data[$usr_id]['udf_' . $field_id] = $value;
-                }
-            }
+                    foreach ($udf_ids as $field_id) {
+                        $c[$v->getId()]['udf_' . $field_id] = implode(', ', $v->getAdditionalFieldByIdentifier($field_id) ?? []);
+                    }
+                    return $c;
+                },
+                $a_user_data
+            );
         }
         // Object specific user data fields
         if ($odf_ids) {

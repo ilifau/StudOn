@@ -35,6 +35,9 @@ use ILIAS\Filesystem\Stream\ZIPStream;
  */
 final class StreamDelivery extends BaseDelivery
 {
+    /**
+     * @var string
+     */
     public const SUBREQUEST_SEPARATOR = '/-/';
 
     public function __construct(

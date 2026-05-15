@@ -72,8 +72,6 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
-        $this->setShowTemplates(true);
-
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj));
         $this->setRowTemplate("tpl.exc_members_row.html", "components/ILIAS/Exercise");
 
@@ -308,7 +306,8 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
                         $this->tpl->setCurrentBlock("team_member_removal_bl");
                         $this->tpl->setVariable("URL_TEAM_MEMBER_REMOVAL", $url);
 
-                        $rem_gl = $this->ui_factory->symbol()->glyph()->remove($url);
+                        $rem_gl = $this->ui_factory->button()->shy('', $url)
+                                                   ->withSymbol($this->ui_factory->symbol()->glyph()->remove());
                         $this->tpl->setVariable(
                             "TXT_TEAM_MEMBER_REMOVAL",
                             $this->ui_renderer->render($rem_gl)

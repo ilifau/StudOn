@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+use ILIAS\User\Profile\PublicProfileGUI;
+
 /**
  * Learning module presentation linker
  * @author Alexander Killing <killing@leifos.de>
@@ -52,7 +54,7 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
         bool $offline,
         string $export_format,
         bool $export_all_languages,
-        ilCtrl $ctrl = null,
+        ?ilCtrl $ctrl = null,
         bool $embed_mode = false,
         string $frame = "",
         int $obj_id = 0
@@ -500,23 +502,23 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
                                 );
                             }
                             //var_dump($back); exit;
-                            $this->ctrl->setParameterByClass("ilpublicuserprofilegui", "user_id", $target_id);
+                            $this->ctrl->setParameterByClass(PublicProfileGUI::class, "user_id", $target_id);
                             $this->ctrl->setParameterByClass(
-                                "ilpublicuserprofilegui",
+                                PublicProfileGUI::class,
                                 "back_url",
                                 rawurlencode($back)
                             );
                             $href = "";
                             if (ilUserUtil::hasPublicProfile($target_id)) {
                                 $href = $this->ctrl->getLinkTargetByClass(
-                                    "ilpublicuserprofilegui",
+                                    [ilPublicProfileBaseClassGUI::class, PublicProfileGUI::class],
                                     "getHTML",
                                     "",
                                     false,
                                     true
                                 );
                             }
-                            $this->ctrl->setParameterByClass("ilpublicuserprofilegui", "user_id", "");
+                            $this->ctrl->setParameterByClass(PublicProfileGUI::class, "user_id", "");
                             $lcontent = ilUserUtil::getNamePresentation($target_id, false, false);
                         }
                         break;

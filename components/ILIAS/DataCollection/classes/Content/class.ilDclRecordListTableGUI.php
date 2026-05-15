@@ -36,6 +36,7 @@ class ilDclRecordListTableGUI extends ilTable2GUI
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
     protected \ILIAS\DI\UIServices $ui;
+    protected bool $page_active = false;
 
     public function __construct(
         ilDclRecordListGUI $a_parent_obj,
@@ -55,6 +56,9 @@ class ilDclRecordListTableGUI extends ilTable2GUI
         $this->setPrefix($identifier);
         $this->setFormName($identifier);
         $this->setId($identifier);
+        $page = new ilDclDetailedViewDefinitionGUI($this->tableview->getId());
+        $this->page_active = $page->getPageObject()->isActive();
+
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->table = $table;
         $this->parent_obj = $a_parent_obj;
@@ -69,7 +73,7 @@ class ilDclRecordListTableGUI extends ilTable2GUI
             $this->addMultiCommand("confirmDeleteRecords", $this->lng->txt('dcl_delete_records'));
         }
 
-        if (ilDclDetailedViewDefinition::isActive($this->tableview->getId())) {
+        if ($this->page_active) {
             $this->addColumn("", "_front", '15px');
         }
 
@@ -179,13 +183,10 @@ class ilDclRecordListTableGUI extends ilTable2GUI
             $this->ctrl->setParameterByClass(ilDclRecordEditGUI::class, "record_id", $record->getId());
             $this->ctrl->setParameterByClass(ilDclRecordEditGUI::class, "mode", $this->mode);
 
-            if (ilDclDetailedViewDefinition::isActive($this->tableview->getId())) {
-                $record_data["_front"] = $this->ctrl->getLinkTargetByClass(ilDclDetailedViewGUI::class, 'renderRecord');
-            }
-
             $action_links = [];
 
-            if (ilDclDetailedViewDefinition::isActive($this->tableview->getId())) {
+            if ($this->page_active) {
+                $record_data["_front"] = $this->ctrl->getLinkTargetByClass(ilDclDetailedViewGUI::class, 'renderRecord');
                 $action_links[] = $this->ui->factory()->link()->standard(
                     $this->lng->txt('dcl_detailed_view'),
                     $this->ctrl->getLinkTargetByClass(ilDclDetailedViewGUI::class, 'renderRecord')
@@ -257,7 +258,12 @@ class ilDclRecordListTableGUI extends ilTable2GUI
             $this->tpl->setCurrentBlock('view');
             $this->tpl->setVariable(
                 "VIEW_DETAILS",
-                $this->ui->renderer()->render($this->ui->factory()->symbol()->glyph()->enlarge($a_set["_front"]))
+                $this->ui->renderer()->render(
+                    $this->ui->factory()->button()->shy(
+                        '',
+                        $a_set["_front"]
+                    )->withSymbol($this->ui->factory()->symbol()->glyph()->enlarge())
+                )
             );
             $this->tpl->parseCurrentBlock();
         }
@@ -281,8 +287,7 @@ class ilDclRecordListTableGUI extends ilTable2GUI
 
     protected function needsActionRow(): bool
     {
-        if ($this->table->getPublicCommentsEnabled() ||
-            ilDclDetailedViewDefinition::isActive($this->tableview->getId())) {
+        if ($this->table->getPublicCommentsEnabled() || $this->page_active) {
             return true;
         }
 

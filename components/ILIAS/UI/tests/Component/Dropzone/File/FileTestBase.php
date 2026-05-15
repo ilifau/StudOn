@@ -35,7 +35,7 @@ abstract class FileTestBase extends \ILIAS_UI_TestBase
 {
     protected C\Dropzone\File\Factory $factory;
     protected I\Component\Input\Field\File $input;
-    private C\Button\Factory $button_factory;
+    private I\Component\Button\Factory $button_factory;
 
     public function setUp(): void
     {
@@ -43,6 +43,7 @@ abstract class FileTestBase extends \ILIAS_UI_TestBase
 
         $signal_generator = new I\Component\SignalGenerator();
         $field_factory = new I\Component\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\Field\Node\Factory::class),
             $this->createMock(I\Component\Input\UploadLimitResolver::class),
             $signal_generator,
             $this->getDataFactory(),
@@ -68,11 +69,11 @@ abstract class FileTestBase extends \ILIAS_UI_TestBase
     {
         return new class ($this->button_factory) extends \NoUIFactory {
             public function __construct(
-                protected C\Button\Factory $button_factory,
+                protected I\Component\Button\Factory $button_factory,
             ) {
             }
 
-            public function button(): C\Button\Factory
+            public function button(): I\Component\Button\Factory
             {
                 return $this->button_factory;
             }

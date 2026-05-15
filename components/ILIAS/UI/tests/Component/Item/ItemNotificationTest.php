@@ -47,22 +47,22 @@ class ItemNotificationTest extends ILIAS_UI_TestBase
         $factory = new class () extends NoUIFactory {
             public I\Component\SignalGenerator $sig_gen;
 
-            public function item(): C\Item\Factory
+            public function item(): I\Component\Item\Factory
             {
                 return new I\Component\Item\Factory();
             }
 
-            public function Link(): C\Link\Factory
+            public function Link(): I\Component\Link\Factory
             {
                 return new I\Component\Link\Factory();
             }
 
-            public function button(): C\Button\Factory
+            public function button(): I\Component\Button\Factory
             {
                 return new I\Component\Button\Factory();
             }
 
-            public function symbol(): C\Symbol\Factory
+            public function symbol(): I\Component\Symbol\Factory
             {
                 return new I\Component\Symbol\Factory(
                     new I\Component\Symbol\Icon\Factory(),
@@ -71,7 +71,7 @@ class ItemNotificationTest extends ILIAS_UI_TestBase
                 );
             }
 
-            public function mainControls(): C\MainControls\Factory
+            public function mainControls(): I\Component\MainControls\Factory
             {
                 return new I\Component\MainControls\Factory(
                     $this->sig_gen,
@@ -167,7 +167,7 @@ class ItemNotificationTest extends ILIAS_UI_TestBase
     {
         $f = $this->getUIFactory()->item();
 
-        $content = new I\Component\Legacy\Legacy("someContent", $this->sig_gen);
+        $content = new I\Component\Legacy\Content("someContent", $this->sig_gen);
         $c = $f->notification("title", $this->getIcon())->withAdditionalContent($content);
 
         $this->assertEquals($c->getAdditionalContent(), $content);
@@ -207,7 +207,7 @@ class ItemNotificationTest extends ILIAS_UI_TestBase
         });
 
         $props = array("prop1" => "val1", "prop2" => "val2");
-        $content = new I\Component\Legacy\Legacy("someContent", $this->sig_gen);
+        $content = new I\Component\Legacy\Content("someContent", $this->sig_gen);
         $actions = new I\Component\Dropdown\Standard(array(
             new I\Component\Button\Shy("ILIAS", "https://www.ilias.de"),
             new I\Component\Button\Shy("GitHub", "https://www.github.com")
@@ -233,9 +233,9 @@ class ItemNotificationTest extends ILIAS_UI_TestBase
 				<img class="icon name small" src="./assets/images/standard/icon_default.svg" alt="aria_label"/>
 			</div>
 			<div class="media-body">
-				<h4 class="il-item-notification-title">
+				<h2 class="il-item-notification-title">
 					<a href="">TestLink</a>
-				</h4>
+				</h2>
 				<button type="button" class="close" aria-label="close" id="id">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -267,7 +267,7 @@ class ItemNotificationTest extends ILIAS_UI_TestBase
 						<div class="il-maincontrols-slate il-maincontrols-slate-notification">
 							<div class="il-maincontrols-slate-notification-title">
 								<button class="btn btn-bulky" data-action="">
-									<span class="glyph" role="img">
+									<span class="glyph" aria-hidden="true">
 										<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 									</span>
 									<span class="bulky-label">back</span>
@@ -281,12 +281,12 @@ class ItemNotificationTest extends ILIAS_UI_TestBase
                                                 <img class="icon name small" src="./assets/images/standard/icon_default.svg" alt="aria_label"/>
 											</div>
 											<div class="media-body">
-												<h4 class="il-item-notification-title">title_aggregate</h4>
+												<h3 class="il-item-notification-title">title_aggregate</h3>
 												<div class="il-aggregate-notifications" data-aggregatedby="id">
 													<div class="il-maincontrols-slate il-maincontrols-slate-notification">
 														<div class="il-maincontrols-slate-notification-title">
 															<button class="btn btn-bulky" data-action="">
-												 				<span class="glyph" role="img">
+												 				<span class="glyph" aria-hidden="true">
 																	<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 																</span>
 																<span class="bulky-label">back</span>

@@ -42,6 +42,9 @@ class FilterContextRenderer extends Renderer
 
     public function render(Component\Component $component, RendererInterface $default_renderer): string
     {
+        if ($component instanceof Component\Triggerer) {
+            $component = $this->addTriggererOnLoadCode($component);
+        }
         if ($component instanceof FilterInput) {
             $component = $this->setSignals($component);
         }
@@ -108,7 +111,7 @@ class FilterContextRenderer extends Renderer
 				});");
         }
         $add_tpl->setVariable("LIST", $default_renderer->render($f->listing()->unordered($links)));
-        $list = $f->legacy($add_tpl->get());
+        $list = $f->legacy()->content($add_tpl->get());
         $popover = $f->popover()->standard($list)->withVerticalPosition();
         $tpl->setVariable("POPOVER", $default_renderer->render($popover));
         $add = $f->button()->bulky($f->symbol()->glyph()->add(), "", "")->withOnClick($popover->getShowSignal());
@@ -140,10 +143,8 @@ class FilterContextRenderer extends Renderer
         $f = $this->getUIFactory();
         $tpl = $this->getTemplate("tpl.context_filter.html", true, true);
 
-        /**
-         * @var $remove_glyph Component\Symbol\Glyph\Glyph
-         */
-        $remove_glyph = $f->symbol()->glyph()->remove("")->withAdditionalOnLoadCode(fn($id) => "$('#$id').on('click', function(event) {
+        $remove_button = $f->button()->shy('', '')->withSymbol($f->symbol()->glyph()->remove())
+            ->withAdditionalOnLoadCode(fn($id) => "$('#$id').on('click', function(event) {
 							il.UI.filter.onRemoveClick(event, '$id');
 							return false; // stop event propagation
 					});");
@@ -172,7 +173,7 @@ class FilterContextRenderer extends Renderer
         }
         $tpl->parseCurrentBlock();
         $tpl->setCurrentBlock("addon_right");
-        $tpl->setVariable("DELETE", $default_renderer->render($remove_glyph));
+        $tpl->setVariable("DELETE", $default_renderer->render($remove_button));
         $tpl->parseCurrentBlock();
 
         return $tpl->get();
@@ -191,11 +192,12 @@ class FilterContextRenderer extends Renderer
         $f = $this->getUIFactory();
         $tpl = $this->getTemplate("tpl.filter_field.html", true, true);
 
-        $popover = $f->popover()->standard($f->legacy($input_html))->withVerticalPosition();
+        $popover = $f->popover()->standard($f->legacy()->content($input_html))->withVerticalPosition();
         $tpl->setVariable("POPOVER", $default_renderer->render($popover));
 
         $prox = new ProxyFilterField();
         $prox = $prox->withOnClick($popover->getShowSignal());
+        $prox = $this->addTriggererOnLoadCode($prox);
         $tpl->touchBlock("tabindex");
 
         $this->bindJSandApplyId($prox, $tpl);

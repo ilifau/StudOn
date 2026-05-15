@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -24,7 +25,6 @@ declare(strict_types=1);
  */
 class ilECSNodeMappingTreeTableGUI extends ilTable2GUI
 {
-
     private \ILIAS\UI\Factory $ui_factory;
     private \ILIAS\UI\Renderer $ui_renderer;
 

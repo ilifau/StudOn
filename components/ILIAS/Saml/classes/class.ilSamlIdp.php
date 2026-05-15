@@ -18,21 +18,19 @@
 
 declare(strict_types=1);
 
-/**
- * Class ilSamlIdp
- * @author Michael Jansen <mjansen@databay.de>
- */
+use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
+
 final class ilSamlIdp
 {
-    private const PROP_IDP_ID = 'idp_id';
-    private const PROP_IS_ACTIVE = 'is_active';
-    private const PROP_DEFAULT_ROLE_ID = 'default_role_id';
-    private const PROP_UID_CLAIM = 'uid_claim';
-    private const PROP_LOGIN_CLAIM = 'login_claim';
-    private const PROP_ENTITY_ID = 'entity_id';
-    private const PROP_SYNC_STATUS = 'sync_status';
-    private const PROP_ALLOW_LOCAL_AUTH = 'allow_local_auth';
-    private const PROP_ACCOUNT_MIGR_STATUS = 'account_migr_status';
+    private const string PROP_IDP_ID = 'idp_id';
+    private const string PROP_IS_ACTIVE = 'is_active';
+    private const string PROP_DEFAULT_ROLE_ID = 'default_role_id';
+    private const string PROP_UID_CLAIM = 'uid_claim';
+    private const string PROP_LOGIN_CLAIM = 'login_claim';
+    private const string PROP_ENTITY_ID = 'entity_id';
+    private const string PROP_SYNC_STATUS = 'sync_status';
+    private const string PROP_ALLOW_LOCAL_AUTH = 'allow_local_auth';
+    private const string PROP_ACCOUNT_MIGR_STATUS = 'account_migr_status';
 
     private readonly ilDBInterface $db;
     /** @var self[] */
@@ -165,18 +163,23 @@ final class ilSamlIdp
         $this->setEntityId((string) $record[self::PROP_ENTITY_ID]);
     }
 
-    public function bindForm(ilPropertyFormGUI $form): void
+    public function bindForm(StandardForm $form): void
     {
-        $this->setDefaultRoleId((int) $form->getInput(self::PROP_DEFAULT_ROLE_ID));
-        $this->setUidClaim((string) $form->getInput(self::PROP_UID_CLAIM));
-        $this->setLoginClaim((string) $form->getInput(self::PROP_LOGIN_CLAIM));
-        $this->setSynchronizationStatus((bool) $form->getInput(self::PROP_SYNC_STATUS));
-        $this->setLocalLocalAuthenticationStatus((bool) $form->getInput(self::PROP_ALLOW_LOCAL_AUTH));
-        $this->setAccountMigrationStatus((bool) $form->getInput(self::PROP_ACCOUNT_MIGR_STATUS));
+        $data = $form->getData();
+        $this->setUidClaim((string) ($data[self::PROP_UID_CLAIM] ?? $this->getUidClaim()));
+        $this->setEntityId((string) ($data[self::PROP_ENTITY_ID] ?? $this->getEntityId()));
+        $this->setLocalLocalAuthenticationStatus((bool) ($data[self::PROP_ALLOW_LOCAL_AUTH] ?? false));
+        $this->setSynchronizationStatus(($data[self::PROP_SYNC_STATUS] ?? null) !== null);
 
-        /** @var ilSamlIdpMetadataInputGUI $metadata */
-        $metadata = $form->getItemByPostVar('metadata');
-        $this->setEntityId($metadata->getValue());
+        $this->setLoginClaim('');
+        $this->setDefaultRoleId(0);
+        $this->setAccountMigrationStatus(true);
+        if ($this->isSynchronizationEnabled()) {
+            $sync_status_data = $data[self::PROP_SYNC_STATUS];
+            $this->setLoginClaim($sync_status_data[self::PROP_LOGIN_CLAIM]);
+            $this->setDefaultRoleId((int) $sync_status_data[self::PROP_DEFAULT_ROLE_ID]);
+            $this->setAccountMigrationStatus((bool) $sync_status_data[self::PROP_ACCOUNT_MIGR_STATUS]);
+        }
     }
 
     public static function isAuthModeSaml(string $a_auth_mode): bool

@@ -502,10 +502,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
             ['allowed_classes' => true]
         );
 
-        $reached_points = $this->deductHintPointsFromReachedPoints(
-            $preview_session,
-            $this->calculateReachedPointsForSolution($solution_ordering_element_list)
-        );
+        $reached_points = $this->calculateReachedPointsForSolution($solution_ordering_element_list);
 
         return $this->ensureNonNegativePoints($reached_points);
     }
@@ -930,6 +927,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
         );
 
         $this->initOrderingElementFormFieldLabels($orderingElementInput);
+        $orderingElementInput->setInfo($orderingElementInput->getInfo() . ' ' . $this->lng->txt('latex_edit_info'));
 
         return $orderingElementInput;
     }

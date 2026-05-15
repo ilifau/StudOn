@@ -47,10 +47,8 @@ class OrderingRendererTest extends TableRendererTestBase
     public function testOrderingTableRenderTableHeaderWithoutActions()
     {
         $renderer = $this->getRenderer();
-        $data_factory = new \ILIAS\Data\Factory();
-        $tpl = $this->getTemplateFactory()->getTemplate("components/ILIAS/UI/src/templates/default/Table/tpl.orderingtable.html", true, true);
         $f = $this->getColumnFactory();
-        $data = new class () implements ILIAS\UI\Component\Table\OrderingBinding {
+        $data = new class () implements ILIAS\UI\Component\Table\OrderingRetrieval {
             public function getRows(
                 Component\Table\OrderingRowBuilder $row_builder,
                 array $visible_column_ids
@@ -66,12 +64,12 @@ class OrderingRendererTest extends TableRendererTestBase
             'f3' => $f->number("Field 3")->withIndex(3)
         ];
         $uri = new Data\URI('https://localhost');
-        $table = $this->getUIFactory()->table()->ordering('', $columns, $data, $uri)
+        $table = $this->getUIFactory()->table()->ordering($data, $uri, '', $columns)
             ->withRequest($this->getDummyRequest());
 
         $actual = $renderer->renderOrderingTable($table, $this->getDefaultRenderer());
         $expected = <<<EOT
-<div class="c-table-ordering" id="id_1"><h2 id="id_1_label"></h2>
+<div class="c-table-ordering" id="id_1"><h2 class="ilHeader" id="id_1_label"></h2>
     <div class="viewcontrols">
         <form class="il-viewcontrols-form l-bar__space-keeper" method="get" id="id_2"></form>
     </div>

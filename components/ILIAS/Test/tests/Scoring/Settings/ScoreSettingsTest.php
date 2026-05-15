@@ -40,13 +40,12 @@ class ScoreSettingsTest extends ilTestBaseTestCase
         $id = -666;
         $s = new ScoreSettings(
             $id,
-            new SettingsScoring($id),
-            new SettingsResultSummary($id),
-            new SettingsResultDetails($id),
-            new SettingsGamification($id)
+            new SettingsScoring(),
+            new SettingsResultSummary(),
+            new SettingsResultDetails(),
+            new SettingsGamification()
         );
         $this->assertInstanceOf(ScoreSettings::class, $s);
-        $this->assertEquals($id, $s->getTestId());
         $this->assertInstanceOf(SettingsScoring::class, $s->getScoringSettings());
         $this->assertInstanceOf(SettingsResultSummary::class, $s->getResultSummarySettings());
         $this->assertInstanceOf(SettingsResultDetails::class, $s->getResultDetailsSettings());
@@ -55,8 +54,7 @@ class ScoreSettingsTest extends ilTestBaseTestCase
 
     public function testScoreSettingsScoring(): void
     {
-        $s = new SettingsScoring(-666);
-        $this->assertEquals(-667, $s->withTestId(-667)->getTestId());
+        $s = new SettingsScoring();
         $this->assertEquals(2, $s->withCountSystem(2)->getCountSystem());
         $this->assertEquals(4, $s->withScoreCutting(4)->getScoreCutting());
         $this->assertEquals(5, $s->withPassScoring(5)->getPassScoring());
@@ -115,8 +113,6 @@ class ScoreSettingsTest extends ilTestBaseTestCase
         $this->assertFalse($s->withHighscoreScore(false)->getHighscoreScore());
         $this->assertTrue($s->withHighscorePercentage(true)->getHighscorePercentage());
         $this->assertFalse($s->withHighscorePercentage(false)->getHighscorePercentage());
-        $this->assertTrue($s->withHighscoreHints(true)->getHighscoreHints());
-        $this->assertFalse($s->withHighscoreHints(false)->getHighscoreHints());
         $this->assertTrue($s->withHighscoreWTime(true)->getHighscoreWTime());
         $this->assertFalse($s->withHighscoreWTime(false)->getHighscoreWTime());
         $this->assertTrue($s->withHighscoreOwnTable(true)->getHighscoreOwnTable());
@@ -138,7 +134,7 @@ class ScoreSettingsTest extends ilTestBaseTestCase
     public function testScoreSettingsSectionScoring(): void
     {
         $s = new SettingsScoring(666);
-        $actual = $this->render(
+        $actual = $this->renderInsideContainer(
             $s->toForm(...$this->getUIPack())
         );
 
@@ -228,7 +224,7 @@ class ScoreSettingsTest extends ilTestBaseTestCase
     public function getUIFactory(): NoUIFactory
     {
         return new class () extends NoUIFactory {
-            public function symbol(): C\Symbol\Factory
+            public function symbol(): S\Factory
             {
                 return new S\Factory(
                     new S\Icon\Factory(),
@@ -246,6 +242,7 @@ class ScoreSettingsTest extends ilTestBaseTestCase
         $refinery = new \ILIAS\Refinery\Factory($data_factory, $language);
 
         $field_factory = new ILIAS\UI\Implementation\Component\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\Field\Node\Factory::class),
             $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             new \ILIAS\UI\Implementation\Component\SignalGenerator(),
             $data_factory,
@@ -255,7 +252,7 @@ class ScoreSettingsTest extends ilTestBaseTestCase
         $ui = [$language, $field_factory, $refinery];
 
         $s = new SettingsResultSummary(666);
-        $actual = $this->render(
+        $actual = $this->renderInsideContainer(
             $s->toForm(...array_merge($ui, [[
                 'user_time_zone' => 'Europe/Berlin',
                 'user_date_format' => $data_factory->dateFormat()->withTime24(
@@ -294,7 +291,7 @@ class ScoreSettingsTest extends ilTestBaseTestCase
 
         $i1_1_4_1 = $this->getFormWrappedHtml(
             'date-time-field-input',
-            'tst_reporting_date<span class="asterisk" aria-label="required_field">*</span>',
+            'tst_reporting_date<span class="sr-only">required_field</span><span class="asterisk" aria-hidden="true">*</span>',
             '<div class="c-input-group">
                 <input id="id_6" type="datetime-local" class="c-field-datetime" />
             </div>',
@@ -306,7 +303,7 @@ class ScoreSettingsTest extends ilTestBaseTestCase
 
         $i1_1_4 = $this->getFormWrappedHtml(
             'group-field-input',
-            '<input type="radio" id="id_5" value="3" /><span>tst_results_access_date</span><span class="asterisk" aria-label="required_field">*</span>',
+            '<input type="radio" id="id_5" value="3" /><span>tst_results_access_date</span><span class="sr-only">required_field</span><span class="asterisk" aria-hidden="true">*</span>',
             $i1_1_4_1,
             'tst_results_access_date_desc',
             'id_5',
@@ -316,7 +313,7 @@ class ScoreSettingsTest extends ilTestBaseTestCase
 
         $i1_1 = $this->getFormWrappedHtml(
             'switchable-group-field-input',
-            'tst_results_access_setting<span class="asterisk" aria-label="required_field">*</span>',
+            'tst_results_access_setting<span class="sr-only">required_field</span><span class="asterisk" aria-hidden="true">*</span>',
             $i1_1_1 . $i1_1_2 . $i1_1_3 . $i1_1_4,
             null,
             null,
@@ -388,7 +385,7 @@ class ScoreSettingsTest extends ilTestBaseTestCase
     {
         $s = new SettingsResultDetails(666);
         $tax_ids = [1,2];
-        $actual = $this->render(
+        $actual = $this->renderInsideContainer(
             $s->toForm(
                 ...array_merge(
                     $this->getUIPack(),
@@ -438,13 +435,13 @@ class ScoreSettingsTest extends ilTestBaseTestCase
     public function testScoreSettingsSectionGamification(): void
     {
         $s = new SettingsGamification(666);
-        $actual = $this->render(
+        $actual = $this->renderInsideContainer(
             $s->toForm(...$this->getUIPack())
         );
 
         $fields = $this->getFormWrappedHtml(
             'radio-field-input',
-            'tst_highscore_mode<span class="asterisk" aria-label="required_field">*</span>',
+            'tst_highscore_mode<span class="sr-only">required_field</span><span class="asterisk" aria-hidden="true">*</span>',
             '<div class="c-field-radio">
                 <div class="c-field-radio__item">
                     <input type="radio" id="id_2_1_opt" value="1" /><label for="id_2_1_opt">tst_highscore_own_table</label><div class="c-input__help-byline">tst_highscore_own_table_description</div>
@@ -463,8 +460,8 @@ class ScoreSettingsTest extends ilTestBaseTestCase
         );
         $fields .= $this->getFormWrappedHtml(
             'numeric-field-input',
-            'tst_highscore_top_num<span class="asterisk" aria-label="required_field">*</span>',
-            '<input id="id_3" type="number" value="10" class="c-field-number" />',
+            'tst_highscore_top_num<span class="sr-only">required_field</span><span class="asterisk" aria-hidden="true">*</span>',
+            '<input id="id_3" type="number" step="1" value="10" class="c-field-number" />',
             'tst_highscore_top_num_description',
             'id_3',
             null,
@@ -477,7 +474,6 @@ class ScoreSettingsTest extends ilTestBaseTestCase
             ['tst_highscore_achieved_ts', 'tst_highscore_achieved_ts_description'],
             ['tst_highscore_score', 'tst_highscore_score_description'],
             ['tst_highscore_percentage', 'tst_highscore_percentage_description'],
-            ['tst_highscore_hints', 'tst_highscore_hints_description'],
             ['tst_highscore_wtime', 'tst_highscore_wtime_description']
         ];
         foreach ($opts as $index => $entry) {
@@ -519,13 +515,12 @@ class ScoreSettingsTest extends ilTestBaseTestCase
 
     public function testScoreSettingsDirectlyAccessedByTestObj(): void
     {
-        $id = -666;
         $s = new ScoreSettings(
-            $id,
-            new SettingsScoring($id),
-            new SettingsResultSummary($id),
-            new SettingsResultDetails($id),
-            new SettingsGamification($id)
+            0,
+            new SettingsScoring(),
+            new SettingsResultSummary(),
+            new SettingsResultDetails(),
+            new SettingsGamification()
         );
 
         $t = new class ($s) extends ilObjTest {
@@ -550,31 +545,10 @@ class ScoreSettingsTest extends ilTestBaseTestCase
         $this->assertIsBool($t->getHighscoreAchievedTS());
         $this->assertIsBool($t->getHighscoreScore());
         $this->assertIsBool($t->getHighscorePercentage());
-        $this->assertIsBool($t->getHighscoreHints());
         $this->assertIsBool($t->getHighscoreWTime());
         $this->assertIsBool($t->getHighscoreOwnTable());
         $this->assertIsBool($t->getHighscoreTopTable());
         $this->assertIsInt($t->getHighscoreTopNum());
         $this->assertIsInt($t->getHighscoreMode());
-    }
-
-    public function testScoreSettingsRelayingTestId(): void
-    {
-        $id = -666;
-        $s = new ScoreSettings(
-            $id,
-            new SettingsScoring($id),
-            new SettingsResultSummary($id),
-            new SettingsResultDetails($id),
-            new SettingsGamification($id)
-        );
-
-        $nu_id = 1234;
-        $s = $s->withTestId($nu_id);
-        $this->assertEquals($nu_id, $s->getTestId());
-        $this->assertEquals($nu_id, $s->getScoringSettings()->getTestId());
-        $this->assertEquals($nu_id, $s->getResultSummarySettings()->getTestId());
-        $this->assertEquals($nu_id, $s->getResultDetailsSettings()->getTestId());
-        $this->assertEquals($nu_id, $s->getGamificationSettings()->getTestId());
     }
 }

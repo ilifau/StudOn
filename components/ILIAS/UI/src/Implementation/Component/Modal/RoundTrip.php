@@ -24,8 +24,9 @@ use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\UI\Implementation\Component\Input\Container\Form\Standard as Form;
 use ILIAS\UI\Implementation\Component\Input\NameSource;
 use ILIAS\UI\Implementation\Component\ReplaceSignal;
-use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
+use ILIAS\UI\Implementation\Component\Input\Field\Factory as FieldFactory;
 use ILIAS\UI\Component\Input\Container\Form\FormInput;
+use ILIAS\UI\Component\Input\InputData;
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\Button;
 use ILIAS\UI\Component\Signal;
@@ -182,6 +183,13 @@ class RoundTrip extends Modal implements M\RoundTrip
         return $clone;
     }
 
+    public function withInput(InputData $input_data): self
+    {
+        $clone = clone $this;
+        $clone->form = $clone->form->withInput($input_data);
+        return $clone;
+    }
+
     /**
      * @inheritdoc
      */
@@ -206,6 +214,13 @@ class RoundTrip extends Modal implements M\RoundTrip
     public function getError(): ?string
     {
         return $this->form->getError();
+    }
+
+    public function withAdditionalFormAction(string $action, string $label): static
+    {
+        $clone = clone $this;
+        $clone->form = $clone->form->withAdditionalFormAction($action, $label);
+        return $clone;
     }
 
     /**

@@ -35,6 +35,7 @@ class RepositoryLinkItemRenderer extends BaseTypeRenderer
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function getComponentWithContent(isItem $item): Component
     {
         if ($item instanceof isInterchangeableItem && !$item->getParent()) {

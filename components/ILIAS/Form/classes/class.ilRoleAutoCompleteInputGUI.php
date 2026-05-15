@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,10 +16,13 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * This class represents a role + autocomplete feature form input
  *
  * @author Stefan Meyer <meyer@leifos.com>
+ * @deprecated 12 This component will be removed with ILIAS 12
  */
 class ilRoleAutoCompleteInputGUI extends ilTextInputGUI
 {

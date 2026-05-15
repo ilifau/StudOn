@@ -22,6 +22,7 @@ declare(strict_types=1);
  * This class represents a text property in a property form.
  *
  * @author Alexander Killing <killing@leifos.de>
+ * @deprecated 12 This component will be removed with ILIAS 12
  */
 class ilTextInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFilterItem, ilToolbarItem, ilMultiValuesItem
 {
@@ -237,7 +238,7 @@ class ilTextInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFilte
 
     public function setDataSource(
         string $href,
-        string $a_delimiter = null
+        ?string $a_delimiter = null
     ): void {
         $this->ajax_datasource = $href;
         $this->ajax_datasource_delimiter = $a_delimiter;

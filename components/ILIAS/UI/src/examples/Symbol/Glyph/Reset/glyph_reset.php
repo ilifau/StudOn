@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\examples\Symbol\Glyph\Reset;
@@ -7,19 +23,14 @@ namespace ILIAS\UI\examples\Symbol\Glyph\Reset;
 /**
  * ---
  * description: >
- *   Example for rendring a reset glyph.
+ *   Example for rendering a reset glyph.
  *
  * expected output: >
- *   Active:
- *   ILIAS shows a monochrome arrow-in-circle clip symbol on a grey background. Moving the cursor above the symbol will darken it's
- *   color slightly. Additionally the cursor's form will change and it indicates a linking.
- *
- *   Inactive:
- *   ILIAS shows the same symbol, but it's greyed out. Moving the cursor will not change the presentation.
+ *   Standard:
+ *   ILIAS shows a monochrome arrow-in-circle clip symbol on a grey background.
  *
  *   Highlighted:
- *   ILIAS shows the same symbol but it's highlighted particularly. Moving the cursor above the symbol will darken it's
- *   color slightly. Additionally the cursor's form will change and it indicates a linking.
+ *   ILIAS shows the same symbol, but it's highlighted particularly.
  * ---
  */
 function glyph_reset()
@@ -28,13 +39,12 @@ function glyph_reset()
     $f = $DIC->ui()->factory();
     $renderer = $DIC->ui()->renderer();
 
-    $glyph = $f->symbol()->glyph()->reset("#");
+    $glyph = $f->symbol()->glyph()->reset();
 
     //Showcase the various states of this Glyph
     $list = $f->listing()->descriptive([
-        "Active" => $glyph,
-        "Inactive" => $glyph->withUnavailableAction(),
-        "Highlighted" => $glyph->withHighlight()
+        "Standard" => $glyph,
+        "Highlighted" => $glyph->withHighlight(),
     ]);
 
     return $renderer->render($list);

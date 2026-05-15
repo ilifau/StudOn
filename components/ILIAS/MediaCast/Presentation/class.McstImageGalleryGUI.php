@@ -186,7 +186,7 @@ class McstImageGalleryGUI
             }
 
             $sections = ($mob->getDescription())
-                ? [$f->legacy($mob->getDescription())]
+                ? [$f->legacy()->content($mob->getDescription())]
                 : [];
 
             if ($this->media_cast->getDownloadable()) {
@@ -202,7 +202,7 @@ class McstImageGalleryGUI
                     $this->media_cast->getRefId(),
                     (int) $item["id"]
                 );
-                $sections[] = $f->legacy($comments_gui->getGlyph());
+                $sections[] = $f->legacy()->content($comments_gui->getGlyph());
             }
 
             //$title_button = $f->button()->shy($mob->getTitle(), $modal->getShowSignal());

@@ -37,6 +37,9 @@ interface Factory
      *   effect: >
      *      When operating the dropdown, the Multiselect is shown.
      *      The dropdown is being closed upon submission or by clicking outside of it.
+     * rules:
+     *   usage:
+     *     1: There SHOULD NOT be more than one field selection view control per container.
      * ---
      * @param array<string,string> $options
      * @return \ILIAS\UI\Component\Input\ViewControl\FieldSelection
@@ -56,6 +59,9 @@ interface Factory
      *   effect: >
      *      Upon clicking an entry in the dropdown, the corresponding view is
      *      changed immediately and the dropdown closes.
+     * rules:
+     *   usage:
+     *     1: There MUST NOT be more than one sortation view control per container.
      * ---
      * @param array<string, \ILIAS\Data\Order> $options
      * @return \ILIAS\UI\Component\Input\ViewControl\Sortation
@@ -89,6 +95,9 @@ interface Factory
      *      is rendered unavailable.
      *      When there are more than a given amount of pages in total, first and last
      *      page will be available along with the pages surrounding the current one.
+     * rules:
+     *   usage:
+     *     1: There MUST NOT be more than one pagination view control per container.
      * ---
      * @return \ILIAS\UI\Component\Input\ViewControl\Pagination
      */
@@ -126,7 +135,34 @@ interface Factory
      * ---
      * @return \ILIAS\UI\Component\Input\ViewControl\NullControl
      */
-
     public function nullControl(): NullControl;
+
+
+    /**
+    * ---
+     * description:
+     *   purpose: >
+     *      The mode view controls offers a mutually exclusive selection to
+     *      display data according to the chosen aspect.
+     *   composition: >
+     *      This view control renders a stateful button for each option.
+     *   effect: >
+     *      When clicking a button of the control, the corresponding view is
+     *      changed immediately; the clicked button is engaged while all others
+     *      are not.
+     * rules:
+     *   usage:
+     *      1: Mode view control MUST contain more than one option.
+     *      2: Exactly one Button MUST always be active/engaged.
+     *      3: There SHOULD NOT be more than one mode view control per container.
+     *   accessibility:
+     *      1: The HTML container enclosing the buttons of the Mode View Control MUST carry the role-attribute "group".
+     *      2: The HTML container enclosing the buttons of the Mode View Control MUST set an aria-label describing the element.
+     *      3: The options of the Mode View Control MUST be clearly labeled, describing what the button shows if clicked, e.g. "List View", "Month View", ...
+     * ---
+     * @param array<string, string> $options
+     * @return \ILIAS\UI\Component\Input\ViewControl\Mode
+     */
+    public function mode(array $options): Mode;
 
 }

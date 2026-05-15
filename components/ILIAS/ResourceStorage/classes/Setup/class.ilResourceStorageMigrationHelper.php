@@ -29,13 +29,10 @@ use ILIAS\ResourceStorage\Resource\Repository\CollectionDBRepository;
 use ILIAS\ResourceStorage\Resource\ResourceBuilder;
 use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
 use ILIAS\Setup\Environment;
-use ILIAS\ResourceStorage\Services;
 use ILIAS\ResourceStorage\Manager\Manager;
-use ILIAS\ResourceStorage\Preloader\StandardRepositoryPreloader;
 use ILIAS\ResourceStorage\Repositories;
 use ILIAS\ResourceStorage\Flavour\FlavourBuilder;
 use ILIAS\ResourceStorage\Events\Subject;
-use ILIAS\Setup\Objective\DirectoryCreatedObjective;
 use ILIAS\Filesystem\Util\Archive\Zip;
 use ILIAS\Filesystem\Util\Archive\ZipOptions;
 use ILIAS\ResourceStorage\Resource\ResourceType;
@@ -52,7 +49,6 @@ class ilResourceStorageMigrationHelper
     protected FlavourBuilder $flavour_builder;
     protected ResourceBuilder $resource_builder;
     protected CollectionBuilder $collection_builder;
-    protected ResourceStakeholder $stakeholder;
     protected Repositories $repositories;
     protected Manager $manager;
 
@@ -62,10 +58,9 @@ class ilResourceStorageMigrationHelper
      * @param ilDBInterface $database
      */
     public function __construct(
-        ResourceStakeholder $stakeholder,
+        protected ResourceStakeholder $stakeholder,
         Environment $environment
     ) {
-        $this->stakeholder = $stakeholder;
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
         $db = $environment->getResource(Environment::RESOURCE_DATABASE);
         $ilias_ini = $environment->getResource(Environment::RESOURCE_ILIAS_INI);
@@ -289,7 +284,7 @@ class ilResourceStorageMigrationHelper
         try {
             // in some cases fopen throws a warning instead of returning false
             $open_path = fopen($absolute_path, 'rb');
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return null;
         }
 

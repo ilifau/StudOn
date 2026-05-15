@@ -20,7 +20,7 @@
  * Link Button GUI
  *
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
- * @deprecated 9 Use KS Buttons instead
+ * @deprecated with ILIAS 12. Use KS Buttons instead
  */
 class ilLinkButton extends ilButtonBase
 {
@@ -67,7 +67,7 @@ class ilLinkButton extends ilButtonBase
         return '&nbsp;' . $this->getCaption() . '&nbsp;';
     }
 
-    protected function renderAttributes(array $a_additional_attr = null): string
+    protected function renderAttributes(?array $a_additional_attr = null): string
     {
         if ('_blank' === $this->getTarget()) {
             $relAttrVal = 'noopener';

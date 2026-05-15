@@ -73,77 +73,88 @@ class assClozeTestImport extends assQuestionImport
         $clozetext_array = [];
         $gaps = [];
         foreach ($presentation->order as $entry) {
-            if ($entry['type'] === 'material') {
-                $material_string = $this->QTIMaterialToString(
-                    $presentation->material[$entry['index']]
-                );
+            switch ($entry['type']) {
+                case 'material':
 
-                if ($questiontext === '&nbsp;') {
-                    /**
-                     * 2024-11-06, sk: This is needed because the question-text
-                     * is actually saved as the first entry in the material-
-                     * node.
-                     */
-                    $questiontext = $material_string;
-                    continue;
-                }
+                    $material_string = $this->QTIMaterialToString(
+                        $presentation->material[$entry['index']]
+                    );
 
-                $clozetext_array[] = $material_string;
-                continue;
-            }
-
-            if ($entry['type'] === 'response') {
-                $response = $presentation->response[$entry['index']];
-                $clozetext_array[] = "<<{$response->getIdent()}>>";
-
-                if ($response->getRenderType() instanceof ilQTIRenderFib) {
-                    $fibtype = $response->getRenderType()->getFibtype();
-                    if ($fibtype === ilQTIRenderFib::FIBTYPE_DECIMAL
-                        || $fibtype === ilQTIRenderFib::FIBTYPE_INTEGER) {
-                        $gaps[] = [
-                            'ident' => $response->getIdent(),
-                            'type' => assClozeGap::TYPE_NUMERIC,
-                            'answers' => [],
-                            'minnumber' => $response->getRenderType()->getMinnumber(),
-                            'maxnumber' => $response->getRenderType()->getMaxnumber(),
-                            'gap_size' => $response->getRenderType()->getMaxchars()
-                        ];
-                        continue;
+                    if ($questiontext === '&nbsp;') {
+                        /**
+                         * 2024-11-06, sk: This is needed because the question-text
+                         * is actually saved as the first entry in the material-
+                         * node.
+                         */
+                        $questiontext = $material_string;
+                    } else {
+                        array_push($clozetext_array, $material_string);
                     }
 
-                    $gaps[] = [
-                        'ident' => $response->getIdent(),
-                        'type' => assClozeGap::TYPE_TEXT,
-                        'answers' => [],
-                        'gap_size' => $response->getRenderType()->getMaxchars()
-                    ];
-                    continue;
-                }
+                    break;
+                case 'response':
+                    $response = $presentation->response[$entry['index']];
+                    $rendertype = $response->getRenderType();
+                    array_push($clozetext_array, '<<' . $response->getIdent() . '>>');
 
-                if ($response->getRenderType() instanceof ilQTIRenderChoice) {
-                    $answers = [];
-                    $answerorder = 0;
-                    foreach ($response->getRenderType()->response_labels as $response_label) {
-                        $ident = $response_label->getIdent();
-                        $answertext = '';
-                        foreach ($response_label->material as $mat) {
-                            $answertext .= $this->QTIMaterialToString($mat);
-                        }
-                        $answers[$ident] = [
-                            'answertext' => $answertext,
-                            'points' => 0,
-                            'answerorder' => $answerorder++,
-                            'action' => '',
-                            'shuffle' => $response->getRenderType()->getShuffle()
-                        ];
+                    switch (strtolower(get_class($response->getRenderType()))) {
+                        case 'ilqtirenderfib':
+                            switch ($response->getRenderType()->getFibtype()) {
+                                case ilQTIRenderFib::FIBTYPE_DECIMAL:
+                                case ilQTIRenderFib::FIBTYPE_INTEGER:
+                                    array_push(
+                                        $gaps,
+                                        [
+                                            'ident' => $response->getIdent(),
+                                            'type' => assClozeGap::TYPE_NUMERIC,
+                                            'answers' => [],
+                                            'minnumber' => $response->getRenderType()->getMinnumber(),
+                                            'maxnumber' => $response->getRenderType()->getMaxnumber(),
+                                            'gap_size' => $response->getRenderType()->getMaxchars()
+                                        ]
+                                    );
+                                    break;
+                                default:
+                                case ilQTIRenderFib::FIBTYPE_STRING:
+                                    array_push(
+                                        $gaps,
+                                        [
+                                            'ident' => $response->getIdent(),
+                                            'type' => assClozeGap::TYPE_TEXT,
+                                            'answers' => [],
+                                            'gap_size' => $response->getRenderType()->getMaxchars()
+                                        ]
+                                    );
+                                    break;
+                            }
+                            break;
+                        case 'ilqtirenderchoice':
+                            $answers = [];
+                            $shuffle = $rendertype->getShuffle();
+                            $answerorder = 0;
+                            foreach ($rendertype->response_labels as $response_label) {
+                                $ident = $response_label->getIdent();
+                                $answertext = '';
+                                foreach ($response_label->material as $mat) {
+                                    $answertext .= $this->QTIMaterialToString($mat);
+                                }
+                                $answers[$ident] = [
+                                    'answertext' => $answertext,
+                                    'points' => 0,
+                                    'answerorder' => $answerorder++,
+                                    'action' => '',
+                                    'shuffle' => $rendertype->getShuffle()
+                                ];
+                            }
+                            $gaps[] = [
+                                'ident' => $response->getIdent(),
+                                'type' => assClozeGap::TYPE_SELECT,
+                                'shuffle' => $rendertype->getShuffle(),
+                                'answers' => $answers
+                            ];
+                            break;
                     }
-                    $gaps[] = [
-                        'ident' => $response->getIdent(),
-                        'type' => assClozeGap::TYPE_SELECT,
-                        'shuffle' => $response->getRenderType()->getShuffle(),
-                        'answers' => $answers
-                    ];
-                }
+                    break;
             }
         }
         $feedbacks = [];

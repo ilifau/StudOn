@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\Refinery\Factory;
 use ILIAS\HTTP\GlobalHttpState;
@@ -39,9 +39,9 @@ use ILIAS\Refinery\ConstraintViolationException;
  */
 class ilConditionHandlerGUI
 {
-    private const LIST_MODE_UNDEFINED = 'undefined';
-    private const LIST_MODE_ALL = 'all';
-    private const LIST_MODE_SUBSET = 'subset';
+    private const string LIST_MODE_UNDEFINED = 'undefined';
+    private const string LIST_MODE_ALL = 'all';
+    private const string LIST_MODE_SUBSET = 'subset';
 
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
@@ -65,7 +65,7 @@ class ilConditionHandlerGUI
 
     protected bool $automatic_validation = true;
 
-    public function __construct(int $a_ref_id = null)
+    public function __construct(?int $a_ref_id = null)
     {
         global $DIC;
 

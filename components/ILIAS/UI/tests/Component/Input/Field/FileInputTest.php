@@ -27,8 +27,8 @@ use ILIAS\Data;
 use ILIAS\UI\Component\Input\Field;
 use ILIAS\UI\Implementation\Component as I;
 use ILIAS\UI\Implementation\Component\SignalGenerator;
-use ILIAS\UI\Component\Button\Factory as ButtonFactory;
-use ILIAS\UI\Component\Symbol\Factory as SymbolFactory;
+use ILIAS\UI\Implementation\Component\Button\Factory as ButtonFactory;
+use ILIAS\UI\Implementation\Component\Symbol\Factory as SymbolFactory;
 use ILIAS\FileUpload\Handler\FileInfoResult;
 use ILIAS\UI\Component\Symbol\Glyph\Glyph;
 
@@ -157,8 +157,7 @@ class FileInputTest extends ILIAS_UI_TestBase
                         <div class="ui-input-file-input">
                             <div class="ui-input-file-info"><span data-action="expand"></span><span
                                     data-action="collapse"></span><span data-dz-name></span><span data-dz-size></span><span
-                                    data-action="remove"><a tabindex="0" class="glyph" href="#" aria-label="close"><span
-                                            class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></span><span
+                                    data-action="remove"><button type="button" class="btn btn-link" aria-label="close" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span></button></span><span
                                     class="ui-input-file-input-error-msg" data-dz-error-msg></span></div>
                             <div class="ui-input-file-metadata" style="display: none;"><input id="id_1" type="hidden"
                                     name="name_0[input_0][]" value="" /></div>
@@ -169,7 +168,7 @@ class FileInputTest extends ILIAS_UI_TestBase
                     </template>
                 </div>
                 <div class="ui-input-file-input-dropzone">
-                    <button class="btn btn-link" data-action="#" id="id_2">select_file_from_computer</button>
+                    <button type="button" class="btn btn-link" data-action="#" id="id_2">select_file_from_computer</button>
                     <span class="ui-input-file-input-error-msg" data-dz-error-msg></span>
                 </div>
                 <div class="help-block"> file_notice 0 B | ui_file_upload_max_nr 1</div>
@@ -179,7 +178,7 @@ class FileInputTest extends ILIAS_UI_TestBase
             null,
             'id_3'
         );
-        $this->assertEquals($expected, $this->render($file_input));
+        $this->assertEquals($expected, $this->renderInsideContainer($file_input));
     }
 
     public function testCommonRendering(): void
@@ -224,9 +223,7 @@ class FileInputTest extends ILIAS_UI_TestBase
                             <span data-dz-name>test file name 1</span>
                             <span data-dz-size>1 KB</span>
                             <span data-action="remove">
-                                <a tabindex="0" class="glyph" href="#" aria-label="close">
-                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                </a>
+                                <button type="button" class="btn btn-link" aria-label="close" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span></button>
                             </span>
                             <span class="ui-input-file-input-error-msg" data-dz-error-msg></span>
                         </div>
@@ -241,8 +238,7 @@ class FileInputTest extends ILIAS_UI_TestBase
                         <div class="ui-input-file-input">
                             <div class="ui-input-file-info"><span data-action="expand"></span><span
                                     data-action="collapse"></span><span data-dz-name></span><span data-dz-size></span><span
-                                    data-action="remove"><a tabindex="0" class="glyph" href="#" aria-label="close"><span
-                                            class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></span><span
+                                    data-action="remove"><button type="button" class="btn btn-link" aria-label="close" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span></button></span><span
                                     class="ui-input-file-input-error-msg" data-dz-error-msg></span></div>
                             <div class="ui-input-file-metadata" style="display: none;"><input id="id_2" type="hidden"
                                     name="name_0[input_0][]" value="" /></div>
@@ -253,7 +249,7 @@ class FileInputTest extends ILIAS_UI_TestBase
                     </template>
                 </div>
                 <div class="ui-input-file-input-dropzone">
-                    <button class="btn btn-link" data-action="#" id="id_3">select_file_from_computer</button>
+                    <button type="button" class="btn btn-link" data-action="#" id="id_3">select_file_from_computer</button>
                     <span class="ui-input-file-input-error-msg" data-dz-error-msg></span>
                 </div>
                 <div class="help-block"> file_notice 0 B | ui_file_upload_max_nr 1</div>
@@ -263,7 +259,7 @@ class FileInputTest extends ILIAS_UI_TestBase
             null,
             'id_4'
         );
-        $this->assertEquals($expected, $this->render($file_input));
+        $this->assertEquals($expected, $this->renderInsideContainer($file_input));
     }
 
 
@@ -279,7 +275,7 @@ class FileInputTest extends ILIAS_UI_TestBase
             $metadata_input
         )->withValue([
             [
-                $u->getFileIdentifierParameterName() => "file_id",
+                "file_id",
                 ""
             ]
         ])->withNameFrom($this->name_source);
@@ -291,58 +287,32 @@ class FileInputTest extends ILIAS_UI_TestBase
             <div class="ui-input-file">
                 <div class="ui-input-file-input-list">
                     <div class="ui-input-file-input">
-                        <div class="ui-input-file-info">
-                            <span data-action="expand">
-                                <a tabindex="0" class="glyph" href="#" aria-label="expand_content">
-                                    <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
-                                </a>
-                            </span>
-                            <span data-action="collapse">
-                                <a tabindex="0" class="glyph" href="#" aria-label="collapse_content">
-                                    <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
-                                </a>
-                            </span>
-                            <span data-dz-name></span>
-                            <span data-dz-size></span>
-                            <span data-action="remove">
-                                <a tabindex="0" class="glyph" href="#" aria-label="close">
-                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                </a>
-                            </span>
-                            <span class="ui-input-file-input-error-msg" data-dz-error-msg></span>
-                        </div>
-                        <div class="ui-input-file-metadata" style="display: none;">
-                            <fieldset class="c-input" data-il-ui-component="text-field-input" data-il-ui-input-name="name_0[input_1][]">
-                                <label for="id_1">text_input</label>
-                                <div class="c-input__field">
-                                    <input id="id_1" type="text" name="name_0[input_1][]" class="c-field-text"/>
-                                </div>
+                        <div class="ui-input-file-info"><span data-action="expand"><button type="button" class="btn btn-link" aria-label="expand_content" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span></span></button></span><span data-action="collapse"><button type="button" class="btn btn-link" aria-label="collapse_content" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></span></button></span><span data-dz-name></span><span
+                                data-dz-size></span><span data-action="remove"><button type="button" class="btn btn-link" aria-label="close" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span></button></span><span class="ui-input-file-input-error-msg"
+                                data-dz-error-msg></span></div>
+                        <div class="ui-input-file-metadata" style="display: none;"><input id="id_1" type="hidden"
+                                name="name_0[input_1][]" value="file_id" />
+                            <fieldset class="c-input" data-il-ui-component="text-field-input"
+                                data-il-ui-input-name="name_0[input_2][]"><label for="id_2">text_input</label>
+                                <div class="c-input__field"><input id="id_2" type="text" name="name_0[input_2][]"
+                                        class="c-field-text" /></div>
                             </fieldset>
-                            <input id="id_2" type="hidden" name="name_0[input_2][]" value="file_id"/>
                         </div>
                         <div class="ui-input-file-input-progress-container">
                             <div class="ui-input-file-input-progress-indicator"></div>
                         </div>
-                    </div>
-                    <template>
+                    </div><template>
                         <div class="ui-input-file-input">
-                            <div class="ui-input-file-info"><span data-action="expand"><a tabindex="0" class="glyph"
-                                        href="#" aria-label="expand_content"><span
-                                            class="glyphicon glyphicon-triangle-right"
-                                            aria-hidden="true"></span></a></span><span data-action="collapse"><a
-                                        tabindex="0" class="glyph" href="#" aria-label="collapse_content"><span
-                                            class="glyphicon glyphicon-triangle-bottom"
-                                            aria-hidden="true"></span></a></span><span data-dz-name></span><span
-                                    data-dz-size></span><span data-action="remove"><a tabindex="0" class="glyph" href="#"
-                                        aria-label="close"><span class="glyphicon glyphicon-remove"
-                                            aria-hidden="true"></span></a></span><span class="ui-input-file-input-error-msg"
+                            <div class="ui-input-file-info"><span data-action="expand"><button type="button" class="btn btn-link" aria-label="expand_content" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span></span></button></span><span data-action="collapse"><button type="button" class="btn btn-link" aria-label="collapse_content" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></span></button></span><span data-dz-name></span><span
+                                    data-dz-size></span><span data-action="remove"><button type="button" class="btn btn-link" aria-label="close" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span></button></span><span class="ui-input-file-input-error-msg"
                                     data-dz-error-msg></span></div>
-                            <div class="ui-input-file-metadata" style="display: none;">
+                            <div class="ui-input-file-metadata" style="display: none;"><input id="id_3" type="hidden"
+                                    name="name_0[input_1][]" value="" />
                                 <fieldset class="c-input" data-il-ui-component="text-field-input"
-                                    data-il-ui-input-name="name_0[input_1][]"><label for="id_3">text_input</label>
-                                    <div class="c-input__field"><input id="id_3" type="text" name="name_0[input_1][]"
+                                    data-il-ui-input-name="name_0[input_2][]"><label for="id_4">text_input</label>
+                                    <div class="c-input__field"><input id="id_4" type="text" name="name_0[input_2][]"
                                             class="c-field-text" /></div>
-                                </fieldset><input id="id_4" type="hidden" name="name_0[input_2][]" value="" />
+                                </fieldset>
                             </div>
                             <div class="ui-input-file-input-progress-container">
                                 <div class="ui-input-file-input-progress-indicator"></div>
@@ -350,10 +320,9 @@ class FileInputTest extends ILIAS_UI_TestBase
                         </div>
                     </template>
                 </div>
-                <div class="ui-input-file-input-dropzone">
-                    <button class="btn btn-link" data-action="#" id="id_5">select_file_from_computer</button>
-                    <span class="ui-input-file-input-error-msg" data-dz-error-msg></span>
-                </div>
+                <div class="ui-input-file-input-dropzone"><button type="button" class="btn btn-link" data-action="#"
+                        id="id_5">select_file_from_computer</button><span class="ui-input-file-input-error-msg"
+                        data-dz-error-msg></span></div>
                 <div class="help-block"> file_notice 0 B | ui_file_upload_max_nr 1</div>
             </div>
             ',
@@ -361,7 +330,7 @@ class FileInputTest extends ILIAS_UI_TestBase
             null,
             'id_6',
         );
-        $this->assertEquals($expected, $this->render($file_input));
+        $this->assertEquals($expected, $this->renderInsideContainer($file_input));
     }
 
 
@@ -385,7 +354,7 @@ class FileInputTest extends ILIAS_UI_TestBase
             $metadata_input
         )->withValue([
             [
-                $u->getFileIdentifierParameterName() => $test_file_id,
+                $test_file_id,
                 "test",
             ]
         ])->withNameFrom($this->name_source);
@@ -398,64 +367,32 @@ class FileInputTest extends ILIAS_UI_TestBase
             <div class="ui-input-file">
                 <div class="ui-input-file-input-list">
                     <div class="ui-input-file-input">
-                        <div class="ui-input-file-info">
-                            <span data-action="expand">
-                                <a tabindex="0" class="glyph" href="#" aria-label="expand_content">
-                                    <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
-                                </a>
-                            </span>
-                            <span data-action="collapse">
-                                <a tabindex="0" class="glyph" href="#" aria-label="collapse_content">
-                                    <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
-                                </a>
-                            </span>
-                            <span data-dz-name>test file name 1</span>
-                            <span data-dz-size>1 MB</span>
-                            <span data-action="remove">
-                                <a tabindex="0" class="glyph" href="#" aria-label="close">
-                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                </a>
-                            </span>
-                            <span class="ui-input-file-input-error-msg" data-dz-error-msg></span>
-                        </div>
-                        <div class="ui-input-file-metadata" style="display: none;">
-                            <fieldset class="c-input" data-il-ui-component="text-field-input" data-il-ui-input-name="name_0[input_1][]">
-                                <label for="id_1">text_input</label>
-                                <div class="c-input__field">
-                                    <input id="id_1" type="text" value="test" name="name_0[input_1][]" class="c-field-text"/>
-                                </div>
+                        <div class="ui-input-file-info"><span data-action="expand"><button type="button" class="btn btn-link" aria-label="expand_content" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span></span></button></span><span data-action="collapse"><button type="button" class="btn btn-link" aria-label="collapse_content" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></span></button></span><span data-dz-name>test file name 1</span><span
+                                data-dz-size>1 MB</span><span data-action="remove"><button type="button" class="btn btn-link" aria-label="close" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span></button></span><span class="ui-input-file-input-error-msg"
+                                data-dz-error-msg></span></div>
+                        <div class="ui-input-file-metadata" style="display: none;"><input id="id_1" type="hidden"
+                                name="name_0[input_1][]" value="test_file_id_1" />
+                            <fieldset class="c-input" data-il-ui-component="text-field-input"
+                                data-il-ui-input-name="name_0[input_2][]"><label for="id_2">text_input</label>
+                                <div class="c-input__field"><input id="id_2" type="text" value="test"
+                                        name="name_0[input_2][]" class="c-field-text" /></div>
                             </fieldset>
-                            <input id="id_2" type="hidden" name="name_0[input_2][]" value="test_file_id_1"/>
                         </div>
                         <div class="ui-input-file-input-progress-container">
                             <div class="ui-input-file-input-progress-indicator"></div>
                         </div>
-                    </div>
-                    <template>
+                    </div><template>
                         <div class="ui-input-file-input">
-                            <div class="ui-input-file-info">
-                            <span data-action="expand">
-                                <a tabindex="0" class="glyph" href="#" aria-label="expand_content">
-                                    <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
-                                </a>
-                            </span>
-                            <span data-action="collapse">
-                                <a tabindex="0" class="glyph" href="#" aria-label="collapse_content">
-                                    <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
-                                </a>
-                            </span>
-                            <span data-dz-name></span>
-                            <span data-dz-size></span>
-                            <span
-                                    data-action="remove"><a tabindex="0" class="glyph" href="#" aria-label="close"><span
-                                            class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></span><span
-                                    class="ui-input-file-input-error-msg" data-dz-error-msg></span></div>
-                            <div class="ui-input-file-metadata" style="display: none;">
+                            <div class="ui-input-file-info"><span data-action="expand"><button type="button" class="btn btn-link" aria-label="expand_content" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span></span></button></span><span data-action="collapse"><button type="button" class="btn btn-link" aria-label="collapse_content" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></span></button></span><span data-dz-name></span><span
+                                    data-dz-size></span><span data-action="remove"><button type="button" class="btn btn-link" aria-label="close" data-action=""><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></span></button></span><span class="ui-input-file-input-error-msg"
+                                    data-dz-error-msg></span></div>
+                            <div class="ui-input-file-metadata" style="display: none;"><input id="id_3" type="hidden"
+                                    name="name_0[input_1][]" value="" />
                                 <fieldset class="c-input" data-il-ui-component="text-field-input"
-                                data-il-ui-input-name="name_0[input_1][]"><label for="id_3">text_input</label>
-                                <div class="c-input__field"><input id="id_3" type="text" name="name_0[input_1][]"
-                                        class="c-field-text" /></div>
-                                </fieldset><input id="id_4" type="hidden" name="name_0[input_2][]" value="" />
+                                    data-il-ui-input-name="name_0[input_2][]"><label for="id_4">text_input</label>
+                                    <div class="c-input__field"><input id="id_4" type="text" name="name_0[input_2][]"
+                                            class="c-field-text" /></div>
+                                </fieldset>
                             </div>
                             <div class="ui-input-file-input-progress-container">
                                 <div class="ui-input-file-input-progress-indicator"></div>
@@ -463,10 +400,9 @@ class FileInputTest extends ILIAS_UI_TestBase
                         </div>
                     </template>
                 </div>
-                <div class="ui-input-file-input-dropzone">
-                    <button class="btn btn-link" data-action="#" id="id_5">select_file_from_computer</button>
-                    <span class="ui-input-file-input-error-msg" data-dz-error-msg></span>
-                </div>
+                <div class="ui-input-file-input-dropzone"><button type="button" class="btn btn-link" data-action="#"
+                        id="id_5">select_file_from_computer</button><span class="ui-input-file-input-error-msg"
+                        data-dz-error-msg></span></div>
                 <div class="help-block"> file_notice 0 B | ui_file_upload_max_nr 1</div>
             </div>
             ',
@@ -474,7 +410,7 @@ class FileInputTest extends ILIAS_UI_TestBase
             null,
             'id_6'
         );
-        $this->assertEquals($expected, $this->render($file_input));
+        $this->assertEquals($expected, $this->renderInsideContainer($file_input));
     }
 
     protected function buildButtonFactory(): I\Button\Factory

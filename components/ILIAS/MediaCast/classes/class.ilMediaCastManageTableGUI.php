@@ -27,7 +27,7 @@ use ILIAS\UI\URLBuilderToken;
 
 class ilMediaCastManageTableGUI implements Table\DataRetrieval
 {
-    protected $parent_obj;
+    protected object $parent_obj;
     protected ilTemplate $tpl;
     protected URLBuilder $url_builder;
     protected \ILIAS\HTTP\Services $http;
@@ -119,8 +119,9 @@ class ilMediaCastManageTableGUI implements Table\DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         $cnt = 0;
         foreach ($this->mediacast->getSortedItemsArray() as $item) {
@@ -173,8 +174,9 @@ class ilMediaCastManageTableGUI implements Table\DataRetrieval
     }
 
     public function getTotalRowCount(
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): ?int {
         return count($this->mediacast->getSortedItemsArray());
     }
@@ -239,7 +241,7 @@ class ilMediaCastManageTableGUI implements Table\DataRetrieval
         )->withAsync();
 
         $table = $f->table()
-                   ->data($this->lng->txt("mcst_items"), $this->getColumns(), $this)
+                   ->data($this, $this->lng->txt("mcst_items"), $this->getColumns())
                    ->withActions($actions)
                    ->withRequest($this->http->request());
         return $table;

@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-use ILIAS\components\Database\PDO\FieldDefinition\ForeignKeyConstraints;
+use ILIAS\Database\PDO\FieldDefinition\ForeignKeyConstraints;
 
 /**
  * Class ilDBPdoManager
@@ -26,17 +26,13 @@ use ILIAS\components\Database\PDO\FieldDefinition\ForeignKeyConstraints;
  */
 class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
 {
-    protected \PDO $pdo;
-    protected \ilDBPdo $db_instance;
     protected ?\ilQueryUtils $query_utils = null;
 
     /**
      * ilDBPdoManager constructor.
      */
-    public function __construct(\PDO $pdo, ilDBPdo $db_instance)
+    public function __construct(protected \PDO $pdo, protected \ilDBPdo $db_instance)
     {
-        $this->pdo = $pdo;
-        $this->db_instance = $db_instance;
     }
 
     public function getQueryUtils(): \ilQueryUtils
@@ -64,7 +60,7 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
 
         $sequence_identifier = "_seq";
         while ($data = $r->fetchColumn()) {
-            if (!preg_match("/$sequence_identifier$/um", $data)) {
+            if (!preg_match("/$sequence_identifier$/um", (string) $data)) {
                 $tables[] = $data;
             }
         }
@@ -86,7 +82,7 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
     /**
      * @return string[]
      */
-    public function listSequences(string $database = null): array
+    public function listSequences(?string $database = null): array
     {
         $query = "SHOW TABLES LIKE '%_seq'";
         if (!is_null($database)) {
@@ -95,14 +91,15 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
 
         $res = $this->db_instance->query($query);
 
-        $result = array();
+        $result = [];
         while ($table_name = $this->db_instance->fetchAssoc($res)) {
-            if ($sqn = $this->fixSequenceName(reset($table_name), true)) {
+            $sqn = $this->fixSequenceName(reset($table_name), true);
+            if ($sqn !== '' && $sqn !== '0') {
                 $result[] = $sqn;
             }
         }
         if ($this->db_instance->options['portability'] ?? null) {
-            $result = array_map(
+            return array_map(
                 ($this->db_instance->options['field_case'] === CASE_LOWER ? 'strtolower' : 'strtoupper'),
                 $result
             );
@@ -126,7 +123,7 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
         } elseif (!empty($definition['unique'])) {
             $query .= ' UNIQUE';
         }
-        $fields = array();
+        $fields = [];
         foreach (array_keys($definition['fields']) as $field) {
             $fields[] = $db->quoteIdentifier($field, true);
         }
@@ -140,7 +137,7 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
         $sequence_name = $this->db_instance->quoteIdentifier($this->db_instance->getSequenceName($seq_name));
         $seqcol_name = $this->db_instance->quoteIdentifier(ilDBConstants::SEQUENCE_COLUMNS_NAME);
 
-        $options_strings = array();
+        $options_strings = [];
 
         if (!empty($options['comment'])) {
             $options_strings['comment'] = 'COMMENT = ' . $this->db_instance->quote($options['comment'], 'text');
@@ -168,7 +165,7 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
         }
         $this->pdo->exec($query);
 
-        if ($start == 1) {
+        if ($start === 1) {
             return true;
         }
 
@@ -230,7 +227,7 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
             }
         }
 
-        $rename = array();
+        $rename = [];
         if (!empty($changes['rename']) && is_array($changes['rename'])) {
             foreach ($changes['rename'] as $field_name => $field) {
                 $rename[$field['name']] = $field_name;
@@ -291,7 +288,7 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
         return (bool) $this->pdo->exec($statement);
     }
 
-    public function createTable(string $name, array $fields, array $options = array()): bool
+    public function createTable(string $name, array $fields, array $options = []): bool
     {
         $options['type'] = $this->db_instance->getStorageEngine();
 
@@ -313,7 +310,7 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
         $table = $this->db_instance->quoteIdentifier($table);
         $query = "SHOW COLUMNS FROM $table";
         $result = $this->db_instance->query($query);
-        $return = array();
+        $return = [];
         while ($data = $this->db_instance->fetchObject($result)) {
             $return[] = $data->Field;
         }
@@ -344,7 +341,7 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
         $query = "SHOW INDEX FROM $table";
         $result_set = $this->db_instance->query($query);
 
-        $result = array();
+        $result = [];
         while ($index_data = $this->db_instance->fetchAssoc($result_set)) {
             if (!$index_data[$non_unique]) {
                 $index = $index_data[$key_name] !== 'PRIMARY' ? $this->fixIndexName($index_data[$key_name]) : 'PRIMARY';
@@ -382,11 +379,11 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
         $table = $this->db_instance->quoteIdentifier($table);
         $query = "SHOW INDEX FROM $table";
         $result_set = $this->db_instance->query($query);
-        $indexes = array();
+        $indexes = [];
         while ($index_data = $this->db_instance->fetchAssoc($result_set)) {
             $indexes[] = $index_data;
         }
-        $result = array();
+        $result = [];
         foreach ($indexes as $index_data) {
             if ($index_data[$non_unique] && ($index = $this->fixIndexName($index_data[$key_name]))) {
                 $result[$index] = true;
@@ -416,7 +413,7 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
         $table = $this->db_instance->quoteIdentifier($table, true);
         $name = $this->db_instance->quoteIdentifier($this->db_instance->getIndexName($name), true);
         $query = "CREATE INDEX $name ON $table";
-        $fields = array();
+        $fields = [];
         foreach ($definition['fields'] as $field => $fieldinfo) {
             if (!empty($fieldinfo['length'])) {
                 $fields[] = $this->db_instance->quoteIdentifier($field, true) . '(' . $fieldinfo['length'] . ')';
@@ -495,12 +492,12 @@ class ilDBPdoManager implements ilDBManager, ilDBPdoManagerInterface
         $reference_field_names = $this->db_instance->quoteIdentifier($reference_field_names, true);
         $foreign_key_name = $this->db_instance->quoteIdentifier($foreign_key_name, true);
         $update = '';
-        if ($on_update) {
+        if ($on_update !== null) {
             $on_update = $on_update->value;
             $update = "ON UPDATE $on_update";
         }
         $delete = '';
-        if ($on_delete) {
+        if ($on_delete !== null) {
             $on_delete = $on_delete->value;
             $delete = "ON DELETE $on_delete";
         }

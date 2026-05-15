@@ -87,7 +87,7 @@ If you would like to implement a new component for the framework, you should per
     * @param   string $content
     * @return \ILIAS\UI\Component\Demo\Demo
     **/
-    public function demo($content);
+    public function demo($content): ILIAS\UI\Component\Demo\Demo;
     ```
 
 3. This freshly added function in the factory leads to an error as soon as ILIAS is opened, since the implementation
@@ -212,10 +212,15 @@ If you would like to implement a new component for the framework, you should per
         }
     }
     ```
-9. Next, make the factory return the new component (change demo() of src/UI/Implementation/Factory.php):
+9. Next, make the factory return the new component (change demo() of src/UI/Implementation/Factory.php) and
+   add the return **concrete** type declaration. Please make sure you have read about the
+   [interface segregation and covariance](./docs/segregation-and-covariance.md) and understand it:
 
     ```php
-    return new Component\Demo\Demo($content);
+    public function demo($content): Component\Demo\Demo
+    {
+        return new Component\Demo\Demo($content);
+    }
     ```
 
 10. Then, implement the renderer at src/UI/Implementation/Component/Demo/Demo.php:
@@ -416,20 +421,20 @@ components which may be rendered and checked in your rendering tests. For our de
 class DemoTest extends ILIAS_UI_TestBase
 {
     // ...
-    protected \ILIAS\UI\Component\Button\Factory $button_factory;
-    protected \ILIAS\UI\Component\Button\Standard $button_stub;
+    protected \ILIAS\UI\Implementation\Component\Button\Factory $button_factory;
+    protected \ILIAS\UI\Implementation\Component\Button\Standard $button_stub;
     protected string $button_html;
     
     /** Sets up the button stub which will be rendered internally */
     public function setUp() : void
     {
         // setup the button stub similar to the previous example.
-        $this->button_stub = $this->createMock(\ILIAS\UI\Component\Button\Standard::class);
-        $this->button_html = sha1(\ILIAS\UI\Component\Button\Standard::class);
+        $this->button_stub = $this->createMock(\ILIAS\UI\Implementation\Component\Button\Standard::class);
+        $this->button_html = sha1(\ILIAS\UI\Implementation\Component\Button\Standard::class);
         $this->button_stub->method('getCanonicalName')->willReturn($this->button_html);
     
         // setup the factory so it will return the button stub.
-        $this->button_factory = $this->createMock(\ILIAS\UI\Component\Button\Factory::class);
+        $this->button_factory = $this->createMock(\ILIAS\UI\Implementation\Component\Button\Factory::class);
         $this->button_factory->method('standard')->willReturn($this->button_stub);
         
         // don't forget to call our parent!
@@ -441,11 +446,11 @@ class DemoTest extends ILIAS_UI_TestBase
     {
         return new class ($this->button_factory) extends NoUIFactory {
             public function __construct(
-                protected \ILIAS\UI\Component\Button\Factory $button_factory,
+                protected \ILIAS\UI\Implementation\Component\Button\Factory $button_factory,
             ) {
             }
             
-            public function button(): \ILIAS\UI\Component\Button\Factory
+            public function button(): \ILIAS\UI\Implementation\Component\Button\Factory
             {
                 return $this->button_factory;
             }
@@ -545,7 +550,7 @@ This code snippet shows how to open a modal by clicking on a button:
 ```php
 global $DIC;
 $factory = $DIC->ui()->factory();
-$modal = $factory->modal()->roundtrip('Title', $factory->legacy('Hello World'));
+$modal = $factory->modal()->roundtrip('Title', $factory->legacy()->content('Hello World'));
 $button = $factory->button()->standard('Open Modal', '#')
   ->withOnClick($modal->getShowSignal());
 ```
@@ -560,7 +565,7 @@ This means that a cloned component may trigger the same signals as the original.
  ```php
 global $DIC;
 $factory = $DIC->ui()->factory();
-$modal = $factory->modal()->roundtrip('Title', $factory->legacy('Hello World'));
+$modal = $factory->modal()->roundtrip('Title', $factory->legacy()->content('Hello World'));
 $button1 = $factory->button()->standard('Open Modal', '#')
   ->withOnClick($modal->getShowSignal());
 $button2 = $button1->withLabel('Open the same Modal');   

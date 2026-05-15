@@ -37,10 +37,8 @@ class QuestionResult
         private readonly string $feedback,
         private readonly bool $workedthrough,
         private readonly bool $answered,
-        private readonly int $requested_hints,
         private readonly ?string $content_for_recapitulation,
-        private readonly ?string $autosaved_answer,
-        private readonly int $position,
+        private readonly int $position
     ) {
     }
 
@@ -106,17 +104,8 @@ class QuestionResult
     {
         return $this->content_for_recapitulation;
     }
-    public function getNumberOfRequestedHints(): int
-    {
-        return $this->requested_hints;
-    }
-    public function getAutosavedAnswer(): ?string
-    {
-        return $this->autosaved_answer;
-    }
     public function getPosition(): int
     {
         return $this->position;
     }
-
 }

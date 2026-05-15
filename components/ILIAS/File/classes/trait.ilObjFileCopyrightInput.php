@@ -19,7 +19,6 @@
 declare(strict_types=1);
 
 use ILIAS\UI\Factory;
-use ILIAS\MetaData\Services\ServicesInterface as LOMServices;
 use ILIAS\UI\Implementation\Component\Input\Field\Radio;
 
 /**

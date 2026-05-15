@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,13 +14,15 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use ILIAS\Skill\Access\SkillManagementAccess;
 use ILIAS\Skill\Service\SkillInternalManagerService;
+use ILIAS\UICore\GlobalTemplate;
 
 /**
  * Skill management main GUI class
@@ -198,6 +198,12 @@ class ilObjSkillManagementGUI extends ilObjectGUI
         if ($this->request->getMethod() == "POST"
             && $this->request->getQueryParams()["skill_settings"] == "skill_settings_config") {
             if (!$this->management_access_manager->hasEditManagementSettingsPermission()) {
+                $this->tpl->setOnScreenMessage(
+                    GlobalTemplate::MESSAGE_TYPE_FAILURE,
+                    $this->lng->txt("no_permission"),
+                    true
+                );
+                $this->tpl->setContent($this->ui_ren->render([$form]));
                 return;
             }
 

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,8 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\Skill\Service\SkillAdminGUIRequest;
 
@@ -85,7 +84,7 @@ class ilSkillSelectorGUI extends ilVirtualSkillTreeExplorerGUI
         // we have a tree id like <skl_tree_id>:<skl_template_tree_id>
         // and make a "common" skill id in format <skill_id>:<tref_id>
 
-        $id_parts = explode(":", $a_node["id"]);
+        $id_parts = explode(":", (string) $a_node["id"]);
         if (!isset($id_parts[1]) || $id_parts[1] == 0) {
             // skill in main tree
             $skill_id = $a_node["id"];

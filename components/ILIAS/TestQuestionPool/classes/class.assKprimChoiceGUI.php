@@ -284,7 +284,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $answer_type ??= $this->object->getAnswerType();
 
         $answers = new ilKprimChoiceWizardInputGUI($this->lng->txt('answers'), 'kprimanswers');
-        $answers->setInfo($this->lng->txt('kprim_answers_info'));
+        $answers->setInfo($this->lng->txt('kprim_answers_info') . ' ' . $this->lng->txt('latex_edit_info'));
         $answers->setSize(64);
         $answers->setRequired(true);
         $answers->setAllowMove(true);
@@ -415,7 +415,9 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 
             $template->setCurrentBlock("answer_row");
             $template->setVariable("ANSWER_ID", $answer_id);
-            $template->setVariable("ANSWER_TEXT", ilLegacyFormElementsUtil::prepareTextareaOutput($answer->getAnswertext(), true));
+            $template->setVariable("ANSWER_TEXT", $this->renderLatex(
+                ilLegacyFormElementsUtil::prepareTextareaOutput($answer->getAnswertext(), true)
+            ));
             $template->setVariable('VALUE_TRUE', 1);
             $template->setVariable('VALUE_FALSE', 0);
 
@@ -427,7 +429,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
             $template->parseCurrentBlock();
         }
 
-        $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
+        $template->setVariable("QUESTIONTEXT", $this->renderLatex($this->object->getQuestionForHTMLOutput()));
         $template->setVariable("INSTRUCTIONTEXT", $this->object->getInstructionTextTranslation(
             $this->lng,
             $this->object->getOptionLabel()
@@ -499,7 +501,9 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 
             $template->setCurrentBlock("answer_row");
             $template->setVariable("ANSWER_ID", $answer_id);
-            $template->setVariable("ANSWER_TEXT", ilLegacyFormElementsUtil::prepareTextareaOutput((string) $answer->getAnswertext(), true));
+            $template->setVariable("ANSWER_TEXT", $this->renderLatex(
+                ilLegacyFormElementsUtil::prepareTextareaOutput((string) $answer->getAnswertext(), true)
+            ));
             $template->setVariable('VALUE_TRUE', 1);
             $template->setVariable('VALUE_FALSE', 0);
 
@@ -514,7 +518,9 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         if ($show_inline_feedback && $this->hasInlineFeedback()) {
             $questiontext .= $this->buildFocusAnchorHtml();
         }
-        $template->setVariable("QUESTIONTEXT", ilLegacyFormElementsUtil::prepareTextareaOutput($questiontext, true));
+        $template->setVariable("QUESTIONTEXT", $this->renderLatex(
+            ilLegacyFormElementsUtil::prepareTextareaOutput($questiontext, true)
+        ));
 
         $template->setVariable("INSTRUCTIONTEXT", $this->object->getInstructionTextTranslation(
             $this->lng,
@@ -653,7 +659,9 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
             }
 
             $template->setCurrentBlock("answer_row");
-            $template->setVariable("ANSWER_TEXT", ilLegacyFormElementsUtil::prepareTextareaOutput($answer->getAnswertext(), true));
+            $template->setVariable("ANSWER_TEXT", $this->renderLatex(
+                ilLegacyFormElementsUtil::prepareTextareaOutput($answer->getAnswertext(), true)
+            ));
 
             if ($this->renderPurposeSupportsFormHtml() || $this->isRenderPurposePrintPdf()) {
                 if (isset($user_solution[$answer->getPosition()])) {
@@ -762,7 +770,9 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
                 $fb = $this->object->feedbackOBJ->getSpecificAnswerFeedbackTestPresentation($this->object->getId(), 0, $answer_id);
                 if (strlen($fb)) {
                     $template->setCurrentBlock("feedback");
-                    $template->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($fb, true));
+                    $template->setVariable("FEEDBACK", $this->renderLatex(
+                        ilLegacyFormElementsUtil::prepareTextareaOutput($fb, true)
+                    ));
                     $template->parseCurrentBlock();
                 }
             }
@@ -772,7 +782,9 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
             $fb = $this->object->feedbackOBJ->getSpecificAnswerFeedbackTestPresentation($this->object->getId(), 0, $answer_id);
             if (strlen($fb)) {
                 $template->setCurrentBlock("feedback");
-                $template->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($fb, true));
+                $template->setVariable("FEEDBACK", $this->renderLatex(
+                    ilLegacyFormElementsUtil::prepareTextareaOutput($fb, true)
+                ));
                 $template->parseCurrentBlock();
             }
         }
@@ -784,7 +796,9 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
                 $fb = $this->object->feedbackOBJ->getSpecificAnswerFeedbackTestPresentation($this->object->getId(), 0, $answer_id);
                 if (strlen($fb)) {
                     $template->setCurrentBlock("feedback");
-                    $template->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($fb, true));
+                    $template->setVariable("FEEDBACK", $this->renderLatex(
+                        ilLegacyFormElementsUtil::prepareTextareaOutput($fb, true)
+                    ));
                     $template->parseCurrentBlock();
                 }
             }

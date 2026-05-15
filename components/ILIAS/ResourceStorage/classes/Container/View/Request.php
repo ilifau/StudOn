@@ -20,8 +20,9 @@ declare(strict_types=1);
 
 namespace ILIAS\components\ResourceStorage\Container\View;
 
+use ILIAS\UI\Factory;
+use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 use ILIAS\components\ResourceStorage\URLSerializer;
-use ILIAS\components\ResourceStorage\Container\ContainerResourceManager;
 use ILIAS\components\ResourceStorage\Container\Wrapper\ContainerWrapper;
 
 /**
@@ -31,41 +32,93 @@ final class Request
 {
     use URLSerializer;
 
+    /**
+     * @var int
+     */
     public const MODE_AS_DATA_TABLE = 1;
+    /**
+     * @var int
+     */
     public const MODE_AS_PRESENTATION_TABLE = 2;
+    /**
+     * @var int
+     */
     public const MODE_AS_ITEMS = 3;
+    /**
+     * @var int
+     */
     public const MODE_AS_DECK = 4;
+    /**
+     * @var string
+     */
     public const P_PAGE = 'page';
+    /**
+     * @var string
+     */
     public const P_SORTATION = 'sort';
+    /**
+     * @var string
+     */
     public const BY_CREATION_DATE_DESC = 'by_creation_date_desc';
+    /**
+     * @var string
+     */
     public const BY_CREATION_DATE_ASC = 'by_creation_date_asc';
+    /**
+     * @var string
+     */
     public const BY_TITLE_DESC = 'by_title_desc';
+    /**
+     * @var string
+     */
     public const BY_TITLE_ASC = 'by_title_asc';
+    /**
+     * @var string
+     */
     public const BY_SIZE_DESC = 'by_size_desc';
+    /**
+     * @var string
+     */
     public const BY_SIZE_ASC = 'by_size_asc';
+    /**
+     * @var string
+     */
     public const BY_TYPE_DESC = 'by_type_desc';
+    /**
+     * @var string
+     */
     public const BY_TYPE_ASC = 'by_type_asc';
+    /**
+     * @var string
+     */
     public const P_MODE = 'mode';
+    /**
+     * @var string
+     */
     public const P_PATH = 'path';
+    /**
+     * @var string
+     */
     private const BASE = './';
     private Mode $mode;
     private int $page;
     private string $sortation;
-    private \ILIAS\UI\Factory $ui_factory;
+    private Factory $ui_factory;
     private array $actions = [];
     private \ilLanguage $language;
     private \ILIAS\Refinery\Factory $refinery;
     private int $items_per_page = 20;
     private string $path = self::BASE;
     private ContainerWrapper $wrapper;
+    private ?PathStatusInfo $path_status_info;
 
     public function __construct(
         private \ilCtrlInterface $ctrl,
-        private \ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper $query,
+        private ArrayBasedRequestWrapper $query,
         private Configuration $view_configuration,
     ) {
         global $DIC;
-        $irss = $DIC->resourceStorage();
+        $DIC->resourceStorage();
         $this->ctrl = $DIC->ctrl();
         $this->refinery = $DIC->refinery();
 
@@ -79,6 +132,7 @@ final class Request
             $view_configuration->getContainer()->getIdentification(),
             $this->path
         );
+        $this->path_status_info = $view_configuration->getPathStatusInfo();
     }
 
     public function init(
@@ -90,7 +144,7 @@ final class Request
         $this->ctrl->saveParameter($container_resource_gui, self::P_PATH);
     }
 
-    public function buildURI(string $cmd)
+    public function buildURI(): void
     {
     }
 
@@ -133,7 +187,7 @@ final class Request
         $this->items_per_page = $items_per_page;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->view_configuration->getTitle();
     }
@@ -190,5 +244,10 @@ final class Request
     public function canUserAdministrate(): bool
     {
         return $this->view_configuration->canUserAdministrate();
+    }
+
+    public function getPathStatusInfo(): ?PathStatusInfo
+    {
+        return $this->path_status_info;
     }
 }

@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\examples\Layout\Alignment\Horizontal\EvenlyDistributed;
@@ -26,15 +42,15 @@ function nested()
     $tpl->addCss('assets/ui-examples/css/alignment_examples.css');
 
     $blocks = [
-        $ui_factory->legacy('<div class="example_block fullheight blue">D</div>'),
-        $ui_factory->legacy('<div class="example_block fullheight green">E</div>'),
-        $ui_factory->legacy('<div class="example_block fullheight yellow">F</div>')
+        $ui_factory->legacy()->content('<div class="example_block fullheight blue">D</div>'),
+        $ui_factory->legacy()->content('<div class="example_block fullheight green">E</div>'),
+        $ui_factory->legacy()->content('<div class="example_block fullheight yellow">F</div>')
     ];
 
     $aligned = $ui_factory->layout()->alignment()->horizontal()->evenlyDistributed(
-        $ui_factory->legacy('<div class="example_block bluedark">A</div>'),
-        $ui_factory->legacy('<div class="example_block greendark">B</div>'),
-        $ui_factory->legacy('<div class="example_block yellowdark">C</div>')
+        $ui_factory->legacy()->content('<div class="example_block bluedark">A</div>'),
+        $ui_factory->legacy()->content('<div class="example_block greendark">B</div>'),
+        $ui_factory->legacy()->content('<div class="example_block yellowdark">C</div>')
     );
 
     return $renderer->render(

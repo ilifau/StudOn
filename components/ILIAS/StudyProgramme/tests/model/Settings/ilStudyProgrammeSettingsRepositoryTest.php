@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 class ilStudyProgrammeSettingsRepositoryTest extends \PHPUnit\Framework\TestCase
 {
@@ -42,9 +42,7 @@ class ilStudyProgrammeSettingsRepositoryTest extends \PHPUnit\Framework\TestCase
         return $repo;
     }
 
-    /**
-     * @depends test_init
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('test_init')]
     public function testPRGRepoEditAndUpdate(ilStudyProgrammeSettingsDBRepository $repo)
     {
         $this->markTestSkipped('Failed for some unknown reason.');
@@ -125,9 +123,7 @@ class ilStudyProgrammeSettingsRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($set->getPoints(), 10);
     }
 
-    /**
-     * @depends testPRGRepoEditAndUpdate
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testPRGRepoEditAndUpdate')]
     public function testPRGRepoDelete()
     {
         $this->expectException(\LogicException::class);

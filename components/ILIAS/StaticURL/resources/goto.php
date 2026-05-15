@@ -17,16 +17,17 @@
  *********************************************************************/
 
 /** @noRector */
-
 use ILIAS\StaticURL\Services;
 
 require_once("../vendor/composer/vendor/autoload.php");
-ilInitialisation::initILIAS();
+require_once __DIR__ . '/../artifacts/bootstrap_default.php';
+entry_point('ILIAS Legacy Initialisation Adapter');
 
 global $DIC;
 
 /** @var Services $static_url */
 $static_url = $DIC['static_url'];
+$static_url->handler()->initHandler();
 $static_url->handler()->performRedirect(
     $static_url->builder()->getBaseURI()
 );

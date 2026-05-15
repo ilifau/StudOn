@@ -18,6 +18,7 @@
 
 declare(strict_types=1);
 
+use ILIAS\Test\Results\Data\Repository as TestResultRepository;
 use ILIAS\Test\Scoring\Manual\TestScoring;
 use ILIAS\Test\Logging\TestLogger;
 use ILIAS\Test\Logging\TestQuestionAdministrationInteractionTypes;
@@ -51,6 +52,7 @@ class ilTestCorrectionsGUI
         private readonly RequestDataCollector $testrequest,
         private readonly ilObjTest $test_obj,
         private readonly ilObjUser $scorer,
+        private readonly TestResultRepository $test_result_repository,
     ) {
         $question_id = $this->testrequest->getQuestionId();
         if ($question_id !== 0) {
@@ -78,7 +80,7 @@ class ilTestCorrectionsGUI
         $this->{$command}();
     }
 
-    protected function showQuestion(ilPropertyFormGUI $form = null)
+    protected function showQuestion(?ilPropertyFormGUI $form = null)
     {
         $this->setCorrectionTabsContext($this->question_gui, 'question');
 
@@ -102,7 +104,7 @@ class ilTestCorrectionsGUI
             $this->test_obj,
             $this->scorer,
             $this->database,
-            $this->language
+            $this->test_result_repository
         );
         $scoring->setQuestionId($question_gui->getObject()->getId());
 
@@ -123,7 +125,7 @@ class ilTestCorrectionsGUI
             $this->test_obj,
             $this->scorer,
             $this->database,
-            $this->language
+            $this->test_result_repository
         );
         $scoring->setQuestionId($this->question_gui->getObject()->getId());
 
@@ -168,7 +170,7 @@ class ilTestCorrectionsGUI
             $this->test_obj,
             $this->scorer,
             $this->database,
-            $this->language
+            $this->test_result_repository
         );
         $scoring->setPreserveManualScores(false);
         $scoring->setQuestionId($question_gui->getObject()->getId());
@@ -192,6 +194,9 @@ class ilTestCorrectionsGUI
     {
         $question_gui = $this->question_gui;
         $page_gui = new ilAssQuestionPageGUI($question_gui->getObject()->getId());
+        $page_gui->setFileDownloadLink(
+            $this->ctrl->getLinkTargetByClass(ilObjTestGUI::class, 'downloadFile')
+        );
         $page_gui->setRenderPageContainer(false);
         $page_gui->setEditPreview(true);
         $page_gui->setEnabledTabs(false);
@@ -294,7 +299,7 @@ class ilTestCorrectionsGUI
             $this->test_obj,
             $this->scorer,
             $this->database,
-            $this->language
+            $this->test_result_repository
         );
         $scoring->setPreserveManualScores(true);
         $scoring->setQuestionId($question_index);
@@ -344,6 +349,7 @@ class ilTestCorrectionsGUI
         $this->help->setScreenId('scoringadjust');
         $this->help->setSubScreenId($active_tab_id);
 
+        $this->ctrl->setParameterByClass(self::class, 'q_id', $question_gui->getObject()->getId());
         $this->tabs->addTab(
             'question',
             $this->language->txt('tst_corrections_tab_question'),

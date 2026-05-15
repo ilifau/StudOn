@@ -34,29 +34,26 @@ class DrilldownTest extends ILIAS_UI_TestBase
     protected C\Symbol\Glyph\Glyph $glyph;
     protected C\Button\Standard $button;
     protected C\Divider\Horizontal $divider;
-    protected C\Legacy\Legacy $legacy;
+    protected C\Legacy\Content $legacy;
 
     public function getUIFactory(): NoUIFactory
     {
         return new class () extends NoUIFactory {
-            public function menu(): C\Menu\Factory
+            public function menu(): I\Menu\Factory
             {
                 return new Menu\Factory(
                     new I\SignalGenerator(),
                 );
             }
-            public function button(): C\Button\Factory
+            public function button(): I\Button\Factory
             {
                 return new I\Button\Factory();
             }
-            public function legacy(string $content): C\Legacy\Legacy
+            public function legacy(): I\Legacy\Factory
             {
-                return new I\Legacy\Legacy(
-                    $content,
-                    new I\SignalGenerator()
-                );
+                return new I\Legacy\Factory(new I\SignalGenerator());
             }
-            public function symbol(): \ILIAS\UI\Component\Symbol\Factory
+            public function symbol(): I\Symbol\Factory
             {
                 return new I\Symbol\Factory(
                     new I\Symbol\Icon\Factory(),
@@ -77,7 +74,7 @@ class DrilldownTest extends ILIAS_UI_TestBase
         $this->glyph = $glyph_factory->user('');
         $this->button = $button_factory->standard('', '');
         $this->divider = $divider_factory->horizontal();
-        $this->legacy = $this->getUIFactory()->legacy('');
+        $this->legacy = $this->getUIFactory()->legacy()->content('');
     }
 
     public function testConstruction(): C\Menu\Drilldown
@@ -98,9 +95,7 @@ class DrilldownTest extends ILIAS_UI_TestBase
         return $menu;
     }
 
-    /**
-     * @depends testConstruction
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testConstruction')]
     public function testGetLabel(C\Menu\Drilldown $menu): void
     {
         $this->assertEquals(
@@ -109,9 +104,7 @@ class DrilldownTest extends ILIAS_UI_TestBase
         );
     }
 
-    /**
-     * @depends testConstruction
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testConstruction')]
     public function testGetItems($menu): void
     {
         $this->assertEquals(
@@ -123,10 +116,11 @@ class DrilldownTest extends ILIAS_UI_TestBase
     public function testWithEntries(): C\Menu\Drilldown
     {
         $f = $this->getUIFactory();
+        $glyph_button = $f->button()->shy('', '')->withSymbol($this->glyph);
         $items = array(
             $f->menu()->sub('sub', [
                 $this->button,
-                $this->glyph
+                $glyph_button
             ]),
             $this->divider,
             $this->button
@@ -146,9 +140,7 @@ class DrilldownTest extends ILIAS_UI_TestBase
         $f->menu()->drilldown('label', [$this->legacy]);
     }
 
-    /**
-     * @depends testWithEntries
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testWithEntries')]
     public function testRendering(): void
     {
         $r = $this->getDefaultRenderer();
@@ -172,9 +164,7 @@ class DrilldownTest extends ILIAS_UI_TestBase
         );
     }
 
-    /**
-     * @depends testConstruction
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testConstruction')]
     public function testWithPersistenceId($menu): void
     {
         $this->assertNull($menu->getPersistenceId()) ;

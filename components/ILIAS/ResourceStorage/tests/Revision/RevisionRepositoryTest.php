@@ -18,6 +18,8 @@
 
 namespace ILIAS\ResourceStorage\Revision;
 
+use PHPUnit\Framework\MockObject\MockObject;
+
 require_once(__DIR__ . "/../AbstractTestBase.php");
 
 use ILIAS\ResourceStorage\AbstractTestBase;
@@ -32,14 +34,15 @@ use ILIAS\ResourceStorage\Revision\Repository\RevisionDBRepository;
 class RevisionRepositoryTest extends AbstractTestBase
 {
     /**
-     * @var \ILIAS\ResourceStorage\Resource\StorableFileResource|mixed
+     * @var StorableFileResource|mixed
      */
     public $resource;
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|\ILIAS\ResourceStorage\Resource\InfoResolver\InfoResolver
+     * @var MockObject|InfoResolver
      */
-    private $info_resolver;
+    private MockObject $info_resolver;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -67,8 +70,8 @@ class RevisionRepositoryTest extends AbstractTestBase
             RevisionStatus::DRAFT
         );
 
-        $this->assertEquals(100, $revision->getVersionNumber());
-        $this->assertEquals(RevisionStatus::DRAFT, $revision->getStatus());
+        $this->assertSame(100, $revision->getVersionNumber());
+        $this->assertSame(RevisionStatus::DRAFT, $revision->getStatus());
     }
 
     public function testStream(): void
@@ -88,7 +91,7 @@ class RevisionRepositoryTest extends AbstractTestBase
             RevisionStatus::PUBLISHED
         );
 
-        $this->assertEquals($i, $revision->getVersionNumber());
+        $this->assertSame($i, $revision->getVersionNumber());
     }
 
     public function testClone(): void
@@ -109,7 +112,7 @@ class RevisionRepositoryTest extends AbstractTestBase
             $revision
         );
 
-        $this->assertEquals($i, $revision->getVersionNumber());
-        $this->assertNotEquals($old_revisions_id, $revision->getVersionNumber());
+        $this->assertSame($i, $revision->getVersionNumber());
+        $this->assertNotSame($old_revisions_id, $revision->getVersionNumber());
     }
 }

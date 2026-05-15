@@ -23,9 +23,21 @@
  */
 class ilShibbolethSettings
 {
+    /**
+     * @var string
+     */
     private const PREFIX = 'shib_';
+    /**
+     * @var string
+     */
     private const DEFAULT_IDP_LIST = "urn:mace:organization1:providerID, Example Organization 1\nurn:mace:organization2:providerID, Example Organization 2, /Shibboleth.sso/WAYF/SWITCHaai";
-    private const DEFAULT_LOGIN_BUTTON = "assets/images/auth/shib_login_button.svg";
+    /**
+     * @var string
+     */
+    private const DEFAULT_LOGIN_BUTTON = "./assets/images/auth/shib_login_button.svg";
+    /**
+     * @var string
+     */
     private const DEFAULT_ORGANISATION_SELECTION = "external_wayf";
 
     public const ACCOUNT_CREATION_ENABLED = "enabled";

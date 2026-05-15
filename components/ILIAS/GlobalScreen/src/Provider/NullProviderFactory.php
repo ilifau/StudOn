@@ -22,7 +22,6 @@ namespace ILIAS\GlobalScreen\Provider;
 
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Information\ItemInformation;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Information\NullItemInformation;
-use ILIAS\GlobalScreen\Scope\Footer\Provider\StaticFooterProvider;
 
 /**
  * Class NullProviderFactory

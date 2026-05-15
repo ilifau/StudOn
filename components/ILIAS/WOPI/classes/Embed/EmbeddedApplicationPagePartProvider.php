@@ -28,7 +28,6 @@ use ILIAS\UI\Component\Breadcrumbs\Breadcrumbs;
 use ILIAS\UI\Component\Image\Image;
 use ILIAS\UI\Component\MainControls\Footer;
 use ILIAS\UI\Component\Toast\Container;
-use ILIAS\UI\Component\Legacy\Legacy;
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
@@ -41,7 +40,7 @@ class EmbeddedApplicationPagePartProvider implements PagePartProvider
     ) {
     }
 
-    public function getContent(): ?Legacy
+    public function getContent(): ?Content
     {
         return $this->page_part_provider->getContent();
     }

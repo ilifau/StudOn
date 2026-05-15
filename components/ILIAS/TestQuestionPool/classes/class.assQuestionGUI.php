@@ -632,6 +632,7 @@ abstract class assQuestionGUI
     public function getILIASPage(string $html = ""): string
     {
         $page_gui = new ilAssQuestionPageGUI($this->object->getId());
+        $page_gui->setFileDownloadLink($this->buildFileDownloadLink());
         $page_gui->setQuestionHTML(
             [$this->object->getId() => $html]
         );
@@ -653,7 +654,8 @@ abstract class assQuestionGUI
         $this->lng->loadLanguageModule("content");
 
         $page_gui = new ilAssQuestionPageGUI($this->object->getId());
-        $page_gui->setOutputMode("presentation");
+        $page_gui->setFileDownloadLink($this->buildFileDownloadLink());
+        $page_gui->setOutputMode('presentation');
         $page_gui->setTemplateTargetVar($a_temp_var);
 
         if ($this->getNavigationGUI()) {
@@ -900,13 +902,14 @@ abstract class assQuestionGUI
         if (!$this->object->getSelfAssessmentEditingMode()) {
             if ($this->object->getAdditionalContentEditingMode() !== assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_IPE) {
                 $question->setUseRte(true);
-                $question->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags('assessment'));
+                $question->setRteTags(ilRTESettings::_getUsedHTMLTags('assessment'));
                 $question->setRTESupport($this->object->getId(), 'qpl', 'assessment');
             }
         } else {
             $question->setRteTags(ilAssSelfAssessmentQuestionFormatter::getSelfAssessmentTags());
             $question->setUseTagsForRteOnly(false);
         }
+        $question->setInfo($this->lng->txt('latex_edit_info'));
         $form->addItem($question);
 
         $question_type = new ilHiddenInputGUI('question_type');
@@ -1013,7 +1016,7 @@ abstract class assQuestionGUI
         if ($this->object->isAdditionalContentEditingModePageObject()) {
             return $output;
         }
-        return ilLegacyFormElementsUtil::prepareTextareaOutput($output, true);
+        return $this->renderLatex(ilLegacyFormElementsUtil::prepareTextareaOutput($output, true));
     }
 
     protected function genericFeedbackOutputBuilder(
@@ -1039,17 +1042,19 @@ abstract class assQuestionGUI
 
     public function getGenericFeedbackOutputForCorrectSolution(): string
     {
-        return ilLegacyFormElementsUtil::prepareTextareaOutput(
+        return $this->renderLatex(ilLegacyFormElementsUtil::prepareTextareaOutput(
             $this->object->feedbackOBJ->getGenericFeedbackTestPresentation($this->object->getId(), true),
             true
-        );
+        ));
     }
 
     public function getGenericFeedbackOutputForIncorrectSolution(): string
     {
-        return ilLegacyFormElementsUtil::prepareTextareaOutput(
-            $this->object->feedbackOBJ->getGenericFeedbackTestPresentation($this->object->getId(), false),
-            true
+        return  $this->renderLatex(
+            ilLegacyFormElementsUtil::prepareTextareaOutput(
+                $this->object->feedbackOBJ->getGenericFeedbackTestPresentation($this->object->getId(), false),
+                true
+            )
         );
     }
 
@@ -1098,7 +1103,7 @@ abstract class assQuestionGUI
         $options = $this->getTypeOptions();
 
         $solution_type = $this->ctrl->getCmd() === 'cancelSuggestedSolution'
-            ? $solution->getType()
+            ? $solution?->getType()
             : $this->request_data_collector->string('solutiontype');
         if ($solution_type === SuggestedSolution::TYPE_FILE
             && ($solution === null || $solution->getType() !== SuggestedSolution::TYPE_FILE)
@@ -1556,7 +1561,6 @@ abstract class assQuestionGUI
 
         $this->addTab_Question($tabs_gui);
         $this->addTab_QuestionFeedback($tabs_gui);
-        $this->addTab_QuestionHints($tabs_gui);
         $this->addTab_SuggestedSolution($tabs_gui, static::class);
     }
 
@@ -1609,31 +1613,6 @@ abstract class assQuestionGUI
                 ilAssQuestionFeedbackEditingGUI::class,
                 ilAssQuestionFeedbackEditingGUI::CMD_SHOW
             )
-        );
-    }
-
-    protected function addTab_QuestionHints(ilTabsGUI $tabs): void
-    {
-        switch (strtolower($this->ctrl->getCmdClass())) {
-            case 'ilassquestionhintsgui':
-                $tab_commands = self::getCommandsFromClassConstants(ilAssQuestionHintsGUI::class);
-                break;
-
-            case 'ilassquestionhintgui':
-                $tab_commands = self::getCommandsFromClassConstants(ilAssQuestionHintGUI::class);
-                break;
-
-            default:
-                $tab_commands = [];
-        }
-
-        $this->ctrl->setParameterByClass(ilAssQuestionHintsGUI::class, 'q_id', $this->object->getId());
-        $tabs->addTarget(
-            'tst_question_hints_tab',
-            $this->ctrl->getLinkTargetByClass(ilAssQuestionHintsGUI::class, ilAssQuestionHintsGUI::CMD_SHOW_LIST),
-            $tab_commands,
-            $this->ctrl->getCmdClass(),
-            ''
         );
     }
 
@@ -1790,11 +1769,6 @@ abstract class assQuestionGUI
         return $form;
     }
 
-    public function showHints(): void
-    {
-        $this->ctrl->redirectByClass(ilAssQuestionHintsGUI::class, ilAssQuestionHintsGUI::CMD_SHOW_LIST);
-    }
-
     protected function escapeTemplatePlaceholders(string $text): string
     {
         return str_replace(['{','}'], ['&#123;','&#125;'], $text);
@@ -1918,14 +1892,9 @@ abstract class assQuestionGUI
             }
         }
 
-        // since server side mathjax rendering does include svg-xml structures that indeed have linebreaks,
-        // do latex conversion AFTER replacing linebreaks with <br>. <svg> tag MUST NOT contain any <br> tags.
         if ($prepare_for_latex_output) {
-            $result = ilMathJax::getInstance()->insertLatexImages($result, "\<span class\=\"latex\">", "\<\/span>");
-            $result = ilMathJax::getInstance()->insertLatexImages($result, "\[tex\]", "\[\/tex\]");
-        }
+            $result = ilRTE::replaceLatexSpan($result);
 
-        if ($prepare_for_latex_output) {
             // replace special characters to prevent problems with the ILIAS template system
             // eg. if someone uses {1} as an answer, nothing will be shown without the replacement
             $result = str_replace("{", "&#123;", $result);
@@ -1934,6 +1903,14 @@ abstract class assQuestionGUI
         }
 
         return $result;
+    }
+
+    /**
+     * Wrap content with latex in a LatexContent UI component and render it to be processed by MathJax in the browser
+     */
+    protected function renderLatex($content)
+    {
+        return $this->ui->renderer()->render($this->ui->factory()->legacy()->latexContent($content));
     }
 
     protected ?SuggestedSolutionsDatabaseRepository $suggestedsolution_repo = null;
@@ -1960,7 +1937,7 @@ abstract class assQuestionGUI
             return ilArrayUtil::stripSlashesRecursive(
                 $answer_text,
                 false,
-                ilObjAdvancedEditing::_getUsedHTMLTagsAsString("assessment")
+                ilRTESettings::_getUsedHTMLTagsAsString("assessment")
             );
         }
 
@@ -2069,6 +2046,14 @@ abstract class assQuestionGUI
         );
     }
 
+    public function buildFileDownloadLink(): string
+    {
+        if (strtolower($this->request_data_collector->string('cmdClass')) === 'ilassquestionpreviewgui') {
+            return $this->ctrl->getLinkTargetByClass(ilObjQuestionPoolGUI::class, 'downloadFile');
+        }
+        return $this->ctrl->getLinkTargetByClass(ilObjTestGUI::class, 'downloadFile');
+    }
+
     protected function resetSavedPreviewSession(): void
     {
         $this->preview_session = new ilAssQuestionPreviewSession(
@@ -2077,7 +2062,6 @@ abstract class assQuestionGUI
         );
         $this->preview_session->setRandomizerSeed(null);
         $this->preview_session->setParticipantsSolution(null);
-        $this->preview_session->resetRequestedHints();
         $this->preview_session->setInstantResponseActive(false);
     }
 }

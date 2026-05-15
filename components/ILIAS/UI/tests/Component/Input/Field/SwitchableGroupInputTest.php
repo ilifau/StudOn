@@ -26,7 +26,7 @@ use ILIAS\UI\Implementation\Component as I;
 use ILIAS\UI\Implementation\Component\Input\Field\SwitchableGroup;
 use ILIAS\UI\Implementation\Component\Input\Field\Group;
 use ILIAS\UI\Implementation\Component\Input\NameSource;
-use ILIAS\UI\Implementation\Component\Input\InputData;
+use ILIAS\UI\Component\Input\InputData;
 use ILIAS\Data;
 use ILIAS\UI\Implementation\Component\SignalGenerator;
 use ILIAS\Refinery\Factory as Refinery;
@@ -39,6 +39,10 @@ class Group1 extends Group
 
 class Group2 extends Group
 {
+    public function isClientSideValueOk($value): bool
+    {
+        return parent::isClientSideValueOk($value);
+    }
 }
 
 class SwitchableGroupInputTest extends ILIAS_UI_TestBase
@@ -115,6 +119,7 @@ class SwitchableGroupInputTest extends ILIAS_UI_TestBase
     protected function buildFactory(): I\Input\Field\Factory
     {
         return new I\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\Field\Node\Factory::class),
             $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             new SignalGenerator(),
             $this->data_factory,
@@ -185,12 +190,15 @@ class SwitchableGroupInputTest extends ILIAS_UI_TestBase
             ->expects($this->never())
             ->method("withValue");
         $this->child2
+            ->method('isClientSideValueOk')
+            ->willReturn(true);
+        $this->child2
             ->expects($this->once())
             ->method("withValue")
-            ->with(2)
+            ->with([2])
             ->willReturn($this->child2);
 
-        $new_group = $this->switchable_group->withValue(["child2", 2]);
+        $new_group = $this->switchable_group->withValue(["child2", [2]]);
 
         $this->assertEquals(["child1" => $this->child1, "child2" => $this->child2], $new_group->getInputs());
         $this->assertInstanceOf(SwitchableGroup::class, $new_group);
@@ -463,20 +471,18 @@ class SwitchableGroupInputTest extends ILIAS_UI_TestBase
 EOT;
         $this->assertEquals(
             $this->brutallyTrimHTML($expected),
-            $this->render($sg)
+            $this->renderInsideContainer($sg)
         );
         return $sg;
     }
 
-    /**
-     * @depends testRender
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testRender')]
     public function testRenderWithValue(SG $sg): void
     {
         $r = $this->getDefaultRenderer();
-        $html = $this->render($sg->withValue('g2'));
+        $html = $this->renderInsideContainer($sg->withValue('g2'));
         $expected = '<label for="id_3"><input type="radio" id="id_3" value="g2" checked="checked" />';
-        $this->assertStringContainsString($expected, $this->render($sg->withValue('g2')));
+        $this->assertStringContainsString($expected, $this->renderInsideContainer($sg->withValue('g2')));
     }
 
     public function testRenderWithValueByIndex(): void
@@ -498,7 +504,7 @@ EOT;
         $sg = $f->switchableGroup([$group1, $group2, $group3], $label, $byline);
 
         $expected = '<label for="id_3"><input type="radio" id="id_3" value="1" checked="checked" />';
-        $this->assertStringContainsString($expected, $this->render($sg->withValue('1')));
+        $this->assertStringContainsString($expected, $this->renderInsideContainer($sg->withValue('1')));
     }
 
     public function testCommonRendering(): void
@@ -527,72 +533,4 @@ EOT;
         $this->testWithDisabled($sg);
         $this->testWithAdditionalOnloadCodeRendersId($sg);
     }
-
-    public function testRenderWithDisabledGroupSwitch(): SG
-    {
-        $f = $this->buildFactory();
-        $label = "label";
-        $byline = "byline";
-
-        $group1 = $f->group([
-            "field_1" => $f->text("f", "some field")
-        ]);
-        $group2 = $f->group([
-            "field_2" => $f->text("f2", "some other field")
-        ]);
-
-        $sg = $f->switchableGroup(
-            [
-                "g1" => $group1,
-                "g2" => $group2
-            ],
-            $label,
-            $byline
-        )
-        ->withDisabledGroupSwitch(true)
-        ->withValue('g2');
-
-        $expected = <<<EOT
-<fieldset class="c-input" data-il-ui-component="switchable-group-field-input" data-il-ui-input-name="" tabindex="0">
-    <label>label</label>
-    <div class="c-input__field">
-        <fieldset class="c-input" data-il-ui-component="group-field-input" data-il-ui-input-name="" disabled="disabled">
-            <label for="id_1">
-                <input type="radio" id="id_1" value="g1" disabled/>
-                <span></span>
-            </label>
-            <div class="c-input__field">
-                <fieldset class="c-input" data-il-ui-component="text-field-input" data-il-ui-input-name="" disabled="disabled">
-                    <label for="id_2">f</label>
-                    <div class="c-input__field"><input id="id_2" type="text" class="c-field-text" /></div>
-                    <div class="c-input__help-byline">some field</div>
-                </fieldset>
-            </div>
-        </fieldset>
-        <fieldset class="c-input" data-il-ui-component="group-field-input" data-il-ui-input-name="">
-            <label for="id_3">
-                <input type="radio" id="id_3" value="g2" checked="checked" disabled/>
-                <span></span>
-                <input type="hidden" name="" value="g2" />
-            </label>
-            <div class="c-input__field">
-                <fieldset class="c-input" data-il-ui-component="text-field-input" data-il-ui-input-name=""><label
-                        for="id_4">f2</label>
-                    <div class="c-input__field"><input id="id_4" type="text" class="c-field-text" /></div>
-                    <div class="c-input__help-byline">some other field</div>
-                </fieldset>
-            </div>
-        </fieldset>
-    </div>
-    <div class="c-input__help-byline">byline</div>
-</fieldset>
-EOT;
-        $this->assertEquals(
-            $this->brutallyTrimHTML($expected),
-            $this->render($sg)
-        );
-        return $sg;
-    }
-
-
 }

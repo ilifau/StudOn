@@ -32,9 +32,9 @@ class LegacyTest extends ILIAS_UI_TestBase
     public function getUIFactory(): NoUIFactory
     {
         return new class () extends NoUIFactory {
-            public function legacy(string $content): C\Legacy\Legacy
+            public function legacy(): IC\Legacy\Factory
             {
-                return new IC\Legacy\Legacy($content, new IC\SignalGenerator());
+                return new IC\Legacy\Factory(new IC\SignalGenerator());
             }
         };
     }
@@ -45,17 +45,23 @@ class LegacyTest extends ILIAS_UI_TestBase
 
         $this->assertInstanceOf("ILIAS\\UI\\Factory", $f);
         $this->assertInstanceOf(
-            "ILIAS\\UI\\Component\\Legacy\\Legacy",
-            $f->legacy("Legacy Content")
+            "ILIAS\\UI\\Component\\Legacy\\Content",
+            $f->legacy()->content("Legacy Content")
+        );
+        $this->assertInstanceOf(
+            "ILIAS\\UI\\Component\\Legacy\\LatexContent",
+            $f->legacy()->latexContent("Latex Content")
         );
     }
 
     public function testGetContent(): void
     {
         $f = $this->getUIFactory();
-        $g = $f->legacy("Legacy Content");
+        $g = $f->legacy()->content("Legacy Content");
+        $l = $f->legacy()->latexContent("Latex Content");
 
         $this->assertEquals("Legacy Content", $g->getContent());
+        $this->assertEquals("Latex Content", $l->getContent());
     }
 
 
@@ -64,27 +70,29 @@ class LegacyTest extends ILIAS_UI_TestBase
         $f = $this->getUIFactory();
         $r = $this->getDefaultRenderer();
 
-        $g = $f->legacy("Legacy Content");
+        $g = $f->legacy()->content("Legacy Content");
+        $l = $f->legacy()->latexContent("Latex Content");
+
+        $rendered_latex = '<div style="display: inherit;" class="c-legacy__content--latex">Latex Content</div>';
 
         $this->assertEquals("Legacy Content", $r->render($g));
+        $this->assertEquals($rendered_latex, $r->render($l));
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[\PHPUnit\Framework\Attributes\DoesNotPerformAssertions]
     public function testCreateWithCustomSignal(): void
     {
         $f = $this->getUIFactory();
         $signal_name = 'Custom Signal';
 
-        $f->legacy('')->withCustomSignal($signal_name, '');
+        $f->legacy()->content('')->withCustomSignal($signal_name, '');
     }
 
     public function testGetExistingCustomSignal(): void
     {
         $f = $this->getUIFactory();
         $signal_name = 'Custom Signal';
-        $g = $f->legacy('')->withCustomSignal($signal_name, '');
+        $g = $f->legacy()->content('')->withCustomSignal($signal_name, '');
 
         $this->assertNotNull($g->getCustomSignal($signal_name));
     }
@@ -93,7 +101,7 @@ class LegacyTest extends ILIAS_UI_TestBase
     {
         $f = $this->getUIFactory();
         $signal_name = 'Custom Signal';
-        $g = $f->legacy('');
+        $g = $f->legacy()->content('');
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Signal with name $signal_name is not registered");
@@ -106,7 +114,7 @@ class LegacyTest extends ILIAS_UI_TestBase
         $signal_name_1 = 'Custom Signal 1';
         $signal_name_2 = 'Custom Signal 2';
 
-        $g = $f->legacy('')->withCustomSignal($signal_name_1, '')->withCustomSignal($signal_name_2, '');
+        $g = $f->legacy()->content('')->withCustomSignal($signal_name_1, '')->withCustomSignal($signal_name_2, '');
         $l = $g->getAllCustomSignals();
 
         $this->assertIsArray($l);
@@ -120,7 +128,7 @@ class LegacyTest extends ILIAS_UI_TestBase
         $signal_name_2 = 'Custom Signal 2';
         $custom_code_2 = 'custom_js2();';
 
-        $g = $f->legacy('')
+        $g = $f->legacy()->content('')
             ->withCustomSignal($signal_name_1, $custom_code_1)
             ->withCustomSignal($signal_name_2, $custom_code_2);
         $signal_list = $g->getAllCustomSignals();

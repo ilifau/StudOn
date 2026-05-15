@@ -57,7 +57,8 @@ class MediaObjectRepository
         }
         $this->db->insert('mob_data', [
             'id' => ['integer', $id],
-            'rid' => ['text', $rid]
+            'rid' => ['text', $rid],
+            'last_change' => ['integer', time()]
         ]);
     }
 
@@ -73,7 +74,8 @@ class MediaObjectRepository
         if ($record) {
             return [
                 'id' => (int) $record['id'],
-                'rid' => (string) $record['rid']
+                'rid' => (string) $record['rid'],
+                'last_change' => (int) $record['last_change']
             ];
         }
 
@@ -101,6 +103,29 @@ class MediaObjectRepository
             return $rec["rid"] ?? "";
         }
         return "";
+    }
+
+    public function getLastChangeTimestamp(int $mob_id): int
+    {
+        $set = $this->db->queryF(
+            "SELECT last_change FROM mob_data " .
+            " WHERE id = %s ",
+            ["integer"],
+            [$mob_id]
+        );
+        if ($rec = $this->db->fetchAssoc($set)) {
+            return (int) ($rec["last_change"] ?? 0);
+        }
+        return 0;
+    }
+
+    public function updateLastChangeTimestamp(int $mob_id, int $timestamp): void
+    {
+        $this->db->update(
+            'mob_data',
+            ['last_change' => ['integer', $timestamp]],
+            ['id' => ['integer', $mob_id]]
+        );
     }
 
     public function addFileFromLegacyUpload(int $mob_id, string $tmp_name, string $target_path = ""): void
@@ -197,7 +222,7 @@ class MediaObjectRepository
     public function getInfoOfEntry(
         int $mob_id,
         string $path
-    ) {
+    ): array {
         return $this->irss->getContainerEntryInfo(
             $this->getRidForMobId($mob_id),
             $path

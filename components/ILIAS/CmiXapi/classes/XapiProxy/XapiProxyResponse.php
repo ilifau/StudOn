@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 namespace XapiProxy;
 
@@ -36,33 +37,18 @@ class XapiProxyResponse
         $this->xapiproxy = $xapiproxy;
     }
 
-    public function checkResponse(array $response, string $endpoint): bool
+    public function checkResponse(\GuzzleHttp\Psr7\Response $response, string $endpoint): bool
     {
-        if ($response['state'] == 'fulfilled') {
-            $status = $response['value']->getStatusCode();
-            if ($status === 200 || $status === 204 || $status === 404) {
-                return true;
-            } else {
-                $this->xapiproxy->log()->error("LRS error {$endpoint}: " . $response['value']->getBody());
-                return false;
-            }
+        $status = $response->getStatusCode();
+        if ($status === 200 || $status === 204 || $status === 404) {
+            return true;
         } else {
-            try {
-                $this->xapiproxy->log()->error("Connection error {$endpoint}: " . $response['reason']->getMessage());
-            } catch (\Exception $e) {
-                $this->xapiproxy->log()->error("error {$endpoint}:" . $e->getMessage());
-            }
+            $this->xapiproxy->log()->error("LRS error {$endpoint}: " . $response->getBody());
             return false;
         }
     }
 
-    /**
-     * @param Request           $request
-     * @param Response          $response
-     * @param array|string|null $fakePostBody
-     * @return void
-     */
-    public function handleResponse(Request $request, Response $response, array|string $fakePostBody = null): void
+    public function handleResponse(\Psr\Http\Message\RequestInterface $request, Response $response, array|string|null $fakePostBody = null): void
     {
         // check transfer encoding bug
         if ($fakePostBody !== null) {
@@ -91,7 +77,7 @@ class XapiProxyResponse
      * @param array|string|null $post
      * @return void
      */
-    public function fakeResponseBlocked(array|string $post = null): void
+    public function fakeResponseBlocked(array|string|null $post = null): void
     {
         $this->xapiproxy->log()->debug($this->msg("fakeResponseFromBlockedRequest"));
         if ($post === null) {

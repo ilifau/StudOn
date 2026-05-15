@@ -39,7 +39,7 @@ class UserCountry implements Condition
 
     public function asComponent(): Component
     {
-        return $this->create->legacy(sprintf(
+        return $this->create->legacy()->content(sprintf(
             '<div><b>%s</b><br/>%s</div>',
             $this->definition->translatedType(),
             $this->definition->translatedCountry($this->criterion->arguments()['country'] ?? '')
@@ -48,7 +48,7 @@ class UserCountry implements Condition
 
     public function eval(ilObjUser $user): bool
     {
-        return strtoupper($user->getSelectedCountry()) === strtoupper($this->criterion->arguments()['country']);
+        return strtoupper($user->getCountry()) === strtoupper($this->criterion->arguments()['country']);
     }
 
     public function definition(): ConditionDefinition

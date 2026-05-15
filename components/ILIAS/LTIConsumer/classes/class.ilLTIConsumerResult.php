@@ -115,6 +115,7 @@ class ilLTIConsumerResult
         $this->obj_id = (int) $data['obj_id'];
         $this->usr_id = (int) $data['usr_id'];
         $this->result = $data['result'] == null ? null : (float) $data['result'];
+        $this->attended = (bool) $data['attended'];
     }
 
     /**
@@ -154,16 +155,6 @@ class ilLTIConsumerResult
         return true;
     }
 
-    public function isAttended(): bool
-    {
-        return $this->attended;
-    }
-
-    public function setAttended(bool $attended): void
-    {
-        $this->attended = $attended;
-    }
-
     public function getId(): int
     {
         return $this->id;
@@ -182,6 +173,16 @@ class ilLTIConsumerResult
     public function getResult(): ?float
     {
         return $this->result;
+    }
+
+    public function isAttended(): bool
+    {
+        return $this->attended;
+    }
+
+    public function setAttended(bool $attended): void
+    {
+        $this->attended = $attended;
     }
 
     /**

@@ -40,7 +40,7 @@ class ilDclCreateViewTableGUI extends ilTable2GUI
 
         $ilCtrl->saveParameter($this, 'tableview_id');
         $this->setFormAction($ilCtrl->getFormActionByClass('ildclcreateviewdefinitiongui'));
-        $this->addCommandButton('saveTable', $lng->txt('dcl_save'));
+        $this->addCommandButton('saveTable', $lng->txt('save'));
 
         $this->setExternalSegmentation(true);
         $this->setExternalSorting(true);
@@ -49,7 +49,6 @@ class ilDclCreateViewTableGUI extends ilTable2GUI
         $this->setTopCommands(true);
         $this->setEnableHeader(true);
         $this->setShowRowsSelector(false);
-        $this->setShowTemplates(false);
         $this->setEnableHeader(true);
         $this->setEnableTitle(true);
         $this->setDefaultOrderDirection('asc');

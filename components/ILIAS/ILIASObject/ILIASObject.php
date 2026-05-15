@@ -33,8 +33,12 @@ class ILIASObject implements Component\Component
         array | \ArrayAccess &$internal,
     ): void {
         $contribute[\ILIAS\Setup\Agent::class] = static fn() =>
-            new \ILIAS\Object\Setup\ilObjectSetupAgent(
+            new \ILIAS\ILIASObject\Setup\Agent(
                 $pull[\ILIAS\Refinery\Factory::class]
             );
+        $contribute[Component\Resource\PublicAsset::class] = fn() =>
+            new Component\Resource\ComponentJS($this, "ilContainer.js");
+        $contribute[Component\Resource\PublicAsset::class] = fn() =>
+            new Component\Resource\ComponentJS($this, "ilCopyRedirection.js");
     }
 }

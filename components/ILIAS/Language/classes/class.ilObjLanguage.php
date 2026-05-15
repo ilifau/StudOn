@@ -87,6 +87,23 @@ class ilObjLanguage extends ilObject
 
 
     /**
+     * Return the language keys of the installed languages
+     *
+     * @return array
+     */
+    public static function getLangKeysOfInstalledLanguages(): array
+    {
+        $lang_keys = [];
+        foreach (ilObject::_getObjectsByType("lng") as $lang) {
+            if ($lang['desc'] === 'installed') {
+                $lang_keys[] = $lang['title'];
+            }
+        }
+        return $lang_keys;
+    }
+
+
+    /**
      * get language key
      *
      * Return language key
@@ -270,7 +287,7 @@ class ilObjLanguage extends ilObject
      * Refresh languages of activated plugins
      * $a_lang_keys    keys of languages to be refreshed (not yet supported, all available will be refreshed)
      */
-    public static function refreshPlugins(array $a_lang_keys = null): void
+    public static function refreshPlugins(?array $a_lang_keys = null): void
     {
         global $DIC;
 
@@ -508,8 +525,8 @@ class ilObjLanguage extends ilObject
         string $a_identifier,
         string $a_lang_key,
         string $a_value,
-        string $a_local_change = null,
-        string $a_remarks = null
+        ?string $a_local_change = null,
+        ?string $a_remarks = null
     ): bool {
         global $DIC;
         $ilDB = $DIC->database();
@@ -555,8 +572,8 @@ class ilObjLanguage extends ilObject
         string $a_identifier,
         string $a_lang_key,
         string $a_value,
-        string $a_local_change = null,
-        string $a_remarks = null
+        ?string $a_local_change = null,
+        ?string $a_remarks = null
     ): void {
         global $DIC;
         $ilDB = $DIC->database();

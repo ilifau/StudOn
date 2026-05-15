@@ -23,9 +23,9 @@ declare(strict_types=1);
  */
 class ilMDSettingsControllerGUI
 {
-    protected const OER_SETTINGS_TAB = 'md_oer_settings';
-    protected const COPYRIGHT_CONFIG_TAB = 'md_copyright_config';
-    protected const VOCABULARIES_TAB = 'md_vocabularies';
+    protected const string OER_SETTINGS_TAB = 'md_oer_settings';
+    protected const string COPYRIGHT_CONFIG_TAB = 'md_copyright_config';
+    protected const string VOCABULARIES_TAB = 'md_vocabularies';
 
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
@@ -57,10 +57,7 @@ class ilMDSettingsControllerGUI
 
         $this->setTabs();
 
-        if (
-            !$this->access_service->hasCurrentUserVisibleAccess() ||
-            !$this->access_service->hasCurrentUserReadAccess()
-        ) {
+        if (!$this->access_service->hasCurrentUserReadAccess()) {
             throw new ilPermissionException($this->lng->txt('no_permission'));
         }
 
@@ -95,10 +92,7 @@ class ilMDSettingsControllerGUI
 
     protected function setTabs(): void
     {
-        if (
-            !$this->access_service->hasCurrentUserVisibleAccess() ||
-            !$this->access_service->hasCurrentUserReadAccess()
-        ) {
+        if (!$this->access_service->hasCurrentUserReadAccess()) {
             return;
         }
 

@@ -1,17 +1,5 @@
 <?php
 
-use ILIAS\UI\Component\Table\DataRetrieval;
-use ILIAS\UI\Component\Table\DataRowBuilder;
-use ILIAS\Data\Range;
-use ILIAS\Data\Order;
-use Psr\Http\Message\ServerRequestInterface AS HttpRequest;
-use ILIAS\UI\Factory as UIFactory;
-use ILIAS\UI\Renderer AS UIRenderer;
-use ILIAS\Data\Factory as DataFactory;
-use ILIAS\UI\URLBuilder;
-use ILIAS\UI\Component\Table\Data AS DataTable;
-use ILIAS\UI\URLBuilderToken;
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -28,6 +16,17 @@ use ILIAS\UI\URLBuilderToken;
  *
  *********************************************************************/
 
+use ILIAS\UI\Component\Table\DataRetrieval;
+use ILIAS\UI\Component\Table\DataRowBuilder;
+use ILIAS\Data\Range;
+use ILIAS\Data\Order;
+use Psr\Http\Message\ServerRequestInterface as HttpRequest;
+use ILIAS\UI\Factory as UIFactory;
+use ILIAS\UI\Renderer as UIRenderer;
+use ILIAS\Data\Factory as DataFactory;
+use ILIAS\UI\URLBuilder;
+use ILIAS\UI\Component\Table\Data as DataTable;
+use ILIAS\UI\URLBuilderToken;
 
 class ilBiblLibraryTableGUI implements DataRetrieval
 {
@@ -66,9 +65,9 @@ class ilBiblLibraryTableGUI implements DataRetrieval
     private function buildTable(): DataTable
     {
         return $this->ui_factory->table()->data(
+            $this,
             $this->lng->txt('bibl_settings_libraries'),
             $this->getColumns(),
-            $this
         )->withActions(
             $this->getActions()
         )->withRange(
@@ -156,8 +155,9 @@ class ilBiblLibraryTableGUI implements DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): Generator {
         $records = $this->getRecords($range, $order);
         foreach ($records as $record) {
@@ -167,13 +167,16 @@ class ilBiblLibraryTableGUI implements DataRetrieval
     }
 
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         return count($this->getRecords());
     }
 
 
-    private function getRecords(Range $range = null, Order $order = null): array
+    private function getRecords(?Range $range = null, ?Order $order = null): array
     {
         $records = [];
         $libraries = $this->facade->libraryFactory()->getAll();
@@ -186,15 +189,15 @@ class ilBiblLibraryTableGUI implements DataRetrieval
             ];
         }
 
-        if ($order) {
-            [$order_field, $order_direction] = $order->join([], fn($ret, $key, $value) => [$key, $value]);
-            usort($records, static fn($a, $b) => $a[$order_field] <=> $b[$order_field]);
+        if ($order !== null) {
+            [$order_field, $order_direction] = $order->join([], fn($ret, $key, $value): array => [$key, $value]);
+            usort($records, static fn($a, $b): int => $a[$order_field] <=> $b[$order_field]);
             if ($order_direction === 'DESC') {
                 $records = array_reverse($records);
             }
         }
-        if ($range) {
-            $records = array_slice($records, $range->getStart(), $range->getLength());
+        if ($range !== null) {
+            return array_slice($records, $range->getStart(), $range->getLength());
         }
 
         return $records;

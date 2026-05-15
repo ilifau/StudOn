@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -13,28 +14,28 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
 use ILIAS\MyStaff\ilMyStaffAccess;
-use ILIAS\components\EmployeeTalk\Talk\Repository\IliasDBEmployeeTalkRepository;
 use ILIAS\EmployeeTalk\UI\ControlFlowCommand;
+use ILIAS\User\Profile\PublicProfileGUI;
 
 /**
  * Class ilMStShowUserGUI
  * @author            Martin Studer <ms@studer-raimann.ch>
  * @ilCtrl_IsCalledBy ilMStShowUserGUI: ilMyStaffGUI
  * @ilCtrl_Calls      ilMStShowUserGUI: ilUserCertificateGUI
+ * @ilCtrl_Calls      ilMStShowUserGUI: ILIAS\User\Profile\PublicProfileGUI
  */
 class ilMStShowUserGUI
 {
-    public const CMD_INDEX = 'index';
-    public const CMD_SHOW_USER = 'showUser';
-    public const TAB_SHOW_USER = 'show_user';
-    public const TAB_SHOW_COURSES = 'show_courses';
-    public const TAB_SHOW_CERTIFICATES = 'show_certificates';
-    public const TAB_SHOW_COMPETENCES = 'show_competences';
-    public const TAB_SHOW_TALKS = 'show_talks';
+    public const string CMD_INDEX = 'index';
+    public const string CMD_SHOW_USER = 'showUser';
+    public const string TAB_SHOW_USER = 'show_user';
+    public const string TAB_SHOW_COURSES = 'show_courses';
+    public const string TAB_SHOW_CERTIFICATES = 'show_certificates';
+    public const string TAB_SHOW_COMPETENCES = 'show_competences';
+    public const string TAB_SHOW_TALKS = 'show_talks';
 
     protected int $usr_id;
     protected ilMyStaffAccess $access;
@@ -142,7 +143,7 @@ class ilMStShowUserGUI
             $DIC->ctrl()->redirectByClass(self::class, self::CMD_INDEX);
         }
 
-        $pub_profile = new ilPublicUserProfileGUI($this->usr_id);
+        $pub_profile = new PublicProfileGUI($this->usr_id);
         $DIC->ui()->mainTemplate()->setContent($pub_profile->getEmbeddable());
     }
 

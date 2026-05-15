@@ -24,11 +24,10 @@ use ILIAS\HTTP\Services as HTTPServices;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\Refinery\Transformation;
 use ILIAS\Repository\BaseGUIRequest;
+use ILIAS\TestQuestionPool\RequestDataCollectorInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-use function array_map;
-
-class RequestDataCollector
+class RequestDataCollector implements RequestDataCollectorInterface
 {
     use BaseGUIRequest;
 
@@ -58,13 +57,13 @@ class RequestDataCollector
 
     public function getRefId(): int
     {
-        return $this->int("ref_id");
+        return $this->int('ref_id');
     }
 
     /** @return string[] */
     public function getIds(): array
     {
-        return $this->strArray("id");
+        return $this->strArray('id');
     }
 
     public function hasQuestionId(): bool
@@ -185,16 +184,27 @@ class RequestDataCollector
         );
     }
 
+    public function getRowIdParameter(string $key): string|int
+    {
+        return $this->get($key, $this->refinery->byTrying([
+            $this->refinery->kindlyTo()->int(),
+            $this->refinery->kindlyTo()->string(),
+            $this->refinery->custom()->transformation(fn(array $v): string|int => $v[0])
+        ]));
+    }
+
     /**
      * @return array|string<int>
      */
     public function getMultiSelectionIds(string $key): array|string
     {
-        if (!$this->http->wrapper()->query()->has($key)) {
+        $query = $this->http->wrapper()->query();
+
+        if (!$query->has($key)) {
             return [];
         }
 
-        return $this->http->wrapper()->query()->retrieve(
+        return $query->retrieve(
             $key,
             $this->refinery->custom()->transformation(
                 static fn($v): array|string => $v === 'ALL_OBJECTS' || $v[0] === 'ALL_OBJECTS'

@@ -18,9 +18,6 @@
 
 declare(strict_types=1);
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class ilApiUserCertificateRepositoryTest extends ilCertificateBaseTestCase
 {
     private \ilDBInterface&\PHPUnit\Framework\MockObject\MockObject $database;
@@ -28,6 +25,7 @@ class ilApiUserCertificateRepositoryTest extends ilCertificateBaseTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->database = $this->createMock(ilDBInterface::class);
         $this->controller = $this->createMock(ilCtrlInterface::class);
     }

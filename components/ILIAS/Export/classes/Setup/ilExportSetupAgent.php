@@ -28,7 +28,7 @@ use ILIAS\Setup\ObjectiveCollection;
 
 class ilExportSetupAgent extends NullAgent
 {
-    public function getUpdateObjective(Config $config = null): Objective
+    public function getUpdateObjective(?Config $config = null): Objective
     {
         return new ObjectiveCollection(
             "Export",

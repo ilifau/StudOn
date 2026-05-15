@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace ILIAS\components\ResourceStorage\Container\DataProvider;
 
 use ILIAS\components\ResourceStorage\Container\View\Request;
-use ILIAS\components\ResourceStorage\Container\ContainerResourceManager;
 use ILIAS\components\ResourceStorage\Container\Wrapper\Dir;
 use ILIAS\components\ResourceStorage\Container\Wrapper\File;
 
@@ -30,13 +29,10 @@ use ILIAS\components\ResourceStorage\Container\Wrapper\File;
  */
 final class TableDataProvider
 {
-    private \ILIAS\ResourceStorage\Services $irss;
-
     public function __construct(
         private Request $view_request,
     ) {
         global $DIC;
-        $this->irss = $DIC->resourceStorage();
     }
 
     public function getViewRequest(): Request
@@ -62,37 +58,26 @@ final class TableDataProvider
         $current_level = $this->view_request->getPath();
 
         $entries_at_current_level = iterator_to_array(
-            $this->view_request->getWrapper()->getEntries(
-                $current_level
-            )
+            $this->view_request->getWrapper()->getEntries()
         );
 
         /** @var Dir[]|File[] $entries_at_current_level */
-        usort($entries_at_current_level, function (File|Dir $a, File|Dir $b) {
+        usort($entries_at_current_level, function (File|Dir $a, File|Dir $b): int {
             $size_a = $a instanceof Dir ? 0 : $a->getSize();
             $size_b = $b instanceof Dir ? 0 : $b->getSize();
             $type_a = $a instanceof Dir ? '' : $a->getMimeType();
             $type_b = $b instanceof Dir ? '' : $b->getMimeType();
-            switch ($this->view_request->getSortation()) {
-                case Request::BY_CREATION_DATE_DESC:
-                    return $b->getModificationDate()->getTimestamp() <=> $a->getModificationDate()->getTimestamp();
-                case Request::BY_CREATION_DATE_ASC:
-                    return $b->getModificationDate()->getTimestamp() <=> $a->getModificationDate()->getTimestamp();
-                case Request::BY_SIZE_DESC:
-                    return $size_a - $size_b;
-                case Request::BY_SIZE_ASC:
-                    return $size_b - $size_a;
-                case Request::BY_TITLE_DESC:
-                    return strcasecmp($b->getTitle(), $a->getTitle());
-                case Request::BY_TITLE_ASC:
-                    return strcasecmp($a->getTitle(), $b->getTitle());
-                case Request::BY_TYPE_DESC:
-                    return strcasecmp($type_a, $type_b);
-                case Request::BY_TYPE_ASC:
-                    return strcasecmp($type_b, $type_a);
-                default:
-                    return strcasecmp($a->getTitle(), $b->getTitle());
-            }
+            return match ($this->view_request->getSortation()) {
+                Request::BY_CREATION_DATE_DESC => $a->getModificationDate()->getTimestamp() <=> $b->getModificationDate()->getTimestamp(),
+                Request::BY_CREATION_DATE_ASC => $b->getModificationDate()->getTimestamp() <=> $a->getModificationDate()->getTimestamp(),
+                Request::BY_SIZE_DESC => $size_a - $size_b,
+                Request::BY_SIZE_ASC => $size_b - $size_a,
+                Request::BY_TITLE_DESC => strcasecmp($b->getTitle(), $a->getTitle()),
+                Request::BY_TITLE_ASC => strcasecmp($a->getTitle(), $b->getTitle()),
+                Request::BY_TYPE_DESC => strcasecmp($type_a, $type_b),
+                Request::BY_TYPE_ASC => strcasecmp($type_b, $type_a),
+                default => strcasecmp($a->getTitle(), $b->getTitle()),
+            };
         });
 
         return $entries_at_current_level;

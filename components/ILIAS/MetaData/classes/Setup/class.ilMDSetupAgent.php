@@ -23,7 +23,7 @@ use ILIAS\Setup\Config;
 
 class ilMDSetupAgent extends Setup\Agent\NullAgent
 {
-    public function getUpdateObjective(Setup\Config $config = null): Setup\Objective
+    public function getUpdateObjective(?Setup\Config $config = null): Setup\Objective
     {
         return new Setup\ObjectiveCollection(
             'MetaData',
@@ -31,7 +31,8 @@ class ilMDSetupAgent extends Setup\Agent\NullAgent
             new ilDatabaseUpdateStepsExecutedObjective(new ilMDLOMUpdateSteps()),
             new ilDatabaseUpdateStepsExecutedObjective(new ilMDCopyrightUpdateSteps()),
             new ilDatabaseUpdateStepsExecutedObjective(new ilMDUpdateSteps10()),
-            new ilDatabaseUpdateStepsExecutedObjective(new ilMDControlledVocabsUpdateSteps())
+            new ilDatabaseUpdateStepsExecutedObjective(new ilMDControlledVocabsUpdateSteps()),
+            new ilDatabaseUpdateStepsExecutedObjective(new ilMDUpdateSteps11())
         );
     }
 
@@ -43,7 +44,8 @@ class ilMDSetupAgent extends Setup\Agent\NullAgent
             new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilMDCopyrightUpdateSteps()),
             new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilMDLOMUpdateSteps()),
             new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilMDUpdateSteps10()),
-            new ilDatabaseUpdateStepsExecutedObjective(new ilMDControlledVocabsUpdateSteps())
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilMDControlledVocabsUpdateSteps()),
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilMDUpdateSteps10()),
         );
     }
 

@@ -35,9 +35,9 @@ class ilUserCertificateRepository
     private readonly ?Factory $uuid_factory;
 
     public function __construct(
-        ilDBInterface $database = null,
-        ilLogger $logger = null,
-        string $defaultTitle = null,
+        ?ilDBInterface $database = null,
+        ?ilLogger $logger = null,
+        ?string $defaultTitle = null,
         ?Factory $uuid_factory = null,
     ) {
         if (null === $database) {
@@ -98,17 +98,9 @@ class ilUserCertificateRepository
             'ilias_version' => ['text', $userCertificate->getIliasVersion()],
             'currently_active' => ['integer', (int) $userCertificate->isCurrentlyActive()],
             'background_image_ident' => ['text', $userCertificate->getBackgroundImageIdentification()],
-            'thumbnail_image_ident' => ['text', $userCertificate->getThumbnailImageIdentification()],
+            'tile_image_ident' => ['text', $userCertificate->getTileImageIdentification()],
             'certificate_id' => ['text', $userCertificate->getCertificateId()->asString()]
         ];
-
-        if (
-            $this->database->tableColumnExists('il_cert_user_cert', 'background_image_path') &&
-            $this->database->tableColumnExists('il_cert_user_cert', 'thumbnail_image_path')
-        ) {
-            $columns['background_image_path'] = ['text', $userCertificate->getBackgroundImagePath()];
-            $columns['thumbnail_image_path'] = ['text', $userCertificate->getThumbnailImagePath()];
-        }
 
         $this->logger->debug(
             sprintf(
@@ -564,14 +556,14 @@ AND  usr_id = ' . $this->database->quote($userId, 'integer');
     {
         $this->logger->debug(
             sprintf(
-                'START - Checking if any certificate template uses background image path "%s"',
+                'START - Checking if any certificate template uses background image identification "%s"',
                 $relative_image_identification
             )
         );
 
         $result = $this->database->queryF(
             'SELECT EXISTS(SELECT 1 FROM ' . self::TABLE_NAME . ' WHERE 
-            (background_image_ident = %s OR thumbnail_image_ident = %s)
+            (background_image_ident = %s OR tile_image_ident = %s)
              AND currently_active = 1) AS does_exist',
             ['text', 'text'],
             [$relative_image_identification, $relative_image_identification]
@@ -581,7 +573,7 @@ AND  usr_id = ' . $this->database->quote($userId, 'integer');
 
         $this->logger->debug(
             sprintf(
-                'END - Image path "%s" is ' . $exists ? 'in use' : 'unused',
+                'END - Image identification "%s" is ' . $exists ? 'in use' : 'unused',
                 $relative_image_identification
             )
         );
@@ -608,10 +600,8 @@ AND  usr_id = ' . $this->database->quote($userId, 'integer');
             $row['ilias_version'],
             (bool) $row['currently_active'],
             new CertificateId($row['certificate_id']),
-            (string) ($row['background_image_path'] ?? ''),
-            (string) ($row['thumbnail_image_path'] ?? ''),
             (string) $row['background_image_ident'],
-            (string) $row['thumbnail_image_ident'],
+            (string) $row['tile_image_ident'],
             isset($row['id']) ? (int) $row['id'] : null
         );
     }

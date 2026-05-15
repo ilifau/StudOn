@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
@@ -55,9 +55,7 @@ class LSSettingsTest extends TestCase
         return $object;
     }
 
-    /**
-     * @depends testCreate
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testCreate')]
     public function testWithAbstract(ilLearningSequenceSettings $object)
     {
         $new_object = $object->withAbstract("teststring");
@@ -77,9 +75,7 @@ class LSSettingsTest extends TestCase
         $this->assertEquals($new_object->getMembersGallery(), self::TO_MEMBERS_GALLERY);
     }
 
-    /**
-     * @depends testCreate
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testCreate')]
     public function testWithExtro(ilLearningSequenceSettings $object)
     {
         $new_object = $object->withExtro("teststring");
@@ -99,9 +95,7 @@ class LSSettingsTest extends TestCase
         $this->assertEquals($new_object->getMembersGallery(), self::TO_MEMBERS_GALLERY);
     }
 
-    /**
-     * @depends testCreate
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testCreate')]
     public function testWithAbstractImage(ilLearningSequenceSettings $object)
     {
         $new_object = $object->withAbstractImage("teststring");
@@ -121,9 +115,7 @@ class LSSettingsTest extends TestCase
         $this->assertEquals($new_object->getMembersGallery(), self::TO_MEMBERS_GALLERY);
     }
 
-    /**
-     * @depends testCreate
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testCreate')]
     public function testWithExtroImage(ilLearningSequenceSettings $object)
     {
         $new_object = $object->withExtroImage("teststring");
@@ -143,9 +135,7 @@ class LSSettingsTest extends TestCase
         $this->assertEquals($new_object->getMembersGallery(), self::TO_MEMBERS_GALLERY);
     }
 
-    /**
-     * @depends testCreate
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testCreate')]
     public function testWithMembersGallery(ilLearningSequenceSettings $object)
     {
         $new_object = $object->withMembersGallery(false);

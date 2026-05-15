@@ -28,7 +28,8 @@ use ILIAS\HTTP\Cookies\Cookie;
  * @author     Sascha Hofmann <saschahofmann@gmx.de>
  * @author     Alex Killing <alex.killing@gmx.de>
  *
- * @deprecated The 2021 Technical Board has decided to mark the ilUtil class as deprecated. The ilUtil is a historically
+ * @deprecated 12 This component will be removed with ILIAS 12
+ * The 2021 Technical Board has decided to mark the ilUtil class as deprecated. The ilUtil is a historically
  * grown helper class with many different UseCases and functions. The class is not under direct maintainership and the
  * responsibilities are unclear. In this context, the class should no longer be used in the code and existing uses
  * should be converted to their own service in the medium term. If you need ilUtil for the implementation of a new
@@ -216,8 +217,11 @@ class ilUtil
      * @deprecated Use the respective `Refinery` transformation `$refinery->string()->makeClickable("foo bar")` to convert URL-like string parts to an HTML anchor (`<a>`) element.
      * Will be removed in ILIAS 10.
      */
-    public static function makeClickable(string $a_text, bool $detectGotoLinks = false): string
-    {
+    public static function makeClickable(
+        string $a_text,
+        bool $detectGotoLinks = false,
+        ?string $ilias_http_path = null
+    ): string {
         global $DIC;
 
         $ret = $DIC->refinery()->string()->makeClickable()->transform($a_text);
@@ -230,7 +234,9 @@ class ilUtil
         // fau.        
 
         if ($detectGotoLinks) {
-            $goto = '<a[^>]*href="(' . str_replace('@', '\@', ILIAS_HTTP_PATH) . '/goto';
+            $ilias_http_path = $ilias_http_path ?? (defined('ILIAS_HTTP_PATH') ? ILIAS_HTTP_PATH : '');
+
+            $goto = '<a[^>]*href="(' . str_replace('@', '\@', $ilias_http_path) . '/goto';
             $regExp = $goto . '.php\?target=\w+_(\d+)[^"]*)"[^>]*>[^<]*</a>';
             $ret = preg_replace_callback(
                 '@' . $regExp . '@i',
@@ -279,7 +285,7 @@ class ilUtil
      */
     public static function is_email(
         string $a_email,
-        ilMailRfc822AddressParserFactory $mailAddressParserFactory = null
+        ?ilMailRfc822AddressParserFactory $mailAddressParserFactory = null
     ): bool {
         if ($mailAddressParserFactory === null) {
             $mailAddressParserFactory = new ilMailRfc822AddressParserFactory();
@@ -288,8 +294,8 @@ class ilUtil
         try {
             $parser = $mailAddressParserFactory->getParser($a_email);
             $addresses = $parser->parse();
-            return count($addresses) == 1 && $addresses[0]->getHost() != ilMail::ILIAS_HOST;
-        } catch (ilException $e) {
+            return count($addresses) === 1 && $addresses[0]->getHost() !== ilMail::ILIAS_HOST;
+        } catch (Exception) {
             return false;
         }
     }
@@ -1386,8 +1392,8 @@ class ilUtil
     protected static function fmtFloat(
         float $a_float,
         int $a_decimals = 0,
-        string $a_dec_point = null,
-        string $a_thousands_sep = null,
+        ?string $a_dec_point = null,
+        ?string $a_thousands_sep = null,
         bool $a_suppress_dot_zero = false
     ): string {
         global $DIC;

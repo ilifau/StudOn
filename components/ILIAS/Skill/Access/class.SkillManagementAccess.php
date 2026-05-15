@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,8 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Skill\Access;
 
@@ -43,7 +42,7 @@ class SkillManagementAccess
         if ($a_usr_id == 0) {
             $a_usr_id = $this->usr_id;
         }
-        return $this->access->checkAccessOfUser($a_usr_id, "visible,read", $this->skmg_ref_id);
+        return $this->access->checkAccessOfUser($a_usr_id, "read", $this->skmg_ref_id);
     }
 
     public function hasEditManagementSettingsPermission(int $a_usr_id = 0): bool

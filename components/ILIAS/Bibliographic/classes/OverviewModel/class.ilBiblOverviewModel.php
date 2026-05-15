@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -28,6 +29,7 @@ class ilBiblOverviewModel extends ActiveRecord implements ilBiblOverviewModelInt
         return self::TABLE_NAME;
     }
 
+    #[\Override]
     public function getConnectorContainerName(): string
     {
         return self::TABLE_NAME;

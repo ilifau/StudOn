@@ -29,7 +29,7 @@ class InternalDataService
     {
     }
 
-    public function html() : HTML\DataService
+    public function html(): HTML\DataService
     {
         return self::$instance['html'] ??= new HTML\DataService();
     }

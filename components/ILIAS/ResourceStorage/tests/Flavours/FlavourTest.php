@@ -18,11 +18,10 @@
 
 namespace ILIAS\ResourceStorage\Flavours;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\ResourceStorage\AbstractTestBase;
 use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamAccess;
-use ILIAS\ResourceStorage\Consumer\StreamAccess\Token;
-use ILIAS\ResourceStorage\Consumer\StreamAccess\TokenStream;
 use ILIAS\ResourceStorage\Flavour\Definition\FlavourDefinition;
 use ILIAS\ResourceStorage\Flavour\Flavour;
 use ILIAS\ResourceStorage\Flavour\FlavourBuilder;
@@ -46,24 +45,24 @@ require_once __DIR__ . '/../AbstractTestBase.php';
 
 class FlavourTest extends AbstractTestBase
 {
-    public $resource_builder;
-    private const BASE_DIR = '/var';
+    public MockObject $resource_builder;
+    private const string BASE_DIR = '/var';
     private Factory $machine_factory;
-    private StorageHandler $storage_handler_mock;
     /**
-     * @var StorageHandlerFactory|\PHPUnit\Framework\MockObject\MockObject
+     * @var StorageHandlerFactory|MockObject
      */
     protected $storage_handler_factory;
-    private FlavourRepository $flavour_repo;
+    private MockObject $flavour_repo;
     private StreamAccess $stream_access;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->machine_factory = new Factory(new \ILIAS\ResourceStorage\Flavour\Engine\Factory());
-        $this->storage_handler_mock = $this->createMock(StorageHandler::class);
-        $this->storage_handler_mock->expects($this->any())->method('isPrimary')->willReturn(true);
+        $storage_handler_mock = $this->createMock(StorageHandler::class);
+        $storage_handler_mock->method('isPrimary')->willReturn(true);
         $this->storage_handler_factory = new StorageHandlerFactory([
-            $this->storage_handler_mock
+            $storage_handler_mock
         ], self::BASE_DIR);
         $this->flavour_repo = $this->createMock(FlavourRepository::class);
         $this->resource_builder = $this->createMock(ResourceBuilder::class);
@@ -137,7 +136,7 @@ class FlavourTest extends AbstractTestBase
             ->method('has')
             ->willReturnCallback(
                 function ($rid, $mid, $def) use (&$consecutive) {
-                    list($expected, $ret) = array_shift($consecutive);
+                    [$expected, $ret] = array_shift($consecutive);
                     $this->assertEquals($expected, [$rid, $mid, $def]);
                     return $ret;
                 }
@@ -173,7 +172,7 @@ class FlavourTest extends AbstractTestBase
 
         // Expectations
         $flavour_definition = $this->createMock(FlavourDefinition::class);
-        $flavour_definition->expects($this->any())
+        $flavour_definition
             ->method('getVariantName')
             ->willReturn('short');
 
@@ -182,7 +181,7 @@ class FlavourTest extends AbstractTestBase
             ->with($rid_one, 0, $flavour_definition)
             ->willReturn(false);
 
-        $this->resource_builder->expects($this->exactly(1))
+        $this->resource_builder->expects($this->once())
             ->method('has')
             ->with($rid_one)
             ->willReturn(true);
@@ -202,12 +201,12 @@ class FlavourTest extends AbstractTestBase
             ->with($rid_one)
             ->willReturn($resource);
 
-        $resource->expects($this->any())
+        $resource
             ->method('getCurrentRevision')
             ->willReturn($revision);
 
 
-        $this->resource_builder->expects($this->exactly(1))
+        $this->resource_builder->expects($this->once())
             ->method('extractStream')
             ->with($revision)
             ->willReturn($stream);
@@ -224,6 +223,6 @@ class FlavourTest extends AbstractTestBase
         $first_stream_access = $stream_resolvers[0];
         $this->assertInstanceOf(StreamResolver::class, $first_stream_access);
         $resolved_stream = $first_stream_access->getStream();
-        $this->assertEquals('empty', (string) $resolved_stream);
+        $this->assertSame('empty', (string) $resolved_stream);
     }
 }

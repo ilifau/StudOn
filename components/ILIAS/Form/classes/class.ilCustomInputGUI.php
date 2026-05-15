@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,11 +16,14 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * This class represents a custom property in a property form.
  *
  * @author Alexander Killing <killing@leifos.de>
  * @deprecated Deprecated since 4.4, inherit directly from InputGUI instead
+ * @deprecated 12 This component will be removed with ILIAS 12
  */
 class ilCustomInputGUI extends ilSubEnabledFormPropertyGUI
 {

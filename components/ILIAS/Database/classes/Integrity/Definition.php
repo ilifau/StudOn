@@ -18,20 +18,17 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\components\Database\Integrity;
+namespace ILIAS\Database\Integrity;
 
 use InvalidArgumentException;
 
 class Definition
 {
-    private Ignore $ignore;
-
     /**
-     * @param \ILIAS\components\Database\Integrity\Association[] $associations
+     * @param Association[] $associations
      */
-    public function __construct(private array $associations, ?Ignore $ignore = null)
+    public function __construct(private array $associations, private Ignore $ignore = new Ignore())
     {
-        $this->ignore = $ignore ?? new Ignore();
         $this->validate();
     }
 

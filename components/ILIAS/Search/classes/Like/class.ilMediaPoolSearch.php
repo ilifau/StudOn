@@ -1,8 +1,22 @@
 <?php
 
-declare(strict_types=1);
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
+declare(strict_types=1);
 /**
 * Class ilMediaPoolSearch
 *
@@ -13,7 +27,6 @@ declare(strict_types=1);
 * @package ilias-search
 *
 */
-
 class ilMediaPoolSearch extends ilAbstractSearch
 {
     public function performSearch(): ilSearchResult
@@ -23,7 +36,7 @@ class ilMediaPoolSearch extends ilAbstractSearch
         $and = $this->__createAndCondition();
         $locate = $this->__createLocateString();
 
-        $query = "SELECT mep_id,obj_id " .
+        $query = "SELECT mep_id, obj_id, type " .
             $locate .
             "FROM mep_tree JOIN mep_item ON child = obj_id " .
             $and;
@@ -34,7 +47,8 @@ class ilMediaPoolSearch extends ilAbstractSearch
                 (int) $row->mep_id,
                 'mep',
                 $this->__prepareFound($row),
-                (int) $row->obj_id
+                (int) $row->obj_id,
+                (string) $row->type
             );
         }
         return $this->search_result;
@@ -48,7 +62,7 @@ class ilMediaPoolSearch extends ilAbstractSearch
         $locate = $this->__createLocateString();
 
 
-        $query = "SELECT mep_id, child " .
+        $query = "SELECT mep_id, child, type " .
             $locate .
             "FROM mep_item mi " .
             "JOIN mep_tree ON mi.obj_id = child " .
@@ -62,7 +76,8 @@ class ilMediaPoolSearch extends ilAbstractSearch
                 (int) $row->mep_id,
                 'mep',
                 $this->__prepareFound($row),
-                (int) $row->child
+                (int) $row->child,
+                (string) $row->type
             );
         }
         return $this->search_result;

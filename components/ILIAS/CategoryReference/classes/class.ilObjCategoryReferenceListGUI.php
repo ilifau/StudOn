@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\ContainerReference\StandardGUIRequest;
 
@@ -52,16 +52,6 @@ class ilObjCategoryReferenceListGUI extends ilObjCategoryListGUI
     {
         return 'catr';
     }
-
-    public function getTypeIcon(): string
-    {
-        $reference_obj_id = ilObject::_lookupObjId($this->getCommandId());
-        return ilObject::_getIcon(
-            $reference_obj_id,
-            'small'
-        );
-    }
-
 
     public function getCommandId(): int
     {

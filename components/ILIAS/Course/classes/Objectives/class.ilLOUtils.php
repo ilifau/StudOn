@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=0);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +16,8 @@ declare(strict_types=0);
  *
  *********************************************************************/
 
+declare(strict_types=0);
+
 /**
  * Settings for LO courses
  * @author Stefan Meyer <smeyer.ilias@gmx.de>
@@ -30,8 +31,8 @@ class ilLOUtils
         int $a_cont_oid,
         int $a_test_rid,
         int $a_objective_id,
-        int $max_points,
-        int $reached,
+        float $max_points,
+        float $reached,
         int $limit_perc
     ): bool {
         $settings = ilLOSettings::getInstanceByObjId($a_cont_oid);
@@ -62,7 +63,7 @@ class ilLOUtils
         int $a_container_id,
         int $a_objective_id,
         int $a_test_ref_id,
-        int $a_max_points
+        float $a_max_points
     ): int {
         $settings = ilLOSettings::getInstanceByObjId($a_container_id);
         $assignments = ilLOTestAssignments::getInstance($a_container_id);
@@ -100,13 +101,8 @@ class ilLOUtils
             return 0;
         }
 
-        $query = 'SELECT nr_of_tries FROM tst_tests ' .
-            'WHERE obj_fi = ' . $ilDB->quote(ilObject::_lookupObjId($a_test_ref_id), 'integer');
-        $res = $ilDB->query($query);
-        while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
-            return (int) $row->nr_of_tries;
-        }
-        return 0;
+        $test_obj = new ilObjTest($a_test_ref_id, true);
+        return $test_obj->getNrOfTries();
     }
 
     public static function lookupRandomTest(int $a_test_obj_id): bool

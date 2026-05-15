@@ -162,56 +162,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
 
     protected function initNewForm(string $a_new_type): \ilLTIConsumerProviderSelectionFormTableGUI
     {
-        global $DIC;
-        /* @var \ILIAS\DI\Container $DIC */
-
-        $form = $this->buildProviderSelectionForm($a_new_type);
-
-        $globalProviderList = new ilLTIConsumeProviderList();
-        $globalProviderList->setAvailabilityFilter((string) ilLTIConsumeProvider::AVAILABILITY_CREATE);
-        $globalProviderList->setScopeFilter(ilLTIConsumeProviderList::SCOPE_GLOBAL);
-
-        $userProviderList = new ilLTIConsumeProviderList();
-        $userProviderList->setAvailabilityFilter((string) ilLTIConsumeProvider::AVAILABILITY_CREATE);
-        $userProviderList->setScopeFilter(ilLTIConsumeProviderList::SCOPE_USER);
-        $userProviderList->setCreatorFilter($DIC->user()->getId());
-
-        if ($form->getFilter('title')) {
-            $globalProviderList->setTitleFilter($form->getFilter('title'));
-            $userProviderList->setTitleFilter($form->getFilter('title'));
-        }
-
-        if ($form->getFilter('category')) {
-            $globalProviderList->setCategoryFilter($form->getFilter('category'));
-            $userProviderList->setCategoryFilter($form->getFilter('category'));
-        }
-
-        if ($form->getFilter('keyword')) {
-            $globalProviderList->setKeywordFilter($form->getFilter('keyword'));
-            $userProviderList->setKeywordFilter($form->getFilter('keyword'));
-        }
-
-        if ($form->getFilter('outcome')) {
-            $globalProviderList->setHasOutcomeFilter(true);
-            $userProviderList->setHasOutcomeFilter(true);
-        }
-
-        if ($form->getFilter('internal')) {
-            $globalProviderList->setIsExternalFilter(false);
-            $userProviderList->setIsExternalFilter(false);
-        }
-
-        if ($form->getFilter('with_key')) {
-            $globalProviderList->setIsProviderKeyCustomizableFilter(false);
-            $userProviderList->setIsProviderKeyCustomizableFilter(false);
-        }
-
-        $globalProviderList->load();
-        $userProviderList->load();
-
-        $form->setData([...$globalProviderList->getTableData(), ...$userProviderList->getTableData()]);
-
-        return $form;
+        return $this->buildProviderSelectionForm($a_new_type);
     }
 
     public function initDynRegForm(string $a_new_type): \ilLTIConsumeProviderFormGUI
@@ -271,23 +222,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
             $a_new_type,
             $this,
             'create',
-            'applyProviderFilter',
-            'resetProviderFilter'
         );
-    }
-
-    protected function applyProviderFilter(): void
-    {
-        $form = $this->buildProviderSelectionForm('');
-        $form->applyFilter();
-        $this->createObject();
-    }
-
-    protected function resetProviderFilter(): void
-    {
-        $form = $this->buildProviderSelectionForm('');
-        $form->resetFilter();
-        $this->createObject();
     }
 
     protected function createNewObject(string $newType, string $title, string $description): ilObject
@@ -710,7 +645,6 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
         $err = $DIC['ilErr'];
         /* @var ilErrorHandling $err */
         $ctrl = $DIC->ctrl();
-        $request = $DIC->http()->request();
         $access = $DIC->access();
         $lng = $DIC->language();
 
@@ -724,6 +658,20 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
         if ($access->checkAccess('read', '', $id)) {
             $ctrl->setTargetScript('ilias.php');
             $ctrl->setParameterByClass(ilObjLTIConsumerGUI::class, 'ref_id', $id);
+            if (session_status() === PHP_SESSION_ACTIVE && session_id() !== '') {
+                $cookieParams = session_get_cookie_params();
+                if ((bool) ($cookieParams['secure'] ?? false)) {
+                    setcookie(session_name(), session_id(), [
+                        'expires' => 0,
+                        'path' => (string) ($cookieParams['path'] ?? '/'),
+                        'domain' => (string) ($cookieParams['domain'] ?? ''),
+                        'secure' => true,
+                        'httponly' => (bool) ($cookieParams['httponly'] ?? true),
+                        'samesite' => 'None'
+                    ]);
+                }
+            }
+
             $ctrl->redirectByClass([ilRepositoryGUI::class, ilObjLTIConsumerGUI::class]);
         } elseif ($access->checkAccess('visible', '', $id)) {
             ilObjectGUI::_gotoRepositoryNode($id, 'infoScreen');
@@ -750,9 +698,7 @@ class ilObjLTIConsumerGUI extends ilObject2GUI
     {
         global $DIC;
         /* @var \ILIAS\DI\Container $DIC */
-
         // TODO: general access checks (!)
-
         if (!ilLTIConsumerContentGUI::isEmbeddedLaunchRequest()) {
             $this->prepareOutput();
             $this->addHeaderAction();

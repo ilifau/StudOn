@@ -22,14 +22,14 @@ namespace ILIAS\MetaData\OERHarvester\Results;
 
 class Wrapper implements WrapperInterface
 {
-    protected \ilCronJobResult $result;
+    protected \ILIAS\Cron\Job\JobResult $result;
 
-    public function __construct(\ilCronJobResult $result)
+    public function __construct(\ILIAS\Cron\Job\JobResult $result)
     {
         $this->result = $result;
     }
 
-    public function get(): \ilCronJobResult
+    public function get(): \ILIAS\Cron\Job\JobResult
     {
         return $this->result;
     }

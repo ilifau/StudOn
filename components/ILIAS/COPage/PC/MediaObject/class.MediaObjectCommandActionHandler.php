@@ -97,8 +97,7 @@ class MediaObjectCommandActionHandler implements Server\CommandActionHandler
             }
             $updated = $page->update();
         }
-        if (!$ok)
-        {
+        if (!$ok) {
             if ($mob_gui->getForm()->getInput("standard_type") === "File") {
                 $edit_gui = new \ilPCMediaObjectEditorGUI();
                 $form = $edit_gui->getUploadForm($lng);

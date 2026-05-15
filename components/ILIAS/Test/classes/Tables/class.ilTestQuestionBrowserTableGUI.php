@@ -115,12 +115,11 @@ class ilTestQuestionBrowserTableGUI
 
     private function getQuestionsBrowserFilterComponent(string $parent_title = '', string $action = ''): Filter
     {
-        $ref_id = $this->testrequest->getRefId();
         return (new QuestionsBrowserFilter(
             $this->ui_service,
             $this->lng,
             $this->ui_factory,
-            "question_browser_filter_{$ref_id}",
+            "question_browser_filter_{$this->testrequest->getRefId()}",
             $parent_title
         ))->getComponent($action, $this->http_state->request());
     }

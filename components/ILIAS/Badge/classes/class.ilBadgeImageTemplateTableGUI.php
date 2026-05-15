@@ -13,6 +13,7 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
+ *
  *********************************************************************/
 
 declare(strict_types=1);
@@ -118,8 +119,9 @@ class ilBadgeImageTemplateTableGUI implements DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): Generator {
         $records = $this->getRecords();
 
@@ -155,8 +157,9 @@ class ilBadgeImageTemplateTableGUI implements DataRetrieval
     }
 
     public function getTotalRowCount(
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): ?int {
         return \count($this->getRecords());
     }
@@ -211,7 +214,7 @@ class ilBadgeImageTemplateTableGUI implements DataRetrieval
 
         $table = $this->factory
             ->table()
-            ->data($this->lng->txt('badge_image_templates'), $this->getColumns(), $this)
+            ->data($this, $this->lng->txt('badge_image_templates'), $this->getColumns())
             ->withId(str_replace('\\', '', self::class))
             ->withOrder(new Order('title', Order::ASC))
             ->withRange(new Range(0, 100))

@@ -62,7 +62,7 @@ class ilHelpGSToolProvider extends AbstractDynamicToolProvider
                 return $this->identification_provider->contextAwareIdentifier($id, true);
             };
             $l = function (string $content) {
-                return $this->dic->ui()->factory()->legacy($content);
+                return $this->dic->ui()->factory()->legacy()->content($content);
             };
 
             $identification = $iff("help");
@@ -115,9 +115,6 @@ class ilHelpGSToolProvider extends AbstractDynamicToolProvider
         $help_gui->initHelp($main_tpl, $ctrl->getLinkTargetByClass("ilhelpgui", "", "", true));
 
         $html = "";
-        if ((defined("OH_REF_ID") && (int) OH_REF_ID > 0) || (defined('DEVMODE') && (int) DEVMODE === 1)) {
-            $html = "<div class='ilHighlighted small'>Screen ID: " . $help_gui->getScreenId() . "</div>";
-        }
 
         $html .= "<div id='ilHelpPanel'>&nbsp;</div>";
 

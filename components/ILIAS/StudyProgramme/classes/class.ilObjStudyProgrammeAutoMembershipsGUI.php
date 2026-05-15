@@ -26,6 +26,7 @@ use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\UI\Component\Signal;
 use ILIAS\UI\Component\Dropdown;
 use ILIAS\UI\Component\Link;
+use ILIAS\User\Profile\PublicProfileGUI;
 
 /**
  * Class ilObjStudyProgrammeAutoMembershipsGUI
@@ -141,7 +142,7 @@ class ilObjStudyProgrammeAutoMembershipsGUI
 
         $modal = $this->ui_factory->modal()->roundtrip(
             $this->txt('modal_member_auto_select_title'),
-            $this->ui_factory->legacy($form->getHtml())
+            $this->ui_factory->legacy()->content($form->getHtml())
         );
 
         $submit = $this->ui_factory->button()->primary($this->txt('add'), "#")->withOnLoadCode(
@@ -171,7 +172,7 @@ class ilObjStudyProgrammeAutoMembershipsGUI
         $data = [];
         foreach ($this->getObject()->getAutomaticMembershipSources() as $ams) {
             $title = $this->getTitleRepresentation($ams);
-            $usr = $this->getUserRepresentation($ams->getLastEditorId()) ?? $this->ui_factory->legacy('-');
+            $usr = $this->getUserRepresentation($ams->getLastEditorId()) ?? $this->ui_factory->legacy()->content('-');
             $modal = $this->getModal($ams->getSourceType(), $ams->getSourceId(), $ams->isSearchRecursive());
             $collected_modals[] = $modal;
             $src_id = $ams->getSourceType() . '-' . $ams->getSourceId() . '-' . $ams->isSearchRecursive();
@@ -360,8 +361,8 @@ class ilObjStudyProgrammeAutoMembershipsGUI
     }
 
     protected function getModal(
-        string $source_type = null,
-        int $source_id = null,
+        ?string $source_type = null,
+        ?int $source_id = null,
         bool $search_recursive = false
     ): RoundTrip {
         $this->ctrl->setParameter($this, self::F_ORIGINAL_SOURCE_TYPE, $source_type);
@@ -403,7 +404,7 @@ class ilObjStudyProgrammeAutoMembershipsGUI
 
         $modal = $this->ui_factory->modal()->roundtrip(
             $this->txt('modal_member_auto_select_title'),
-            $this->ui_factory->legacy($form->getHtml())
+            $this->ui_factory->legacy()->content($form->getHtml())
         );
 
         $this->ctrl->setParameter($this, self::F_ORIGINAL_SOURCE_TYPE, $current_src_type);
@@ -420,7 +421,7 @@ class ilObjStudyProgrammeAutoMembershipsGUI
         ->withOnLoadCode(
             function ($id) use ($form_id, $link, $signal_id, $f_selected_type, $f_selected_id) {
                 return
-                    "$('#$id').click(function() { 
+                    "$('#$id').click(function() {
 
                         var checked = $(\"input[name='$f_selected_type']:checked\"). val();
                         if(checked == 'orgu' || typeof(checked) == \"undefined\") {
@@ -465,8 +466,8 @@ class ilObjStudyProgrammeAutoMembershipsGUI
     }
 
     protected function getForm(
-        string $source_type = null,
-        int $source_id = null,
+        ?string $source_type = null,
+        ?int $source_id = null,
         bool $search_recursive = false
     ): ilPropertyFormGUI {
         $form = new ilPropertyFormGUI();
@@ -574,8 +575,8 @@ class ilObjStudyProgrammeAutoMembershipsGUI
     protected function getSelectionForm(
         string $selected_source_type,
         string $selected_source,
-        string $source_type = null,
-        string $source_id = null
+        ?string $source_type = null,
+        ?string $source_id = null
     ): ilPropertyFormGUI {
         $form = new ilPropertyFormGUI();
         $form->setFormAction($this->ctrl->getFormAction($this, "save"));
@@ -687,9 +688,9 @@ class ilObjStudyProgrammeAutoMembershipsGUI
         ]);
 
         $back_url = $this->ctrl->getLinkTarget($this, self::CMD_VIEW);
-        $this->ctrl->setParameterByClass('ilPublicUserProfileGUI', 'back_url', urlencode($back_url));
-        $this->ctrl->setParameterByClass('ilPublicUserProfileGUI', 'user_id', $usr_id);
-        $url = $this->ctrl->getLinkTargetByClass('ilPublicUserProfileGUI', 'view');
+        $this->ctrl->setParameterByClass(PublicProfileGUI::class, 'back_url', urlencode($back_url));
+        $this->ctrl->setParameterByClass(PublicProfileGUI::class, 'user_id', $usr_id);
+        $url = $this->ctrl->getLinkTargetByClass([ilPublicProfileBaseClassGUI::class, PublicProfileGUI::class], 'view');
 
         $usr = ilObjectFactory::getInstanceByObjId($usr_id);
         if (!$usr->hasPublicProfile()) {

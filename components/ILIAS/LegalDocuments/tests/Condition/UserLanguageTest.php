@@ -22,7 +22,7 @@ namespace ILIAS\LegalDocuments\test\Condition;
 
 use ILIAS\LegalDocuments\Condition;
 use ilObjUser;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy;
 use ILIAS\LegalDocuments\test\ContainerMock;
 use ILIAS\LegalDocuments\Value\CriterionContent;
 use PHPUnit\Framework\TestCase;
@@ -47,12 +47,11 @@ class UserLanguageTest extends TestCase
 
     public function testAsComponent(): void
     {
-        $legacy = $this->mock(Legacy::class);
-
+        $legacy = $this->mock(Legacy\Content::class);
         $instance = new UserLanguage(
             $this->mockTree(CriterionContent::class, ['arguments' => ['lng' => 'foo']]),
             $this->mock(UserLanguageDefinition::class),
-            $this->mockTree(UI::class, ['create' => ['legacy' => $legacy]])
+            $this->mockTree(UI::class, ['create' => ['legacy' => ['content' => $legacy]]])
         );
 
         $this->assertSame($legacy, $instance->asComponent());

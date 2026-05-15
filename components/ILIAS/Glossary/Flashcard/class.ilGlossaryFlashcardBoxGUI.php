@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\UI;
 use ILIAS\Glossary\Presentation;
@@ -159,12 +159,12 @@ class ilGlossaryFlashcardBoxGUI
         if ($this->glossary->getFlashcardsMode() === "term") {
             $flashcard = $this->ui_fac->panel()->standard(
                 sprintf($this->lng->txt("glo_what_means_term"), $this->getTermText()),
-                $this->ui_fac->legacy("???")
+                $this->ui_fac->legacy()->content("???")
             );
         } else {
             $flashcard = $this->ui_fac->panel()->standard(
                 $this->lng->txt("glo_what_means_definition"),
-                $this->ui_fac->legacy($this->getDefinitionPage())
+                $this->ui_fac->legacy()->content($this->getDefinitionPage())
             );
         }
 
@@ -190,7 +190,7 @@ class ilGlossaryFlashcardBoxGUI
 
         $flashcard = $this->ui_fac->panel()->standard(
             $this->getTermText(),
-            $this->ui_fac->legacy($this->getDefinitionPage())
+            $this->ui_fac->legacy()->content($this->getDefinitionPage())
         );
 
         $btn_correct = $this->ui_fac->button()->standard(

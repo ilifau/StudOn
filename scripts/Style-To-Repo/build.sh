@@ -48,4 +48,7 @@ function build() {
   mv ${BUILD_BASE_FOLDER}/delos/template.xml ${BUILD_BASE_FOLDER}/template.xml
 
   sed -i 's/Delos/SkinRepoDelos/' ${BUILD_BASE_FOLDER}/template.xml
+
+  cp -r ./templates/Readme.md ${BUILD_BASE_FOLDER}/Readme.md
+  cp -r ./templates/Guidelines_SCSS-Coding.md ${BUILD_BASE_FOLDER}/Guidelines_SCSS-Coding.md
 }

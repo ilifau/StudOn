@@ -32,6 +32,7 @@ use ILIAS\GlobalScreen\Scope\Footer\Factory\isGroup;
  */
 class Map extends AbstractMap
 {
+    #[\Override]
     protected function getTitleSorter(): Closure
     {
         return static function (isItem $item_one, isItem $item_two): int {
@@ -43,12 +44,14 @@ class Map extends AbstractMap
         };
     }
 
+    #[\Override]
     protected function getPositionSorter(): Closure
     {
         return static fn(isItem $item_one, isItem $item_two): int => $item_one->getPosition() - $item_two->getPosition(
         );
     }
 
+    #[\Override]
     public function sort(): void
     {
         parent::sort();

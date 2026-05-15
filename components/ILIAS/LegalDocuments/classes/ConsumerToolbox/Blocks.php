@@ -192,7 +192,7 @@ class Blocks
     public function notAvailable(): PageFragment
     {
         return new PageContent($this->ui()->txt('accept_usr_agreement_anonymous'), [
-            $this->container->ui()->factory()->legacy(sprintf(
+            $this->container->ui()->factory()->legacy()->content(sprintf(
                 $this->ui()->txt('no_agreement_description'),
                 'mailto:' . htmlspecialchars(($this->mail_contact)(), ENT_QUOTES | ENT_SUBSTITUTE, 'utf-8')
             )),

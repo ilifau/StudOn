@@ -155,12 +155,19 @@ class ilCalendarMonthGUI extends ilCalendarViewGUI
                 $this->ctrl->clearParametersByClass('ilcalendarappointmentgui');
                 $this->ctrl->setParameterByClass('ilcalendarappointmentgui', 'idate', $date->get(IL_CAL_DATE));
                 $this->ctrl->setParameterByClass('ilcalendarappointmentgui', 'seed', $this->seed->get(IL_CAL_DATE));
+                $current_hour = (new ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_FKT_DATE, 'G', $this->user->getTimeZone());
+                $this->ctrl->setParameterByClass("ilcalendarappointmentgui", "hour", $current_hour);
                 $new_app_url = $this->ctrl->getLinkTargetByClass('ilcalendarappointmentgui', 'add');
 
                 $this->tpl->setCurrentBlock("new_app");
                 $this->tpl->setVariable(
                     'NEW_GLYPH',
-                    $this->ui_renderer->render($this->ui_factory->symbol()->glyph()->add($new_app_url))
+                    $this->ui_renderer->render(
+                        $this->ui_factory->button()->shy(
+                            '',
+                            $new_app_url
+                        )->withSymbol($this->ui_factory->symbol()->glyph()->add())
+                    )
                 );
                 $this->tpl->parseCurrentBlock();
 

@@ -78,7 +78,7 @@ class ilPCAMDFormGUI extends ilPageContentGUI
         return ($this->getPage()->getParentType() === "prtt");
     }
 
-    public function insert(Form\Standard $form = null): void
+    public function insert(?Form\Standard $form = null): void
     {
         $tpl = $this->tpl;
 
@@ -99,7 +99,7 @@ class ilPCAMDFormGUI extends ilPageContentGUI
         $this->editPortfolio();
     }
 
-    public function editTemplate(Form\Standard $form = null): void
+    public function editTemplate(?Form\Standard $form = null): void
     {
         $tpl = $this->tpl;
 
@@ -141,7 +141,7 @@ class ilPCAMDFormGUI extends ilPageContentGUI
         return $f->input()->container()->form()->standard($form_action, ["sec" => $section1]);
     }
 
-    public function create_amdfrm() : void
+    public function create_amdfrm(): void
     {
         $this->create();
     }

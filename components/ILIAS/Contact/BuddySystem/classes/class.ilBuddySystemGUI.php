@@ -27,12 +27,12 @@ use ILIAS\UI\Renderer as UIRenderer;
 /**
  * Class ilBuddySystemGUI
  * @author Michael Jansen <mjansen@databay.de>
- * @ilCtrl_isCalledBy ilBuddySystemGUI: ilUIPluginRouterGUI, ilPublicUserProfileGUI
+ * @ilCtrl_isCalledBy ilBuddySystemGUI: ilUIPluginRouterGUI, ILIAS\User\Profile\PublicProfileGUI
  */
 class ilBuddySystemGUI
 {
-    private const BS_REQUEST_HTTP_GET = 1;
-    private const BS_REQUEST_HTTP_POST = 2;
+    private const int BS_REQUEST_HTTP_GET = 1;
+    private const int BS_REQUEST_HTTP_POST = 2;
 
     protected static bool $isFrontendInitialized = false;
 
@@ -190,7 +190,7 @@ class ilBuddySystemGUI
     private function transitionCommand(
         string $cmd,
         string $positiveFeedbackLanguageId,
-        callable $onBeforeExecute = null
+        ?callable $onBeforeExecute = null
     ): void {
         if (!$this->isRequestParameterGiven('user_id', self::BS_REQUEST_HTTP_GET)) {
             $this->main_tpl->setOnScreenMessage('info', $this->lng->txt('buddy_bs_action_not_possible'), true);

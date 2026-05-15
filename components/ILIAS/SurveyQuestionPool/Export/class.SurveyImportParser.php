@@ -131,9 +131,8 @@ class SurveyImportParser extends ilSaxParser
 
     public function setHandlers($a_xml_parser): void
     {
-        xml_set_object($a_xml_parser, $this);
-        xml_set_element_handler($a_xml_parser, 'handlerBeginTag', 'handlerEndTag');
-        xml_set_character_data_handler($a_xml_parser, 'handlerCharacterData');
+        xml_set_element_handler($a_xml_parser, $this->handlerBeginTag(...), $this->handlerEndTag(...));
+        xml_set_character_data_handler($a_xml_parser, $this->handlerCharacterData(...));
     }
 
     /**
@@ -599,18 +598,6 @@ class SurveyImportParser extends ilSaxParser
                 if (strcmp($this->getParent(), "survey") == 0) {
                     foreach ($this->metadata as $key => $value) {
                         switch ($value["label"]) {
-                            case "SCORM":
-                                if (strlen($value["entry"] ?? "")) {
-                                    if (is_object($this->survey)) {
-                                        $md_sax_parser = new ilMDSaxParser();
-                                        $md_sax_parser->setXMLContent($value["entry"]);
-                                        $md_sax_parser->setMDObject($tmp = new ilMD($this->survey->getId(), 0, "svy"));
-                                        $md_sax_parser->enableMDParsing(true);
-                                        $md_sax_parser->startParsing();
-                                        $this->survey->MDUpdateListener("General");
-                                    }
-                                }
-                                break;
                             case "display_question_titles":
                                 if ($value["entry"] == 1) {
                                     $this->survey->setShowQuestionTitles(true);
@@ -657,25 +644,6 @@ class SurveyImportParser extends ilSaxParser
                             case "mode_skill_service":
                                 $this->survey->setSkillService($value["entry"]);
                                 break;
-                        }
-                    }
-                }
-                if (!$this->spl_exists) {
-                    if (strcmp($this->getParent(), "surveyquestions") == 0) {
-                        foreach ($this->metadata as $key => $value) {
-                            if (strcmp($value["label"], "SCORM") == 0) {
-                                if (strlen($value["entry"] ?? "")) {
-                                    if ($this->spl_id > 0) {
-                                        $md_sax_parser = new ilMDSaxParser();
-                                        $md_sax_parser->setXMLContent($value["entry"]);
-                                        $md_sax_parser->setMDObject($tmp = new ilMD($this->spl_id, 0, "spl"));
-                                        $md_sax_parser->enableMDParsing(true);
-                                        $md_sax_parser->startParsing();
-                                        $spl = new ilObjSurveyQuestionPool($this->spl_id, false);
-                                        $spl->MDUpdateListener("General");
-                                    }
-                                }
-                            }
                         }
                     }
                 }

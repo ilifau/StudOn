@@ -19,15 +19,14 @@
 declare(strict_types=1);
 
 use ILIAS\Test\Settings\MainSettings\SettingsFinishing;
+use ILIAS\Test\Settings\MainSettings\RedirectionModes;
 
 class SettingsFinishingTest extends ilTestBaseTestCase
 {
-    /**
-     * @dataProvider getAndWithConcludingRemarksEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithConcludingRemarksEnabledDataProvider')]
     public function testGetAndWithShowAnswerOverview(bool $io): void
     {
-        $settings_finishing = (new SettingsFinishing(0))->withShowAnswerOverview($io);
+        $settings_finishing = (new SettingsFinishing())->withShowAnswerOverview($io);
 
         $this->assertInstanceOf(SettingsFinishing::class, $settings_finishing);
         $this->assertEquals($io, $settings_finishing->getShowAnswerOverview());
@@ -41,30 +40,13 @@ class SettingsFinishingTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithConcludingRemarksEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithConcludingRemarksEnabledDataProvider')]
     public function testGetAndWithConcludingRemarksEnabled(bool $io): void
     {
-        $settings_finishing = (new SettingsFinishing(0))->withConcludingRemarksEnabled($io);
+        $settings_finishing = (new SettingsFinishing())->withConcludingRemarksEnabled($io);
 
         $this->assertInstanceOf(SettingsFinishing::class, $settings_finishing);
         $this->assertEquals($io, $settings_finishing->getConcludingRemarksEnabled());
-    }
-
-    /**
-     * @dataProvider getAndWithConcludingRemarksTextDataProvider
-     */
-    public function testGetAndWithConcludingRemarksText(?string $io): void
-    {
-        $settings_finishing = new SettingsFinishing(
-            0,
-            false,
-            false,
-            $io
-        );
-
-        $this->assertEquals($io, $settings_finishing->getConcludingRemarksText());
     }
 
     public static function getAndWithConcludingRemarksTextDataProvider(): array
@@ -76,12 +58,10 @@ class SettingsFinishingTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithConcludingRemarksPageIdDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithConcludingRemarksPageIdDataProvider')]
     public function testGetAndWithConcludingRemarksPageId(?int $io): void
     {
-        $settings_finishing = (new SettingsFinishing(0))->withConcludingRemarksPageId($io);
+        $settings_finishing = (new SettingsFinishing())->withConcludingRemarksPageId($io);
 
         $this->assertInstanceOf(SettingsFinishing::class, $settings_finishing);
         $this->assertEquals($io, $settings_finishing->getConcludingRemarksPageId());
@@ -97,12 +77,10 @@ class SettingsFinishingTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithRedirectionModeDataProvider
-     */
-    public function testGetAndWithRedirectionMode(int $io): void
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithRedirectionModeDataProvider')]
+    public function testGetAndWithRedirectionMode(RedirectionModes $io): void
     {
-        $settings_finishing = (new SettingsFinishing(0))->withRedirectionMode($io);
+        $settings_finishing = (new SettingsFinishing())->withRedirectionMode($io);
 
         $this->assertInstanceOf(SettingsFinishing::class, $settings_finishing);
         $this->assertEquals($io, $settings_finishing->getRedirectionMode());
@@ -111,18 +89,17 @@ class SettingsFinishingTest extends ilTestBaseTestCase
     public static function getAndWithRedirectionModeDataProvider(): array
     {
         return [
-            [-1],
-            [0],
-            [1]
+            [RedirectionModes::ALWAYS],
+            [RedirectionModes::NONE],
+            [RedirectionModes::IF_KIOSK_ACTIVATED],
+            [RedirectionModes::ALWAYS_TO_LOGOUT],
         ];
     }
 
-    /**
-     * @dataProvider getAndWithRedirectionUrlDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithRedirectionUrlDataProvider')]
     public function testGetAndWithRedirectionUrl(?string $io): void
     {
-        $settings_finishing = (new SettingsFinishing(0))->withRedirectionUrl($io);
+        $settings_finishing = (new SettingsFinishing())->withRedirectionUrl($io);
 
         $this->assertInstanceOf(SettingsFinishing::class, $settings_finishing);
         $this->assertEquals($io, $settings_finishing->getRedirectionUrl());
@@ -134,45 +111,6 @@ class SettingsFinishingTest extends ilTestBaseTestCase
             [null],
             [''],
             ['string']
-        ];
-    }
-
-    /**
-     * @dataProvider getAndWithMailNotificationContentTypeDataProvider
-     */
-    public function testGetAndWithMailNotificationContentType(int $io): void
-    {
-        $settings_finishing = (new SettingsFinishing(0))->withMailNotificationContentType($io);
-
-        $this->assertInstanceOf(SettingsFinishing::class, $settings_finishing);
-        $this->assertEquals($io, $settings_finishing->getMailNotificationContentType());
-    }
-
-    public static function getAndWithMailNotificationContentTypeDataProvider(): array
-    {
-        return [
-            [-1],
-            [0],
-            [1]
-        ];
-    }
-
-    /**
-     * @dataProvider getAndWithAlwaysSendMailNotificationDataProvider
-     */
-    public function testGetAndWithAlwaysSendMailNotification(bool $io): void
-    {
-        $settings_finishing = (new SettingsFinishing(0))->withAlwaysSendMailNotification($io);
-
-        $this->assertInstanceOf(SettingsFinishing::class, $settings_finishing);
-        $this->assertEquals($io, $settings_finishing->getAlwaysSendMailNotification());
-    }
-
-    public static function getAndWithAlwaysSendMailNotificationDataProvider(): array
-    {
-        return [
-            [true],
-            [false]
         ];
     }
 }

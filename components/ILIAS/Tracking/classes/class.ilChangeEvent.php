@@ -17,7 +17,6 @@
  *********************************************************************/
 
 declare(strict_types=0);
-
 /**
  * Class ilChangeEvent tracks change events on repository objects.
  * The following events are considered to be a 'write event':

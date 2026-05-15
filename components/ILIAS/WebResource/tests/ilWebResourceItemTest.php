@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
@@ -73,17 +73,27 @@ class ilWebResourceItemTest extends TestCase
                ->method('toXML')
                ->with($writer);
 
-        $item_stub = $this->getMockForAbstractClass(
-            ilWebLinkItem::class,
-            [
-                1, 13, 'title', 'description', 'target',
-                true, new DateTimeImmutable(), new DateTimeImmutable(),
-                [$param1, $param2]
-            ]
-        );
-        $item_stub->expects($this->once())
-                  ->method('isInternal')
-                  ->willReturn(false);
+        $item_stub = new class (
+            1,
+            13,
+            'title',
+            'description',
+            'target',
+            true,
+            new DateTimeImmutable(),
+            new DateTimeImmutable(),
+            [$param1, $param2]
+        ) extends ilWebLinkItem {
+            public function getResolvedLink(bool $with_parameters = true): string
+            {
+                return '';
+            }
+
+            public function isInternal(): bool
+            {
+                return false;
+            }
+        };
         $item_stub->toXML($writer, 7);
     }
 }

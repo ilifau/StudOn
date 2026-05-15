@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Test\Settings\MainSettings;
 
+use ILIAS\Test\ExportImport\Exportable;
 use ILIAS\Test\Settings\TestSettings;
 use ILIAS\Test\Logging\AdditionalInformationGenerator;
 use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
@@ -30,7 +31,7 @@ use ILIAS\Refinery\Transformation;
 use ILIAS\Refinery\Constraint;
 use ILIAS\UI\Implementation\Component\Input\Field\SwitchableGroup;
 
-class SettingsQuestionBehaviour extends TestSettings
+class SettingsQuestionBehaviour extends TestSettings implements Exportable
 {
     private const DEFAULT_AUTOSAVE_INTERVAL = 30000;
 
@@ -38,12 +39,10 @@ class SettingsQuestionBehaviour extends TestSettings
     public const ANSWER_FIXATION_ON_IFB_OR_FUQST = 'ifb_or_fuqst';
 
     public function __construct(
-        int $test_id,
         protected int $question_title_output_mode,
         protected bool $autosave_enabled,
         protected int $autosave_interval,
         protected bool $shuffle_questions,
-        protected bool $question_hints_enabled,
         protected bool $instant_feedback_points_enabled,
         protected bool $instant_feedback_generic_enabled,
         protected bool $instant_feedback_specific_enabled,
@@ -52,7 +51,7 @@ class SettingsQuestionBehaviour extends TestSettings
         protected bool $lock_answer_on_instant_feedback,
         protected bool $lock_answer_on_next_question
     ) {
-        parent::__construct($test_id);
+        parent::__construct();
     }
 
     /**
@@ -63,7 +62,7 @@ class SettingsQuestionBehaviour extends TestSettings
         \ilLanguage $lng,
         FieldFactory $f,
         Refinery $refinery,
-        array $environment = null
+        ?array $environment = null
     ): FormInput {
         $inputs['title_output'] = $f->radio(
             $lng->txt('tst_title_output'),
@@ -82,14 +81,8 @@ class SettingsQuestionBehaviour extends TestSettings
             $lng->txt('tst_shuffle_questions_description')
         )->withValue($this->getShuffleQuestions());
 
-        $inputs['offer_hints'] = $f->checkbox(
-            $lng->txt('tst_setting_offer_hints_label'),
-            $lng->txt('tst_setting_offer_hints_info')
-        )->withValue($this->getQuestionHintsEnabled());
-
         if ($environment['participant_data_exists']) {
             $inputs['shuffle_questions'] = $inputs['shuffle_questions']->withDisabled(true);
-            $inputs['offer_hints'] = $inputs['offer_hints']->withDisabled(true);
         }
 
         $inputs['instant_feedback'] = $this->getInputInstantFeedback($lng, $f, $refinery, $environment);
@@ -334,7 +327,6 @@ class SettingsQuestionBehaviour extends TestSettings
             'autosave' => ['integer', (int) $this->getAutosaveEnabled()],
             'autosave_ival' => ['integer', $this->getAutosaveInterval()],
             'shuffle_questions' => ['integer', (int) $this->getShuffleQuestions()],
-            'offer_question_hints' => ['integer', (int) $this->getQuestionHintsEnabled()],
             'answer_feedback_points' => ['integer', (int) $this->getInstantFeedbackPointsEnabled()],
             'answer_feedback' => ['integer', (int) $this->getInstantFeedbackGenericEnabled()],
             'specific_feedback' => ['integer', (int) $this->getInstantFeedbackSpecificEnabled()],
@@ -370,8 +362,6 @@ class SettingsQuestionBehaviour extends TestSettings
             ? $this->getAutosaveInterval() / 1000 . ' ' . $additional_info->getTagForLangVar('seconds') : $additional_info->getEnabledDisabledTagForBool(false);
         $log_array[AdditionalInformationGenerator::KEY_TEST_SHUFFLE_QUESTIONS] = $additional_info
             ->getEnabledDisabledTagForBool($this->getShuffleQuestions());
-        $log_array[AdditionalInformationGenerator::KEY_TEST_HINTS_ENABLED] = $additional_info
-            ->getEnabledDisabledTagForBool($this->getQuestionHintsEnabled());
 
         $log_array[AdditionalInformationGenerator::KEY_TEST_FEEDBACK_ENABLED] = $additional_info
                     ->getEnabledDisabledTagForBool($this->isAnyInstantFeedbackOptionEnabled());
@@ -448,18 +438,6 @@ class SettingsQuestionBehaviour extends TestSettings
     {
         $clone = clone $this;
         $clone->shuffle_questions = $shuffle_questions;
-        return $clone;
-    }
-
-    public function getQuestionHintsEnabled(): bool
-    {
-        return $this->question_hints_enabled;
-    }
-
-    public function withQuestionHintsEnabled(bool $question_hints_enabled): self
-    {
-        $clone = clone $this;
-        $clone->question_hints_enabled = $question_hints_enabled;
         return $clone;
     }
 
@@ -568,5 +546,39 @@ class SettingsQuestionBehaviour extends TestSettings
         }
 
         return [0 => self::ANSWER_FIXATION_NONE, 1 => []];
+    }
+
+    public function toExport(): array
+    {
+        return [
+            'title_output_mode' => $this->getQuestionTitleOutputMode(),
+            'autosave_enabled' => $this->getAutosaveEnabled(),
+            'autosave_interval' => $this->getAutosaveInterval(),
+            'shuffle_questions' => $this->getShuffleQuestions(),
+            'instant_feedback_points_enabled' => $this->getInstantFeedbackPointsEnabled(),
+            'instant_feedback_generic_enabled' => $this->getInstantFeedbackGenericEnabled(),
+            'instant_feedback_specific_enabled' => $this->getInstantFeedbackSpecificEnabled(),
+            'instant_feedback_solution_enabled' => $this->getInstantFeedbackSolutionEnabled(),
+            'force_instant_feedback' => $this->getForceInstantFeedbackOnNextQuestion(),
+            'lock_answer_instant_feedback' => $this->getLockAnswerOnInstantFeedbackEnabled(),
+            'lock_answer_next_question' => $this->getLockAnswerOnNextQuestionEnabled()
+        ];
+    }
+
+    public static function fromExport(array $data): static
+    {
+        return new self(
+            (int) $data['title_output_mode'],
+            (bool) $data['autosave_enabled'],
+            (int) $data['autosave_interval'],
+            (bool) $data['shuffle_questions'],
+            (bool) $data['instant_feedback_points_enabled'],
+            (bool) $data['instant_feedback_generic_enabled'],
+            (bool) $data['instant_feedback_specific_enabled'],
+            (bool) $data['instant_feedback_solution_enabled'],
+            (bool) $data['force_instant_feedback'],
+            (bool) $data['lock_answer_instant_feedback'],
+            (bool) $data['lock_answer_next_question']
+        );
     }
 }

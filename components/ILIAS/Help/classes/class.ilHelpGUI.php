@@ -308,9 +308,16 @@ class ilHelpGUI implements ilCtrlBaseClassInterface
     public function getTabTooltipText(string $a_tab_id): string
     {
         if ($this->screen_id_component != "") {
-            return $this->internal()->domain()->tooltips()->getTooltipPresentationText($this->screen_id_component . "_" . $a_tab_id);
+            return $this->screen_id_component . "_" . $a_tab_id;
         }
         return "";
+    }
+
+    public function registerTabLink(string $tab_id, \ILIAS\UI\Component\Link\Standard $link): \ILIAS\UI\Component\Link\Standard
+    {
+        $tab_id = $this->screen_id_component . "_" . $tab_id;
+        return $this->internal()->gui()->guidedTour()->guidedTourGUI()
+            ->registerTabLink($tab_id, $link);
     }
 
     public function initHelp(
@@ -561,24 +568,6 @@ class ilHelpGUI implements ilCtrlBaseClassInterface
     public function areTooltipsActive(): bool
     {
         return $this->internal()->domain()->module()->areTooltipsActive();
-    }
-
-    public function savePersonalSettingFromLegacyForm(ilPropertyFormGUI $form): void
-    {
-        if ($this->areTooltipsActive()) {
-            $this->user->setPref('hide_help_tt', (string) (int) !$form->getInput('help_tooltips'));
-        }
-    }
-
-    public function addPersonalSettingToLegacyForm(ilPropertyFormGUI $form): void
-    {
-        if ($this->areTooltipsActive()) {
-            $this->lng->loadLanguageModule('help');
-            $cb = new ilCheckboxInputGUI($this->lng->txt('help_toggle_tooltips'), 'help_tooltips');
-            $cb->setChecked(!($this->user->prefs['hide_help_tt'] ?? false));
-            $cb->setInfo($this->lng->txt('help_toggle_tooltips_info'));
-            $form->addItem($cb);
-        }
     }
 
     /**

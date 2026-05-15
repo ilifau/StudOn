@@ -33,9 +33,9 @@ use ILIAS\UI\Implementation\Component\Item\Shy;
 use ilSetting;
 use ilUtil;
 use JsonException;
-use ilUserPrivacySettingsGUI;
 use ilDashboardGUI;
-use ilPersonalProfileGUI;
+use ILIAS\User\Privacy\SettingsGUI as PrivacySettingsGUI;
+use ILIAS\User\Profile\PersonalProfileGUI;
 use ILIAS\UI\Component\MessageBox\MessageBox;
 
 /**
@@ -86,8 +86,8 @@ class OnScreenChatProvider extends AbstractStaticMainMenuProvider
                         $this->dic->ctrl()->getLinkTargetByClass(
                             [
                                 ilDashboardGUI::class,
-                                ilPersonalProfileGUI::class,
-                                ilUserPrivacySettingsGUI::class
+                                PersonalProfileGUI::class,
+                                PrivacySettingsGUI::class
                             ],
                             'showPrivacySettings'
                         )
@@ -126,7 +126,7 @@ class OnScreenChatProvider extends AbstractStaticMainMenuProvider
                         )
                     ];
 
-                    return $this->dic->ui()->factory()->legacy($this->dic->ui()->renderer()->render($components));
+                    return $this->dic->ui()->factory()->legacy()->content($this->dic->ui()->renderer()->render($components));
                 })
                 ->withParent(StandardTopItemsProvider::getInstance()->getCommunicationIdentification())
                 ->withPosition(40)

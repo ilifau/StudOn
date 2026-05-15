@@ -34,13 +34,13 @@ use ILIAS\Data\Meta;
  */
 class Factory
 {
-    /**
-     * cache for color factory.
-     */
+    // TODO: move this to proper dependency_injection
     private ?Color\Factory $colorfactory = null;
     private ?Dimension\Factory $dimensionfactory = null;
     private ?Meta\Html\Factory $html_metadata_factory = null;
     private ?Meta\Html\OpenGraph\Factory $open_graph_metadata_factory = null;
+    private ?Text\Factory $text_factory = null;
+    private ?Description\Factory $description_factory = null;
 
     /**
      * Get an ok result.
@@ -94,7 +94,7 @@ class Factory
      * @throw   \InvalidArgumentException if first argument is int and second is not a valid unit.
      * @throw   \InvalidArgumentException if string size can't be interpreted
      */
-    public function dataSize($size, string $unit = null): DataSize
+    public function dataSize($size, ?string $unit = null): DataSize
     {
         if (is_string($size)) {
             $match = [];
@@ -221,5 +221,32 @@ class Factory
     public function languageTag(string $language_tag): LanguageTag
     {
         return LanguageTag::fromString($language_tag);
+    }
+
+    public function text(): Text\Factory
+    {
+        if ($this->text_factory === null) {
+            $md_format = new \ILIAS\Refinery\String\MarkdownFormattingToHTML();
+            $this->text_factory = new \ILIAS\Data\Text\Factory(
+                new Text\MarkdownFactory(
+                    new Text\Shape\Markdown($md_format),
+                    new Text\Shape\SimpleDocumentMarkdown($md_format),
+                    new Text\Shape\WordOnlyMarkdown($md_format)
+                )
+            );
+        }
+        return $this->text_factory;
+    }
+    public function emailAddress(string $address): EmailAddress
+    {
+        return new EmailAddress($address);
+    }
+
+    public function description(): Description\Factory
+    {
+        if ($this->description_factory === null) {
+            $this->description_factory = new Description\Factory();
+        }
+        return $this->description_factory;
     }
 }

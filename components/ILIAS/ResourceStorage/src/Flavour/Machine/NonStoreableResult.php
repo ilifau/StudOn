@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -27,16 +28,11 @@ use ILIAS\ResourceStorage\Flavour\Definition\FlavourDefinition;
  */
 class NonStoreableResult extends Result
 {
-    protected FlavourDefinition $definition;
-    protected FileStream $stream;
-
     public function __construct(
-        FlavourDefinition $definition,
-        FileStream $stream,
+        protected FlavourDefinition $definition,
+        protected FileStream $stream,
         int $index = 0
     ) {
-        $this->definition = $definition;
-        $this->stream = $stream;
-        parent::__construct($definition, $stream, $index, false);
+        parent::__construct($this->definition, $this->stream, $index, false);
     }
 }

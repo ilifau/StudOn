@@ -48,7 +48,7 @@ class ilExPeerReviewGUI
 
     public function __construct(
         ilExAssignment $a_ass,
-        ilExSubmission $a_submission = null
+        ?ilExSubmission $a_submission = null
     ) {
         global $DIC;
 
@@ -656,7 +656,7 @@ class ilExPeerReviewGUI
 
         return $f->panel()->sub(
             $title,
-            $f->legacy($tpl->get() . $mess_html)
+            $f->legacy()->content($tpl->get() . $mess_html)
         );
     }
 
@@ -808,7 +808,7 @@ class ilExPeerReviewGUI
     }
 
     public function editPeerReviewItemObject(
-        ilPropertyFormGUI $a_form = null
+        ?ilPropertyFormGUI $a_form = null
     ): void {
         $tpl = $this->tpl;
 
@@ -934,7 +934,7 @@ class ilExPeerReviewGUI
         if ($sub) {
             if (trim($sub->getText()) !== '' && trim($sub->getText()) !== '0') {
                 // mob id to mob src
-                return $this->gui->getUIUtil()->formatTextInput($sub->getText());
+                return nl2br(ilRTE::_replaceMediaObjectImageSrc($sub->getText(), 1));
             }
         }
         return "";
@@ -1198,7 +1198,7 @@ class ilExPeerReviewGUI
             $r = $this->gui->ui()->renderer();
             $p = $f->panel()->standard(
                 $this->lng->txt("exc_peer_review_overview_invalid_users"),
-                $f->legacy($ptpl->get())
+                $f->legacy()->content($ptpl->get())
             );
 
             $panel = $r->render($p);

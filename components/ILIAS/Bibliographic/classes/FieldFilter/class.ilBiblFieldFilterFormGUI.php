@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -15,6 +16,8 @@
  *
  *********************************************************************/
 
+use ILIAS\components\OrgUnit\ARHelper\DIC;
+
 /**
  * Class ilBiblFieldFilterFormGUI
  *
@@ -23,22 +26,16 @@
  */
 class ilBiblFieldFilterFormGUI extends ilPropertyFormGUI
 {
-    use \ILIAS\components\OrgUnit\ARHelper\DIC;
+    use DIC;
     public const F_FIELD_ID = "field_id";
     public const F_FILTER_TYPE = "filter_type";
-    protected \ilBiblFactoryFacade $facade;
-    protected \ilBiblFieldFilterInterface $filter;
-    protected \ilBiblFieldFilterGUI $parent_gui;
     protected ?int $filter_id;
 
     /**
      * ilBiblFieldFilterFormGUI constructor.
      */
-    public function __construct(ilBiblFieldFilterGUI $parent_gui, ilBiblFieldFilterInterface $field_filter, ilBiblFactoryFacade $facade)
+    public function __construct(protected \ilBiblFieldFilterGUI $parent_gui, protected \ilBiblFieldFilterInterface $filter, protected \ilBiblFactoryFacade $facade)
     {
-        $this->facade = $facade;
-        $this->filter = $field_filter;
-        $this->parent_gui = $parent_gui;
         $this->filter_id = $this->filter->getId();
 
         $this->lng()->loadLanguageModule('bibl');
@@ -71,7 +68,7 @@ class ilBiblFieldFilterFormGUI extends ilPropertyFormGUI
                 array_unshift($options, $available_field);
                 continue;
             }
-            if(!in_array($available_field->getId(), $existing_field_ids, false)) {
+            if (!in_array($available_field->getId(), $existing_field_ids, false)) {
                 $options[] = $available_field;
             }
         }
@@ -115,7 +112,7 @@ class ilBiblFieldFilterFormGUI extends ilPropertyFormGUI
 
     public function fillForm(): void
     {
-        $array = array(self::F_FIELD_ID => $this->filter->getFieldId(), self::F_FILTER_TYPE => $this->filter->getFilterType(),);
+        $array = [self::F_FIELD_ID => $this->filter->getFieldId(), self::F_FILTER_TYPE => $this->filter->getFilterType(),];
         $this->setValuesByArray($array);
     }
 

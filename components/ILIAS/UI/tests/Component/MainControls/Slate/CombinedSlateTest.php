@@ -49,23 +49,14 @@ class CombinedSlateTest extends ILIAS_UI_TestBase
             public I\SignalGenerator $sig_gen;
             public I\Button\Factory $button_factory;
 
-            public function button(): C\Button\Factory
+            public function button(): I\Button\Factory
             {
                 return $this->button_factory;
             }
-            public function glyph(): C\Symbol\Glyph\Factory
-            {
-                return new I\Symbol\Glyph\Factory();
-            }
 
-            public function divider(): C\Divider\Factory
+            public function divider(): I\Divider\Factory
             {
                 return new I\Divider\Factory();
-            }
-
-            public function mainControls(): C\MainControls\Factory
-            {
-                return new I\MainControls\Factory($this->sig_gen);
             }
         };
         $factory->button_factory = $this->button_factory;
@@ -118,19 +109,26 @@ class CombinedSlateTest extends ILIAS_UI_TestBase
             ->withAdditionalEntry($subdivider_with_text)
             ->withAdditionalEntry($subdivider);
 
-        $r = $this->getDefaultRenderer();
-        $html = $r->render($slate);
-
-        $expected = <<<EOT
+        $out = <<<EOT
         <div class="il-maincontrols-slate disengaged" id="id_1">
             <div class="il-maincontrols-slate-content" data-replace-marker="content">
                 <ul>
-                    <li><hr class="il-divider-with-label" /><h4 class="il-divider">Title</h4></li>
+                    <li><hr class="il-divider-with-label" /><h[LEVEL] class="il-divider">Title</h[LEVEL]></li>
                     <li><hr /></li>
                 </ul>
             </div>
         </div>
 EOT;
+
+        $html = $this->getDefaultRenderer()->render($slate);
+        $expected = str_replace('[LEVEL]', '2', $out);
+        $this->assertEquals(
+            $this->brutallyTrimHTML($expected),
+            $this->brutallyTrimHTML($html)
+        );
+
+        $html = $this->getDefaultRenderer()->withHeaderNesting(3)->render($slate);
+        $expected = str_replace('[LEVEL]', '4', $out);
         $this->assertEquals(
             $this->brutallyTrimHTML($expected),
             $this->brutallyTrimHTML($html)

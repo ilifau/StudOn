@@ -58,11 +58,7 @@ class arFieldList
 
     public static function mapKey(string $key): string
     {
-        if (isset(self::$key_maps[$key])) {
-            return self::$key_maps[$key];
-        }
-
-        return $key;
+        return self::$key_maps[$key] ?? $key;
     }
 
     /**

@@ -17,44 +17,6 @@
  *********************************************************************/
 
 /*
-$Id$
-
-NuSOAP - Web Services Toolkit for PHP
-
-Copyright (c) 2002 NuSphere Corporation
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-The NuSOAP project home is:
-http://sourceforge.net/projects/nusoap/
-
-The primary support for NuSOAP is the mailing list:
-nusoap-general@lists.sourceforge.net
-
-If you have any questions or comments, please email:
-
-Dietrich Ayala
-dietrich@ganx4.com
-http://dietrich.ganx4.com/nusoap
-
-NuSphere Corporation
-http://www.nusphere.com
-
-*/
-
-/*
  *	Some of the standards implmented in whole or part by NuSOAP:
  *
  *	SOAP 1.1 (http://www.w3.org/TR/2000/NOTE-SOAP-20000508/)
@@ -67,10 +29,8 @@ http://www.nusphere.com
  *	RFC 2068 Hypertext Transfer Protocol -- HTTP/1.1
  *	RFC 2617 HTTP Authentication: Basic and Digest Access Authentication
  */
-
 // class variable emulation
 // cf. http://www.webkreator.com/php/techniques/php-static-class-variables.html
-
 // alex patch: we need an object here, otherwise we will get a warning in php 5.4
 if (
     !isset($GLOBALS['_transient']) ||
@@ -1230,16 +1190,13 @@ class nusoap_xmlschema extends nusoap_base
             // Set the options for parsing the XML data.
             xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, 0);
 
-            // Set the object for the parser.
-            xml_set_object($this->parser, $this);
-
             // Set the element handlers for the parser.
             if ($type == "schema") {
-                xml_set_element_handler($this->parser, 'schemaStartElement', 'schemaEndElement');
-                xml_set_character_data_handler($this->parser, 'schemaCharacterData');
+                xml_set_element_handler($this->parser, $this->schemaStartElement(...), $this->schemaEndElement(...));
+                xml_set_character_data_handler($this->parser, $this->schemaCharacterData(...));
             } elseif ($type == "xml") {
-                xml_set_element_handler($this->parser, 'xmlStartElement', 'xmlEndElement');
-                xml_set_character_data_handler($this->parser, 'xmlCharacterData');
+                xml_set_element_handler($this->parser, $this->xmlStartElement(...), $this->xmlEndElement(...));
+                xml_set_character_data_handler($this->parser, $this->xmlCharacterData(...));
             }
 
             // Parse the XML file.
@@ -4879,10 +4836,9 @@ class wsdl extends nusoap_base
         // xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
         xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, 0);
         // Set the object for the parser.
-        xml_set_object($this->parser, $this);
         // Set the element handlers for the parser.
-        xml_set_element_handler($this->parser, 'start_element', 'end_element');
-        xml_set_character_data_handler($this->parser, 'character_data');
+        xml_set_element_handler($this->parser, $this->start_element(...), $this->end_element(...));
+        xml_set_character_data_handler($this->parser, $this->character_data(...));
         // Parse the XML file.
         if (!xml_parse($this->parser, $wsdl_string, true)) {
             // Display an error message.
@@ -6646,10 +6602,9 @@ class nusoap_parser extends nusoap_base
             xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, 0);
             xml_parser_set_option($this->parser, XML_OPTION_TARGET_ENCODING, $this->xml_encoding);
             // Set the object for the parser.
-            xml_set_object($this->parser, $this);
             // Set the element handlers for the parser.
-            xml_set_element_handler($this->parser, 'start_element', 'end_element');
-            xml_set_character_data_handler($this->parser, 'character_data');
+            xml_set_element_handler($this->parser, $this->start_element(...), $this->end_element(...));
+            xml_set_character_data_handler($this->parser, $this->character_data(...));
 
             // Parse the XML file.
             if (!xml_parse($this->parser, $xml, true)) {

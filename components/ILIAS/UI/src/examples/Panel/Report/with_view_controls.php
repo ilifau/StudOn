@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\examples\Panel\Report;
@@ -52,9 +68,9 @@ function with_view_controls(): string
         $content = "This is clearly a lot more information!";
     }
 
-    $sub1 = $f->panel()->sub("Sub Panel Title 1", $f->legacy($content))
-            ->withFurtherInformation($f->card()->standard("Card Heading")->withSections(array($f->legacy("Card Content"))));
-    $sub2 = $f->panel()->sub("Sub Panel Title 2", $f->legacy($content));
+    $sub1 = $f->panel()->sub("Sub Panel Title 1", $f->legacy()->content($content))
+            ->withFurtherInformation($f->card()->standard("Card Heading")->withSections(array($f->legacy()->content("Card Content"))));
+    $sub2 = $f->panel()->sub("Sub Panel Title 2", $f->legacy()->content($content));
 
     $block = $f->panel()->report("Report Title", [$sub1, $sub2])
         ->withActions($actions)

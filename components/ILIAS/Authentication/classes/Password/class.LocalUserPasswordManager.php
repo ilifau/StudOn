@@ -32,7 +32,7 @@ use ilUserException;
 
 class LocalUserPasswordManager
 {
-    private const MIN_SALT_SIZE = 16;
+    private const int MIN_SALT_SIZE = 16;
 
     private static ?self $instance = null;
     private ?LocalUserPasswordEncoderFactory $encoderFactory = null;
@@ -72,17 +72,21 @@ class LocalUserPasswordManager
         }
 
         if (!$this->getEncoderName()) {
-            throw new ilUserException(sprintf(
-                '"password_encoder" must be set in %s.',
-                print_r($config, true)
-            ));
+            throw new ilUserException(
+                \sprintf(
+                    '"password_encoder" must be set in %s.',
+                    print_r($config, true)
+                )
+            );
         }
 
         if (!$this->getEncoderFactory() instanceof LocalUserPasswordEncoderFactory) {
-            throw new ilUserException(sprintf(
-                '"encoder_factory" must be instance of LocalUserPasswordEncoderFactory and set in %s.',
-                print_r($config, true)
-            ));
+            throw new ilUserException(
+                \sprintf(
+                    '"encoder_factory" must be instance of LocalUserPasswordEncoderFactory and set in %s.',
+                    print_r($config, true)
+                )
+            );
         }
     }
 
@@ -180,7 +184,7 @@ class LocalUserPasswordManager
 
     public function isEncodingTypeSupported(string $name): bool
     {
-        return in_array($name, $this->getEncoderFactory()->getSupportedEncoderNames());
+        return \in_array($name, $this->getEncoderFactory()->getSupportedEncoderNames());
     }
 
     public function verifyPassword(ilObjUser $user, string $raw): bool
@@ -188,13 +192,13 @@ class LocalUserPasswordManager
         $encoder = $this->getEncoderFactory()->getEncoderByName($user->getPasswordEncodingType());
         if ($this->getEncoderName() !== $encoder->getName()) {
             if ($encoder->isPasswordValid($user->getPasswd(), $raw, (string) $user->getPasswordSalt())) {
-                $user->resetPassword($raw, $raw);
+                $user->resetPassword($raw);
 
                 return true;
             }
         } elseif ($encoder->isPasswordValid($user->getPasswd(), $raw, (string) $user->getPasswordSalt())) {
             if ($encoder->requiresReencoding($user->getPasswd())) {
-                $user->resetPassword($raw, $raw);
+                $user->resetPassword($raw);
             }
 
             return true;

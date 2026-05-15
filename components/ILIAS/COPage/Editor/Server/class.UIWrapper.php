@@ -47,7 +47,7 @@ class UIWrapper
         string $content,
         string $type,
         string $action,
-        array $data = null,
+        ?array $data = null,
         string $component = "",
         bool $primary = false,
         string $aria_label = ""
@@ -84,7 +84,7 @@ class UIWrapper
         $ui = $this->ui;
 
         // workaround to clear async code from dropdowns
-        $ui->renderer()->renderAsync($ui->factory()->legacy(""));
+        $ui->renderer()->renderAsync($ui->factory()->legacy()->content(""));
 
         $f = $ui->factory();
         $m = $f->messageBox()->info($text);
@@ -99,7 +99,7 @@ class UIWrapper
         $ui = $this->ui;
 
         // workaround to clear async code from dropdowns
-        $ui->renderer()->renderAsync($ui->factory()->legacy(""));
+        $ui->renderer()->renderAsync($ui->factory()->legacy()->content(""));
 
         $f = $ui->factory();
         $m = $f->messageBox()->success($text);
@@ -111,7 +111,7 @@ class UIWrapper
         $ui = $this->ui;
 
         // workaround to clear async code from dropdowns
-        $ui->renderer()->renderAsync($ui->factory()->legacy(""));
+        $ui->renderer()->renderAsync($ui->factory()->legacy()->content(""));
 
         $f = $ui->factory();
         $m = $f->messageBox()->failure($this->lng->txt("copg_an_error_occured"))
@@ -124,7 +124,7 @@ class UIWrapper
         string $content,
         string $type,
         string $action,
-        array $data = null,
+        ?array $data = null,
         string $component = "",
         bool $primary = false,
         string $aria_label = ""
@@ -132,7 +132,7 @@ class UIWrapper
         $ui = $this->ui;
 
         // workaround to clear async code from dropdowns
-        $ui->renderer()->renderAsync($ui->factory()->legacy(""));
+        $ui->renderer()->renderAsync($ui->factory()->legacy()->content(""));
         /*
         $something = htmlentities($ui->renderer()->renderAsync($ui->factory()->legacy("")));
         if ($something !== "&lt;script data-replace-marker=&quot;script&quot;&gt;&lt;/script&gt;") {
@@ -150,7 +150,7 @@ class UIWrapper
         $ui = $this->ui;
 
         // workaround to clear async code from dropdowns
-        $ui->renderer()->renderAsync($ui->factory()->legacy(""));
+        $ui->renderer()->renderAsync($ui->factory()->legacy()->content(""));
 
         $f = $ui->factory();
         $m = $f->messageBox()->failure($this->lng->txt("copg_error_occured_modal"))
@@ -168,7 +168,7 @@ class UIWrapper
         $r = $ui->renderer();
 
         // workaround to clear async code from dropdowns
-        $ui->renderer()->renderAsync($ui->factory()->legacy(""));
+        $ui->renderer()->renderAsync($ui->factory()->legacy()->content(""));
 
 
         $tpl = new \ilTemplate("tpl.editor_button_group.html", true, true, "components/ILIAS/COPage");
@@ -193,7 +193,7 @@ class UIWrapper
         $r = $ui->renderer();
 
         // workaround to clear async code from dropdowns
-        $ui->renderer()->renderAsync($ui->factory()->legacy(""));
+        $ui->renderer()->renderAsync($ui->factory()->legacy()->content(""));
 
         $tpl = new \ilTemplate("tpl.form_footer.html", true, true, "components/ILIAS/COPage");
 
@@ -378,7 +378,7 @@ class UIWrapper
         string $component,
         string $type,
         string $action,
-        array $data = null
+        ?array $data = null
     ): \ILIAS\UI\Component\Button\Shy {
         $ui = $this->ui;
         $f = $ui->factory();
@@ -405,11 +405,11 @@ class UIWrapper
         string $component,
         string $type,
         string $action,
-        array $data = null
+        ?array $data = null
     ): string {
         $ui = $this->ui;
         // workaround to clear async code from dropdowns
-        $ui->renderer()->renderAsync($ui->factory()->legacy(""));
+        $ui->renderer()->renderAsync($ui->factory()->legacy()->content(""));
         $l = $this->getLink($content, $component, $type, $action, $data);
         return $ui->renderer()->renderAsync($l);
     }

@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\Examples\Popover\Standard;
@@ -60,13 +76,13 @@ function show_popover_with_dynamic_changing_content()
         $replaceSignal = new ReplaceContentSignal($signalId);
         $button = $factory->button()->standard('Back to Overview', '#')
             ->withOnClick($replaceSignal->withAsyncRenderUrl($url . '&page=overview&replaceSignal=' . $signalId));
-        $intro = $factory->legacy("<p>You are viewing page $page</p>");
+        $intro = $factory->legacy()->content("<p>You are viewing page $page</p>");
         echo $renderer->renderAsync([$intro, $button]);
         exit();
     }
 
     // This is the "normal" request to render the popover. Any content of the popover is rendered async.
-    $popover = $factory->popover()->standard($factory->legacy(''))->withTitle('Pages');
+    $popover = $factory->popover()->standard($factory->legacy()->content(''))->withTitle('Pages');
     $asyncUrl = $url . '&page=overview&replaceSignal=' . $popover->getReplaceContentSignal()->getId();
     $popover = $popover->withAsyncContentUrl($asyncUrl);
     $button = $factory->button()->standard('Show Popover', '#')

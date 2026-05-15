@@ -22,7 +22,6 @@ namespace ILIAS\Skill\Profile;
 
 use PHPUnit\Framework\TestCase;
 
-
 class SkillProfileCompletionManagerTest extends TestCase
 {
     protected function getManagerMock(): SkillProfileCompletionManager

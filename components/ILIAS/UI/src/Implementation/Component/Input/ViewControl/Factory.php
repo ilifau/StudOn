@@ -27,9 +27,6 @@ use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\UI\Implementation\Component\Input\Field\Factory as FieldFactory;
 use ILIAS\Language\Language;
 
-/**
- * Factory for View Controls
- */
 class Factory implements VCInterface\Factory
 {
     public function __construct(
@@ -41,7 +38,7 @@ class Factory implements VCInterface\Factory
     ) {
     }
 
-    public function fieldSelection(array $options): VCInterface\FieldSelection
+    public function fieldSelection(array $options): FieldSelection
     {
         return new FieldSelection(
             $this->data_factory,
@@ -51,7 +48,7 @@ class Factory implements VCInterface\Factory
         );
     }
 
-    public function sortation(array $options): VCInterface\Sortation
+    public function sortation(array $options): Sortation
     {
         return new Sortation(
             $this->field_factory,
@@ -62,7 +59,7 @@ class Factory implements VCInterface\Factory
         );
     }
 
-    public function pagination(): VCInterface\Pagination
+    public function pagination(): Pagination
     {
         return new Pagination(
             $this->field_factory,
@@ -72,8 +69,9 @@ class Factory implements VCInterface\Factory
         );
     }
 
-    public function group(array $view_controls): VCInterface\Group
+    public function group(array $view_controls): Group
     {
+        $this->language->loadLanguageModule('ui');
         return new Group(
             $this->data_factory,
             $this->refinery,
@@ -87,6 +85,15 @@ class Factory implements VCInterface\Factory
         return new NullControl(
             $this->data_factory,
             $this->refinery
+        );
+    }
+
+    public function mode(array $options): VCInterface\Mode
+    {
+        return new Mode(
+            $this->data_factory,
+            $this->refinery,
+            $options
         );
     }
 }

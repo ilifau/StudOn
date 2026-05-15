@@ -29,9 +29,21 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class XAccelResponseBuilder implements ResponseBuilder
 {
+    /**
+     * @var string
+     */
     private const DATA = 'data';
+    /**
+     * @var string
+     */
     private const SECURED_DATA = 'secured-data';
+    /**
+     * @var string
+     */
     private const SECURED_EXT_DATA = 'secured-ext-data';
+    /**
+     * @var string
+     */
     private const X_ACCEL_REDIRECT_HEADER = 'X-Accel-Redirect';
 
     public function __construct(private string $external_data_dir)
@@ -95,6 +107,4 @@ class XAccelResponseBuilder implements ResponseBuilder
     {
         return true;
     }
-
-
 }

@@ -98,12 +98,21 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
             }
         );
 
-        $renderer = new class ($component_renderer) extends DefaultRenderer {
+        $renderer = new class (
+            $this->createMock(Render\Loader::class),
+            $this->createMock(JavaScriptBinding::class),
+            $this->createMock(\ILIAS\Language\Language::class),
+            $component_renderer,
+        ) extends DefaultRenderer {
             public array $context_history = [];
 
             public function __construct(
+                Render\Loader $component_renderer_loader,
+                JavaScriptBinding $java_script_binding,
+                \ILIAS\Language\Language $language,
                 protected ComponentRenderer $component_renderer
             ) {
+                parent::__construct($component_renderer_loader, $java_script_binding, $language);
             }
 
             protected function getRendererFor(Component $component): ComponentRenderer
@@ -200,9 +209,7 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $this->assertEquals('foofoo', $html);
     }
 
-    /**
-     * @dataProvider getRenderType
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getRenderType')]
     public function testPassesSelfAsRootIfNoRootExist($render_type)
     {
         $this->component_renderer = $this->createMock(ComponentRenderer::class);
@@ -211,7 +218,7 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $loader = $this->createMock(Loader::class);
         $loader->method('getRendererFor')->willReturn($this->component_renderer);
 
-        $renderer = new TestDefaultRenderer($loader, $this->getJavaScriptBinding());
+        $renderer = new TestDefaultRenderer($loader, $this->getJavaScriptBinding(), $this->getLanguage());
 
         $this->component_renderer->expects($this->once())
             ->method("render")
@@ -220,9 +227,7 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $renderer->$render_type($component);
     }
 
-    /**
-     * @dataProvider getRenderType
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getRenderType')]
     public function testPassesOtherOnAsRoot($render_type)
     {
         $this->component_renderer = $this->createMock(ComponentRenderer::class);
@@ -232,7 +237,7 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $loader = $this->createMock(Loader::class);
         $loader->method('getRendererFor')->willReturn($this->component_renderer);
 
-        $renderer = new TestDefaultRenderer($loader, $this->getJavaScriptBinding());
+        $renderer = new TestDefaultRenderer($loader, $this->getJavaScriptBinding(), $this->getLanguage());
 
         $this->component_renderer->expects($this->once())
             ->method("render")
@@ -264,4 +269,27 @@ class DefaultRendererTest extends ILIAS_UI_TestBase
         $res = $renderer->render([$component, $component], $root);
         $this->assertEquals("..", $res);
     }
+
+    public function testHeaderNestingLevels(): void
+    {
+        $renderer = $this->getDefaultRenderer();
+        $this->assertEquals(1, $renderer->getHeaderNesting());
+        $this->assertEquals(2, $renderer->getHeaderNesting(1));
+        $this->assertEquals(5, $renderer->getHeaderNesting(4));
+        $this->assertEquals(3, $renderer->withHeaderNesting(5)->getHeaderNesting(-2));
+    }
+
+    public function testGetHeaderNestingLevelsError(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->getDefaultRenderer()->getHeaderNesting(-10);
+    }
+
+    public function testSetHeaderNestingLevelsError(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->getDefaultRenderer()->withHeaderNesting(-10);
+    }
+
+
 }

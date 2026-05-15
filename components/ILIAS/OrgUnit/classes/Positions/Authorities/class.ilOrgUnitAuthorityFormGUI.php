@@ -14,8 +14,7 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
 declare(strict_types=1);
 use ILIAS\components\OrgUnit\ARHelper\BaseForm;
@@ -42,7 +41,7 @@ class ilOrgUnitAuthorityFormGUI extends BaseForm // TODO: still in use?
         $c = new ilCustomInputGUI($this->lng->txt('authorities'));
         $f = $this->parent_gui->dic()->ui()->factory();
         $r = $this->parent_gui->dic()->ui()->renderer();
-        $modal = $f->modal()->roundtrip("Modal", $f->legacy(''))->withCloseWithKeyboard(false);
+        $modal = $f->modal()->roundtrip("Modal", $f->legacy()->content(''))->withCloseWithKeyboard(false);
         $button = $f->button()
                     ->shy($this->lng->txt("open_authorities_modal"), '#')
                     ->withOnClick($modal->getShowSignal());

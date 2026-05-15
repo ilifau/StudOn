@@ -24,7 +24,7 @@ require_once(__DIR__ . "/CommonFieldRendering.php");
 use ILIAS\Data;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\UI\Implementation\Component as I;
-use ILIAS\UI\Implementation\Component\Input\InputData;
+use ILIAS\UI\Component\Input\InputData;
 use ILIAS\UI\Implementation\Component\SignalGenerator;
 
 class SelectForTest extends ILIAS\UI\Implementation\Component\Input\Field\Select
@@ -134,7 +134,7 @@ class SelectInputTest extends ILIAS_UI_TestBase
             $byline,
             'id_1'
         );
-        $this->assertEquals($expected, $this->render($select));
+        $this->assertEquals($expected, $this->renderInsideContainer($select));
     }
 
 
@@ -159,7 +159,7 @@ class SelectInputTest extends ILIAS_UI_TestBase
             $byline,
             'id_1'
         );
-        $this->assertEquals($expected, $this->render($select));
+        $this->assertEquals($expected, $this->renderInsideContainer($select));
     }
 
     public function testCommonRendering(): void

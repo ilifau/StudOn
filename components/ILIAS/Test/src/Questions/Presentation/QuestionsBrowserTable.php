@@ -25,6 +25,7 @@ use GuzzleHttp\Psr7\ServerRequest;
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Data\Order;
 use ILIAS\Data\Range;
+use ILIAS\UI\Component\Link\Standard;
 use ILIAS\UI\Component\Table\Action\Standard as TableAction;
 use ILIAS\UI\Component\Table\Column\Column;
 use ILIAS\UI\Component\Table\DataRetrieval;
@@ -57,9 +58,9 @@ class QuestionsBrowserTable implements DataRetrieval
     public function getComponent(ServerRequestInterface $request, ?array $filter): Data
     {
         return $this->ui_factory->table()->data(
+            $this,
             $this->lng->txt('list_of_questions'),
             $this->getColumns(),
-            $this
         )->withId($this->table_id)
         ->withActions($this->getActions())
         ->withRequest($request)
@@ -80,7 +81,7 @@ class QuestionsBrowserTable implements DataRetrieval
             'description' => $column_factory->text(
                 $this->lng->txt('description')
             )->withIsOptional(true, true),
-            'type_tag' => $column_factory->text(
+            'question_type' => $column_factory->text(
                 $this->lng->txt('tst_question_type')
             )->withIsOptional(false, true),
             'points' => $column_factory->number(
@@ -92,7 +93,7 @@ class QuestionsBrowserTable implements DataRetrieval
             'lifecycle' => $column_factory->text(
                 $this->lng->txt('qst_lifecycle')
             )->withIsOptional(true, false),
-            'parent_title' => $column_factory->text(
+            'parent_title' => $column_factory->link(
                 $this->lng->txt($this->parent_title)
             )->withIsOptional(false, true),
             'taxonomies' => $column_factory->text(
@@ -100,11 +101,6 @@ class QuestionsBrowserTable implements DataRetrieval
             )->withIsOptional(false, true),
             'feedback' => $column_factory->boolean(
                 $this->lng->txt('tst_feedback'),
-                $iconYes,
-                $iconNo
-            )->withIsOptional(true, false),
-            'hints' => $column_factory->boolean(
-                $this->lng->txt('hints'),
                 $iconYes,
                 $iconNo
             )->withIsOptional(true, false),
@@ -149,30 +145,53 @@ class QuestionsBrowserTable implements DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         $timezone = new \DateTimeZone($this->current_user->getTimeZone());
         foreach ($this->loadRecords($filter_data ?? [], $order, $range) as $record) {
             $question_id = $record['question_id'];
 
-            $record['type_tag'] = $this->lng->txt($record['type_tag']);
+            $record['question_type'] = $record['question_type'];
             $record['complete'] = (bool) $record['complete'];
             $record['lifecycle'] = \ilAssQuestionLifecycle::getInstance($record['lifecycle'])->getTranslation($this->lng) ?? '';
 
             $record['created'] = (new \DateTimeImmutable("@{$record['created']}"))->setTimezone($timezone);
             $record['tstamp'] = (new \DateTimeImmutable("@{$record['tstamp']}"))->setTimezone($timezone);
             $record['taxonomies'] = $this->resolveTaxonomiesRowData($record['obj_fi'], $question_id);
+            $record['parent_title'] = $this->getParentObjectLink($record);
 
             yield $row_builder->buildDataRow((string) $question_id, $record);
         }
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): int
+    private function getParentObjectLink(array $record): Standard
     {
+        [$parent_class, $parent_command] = match($record['parent_type']) {
+            'qpl' => [\ilObjQuestionPoolGUI::class, \ilObjQuestionPoolGUI::DEFAULT_CMD],
+            'tst' => [\ilObjTestGUI::class, \ilObjTestGUI::SHOW_QUESTIONS_CMD],
+            default => throw new \RuntimeException("Unsupported parent type {$record['parent_type']}"),
+        };
+
+        $this->ctrl->setParameterByClass($parent_class, 'ref_id', $record['parent_ref_id']);
+        $link = $this->ui_factory->link()->standard(
+            $record['parent_title'],
+            $this->ctrl->getLinkTargetByClass($parent_class, $parent_command),
+        );
+        $this->ctrl->setParameterByClass($parent_class, 'ref_id', null);
+
+        return $link;
+    }
+
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): int {
         $filter_data ??= [];
         $this->addFiltersToQuestionList($filter_data);
-        return $this->question_list->getTotalRowCount($filter_data, $additional_parameters);
+        return $this->question_list->getTotalRowCount($additional_viewcontrol_data, $filter_data, $additional_parameters);
     }
 
     public function loadRecords(array $filters = [], ?Order $order = null, ?Range $range = null): array

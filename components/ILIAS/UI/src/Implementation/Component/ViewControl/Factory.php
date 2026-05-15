@@ -34,34 +34,23 @@ class Factory implements VC\Factory
         $this->signal_generator = $signal_generator;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function mode(array $labelled_actions, string $aria_label): VC\Mode
+    public function mode(array $labelled_actions, string $aria_label): Mode
     {
         return new Mode($labelled_actions, $aria_label);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function section(Button $previous_action, Component $button, Button $next_action): VC\Section
+    public function section(Button $previous_action, Component $button, Button $next_action): Section
     {
         return new Section($previous_action, $button, $next_action);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function sortation(array $options, string $selected): VC\Sortation
+
+    public function sortation(array $options, string $selected): Sortation
     {
         return new Sortation($options, $selected, $this->signal_generator);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function pagination(): VC\Pagination
+    public function pagination(): Pagination
     {
         return new Pagination($this->signal_generator);
     }

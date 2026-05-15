@@ -23,7 +23,6 @@ namespace ILIAS\GlobalScreen\Scope\Layout;
 
 use ILIAS\GlobalScreen\Scope\Layout\Factory\ModificationFactory;
 use ILIAS\GlobalScreen\Scope\Layout\MetaContent\MetaContent;
-use ILIAS\GlobalScreen\SingletonTrait;
 
 /**
  * Class LayoutServices

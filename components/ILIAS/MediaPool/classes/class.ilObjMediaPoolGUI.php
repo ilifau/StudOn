@@ -25,6 +25,7 @@ use ILIAS\Repository\Form\FormAdapterGUI;
 use ILIAS\MediaPool\InternalGUIService;
 use ILIAS\FileUpload\Handler\HandlerResult;
 use ILIAS\MediaPool\Settings\SettingsGUI;
+use ILIAS\ILIASObject\Properties\Translations\TranslationGUI;
 
 /**
  * User Interface class for media pool objects
@@ -33,7 +34,7 @@ use ILIAS\MediaPool\Settings\SettingsGUI;
  *
  * @ilCtrl_Calls ilObjMediaPoolGUI: ilObjMediaObjectGUI, ilObjFolderGUI, ilEditClipboardGUI, ilPermissionGUI
  * @ilCtrl_Calls ilObjMediaPoolGUI: ilInfoScreenGUI, ilMediaPoolPageGUI, ilExportGUI
- * @ilCtrl_Calls ilObjMediaPoolGUI: ilCommonActionDispatcherGUI, ilObjectCopyGUI, ilObjectTranslationGUI, ilMediaPoolImportGUI
+ * @ilCtrl_Calls ilObjMediaPoolGUI: ilCommonActionDispatcherGUI, ilObjectCopyGUI, ILIAS\ILIASObject\Properties\Translations\TranslationGUI, ilMediaPoolImportGUI
  * @ilCtrl_Calls ilObjMediaPoolGUI: ilObjectMetaDataGUI
  * @ilCtrl_Calls ilObjMediaPoolGUI: ilMobMultiSrtUploadGUI, ilObjectMetaDataGUI, ilRepoStandardUploadHandlerGUI, ilMediaCreationGUI
  * @ilCtrl_Calls ilObjMediaPoolGUI: ILIAS\MediaPool\Settings\SettingsGUI
@@ -53,6 +54,7 @@ class ilObjMediaPoolGUI extends ilObject2GUI
     protected ilGlobalTemplateInterface $main_tpl;
     protected FileUpload $upload;
     protected ilLogger $mep_log;
+    protected ilDBInterface $db;
     public bool $output_prepared;
 
     public function __construct(
@@ -80,6 +82,7 @@ class ilObjMediaPoolGUI extends ilObject2GUI
 
         $this->mep_log = ilLoggerFactory::getLogger("mep");
 
+        $this->db = $DIC->database();
 
         $this->mode = ($this->mep_request->getMode() !== "")
             ? $this->mep_request->getMode()
@@ -352,13 +355,7 @@ class ilObjMediaPoolGUI extends ilObject2GUI
                 $this->prepareOutput();
                 $this->addHeaderAction();
                 $this->ctrl->setReturn($this, $this->mode);
-
-                $return_cmd = $ilCtrl->getLinkTarget(
-                    $this,
-                    "insertFromClipboard"
-                );
-
-                $clip_gui = new ilEditClipboardGUI($return_cmd);
+                $clip_gui = new ilEditClipboardGUI();
                 $clip_gui->setMultipleSelections(true);
                 $clip_gui->setInsertButtonTitle($lng->txt("mep_copy_to_mep"));
                 $ilTabs->setTabActive("clipboard");
@@ -399,14 +396,26 @@ class ilObjMediaPoolGUI extends ilObject2GUI
                 $this->ctrl->forwardCommand($gui);
                 break;
 
-            case 'ilobjecttranslationgui':
+            case strtolower(TranslationGUI::class):
                 $this->prepareOutput();
                 $this->addHeaderAction();
                 //$this->setTabs("settings");
                 $ilTabs->activateTab("settings");
                 $this->setSettingsSubTabs("obj_multilinguality");
-                $transgui = new ilObjectTranslationGUI($this);
-                $transgui->setTitleDescrOnlyMode(false);
+                $transgui = new TranslationGUI(
+                    $this->getObject(),
+                    $this->lng,
+                    $this->access,
+                    $this->user,
+                    $this->ctrl,
+                    $this->tpl,
+                    $this->ui_factory,
+                    $this->ui_renderer,
+                    $this->http,
+                    $this->refinery,
+                    $this->toolbar
+                );
+                $transgui->forceContentTranslation();
                 $this->ctrl->forwardCommand($transgui);
                 $this->tpl->printToStdout();
                 break;
@@ -751,12 +760,7 @@ class ilObjMediaPoolGUI extends ilObject2GUI
         exit;
     }
 
-    /**
-     * Get media pool page
-     * @param
-     * @return
-     */
-    protected function getMediaPoolPageGUI($mep_item_id, $old_nr = 0)
+    protected function getMediaPoolPageGUI($mep_item_id, $old_nr = 0): ilMediaPoolPageGUI
     {
         $page_gui = new ilMediaPoolPageGUI($mep_item_id, $old_nr);
         $page_gui->setPoolGUI($this);
@@ -855,6 +859,17 @@ class ilObjMediaPoolGUI extends ilObject2GUI
 
         $this->checkPermission("write");
 
+        $ilCtrl->setParameterByClass(
+            "ileditclipboardgui",
+            "returnCommand",
+            rawurlencode($ilCtrl->getLinkTarget(
+                $this,
+                "insertFromClipboard",
+                "",
+                false,
+                false
+            ))
+        );
         $ilCtrl->redirectByClass("ilEditClipboardGUI", "getObject");
     }
 
@@ -1226,7 +1241,7 @@ class ilObjMediaPoolGUI extends ilObject2GUI
             if ($mset->get("mep_activate_pages")) {
                 $ilTabs->addSubTabTarget(
                     "obj_multilinguality",
-                    $this->ctrl->getLinkTargetByClass("ilobjecttranslationgui", "")
+                    $this->ctrl->getLinkTargetByClass(TranslationGUI::class, "")
                 );
             }
         }
@@ -1396,7 +1411,7 @@ class ilObjMediaPoolGUI extends ilObject2GUI
 
         $modal = $internal_gui->ui()->factory()->modal()->roundtrip(
             $lng->txt("preview"),
-            $internal_gui->ui()->factory()->legacy("<iframe id='ilMepPreviewContent'></iframe>")
+            $internal_gui->ui()->factory()->legacy()->content("<iframe id='ilMepPreviewContent'></iframe>")
         );
         $html = $internal_gui->ui()->renderer()->render($modal);
         $html = str_replace(
@@ -1410,9 +1425,9 @@ class ilObjMediaPoolGUI extends ilObject2GUI
 
     public function export(): void
     {
-        $ot = ilObjectTranslation::getInstance($this->object->getId());
+        $ot = $this->object->getObjectProperties()->getPropertyTranslations();
         $opt = "";
-        if ($ot->getContentActivated()) {
+        if ($ot->getContentTranslationActivated()) {
             $format = explode("_", $this->mep_request->getExportFormat());
             $opt = ilUtil::stripSlashes($format[1]);
         }
@@ -1440,7 +1455,7 @@ class ilObjMediaPoolGUI extends ilObject2GUI
             $mep_hash = uniqid();
             $this->ctrl->setParameter($this, "mep_hash", $mep_hash);
             $this->bulk_upload_form = $this->gui
-                ->form(self::class, 'performBulkUpload')
+                ->form([self::class], 'performBulkUpload')
                 ->section("props", $this->lng->txt('mep_bulk_upload'))
                 ->file(
                     "media_files",

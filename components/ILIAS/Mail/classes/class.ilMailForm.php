@@ -18,39 +18,41 @@
 
 declare(strict_types=1);
 
-/**
- * @author Nadia Ahmad
- * @version $Id$
- */
+use ILIAS\Mail\RecipientSearch\LegacyAutocompleteSearchResult;
+use ILIAS\Mail\RecipientSearch\LegacyUserSearchBasedProvider;
+use ILIAS\Mail\RecipientSearch\SentMailsBasedProvider;
+use ILIAS\Mail\RecipientSearch\Search;
+use ILIAS\Contact\BuddySystem\MailRecipientSearch\MailRecipientSearchProvider;
+
 class ilMailForm
 {
     /**
      * @return array{hasMoreResults: bool, items: array}
      */
-    public function getRecipientAsync(string $quotedTerm, string $term, bool $doRecipientSearch = true): array
+    public function getRecipientAsync(string $quoted_term, string $term, bool $do_recipient_search = true): array
     {
         global $DIC;
 
         $http = $DIC->http();
         $refinery = $DIC->refinery();
 
-        $mode = ilMailAutoCompleteRecipientResult::MODE_STOP_ON_MAX_ENTRIES;
+        $mode = LegacyAutocompleteSearchResult::MODE_STOP_ON_MAX_ENTRIES;
         if (
             $http->wrapper()->query()->has('fetchall') &&
             $http->wrapper()->query()->retrieve('fetchall', $refinery->kindlyTo()->bool())
         ) {
-            $mode = ilMailAutoCompleteRecipientResult::MODE_FETCH_ALL;
+            $mode = LegacyAutocompleteSearchResult::MODE_FETCH_ALL;
         }
 
-        $result = new ilMailAutoCompleteRecipientResult($mode);
+        $result = new LegacyAutocompleteSearchResult($mode);
 
-        $search = new ilMailAutoCompleteSearch($result);
-        if ($doRecipientSearch) {
-            $search->addProvider(new ilMailAutoCompleteSentMailsRecipientsProvider($quotedTerm, $term));
+        $search = new Search($result);
+        if ($do_recipient_search) {
+            $search->addProvider(new SentMailsBasedProvider($quoted_term, $term));
         }
-        $search->addProvider(new ilMailAutoCompleteBuddyRecipientsProvider($quotedTerm, $term));
+        $search->addProvider(new MailRecipientSearchProvider($quoted_term, $term));
         if (ilSearchSettings::getInstance()->isLuceneUserSearchEnabled()) {
-            $search->addProvider(new ilMailAutoCompleteUserProvider($quotedTerm, $term));
+            $search->addProvider(new LegacyUserSearchBasedProvider($quoted_term, $term));
         }
         $search->search();
 

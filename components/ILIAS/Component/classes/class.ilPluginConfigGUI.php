@@ -14,8 +14,7 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
 /**
  * Parent class for all plugin config gui classes
@@ -86,8 +85,23 @@ abstract class ilPluginConfigGUI
             );
         }
 
+        $this->addTabs($ilTabs);
+
+        $next_class = $ilCtrl->getNextClass();
+        if ($next_class && $this->performNextClass($next_class)) {
+            return;
+        }
         $this->performCommand($ilCtrl->getCmd("configure"));
     }
 
     abstract public function performCommand(string $cmd): void;
+
+    protected function performNextClass(string $next_class): bool
+    {
+        return false;
+    }
+
+    protected function addTabs(ilTabsGUI $tabs): void
+    {
+    }
 }

@@ -111,7 +111,7 @@ abstract class AbstractLayoutModification implements LayoutModification
         try {
             return $this->checkClosure();
         } catch (\Throwable $e) {
-            if (defined('DEVMODE') && ((bool) DEVMODE) === true) {
+            if (defined('DEVMODE') && (bool) DEVMODE) {
                 throw $e;
             }
             return false;
@@ -147,7 +147,7 @@ abstract class AbstractLayoutModification implements LayoutModification
             }
             // First argument has wrong type
             if ($param->getType()->getName() !== $requested_first_argument_type) {
-                throw new InvalidModification($this, "Modification's first parameter does not match the requested type `$requested_first_argument_type`");
+                throw new InvalidModification($this, "Modification's first parameter does not match the requested type");
             }
             // First argument nullable
             if ($this->firstArgumentAllowsNull() && !$param->allowsNull()) {
@@ -162,14 +162,14 @@ abstract class AbstractLayoutModification implements LayoutModification
             }
             // return type check
             if ($r->getReturnType()->getName() !== $requested_return_type) {
-                throw new InvalidModification($this, "Modification's return type does not match the requested type `$requested_return_type`");
+                throw new InvalidModification($this, "Modification's return type does not match the requested type");
             }
 
             // Return type nullable
             if ($this->returnTypeAllowsNull() && !$r->getReturnType()->allowsNull()) {
                 throw new InvalidModification($this, "Modification's return type must be nullable");
             }
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             throw new InvalidModification($this, "Modification threw an exception while checking the closure");
         }
 

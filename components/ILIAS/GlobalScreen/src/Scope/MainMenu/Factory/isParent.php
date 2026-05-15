@@ -44,7 +44,6 @@ interface isParent extends isItem
     public function removeChild(isItem $child_to_remove): isParent;
 
     public function hasChildren(): bool;
-
     public function calculateAmountOfChildren(): void;
     public function getAmountOfChildren(bool $including_dropped = true): int;
 }

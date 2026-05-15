@@ -22,6 +22,7 @@ declare(strict_types=1);
  * This class represents a date/time property in a property form.
  *
  * @author Alexander Killing <killing@leifos.de>
+ * @deprecated 12 This component will be removed with ILIAS 12
  */
 class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFilterItem, ilToolbarItem
 {
@@ -56,7 +57,7 @@ class ilDateTimeInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableF
      *
      * 		$dt_form->setDate(new ilDate('2008-08-01',IL_CAL_DATE));
      */
-    public function setDate(ilDateTime $a_date = null): void
+    public function setDate(?ilDateTime $a_date = null): void
     {
         $this->date = $a_date;
     }

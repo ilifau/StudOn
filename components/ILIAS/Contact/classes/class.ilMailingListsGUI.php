@@ -21,6 +21,7 @@ declare(strict_types=1);
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\Contact\MailingLists\MailingListsTable;
 use ILIAS\Contact\MailingLists\MailingListsMembersTable;
+use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 
 class ilMailingListsGUI implements ilCtrlSecurityInterface
 {
@@ -35,7 +36,7 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
     private readonly ilRbacSystem $rbacsystem;
     private readonly ilFormatMail $umail;
     private readonly ilMailingLists $mlists;
-    private ilPropertyFormGUI $form_gui;
+    private StandardForm $form;
     private readonly \ILIAS\UI\Factory $ui_factory;
     private readonly \ILIAS\UI\Renderer $ui_renderer;
     private readonly ilTabsGUI $tabs;
@@ -66,7 +67,6 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
 
         $this->lng->loadLanguageModule('mail');
     }
-
 
     public function getUnsafeGetCommands(): array
     {
@@ -107,7 +107,7 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
         if (
             !ilBuddySystem::getInstance()->isEnabled() ||
             (
-                0 === count(ilBuddyList::getInstanceByGlobalUser()->getLinkedRelations()) &&
+                count(ilBuddyList::getInstanceByGlobalUser()->getLinkedRelations()) === 0 &&
                 !$this->mlists->hasAny()
             )
         ) {
@@ -216,13 +216,7 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
         }
 
         $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
-        $this->tpl->addBlockFile(
-            'ADM_CONTENT',
-            'adm_content',
-            'tpl.mail_mailing_lists_list.html',
-            'components/ILIAS/Contact'
-        );
-        $this->tpl->setVariable('DELETE_CONFIRMATION', $c_gui->getHTML());
+        $this->tpl->setContent($c_gui->getHTML());
         $this->tpl->printToStdout();
     }
 
@@ -247,13 +241,21 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
             }
 
             if ($counter !== 0) {
-                $this->tpl->setOnScreenMessage('success', $this->lng->txt('mail_deleted_entry'));
+                $this->tpl->setOnScreenMessage(
+                    $this->tpl::MESSAGE_TYPE_SUCCESS,
+                    $this->lng->txt('mail_deleted_entry'),
+                    true
+                );
             }
         } else {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('mail_delete_error'));
+            $this->tpl->setOnScreenMessage(
+                $this->tpl::MESSAGE_TYPE_FAILURE,
+                $this->lng->txt('mail_delete_error'),
+                true
+            );
         }
 
-        $this->showMailingListsCommand();
+        $this->ctrl->redirect($this, 'showMailingLists');
     }
 
     private function mailToList(): void
@@ -263,13 +265,13 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
         $mailing_allowed = $this->rbacsystem->checkAccess('internal_mail', $mail->getMailObjectReferenceId());
 
         if (!$mailing_allowed) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('no_permission'));
+            $this->tpl->setOnScreenMessage($this->tpl::MESSAGE_TYPE_FAILURE, $this->lng->txt('no_permission'));
             return;
         }
 
         $ml_ids = $this->getMailingListIdsFromRequest();
         if ($ml_ids === []) {
-            $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_select_one_entry'));
+            $this->tpl->setOnScreenMessage($this->tpl::MESSAGE_TYPE_INFO, $this->lng->txt('mail_select_one_entry'));
             $this->showMailingListsCommand();
             return;
         }
@@ -297,12 +299,12 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
             $mail_data = $this->umail->appendSearchResult(array_values($lists), 'to');
             $this->umail->persistToStage(
                 (int) $mail_data['user_id'],
-                $mail_data['attachments'],
                 $mail_data['rcp_to'],
                 $mail_data['rcp_cc'],
                 $mail_data['rcp_bcc'],
                 $mail_data['m_subject'],
                 $mail_data['m_message'],
+                $mail_data['attachments'],
                 $mail_data['use_placeholders'],
                 $mail_data['tpl_ctx_id'],
                 $mail_data['tpl_ctx_params']
@@ -314,15 +316,6 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
 
     public function showMailingListsCommand(): void
     {
-        $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
-        $this->tpl->addBlockFile(
-            'ADM_CONTENT',
-            'adm_content',
-            'tpl.mail_mailing_lists_list.html',
-            'components/ILIAS/Contact'
-        );
-
-        // check if current user may send mails
         $mail = new ilMail($this->user->getId());
 
         $this->toolbar->addComponent(
@@ -340,7 +333,9 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
             $this->http
         );
         $tbl->setMailingAllowed($this->rbacsystem->checkAccess('internal_mail', $mail->getMailObjectReferenceId()));
-        $this->tpl->setVariable('MAILING_LISTS', $this->ui_renderer->render($tbl->getComponent()));
+
+        $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
+        $this->tpl->setContent($this->ui_renderer->render($tbl->getComponent()));
         $this->tpl->printToStdout();
     }
 
@@ -362,17 +357,18 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
             }
 
             $this->ctrl->setParameter($this, 'ml_id', $this->mlists->getCurrentMailingList()->getId());
-            $this->initForm();
-        } else {
-            $this->initForm();
         }
+        $this->initForm();
 
-        if ($this->form_gui->checkInput()) {
+        $form = $this->form->withRequest($this->http->request());
+
+        if (!$form->getError()) {
+            $data = $form->getData();
             $this->mlists->getCurrentMailingList()->setTitle(
-                $this->form_gui->getInput('title')
+                $data['title']
             );
             $this->mlists->getCurrentMailingList()->setDescription(
-                $this->form_gui->getInput('description')
+                $data['description']
             );
 
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'), true);
@@ -390,81 +386,65 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
         }
 
         $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
-        $this->tpl->addBlockFile(
-            'ADM_CONTENT',
-            'adm_content',
-            'tpl.mail_mailing_lists_form.html',
-            'components/ILIAS/Contact'
-        );
-
-        $this->form_gui->setValuesByPost();
-
-        $this->tpl->setVariable('FORM', $this->form_gui->getHTML());
+        $this->tpl->setContent($this->ui_renderer->render([
+            'mailing_lists' => $form
+        ]));
         $this->tpl->printToStdout();
     }
 
     private function initForm(): void
     {
-        $this->form_gui = new ilPropertyFormGUI();
-        $this->form_gui->setFormAction($this->ctrl->getFormAction($this, 'saveForm'));
-        $this->form_gui->setTitle($this->lng->txt('mail_mailing_list'));
-        $titleGui = new ilTextInputGUI($this->lng->txt('title'), 'title');
-        $titleGui->setRequired(true);
-        $this->form_gui->addItem($titleGui);
-        $descriptionGui = new ilTextAreaInputGUI($this->lng->txt('description'), 'description');
-        $descriptionGui->setCols(40);
-        $descriptionGui->setRows(8);
-        $this->form_gui->addItem($descriptionGui);
-        $this->form_gui->addCommandButton('saveForm', $this->lng->txt('save'));
-        $this->form_gui->addCommandButton('showMailingLists', $this->lng->txt('cancel'));
-    }
+        $title = $this->ui_factory
+            ->input()
+            ->field()
+            ->text(
+                $this->lng->txt('title')
+            )
+            ->withRequired(true)
+            ->withValue(
+                $this->mlists->getCurrentMailingList() ? $this->mlists->getCurrentMailingList()->getTitle() : ''
+            );
 
-    private function setValuesByObject(): void
-    {
-        $this->form_gui->setValuesByArray([
-            'title' => $this->mlists->getCurrentMailingList()->getTitle(),
-            'description' => $this->mlists->getCurrentMailingList()->getDescription() ?? ''
-        ]);
-    }
+        $description = $this->ui_factory
+            ->input()
+            ->field()
+            ->textarea(
+                $this->lng->txt('description')
+            )
+            ->withValue(
+                $this->mlists->getCurrentMailingList() ? $this->mlists->getCurrentMailingList()->getDescription() : ''
+            );
 
-    private function setDefaultValues(): void
-    {
-        $this->form_gui->setValuesByArray([
-            'title' => '',
-            'description' => ''
-        ]);
+        $this->form = $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this, 'saveForm'),
+            [
+                'title' => $title,
+                'description' => $description
+            ]
+        );
     }
 
     private function showFormCommand(): void
     {
-        $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
-        $this->tpl->addBlockFile(
-            'ADM_CONTENT',
-            'adm_content',
-            'tpl.mail_mailing_lists_form.html',
-            'components/ILIAS/Contact'
-        );
-
         if ($this->mlists->getCurrentMailingList() && $this->mlists->getCurrentMailingList()->getId()) {
             if (!$this->mlists->isOwner($this->mlists->getCurrentMailingList()->getId(), $this->user->getId())) {
                 $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
             }
 
             $this->ctrl->setParameter($this, 'ml_id', $this->mlists->getCurrentMailingList()->getId());
-            $this->initForm();
-            $this->setValuesByObject();
-        } else {
-            $this->initForm();
-            $this->setDefaultValues();
         }
+        $this->initForm();
 
-        $this->tpl->setVariable('FORM', $this->form_gui->getHTML());
+        $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
+        $this->tpl->setContent($this->ui_renderer->render([
+            'mailing_lists' => $this->form
+        ]));
         $this->tpl->printToStdout();
     }
 
     private function showMembersListCommand(): void
     {
-        if ($this->mlists->getCurrentMailingList()->getId() === 0) {
+        if (!$this->mlists->getCurrentMailingList() || $this->mlists->getCurrentMailingList()->getId() === 0) {
             $this->showMailingListsCommand();
             return;
         }
@@ -477,15 +457,7 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
 
         $this->ctrl->setParameter($this, 'ml_id', $this->mlists->getCurrentMailingList()->getId());
 
-        $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
-        $this->tpl->addBlockFile(
-            'ADM_CONTENT',
-            'adm_content',
-            'tpl.mail_mailing_lists_members.html',
-            'components/ILIAS/Contact'
-        );
-
-        $availale_usr_ids = array_diff(
+        $available_usr_ids = array_diff(
             array_map(
                 static function (ilBuddySystemRelation $relation): int {
                     return $relation->getBuddyUsrId();
@@ -500,7 +472,7 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
             ),
         );
 
-        if ($availale_usr_ids !== []) {
+        if ($available_usr_ids !== []) {
             $this->toolbar->addComponent(
                 $this->ui_factory->button()->standard(
                     $this->lng->txt('add'),
@@ -516,7 +488,9 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
             $this->ui_factory,
             $this->http
         );
-        $this->tpl->setVariable('MEMBERS_LIST', $this->ui_renderer->render($tbl->getComponent()));
+
+        $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
+        $this->tpl->setContent($this->ui_renderer->render($tbl->getComponent()));
         $this->tpl->printToStdout();
     }
 
@@ -564,14 +538,7 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
         }
 
         $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
-        $this->tpl->addBlockFile(
-            'ADM_CONTENT',
-            'adm_content',
-            'tpl.mail_mailing_lists_members.html',
-            'components/ILIAS/Contact'
-        );
-        $this->tpl->setVariable('DELETE_CONFIRMATION', $c_gui->getHTML());
-
+        $this->tpl->setContent($c_gui->getHTML());
         $this->tpl->printToStdout();
     }
 
@@ -581,41 +548,37 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
             $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
         }
 
-        if (
-            $this->http->wrapper()->post()->has('a_id') &&
+        if ($this->http->wrapper()->post()->has('a_id') &&
             ($requested_entry_ids = $this->http->wrapper()->post()->retrieve(
                 'a_id',
                 $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())
-            )) !== []
-        ) {
+            )) !== []) {
             $assigned_entries = $this->mlists->getCurrentMailingList()->getAssignedEntries();
             foreach ($requested_entry_ids as $id) {
                 if (isset($assigned_entries[$id])) {
                     $this->mlists->getCurrentMailingList()->deleteEntry($id);
                 }
             }
-            $this->tpl->setOnScreenMessage('success', $this->lng->txt('mail_success_removed_user'));
+            $this->tpl->setOnScreenMessage(
+                $this->tpl::MESSAGE_TYPE_SUCCESS,
+                $this->lng->txt('mail_success_removed_user'),
+                true
+            );
         } else {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('mail_delete_error'));
+            $this->tpl->setOnScreenMessage(
+                $this->tpl::MESSAGE_TYPE_FAILURE,
+                $this->lng->txt('mail_delete_error'),
+                true
+            );
         }
 
-        $this->showMembersListCommand();
+        $this->ctrl->setParameter($this, 'ml_id', $this->mlists->getCurrentMailingList()->getId());
+        $this->ctrl->redirect($this, 'showMembersList');
     }
 
-    private function getAssignmentForm(): ilPropertyFormGUI
+    private function getAssignmentForm(): ?StandardForm
     {
-        $form = new ilPropertyFormGUI();
-        $this->ctrl->setParameter($this, 'ml_id', $this->mlists->getCurrentMailingList()->getId());
-        $form->setFormAction($this->ctrl->getFormAction($this, 'saveAssignmentForm'));
-        $form->setTitle(
-            sprintf(
-                $this->lng->txt('mail_assign_entry_to_mailing_list'),
-                $this->mlists->getCurrentMailingList()->getTitle()
-            )
-        );
-
         $options = [];
-        $options[''] = $this->lng->txt('please_select');
 
         $relations = ilBuddyList::getInstanceByGlobalUser()->getLinkedRelations();
         $names = ilUserUtil::getNamePresentation(
@@ -639,27 +602,40 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
             }
         }
 
-        if (count($options) > 1) {
-            $formItem = new ilSelectInputGUI($this->lng->txt('mail_entry_of_contacts'), 'usr_id');
-            $formItem->setRequired(true);
-            $formItem->setOptions($options);
-            $form->addItem($formItem);
+        if (count($options) > 0) {
+            $user_select = $this->ui_factory->input()->field()->select(
+                $this->lng->txt('mail_entry_of_contacts'),
+                $options
+            )->withRequired(true);
 
-            $form->addCommandButton('saveAssignmentForm', $this->lng->txt('mail_assign_to_mailing_list'));
-        } elseif (count($options) === 1 && count($relations) > 0) {
+            $this->ctrl->setParameter($this, 'ml_id', $this->mlists->getCurrentMailingList()->getId());
+            $form = $this->ui_factory->input()->container()->form()->standard(
+                $this->ctrl->getFormAction($this, 'saveAssignmentForm'),
+                ['usr_id' => $user_select]
+            );
+
+            return $form;
+        }
+
+        if (count($relations) > 0) {
             $this->tpl->setOnScreenMessage(
-                'info',
+                $this->tpl::MESSAGE_TYPE_INFO,
                 $this->lng->txt('mail_mailing_lists_all_contact_entries_assigned'),
                 true
             );
-            $this->ctrl->redirect($this, 'showMembersList');
-        } elseif (count($relations) === 0) {
-            $this->tpl->setOnScreenMessage('info', $this->lng->txt('mail_mailing_lists_no_contact_entries'), true);
+
+            $this->ctrl->setParameter($this, 'ml_id', $this->mlists->getCurrentMailingList()->getId());
             $this->ctrl->redirect($this, 'showMembersList');
         }
-        $form->addCommandButton('showMembersList', $this->lng->txt('cancel'));
 
-        return $form;
+        $this->tpl->setOnScreenMessage(
+            $this->tpl::MESSAGE_TYPE_INFO,
+            $this->lng->txt('mail_mailing_lists_no_contact_entries'),
+            true
+        );
+
+        $this->ctrl->setParameter($this, 'ml_id', $this->mlists->getCurrentMailingList()->getId());
+        $this->ctrl->redirect($this, 'showMembersList');
     }
 
     private function saveAssignmentFormCommand(): void
@@ -669,31 +645,42 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
         }
 
         $form = $this->getAssignmentForm();
-        if (!$form->checkInput()) {
-            $form->setValuesByPost();
+        if (!$form) {
             $this->showAssignmentFormCommand($form);
             return;
         }
 
+        $form = $form->withRequest($this->http->request());
+        if ($form->getError()) {
+            $this->showAssignmentFormCommand($form);
+            return;
+        }
+        $data = $form->getData();
+
         if (
             ilBuddyList::getInstanceByGlobalUser()->getRelationByUserId(
-                $this->http->wrapper()->post()->retrieve('usr_id', $this->refinery->kindlyTo()->int())
+                $this->refinery->kindlyTo()->int()->transform($data['usr_id'])
             )->isLinked()
         ) {
             $this->mlists->getCurrentMailingList()->assignUser(
-                $this->http->wrapper()->post()->retrieve('usr_id', $this->refinery->kindlyTo()->int())
+                $this->refinery->kindlyTo()->int()->transform($data['usr_id'])
             );
-            $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'));
-            $this->showMembersListCommand();
-            return;
+            $this->tpl->setOnScreenMessage(
+                $this->tpl::MESSAGE_TYPE_SUCCESS,
+                $this->lng->txt('saved_successfully'),
+                true
+            );
+
+            $this->ctrl->setParameter($this, 'ml_id', $this->mlists->getCurrentMailingList()->getId());
+            $this->ctrl->redirect($this, 'showMembersList');
         }
 
         $this->showAssignmentFormCommand($form);
     }
 
-    private function showAssignmentFormCommand(?ilPropertyFormGUI $form = null): void
+    public function showAssignmentFormCommand(?StandardForm $form = null): void
     {
-        if ($this->mlists->getCurrentMailingList()->getId() === 0) {
+        if (!$this->mlists->getCurrentMailingList() || $this->mlists->getCurrentMailingList()->getId() === 0) {
             $this->showMembersListCommand();
             return;
         }
@@ -702,19 +689,12 @@ class ilMailingListsGUI implements ilCtrlSecurityInterface
             $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
         }
 
-        $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
-        $this->tpl->addBlockFile(
-            'ADM_CONTENT',
-            'adm_content',
-            'tpl.mail_mailing_lists_members_form.html',
-            'components/ILIAS/Contact'
-        );
-
-        if (!($form instanceof ilPropertyFormGUI)) {
+        if (!$form instanceof StandardForm) {
             $form = $this->getAssignmentForm();
         }
 
-        $this->tpl->setVariable('FORM', $form->getHTML());
+        $this->tpl->setTitle($this->lng->txt('mail_addressbook'));
+        $this->tpl->setContent($this->ui_renderer->render($form));
         $this->tpl->printToStdout();
     }
 }

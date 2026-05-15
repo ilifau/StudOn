@@ -80,7 +80,7 @@ class CropRectangle extends AbstractMachine implements FlavourMachine
         $target_width = $for_definition->getMaxWidth();
         $target_height = (int) ($for_definition->getMaxWidth() / $for_definition->getRatio());
 
-        list($cutout_width, $cutout_height, $x_shift, $y_shift) = $this->calculateCutout(
+        [$cutout_width, $cutout_height, $x_shift, $y_shift] = $this->calculateCutout(
             (int) $source_width,
             (int) $source_height,
             $for_definition->getRatio()

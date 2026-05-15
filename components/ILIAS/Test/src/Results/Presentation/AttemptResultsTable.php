@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Test\Results\Presentation;
 
-use ILIAS\Test\Results\Data\AttemptResult;
+use ILIAS\Test\Results\Data\AttemptSolutions;
 use ILIAS\Test\Results\Data\QuestionResult;
 use ILIAS\UI\Component\Table\Presentation as PresentationTable;
 use ILIAS\UI\Component\Table\PresentationRow;
@@ -54,7 +54,7 @@ class AttemptResultsTable
         private HTTPService $http,
         DataFactory $data_factory,
         Language $lng,
-        private AttemptResult $test_results,
+        private AttemptSolutions $test_results,
         Settings $settings,
         string $title,
         bool $for_print
@@ -202,7 +202,6 @@ class AttemptResultsTable
             ];
 
             $stats_fields = $important_fields;
-            $stats_fields[$lng->txt('tst_question_hints_requested_hint_count_header')] = (string) $question->getNumberOfRequestedHints();
             $stats = $ui_factory->listing()->characteristicValue()->text($stats_fields);
 
             $contents = [
@@ -215,15 +214,9 @@ class AttemptResultsTable
                 ]);
             }
 
-            $listing = [
-                $lng->txt('tst_header_participant') => $question->getUserAnswer()
-            ];
-            if ($autosave_content = $question->getAutosavedAnswer()) {
-                $listing[$lng->txt('autosavecontent')] = $autosave_content;
-            }
-
+            $user_answer = $question->getUserAnswer();
             $answer_contents = [
-                $ui_factory->listing()->descriptive($listing)
+                $ui_factory->listing()->descriptive([$lng->txt('tst_header_participant') => $user_answer])
             ];
             if ($env->getShowBestSolution()) {
                 $answer_contents[] = $ui_factory->listing()->descriptive([

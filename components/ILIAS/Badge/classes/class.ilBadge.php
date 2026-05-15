@@ -40,8 +40,8 @@ class ilBadge
     private ?Services $resource_storage;
 
     public function __construct(
-        int $a_id = null,
-        Container $container = null
+        ?int $a_id = null,
+        ?Container $container = null
     ) {
 
         if ($container === null) {
@@ -63,7 +63,7 @@ class ilBadge
      */
     public static function getInstancesByParentId(
         int $a_parent_id,
-        array $a_filter = null
+        ?array $a_filter = null
     ): array {
         global $DIC;
 
@@ -312,7 +312,7 @@ class ilBadge
         return $this->valid;
     }
 
-    public function setConfiguration(array $a_value = null): void
+    public function setConfiguration(?array $a_value = null): void
     {
         if (is_array($a_value) && !count($a_value)) {
             $a_value = null;
@@ -394,7 +394,7 @@ class ilBadge
 
     protected function getFilePath(
         int $a_id,
-        string $a_subdir = null
+        ?string $a_subdir = null
     ): string {
         $storage = new ilFSStorageBadge($a_id);
         $storage->create();

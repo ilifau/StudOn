@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\Style\Content\StandardGUIRequest;
 use ILIAS\Style\Content\InternalGUIService;
@@ -143,7 +143,7 @@ class ilContentStyleSettingsGUI
      */
     public function edit(): void
     {
-        $this->checkPermission("visible,read");
+        $this->checkPermission("read,sty_write_content");
 
         // @todo: check these, they are checked later, but never (ILIAS 6) set
         $fixed_style = 0;
@@ -199,10 +199,7 @@ class ilContentStyleSettingsGUI
             $this->toolbar->addSeparator();
 
             // from styles selector
-            $si = new ilSelectInputGUI(
-                $this->lng->txt("sty_move_obj_styles") . ": " . $this->lng->txt("sty_from"),
-                "from_style"
-            );
+            $si = new ilSelectInputGUI($this->lng->txt("sty_move_obj_styles") . ": " . $this->lng->txt("sty_from"), "from_style");
             $si->setOptions($from_styles);
             $this->toolbar->addInputItem($si, true);
 

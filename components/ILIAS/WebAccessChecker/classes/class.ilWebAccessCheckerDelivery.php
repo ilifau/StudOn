@@ -16,11 +16,10 @@
  *
  *********************************************************************/
 
+use Psr\Http\Message\StreamInterface;
 use ILIAS\FileDelivery\Delivery;
 use ILIAS\HTTP\Cookies\CookieFactory;
 use ILIAS\HTTP\Services;
-use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamAccess;
-use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamInfoFactory;
 use ILIAS\ResourceStorage\Consumer\StreamAccess\TokenFactory;
 
 /**
@@ -151,7 +150,7 @@ class ilWebAccessCheckerDelivery
             ->withStatus(500);
 
         /**
-         * @var \Psr\Http\Message\StreamInterface $stream
+         * @var StreamInterface $stream
          */
         $stream = $response->getBody();
         $stream->write($e->getMessage());

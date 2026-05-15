@@ -1855,8 +1855,7 @@ class ilObjContentObject extends ilObject
         unset($obj_settings);
 
         // copy (page) multilang settings
-        $ot = ilObjectTranslation::getInstance($this->getId());
-        $ot->copy($new_obj->getId());
+        $this->getObjectProperties()->clonePropertyTranslations($new_obj->getId());
 
         // copy lm menu
         $menu = new ilLMMenuEditor();
@@ -2043,8 +2042,8 @@ class ilObjContentObject extends ilObject
 
             case 'General':
                 // Update Title and description
-                $ot = ilObjectTranslation::getInstance($this->getId());
-                if (!$ot->getContentActivated()) {
+                $ot = $this->getObjectProperties()->getPropertyTranslations();
+                if (!$ot->getContentTranslationActivated()) {
                     return;
                 }
 
@@ -2056,8 +2055,10 @@ class ilObjContentObject extends ilObject
                     $paths->custom()->withNextStep('general')->get()
                 );
 
-                $ot->setDefaultTitle($reader->firstData($paths->title())->value());
-                $ot->setDefaultDescription($reader->firstData($paths->firstDescription())->value());
+                $this->getObjectProperties()->storePropertyTranslations(
+                    $ot->withDefaultTitle($reader->firstData($paths->title())->value())
+                        ->withDefaultDescription($reader->firstData($paths->firstDescription())->value())
+                );
                 break;
         }
     }

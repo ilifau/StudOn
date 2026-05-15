@@ -21,10 +21,11 @@ declare(strict_types=1);
 require_once(__DIR__ . "/../../../../../../../vendor/composer/vendor/autoload.php");
 require_once(__DIR__ . "/../../../Base.php");
 require_once(__DIR__ . "/CommonFieldRendering.php");
+require_once(__DIR__ . "/HasOptionFilterTestHelper.php");
 
 use ILIAS\UI\Implementation\Component as I;
 use ILIAS\UI\Implementation\Component\SignalGenerator;
-use ILIAS\UI\Implementation\Component\Input\InputData;
+use ILIAS\UI\Component\Input\InputData;
 use ILIAS\UI\Implementation\Component\Input\NameSource;
 use ILIAS\UI\Component\Input\Field;
 use ILIAS\Data;
@@ -33,6 +34,7 @@ use ILIAS\Refinery\Factory as Refinery;
 class MultiSelectInputTest extends ILIAS_UI_TestBase
 {
     use CommonFieldRendering;
+    use HasOptionFilterTestHelper;
 
     protected DefNamesource $name_source;
 
@@ -129,7 +131,7 @@ class MultiSelectInputTest extends ILIAS_UI_TestBase
             $byline,
             null
         );
-        $this->assertEquals($expected, $this->render($ms));
+        $this->assertEquals($expected, $this->renderInsideContainer($ms));
     }
 
     public function testRenderValue(): void
@@ -175,7 +177,20 @@ class MultiSelectInputTest extends ILIAS_UI_TestBase
             $byline,
             null
         );
-        $this->assertEquals($expected, $this->render($ms));
+        $this->assertEquals($expected, $this->renderInsideContainer($ms));
+    }
+
+    public function testRenderWithHasOptionFilter(): void
+    {
+        $f = $this->getFieldFactory();
+        $options = array(
+            "1" => "Pick 1",
+            "2" => "Pick 2"
+        );
+        $ms = $f->multiSelect("label", $options, "byline");
+        $ms = $ms->withHasOptionFilter(true);
+
+        $this->testHasOptionFilter($ms);
     }
 
     public function testCommonRendering(): void

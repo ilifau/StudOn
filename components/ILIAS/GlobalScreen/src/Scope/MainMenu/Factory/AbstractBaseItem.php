@@ -21,26 +21,23 @@ declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\MainMenu\Factory;
 
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
-use ILIAS\GlobalScreen\Scope\ComponentDecoratorTrait;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Information\TypeInformation;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy\Content;
 use Closure;
 use ILIAS\GlobalScreen\Scope\VisibilityAvailabilityTrait;
-use ILIAS\GlobalScreen\Scope\isDecorateable;
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
  */
-abstract class AbstractBaseItem implements isItem, isDecorateable
+abstract class AbstractBaseItem implements isItem
 {
-    use ComponentDecoratorTrait;
     use VisibilityAvailabilityTrait;
 
     protected int $position = 0;
     protected ?Closure $active_callable = null;
     protected bool $is_always_available = false;
     protected ?TypeInformation $type_information = null;
-    protected Legacy|string|null $non_available_reason = null;
+    protected ?Content $non_available_reason = null;
 
     /**
      * AbstractBaseItem constructor.
@@ -57,8 +54,13 @@ abstract class AbstractBaseItem implements isItem, isDecorateable
         return $this->provider_identification;
     }
 
-    public function withNonAvailableReason(Legacy|string $element): isItem
+    public function withNonAvailableReason(Content|string $element): isItem
     {
+        if (is_string($element)) {
+            global $DIC;
+            $element = $DIC->ui()->factory()->legacy()->content($element);
+        }
+
         $clone = clone $this;
         $clone->non_available_reason = $element;
 
@@ -68,11 +70,11 @@ abstract class AbstractBaseItem implements isItem, isDecorateable
     /**
      * @inheritDoc
      */
-    public function getNonAvailableReason(): Legacy
+    public function getNonAvailableReason(): Content
     {
         global $DIC;
 
-        return $this->non_available_reason instanceof Legacy ? $this->non_available_reason : $DIC->ui()->factory()->legacy($this->non_available_reason ?? '');
+        return $this->non_available_reason instanceof Content ? $this->non_available_reason : $DIC->ui()->factory()->legacy()->content("");
     }
 
     /**

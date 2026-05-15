@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\Style\Content\InternalDomainService;
 
@@ -555,7 +555,7 @@ class ilObjStyleSheet extends ilObject
         $ilDB->manipulate($q);
     }
 
-    public static function writeOwner($obj_id, $style_id)
+    public static function writeOwner($obj_id, $style_id): void
     {
         global $DIC;
         $ilDB = $DIC->database();
@@ -1394,8 +1394,9 @@ class ilObjStyleSheet extends ilObject
     ): string {
         global $DIC;
         $ilSetting = $DIC->settings();
-        $random = new \ilRandom();
-        $rand = $random->int(1, 999999);
+
+        $random = new \Random\Randomizer();
+        $rand = $random->getInt(1, 999999);
 
         // check global fixed content style
         $fixed_style = $ilSetting->get("fixed_content_style_id");
@@ -1575,7 +1576,7 @@ class ilObjStyleSheet extends ilObject
         }
     }
 
-    public function createExportSubDirectory()
+    public function createExportSubDirectory(): void
     {
         $ex_dir = $this->createExportDirectory();
         $ex_sub_dir = $ex_dir . "/" . $this->getExportSubDir();
@@ -2663,7 +2664,7 @@ class ilObjStyleSheet extends ilObject
      * Save media query order
      */
     public function saveMediaQueryOrder(
-        array $a_order_nr = null
+        ?array $a_order_nr = null
     ): void {
         $ilDB = $this->db;
 

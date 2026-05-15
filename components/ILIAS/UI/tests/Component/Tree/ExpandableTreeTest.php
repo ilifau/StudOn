@@ -70,9 +70,11 @@ class ExpandableTreeTest extends ILIAS_UI_TestBase
     public function getUIFactory(): NoUIFactory
     {
         return new class () extends NoUIFactory {
-            public function tree(): C\Tree\Factory
+            public function tree(): I\Tree\Factory
             {
-                return new I\Tree\Factory();
+                return new I\Tree\Factory(
+                    new I\Tree\Node\Factory(),
+                );
             }
         };
     }

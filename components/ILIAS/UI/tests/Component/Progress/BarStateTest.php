@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -194,18 +195,18 @@ EOT;
     {
         $bar_state_factory = new I\Progress\State\Bar\Factory();
 
-        $state_factory = $this->createMock(C\Progress\State\Factory::class);
+        $state_factory = $this->createMock(I\Progress\State\Factory::class);
         $state_factory->method('bar')->willReturn($bar_state_factory);
 
-        $progress_factory = $this->createMock(C\Progress\Factory::class);
+        $progress_factory = $this->createMock(I\Progress\Factory::class);
         $progress_factory->method('state')->willReturn($state_factory);
 
         return new class ($progress_factory) extends \NoUIFactory {
             public function __construct(
-                protected C\Progress\Factory $progress_factory,
+                protected I\Progress\Factory $progress_factory,
             ) {
             }
-            public function progress(): C\Progress\Factory
+            public function progress(): I\Progress\Factory
             {
                 return $this->progress_factory;
             }

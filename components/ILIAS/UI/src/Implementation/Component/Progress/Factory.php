@@ -13,34 +13,35 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
 namespace ILIAS\UI\Implementation\Component\Progress;
 
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
-use ILIAS\UI\Component\Progress;
+use ILIAS\UI\Component\Progress as C;
 use ILIAS\Data\URI;
 
 /**
  * @author Thibeau Fuhrer <thibeau@sr.solutions>
  */
-class Factory implements Progress\Factory
+class Factory implements C\Factory
 {
     public function __construct(
-        protected Progress\AsyncRefreshInterval $async_refresh_interval,
+        protected C\AsyncRefreshInterval $async_refresh_interval,
         protected SignalGeneratorInterface $signal_generator,
-        protected Progress\State\Factory $state_factory,
+        protected State\Factory $state_factory,
     ) {
     }
 
-    public function bar(string $label, ?URI $async_url = null): Progress\Bar
+    public function bar(string $label, ?URI $async_url = null): Bar
     {
         return new Bar($this->async_refresh_interval, $this->signal_generator, $label, $async_url);
     }
 
-    public function state(): Progress\State\Factory
+    public function state(): State\Factory
     {
         return $this->state_factory;
     }

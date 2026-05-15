@@ -37,7 +37,6 @@ use ILIAS\TestQuestionPool\RequestDataCollector;
  *
  * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilAssQuestionPreviewToolbarGUI
  * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilAssQuestionRelatedNavigationBarGUI
- * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilAssQuestionHintRequestGUI
  * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilAssGenFeedbackPageGUI
  * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilAssSpecFeedbackPageGUI
  * @ilCtrl_Calls ilAssQuestionPreviewGUI: ilCommentGUI
@@ -49,8 +48,6 @@ class ilAssQuestionPreviewGUI
     public const CMD_STATISTICS = 'assessment';
     public const CMD_INSTANT_RESPONSE = 'instantResponse';
     public const CMD_HANDLE_QUESTION_ACTION = 'handleQuestionAction';
-    public const CMD_GATEWAY_CONFIRM_HINT_REQUEST = 'gatewayConfirmHintRequest';
-    public const CMD_GATEWAY_SHOW_HINT_LIST = 'gatewayShowHintList';
 
     public const TAB_ID_QUESTION = 'question';
 
@@ -62,7 +59,6 @@ class ilAssQuestionPreviewGUI
     private ?assQuestion $question_obj = null;
     private ?ilAssQuestionPreviewSettings $preview_settings = null;
     private ?ilAssQuestionPreviewSession $preview_session = null;
-    private ?ilAssQuestionPreviewHintTracking $hint_tracking = null;
 
     private ?string $info_message = null;
 
@@ -168,11 +164,6 @@ class ilAssQuestionPreviewGUI
         $this->preview_session->init();
     }
 
-    public function initHintTracking(): void
-    {
-        $this->hint_tracking = new ilAssQuestionPreviewHintTracking($this->db, $this->preview_session);
-    }
-
     public function initStyleSheets(): void
     {
         $this->tpl->setCurrentBlock('ContentStyle');
@@ -197,20 +188,6 @@ class ilAssQuestionPreviewGUI
         $nextClass = $this->ctrl->getNextClass($this);
 
         switch ($nextClass) {
-            case 'ilassquestionhintrequestgui':
-                $gui = new ilAssQuestionHintRequestGUI(
-                    $this,
-                    self::CMD_SHOW,
-                    $this->question_gui,
-                    $this->hint_tracking,
-                    $this->ctrl,
-                    $this->lng,
-                    $this->tpl,
-                    $this->tabs,
-                    $this->global_screen
-                );
-                $this->ctrl->forwardCommand($gui);
-                break;
             case 'ilassspecfeedbackpagegui':
             case 'ilassgenfeedbackpagegui':
                 if ($this->ctrl->getCmd() === 'displayMediaFullscreen') {
@@ -340,7 +317,6 @@ class ilAssQuestionPreviewGUI
     {
         $this->preview_session->setRandomizerSeed(null);
         $this->preview_session->setParticipantsSolution(null);
-        $this->preview_session->resetRequestedHints();
         $this->preview_session->setInstantResponseActive(false);
 
         $this->tpl->setOnScreenMessage('info', $this->lng->txt('qst_preview_reset_msg'), true);
@@ -410,6 +386,7 @@ class ilAssQuestionPreviewGUI
         $this->ctrl->setReturnByClass('ilObjQuestionPoolGUI', 'questions');
 
         $page_gui = new ilAssQuestionPageGUI($this->question_obj->getId());
+        $page_gui->setFileDownloadLink($this->question_gui->buildFileDownloadLink());
         $page_gui->setRenderPageContainer(false);
         $page_gui->setEditPreview(true);
         $page_gui->setEnabledTabs(false);
@@ -455,14 +432,14 @@ class ilAssQuestionPreviewGUI
         $this->ctrl->setReturnByClass('ilAssQuestionPageGUI', 'view');
         $this->ctrl->setReturnByClass('ilObjQuestionPoolGUI', 'questions');
 
-        $pageGUI = new ilAssQuestionPageGUI($this->question_obj->getId());
-
-        $pageGUI->setEditPreview(true);
-        $pageGUI->setEnabledTabs(false);
+        $page_gui = new ilAssQuestionPageGUI($this->question_obj->getId());
+        $page_gui->setFileDownloadLink($this->question_gui->buildFileDownloadLink());
+        $page_gui->setEditPreview(true);
+        $page_gui->setEnabledTabs(false);
 
         $this->question_gui->setPreviewSession($this->preview_session);
 
-        $pageGUI->setQuestionHTML([$this->question_obj->getId() => $this->question_gui->getSolutionOutput(0, null, false, false, true, false, true, false, false)]);
+        $page_gui->setQuestionHTML([$this->question_obj->getId() => $this->question_gui->getSolutionOutput(0, null, false, false, true, false, true, false, false)]);
 
         $output = $this->question_gui->getSolutionOutput(0, null, false, false, true, false, true, false, false);
 
@@ -477,15 +454,7 @@ class ilAssQuestionPreviewGUI
         $navGUI = new ilAssQuestionRelatedNavigationBarGUI($this->ctrl, $this->lng);
 
         $navGUI->setInstantResponseCmd(self::CMD_INSTANT_RESPONSE);
-        $navGUI->setHintRequestCmd(self::CMD_GATEWAY_CONFIRM_HINT_REQUEST);
-        $navGUI->setHintListCmd(self::CMD_GATEWAY_SHOW_HINT_LIST);
-
         $navGUI->setInstantResponseEnabled($this->preview_settings->isInstantFeedbackNavigationRequired());
-        $navGUI->setHintProvidingEnabled($this->preview_settings->isHintProvidingEnabled());
-
-        $navGUI->setHintRequestsPossible($this->hint_tracking->requestsPossible());
-        $navGUI->setHintRequestsExist($this->hint_tracking->requestsExist());
-
         return $this->ctrl->getHTML($navGUI);
     }
 
@@ -591,34 +560,6 @@ class ilAssQuestionPreviewGUI
     public function saveQuestionSolution(): bool
     {
         return $this->question_obj->persistPreviewState($this->preview_session);
-    }
-
-    public function gatewayConfirmHintRequestCmd(): void
-    {
-        if (!$this->saveQuestionSolution()) {
-            $this->preview_session->setInstantResponseActive(false);
-            $this->showCmd();
-            return;
-        }
-
-        $this->ctrl->redirectByClass(
-            'ilAssQuestionHintRequestGUI',
-            ilAssQuestionHintRequestGUI::CMD_CONFIRM_REQUEST
-        );
-    }
-
-    public function gatewayShowHintListCmd(): void
-    {
-        if (!$this->saveQuestionSolution()) {
-            $this->preview_session->setInstantResponseActive(false);
-            $this->showCmd();
-            return;
-        }
-
-        $this->ctrl->redirectByClass(
-            'ilAssQuestionHintRequestGUI',
-            ilAssQuestionHintRequestGUI::CMD_SHOW_LIST
-        );
     }
 
     /**

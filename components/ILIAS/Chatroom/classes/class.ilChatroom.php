@@ -404,9 +404,9 @@ class ilChatroom
     }
 
     public function getHistory(
-        ilDateTime $from = null,
-        ilDateTime $to = null,
-        int $restricted_session_userid = null,
+        ?ilDateTime $from = null,
+        ?ilDateTime $to = null,
+        ?int $restricted_session_userid = null,
         bool $respect_target = true
     ): array {
         global $DIC;

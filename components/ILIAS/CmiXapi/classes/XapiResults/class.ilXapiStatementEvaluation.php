@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * Class ilXapiStatementEvaluation
@@ -352,56 +352,57 @@ class ilXapiStatementEvaluation
         return $oldResultStatus == 'completed' || $oldResultStatus == 'passed';
     }
 
+
     protected function sendSatisfiedStatement(ilCmiXapiUser $cmixUser): void
     {
         global $DIC;
 
         $lrsType = $this->object->getLrsType();
         $defaultLrs = $lrsType->getLrsEndpoint();
-        //$fallbackLrs = $lrsType->getLrsFallbackEndpoint();
         $defaultBasicAuth = $lrsType->getBasicAuth();
-        //$fallbackBasicAuth = $lrsType->getFallbackBasicAuth();
+
         $defaultHeaders = [
-            'X-Experience-API-Version' => '1.0.3',
-            'Authorization' => $defaultBasicAuth,
-            'Content-Type' => 'application/json;charset=utf-8',
-            'Cache-Control' => 'no-cache, no-store, must-revalidate'
+            'X-Experience-API-Version: 1.0.3',
+            'Authorization: ' . $defaultBasicAuth,
+            'Content-Type: application/json;charset=utf-8',
+            'Cache-Control: no-cache, no-store, must-revalidate'
         ];
-        /*
-        $fallbackHeaders = [
-            'X-Experience-API-Version' => '1.0.3',
-            'Authorization' => $fallbackBasicAuth,
-            'Content-Type' => 'application/json;charset=utf-8',
-            'Cache-Control' => 'no-cache, no-store, must-revalidate'
-        ];
-        */
+
         $satisfiedStatement = $this->object->getSatisfiedStatement($cmixUser);
-        $satisfiedStatementParams = [];
-        $satisfiedStatementParams['statementId'] = $satisfiedStatement['id'];
+        $satisfiedStatementParams = ['statementId' => $satisfiedStatement['id']];
         $defaultStatementsUrl = $defaultLrs . "/statements";
         $defaultSatisfiedStatementUrl = $defaultStatementsUrl . '?' . ilCmiXapiAbstractRequest::buildQuery($satisfiedStatementParams);
 
-        $client = new GuzzleHttp\Client();
-        $req_opts = array(
-            GuzzleHttp\RequestOptions::VERIFY => true,
-            GuzzleHttp\RequestOptions::CONNECT_TIMEOUT => 10,
-            GuzzleHttp\RequestOptions::HTTP_ERRORS => false
-        );
+        // --- cURL Init ---
+        $ch = curl_init($defaultSatisfiedStatementUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_CUSTOMREQUEST => "PUT",
+            CURLOPT_HTTPHEADER => $defaultHeaders,
+            CURLOPT_POSTFIELDS => json_encode($satisfiedStatement),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
 
-        $defaultSatisfiedStatementRequest = new GuzzleHttp\Psr7\Request(
-            'PUT',
-            $defaultSatisfiedStatementUrl,
-            $defaultHeaders,
-            json_encode($satisfiedStatement)
-        );
-        $promises = array();
-        $promises['defaultSatisfiedStatement'] = $client->sendAsync($defaultSatisfiedStatementRequest, $req_opts);
-        try {
-            $responses = GuzzleHttp\Promise\Utils::settle($promises)->wait();
-            $body = '';
-            ilCmiXapiAbstractRequest::checkResponse($responses['defaultSatisfiedStatement'], $body, [204]);
-        } catch (Exception $e) {
-            $this->log->error('error:' . $e->getMessage());
+        $responseBody = curl_exec($ch);
+        $statusCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+
+        if ($responseBody === false) {
+            $error = curl_error($ch);
+            $this->log->error('cURL error while sending satisfied statement: ' . $error);
+        } else {
+            try {
+                ilCmiXapiAbstractRequest::checkResponse(
+                    ['status' => $statusCode, 'body' => $responseBody],
+                    $responseBody,
+                    [204]
+                );
+            } catch (Exception $e) {
+                $this->log->error('checkResponse failed: ' . $e->getMessage());
+            }
         }
+
+        curl_close($ch);
     }
+
 }

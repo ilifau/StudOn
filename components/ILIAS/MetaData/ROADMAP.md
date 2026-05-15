@@ -45,11 +45,42 @@ replaced by bespoke iterator classes.
 `null` as a return type should be replaced by proper null objects.
 A good starting point might be `Tags` from `Dictionaries`.
 
+### Change default behavior for copyright
+
+Currently, all objects without an entry for copyright in `il_meta_rights`
+are treated like having the default copyright. This special behavior
+has to be implemented in a variety of places (xml generation,
+copyright API, database search, ...), and makes supporting filtering for
+the default copyright in Lucene-search prohibitively complicated.
+
+Requiring default copyright in new LOM sets would alleviate these
+problems, but would also mean more redundant information in
+the MetaData tables. It should be investigated how to progress here.
+
 ### Stricter formatting of 'format' and 'entity'
 
 The fields technical>format and the various entities should conform
 to different standards (e.g. entities should be vcards). This could
 be supported better in ILIAS, currently any string is valid.
+
+### Simplify Copyright Handling
+
+Currently, the API leaves it to consumers to handle custom copyright
+and copyright presets differently from each other. It should be
+investigated how those two cases can be unified within the API, so that
+consumers don't need to worry about the difference, without making a
+mess.
+
+The custom copyright string could e.g. act as the analogue of title,
+full name, and identifier of presets, but these concepts shouldn't
+get watered down too much.
+
+### Unify Presentation of Copyright
+
+We are in danger of having too many modes of presentation of copyright
+in ILIAS. It should be investigated how presentation can be unified,
+while still being able to fit into the required slots in the KS (data
+table, properties in item, ...).
 
 ### Allow `INDEX` path filters in search
 
@@ -66,15 +97,6 @@ The `Derivator` in the API could be expanded to contain methods like
 `prepareOmit` and `prepareAddOrChange` to allow changes to the derived
 LOM set before it is persisted. The repository would need to take into
 account more types of markers/scaffolds in `transferMD`.
-
-### Abandon the old backend
-
-All ILIAS components using MD should at some point only use the
-new classes as the new MD editor does.
-
-Only a few usages of the deprecated classes remain, most of these
-related to export/import. Those and all deprecated classes will be
-removed with ILIAS 10.
 
 ### Customizable LOM Digest
 
@@ -122,7 +144,7 @@ Further, `Settings` should also be refactored to use `Services` properly.
 
 The following classes are not yet covered by unit tests:
 
-- everything in `Editor`
+- everything in `Editor`, except `Vocabulary`
 - everything in `Settings` except `Vocabularies\Import`
 - `GlobalScreen/ilMDKeywordExposer`
 - `Manipulator/ScaffoldProvider`
@@ -134,7 +156,7 @@ The following classes are not yet covered by unit tests:
 also all methods in `Services\Services` that don't do anything except
 lazily instantiate an object
 - `Vocabularies\Standard\Assignment`, `Vocabularies\Controlled`, `Vocabularies\Manager`,
-`Vocabularies\ElementHelper`, and everything in `Vocabularies\Slots`
+and everything in `Vocabularies\Slots` except `ElementHelper`
 - `XML/Copyright`, `XML/Links`, `XML/Dictionary`, `XML/Writer/SimpleDC`,
 and `XML/Reader/Standard/Legacy`
 - `OERExposer/OAIPMH/HTTP`, `OERExposer/OAIPMH/Initiator`

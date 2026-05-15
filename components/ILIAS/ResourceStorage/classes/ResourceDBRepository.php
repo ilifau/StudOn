@@ -35,14 +35,12 @@ class ResourceDBRepository implements ResourceRepository
     public const IDENTIFICATION = 'rid';
 
     /**
-     * @var \ILIAS\ResourceStorage\Resource\StorableResource[]
+     * @var StorableResource[]
      */
     protected array $cache = [];
-    protected \ilDBInterface $db;
 
-    public function __construct(\ilDBInterface $db)
+    public function __construct(protected \ilDBInterface $db)
     {
-        $this->db = $db;
     }
 
     /**

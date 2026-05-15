@@ -36,13 +36,14 @@ use ILIAS\MetaData\Services\InternalServices;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\MetaData\Settings\Vocabularies\DataRetrieval;
 use JetBrains\PhpStorm\NoReturn;
+use ILIAS\UICore\GlobalTemplate;
 
 /**
  * @ilCtrl_Calls ilMDVocabulariesGUI: ilMDVocabularyUploadHandlerGUI
  */
 class ilMDVocabulariesGUI
 {
-    protected const MAX_CONFIRMATION_VALUES = 5;
+    protected const int MAX_CONFIRMATION_VALUES = 5;
 
     protected ilCtrl $ctrl;
     protected HTTP $http;
@@ -106,10 +107,7 @@ class ilMDVocabulariesGUI
         $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
 
-        if (
-            !$this->access_service->hasCurrentUserVisibleAccess() ||
-            !$this->access_service->hasCurrentUserReadAccess()
-        ) {
+        if (!$this->access_service->hasCurrentUserReadAccess()) {
             throw new ilPermissionException($this->lng->txt('no_permission'));
         }
 
@@ -276,7 +274,7 @@ class ilMDVocabulariesGUI
             );
         }
         $this->tpl->setOnScreenMessage(
-            ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS,
+            GlobalTemplate::MESSAGE_TYPE_SUCCESS,
             $this->lng->txt('md_vocab_deletion_successful'),
             true
         );
@@ -289,7 +287,7 @@ class ilMDVocabulariesGUI
             $this->vocab_manager->getVocabulary($vocab_id)
         );
         $this->tpl->setOnScreenMessage(
-            ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS,
+            GlobalTemplate::MESSAGE_TYPE_SUCCESS,
             $this->lng->txt('md_vocab_update_successful'),
             true
         );
@@ -302,7 +300,7 @@ class ilMDVocabulariesGUI
             $this->vocab_manager->getVocabulary($vocab_id)
         );
         $this->tpl->setOnScreenMessage(
-            ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS,
+            GlobalTemplate::MESSAGE_TYPE_SUCCESS,
             $this->lng->txt('md_vocab_update_successful'),
             true
         );
@@ -315,7 +313,7 @@ class ilMDVocabulariesGUI
             $this->vocab_manager->getVocabulary($vocab_id)
         );
         $this->tpl->setOnScreenMessage(
-            ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS,
+            GlobalTemplate::MESSAGE_TYPE_SUCCESS,
             $this->lng->txt('md_vocab_update_successful'),
             true
         );
@@ -328,7 +326,7 @@ class ilMDVocabulariesGUI
             $this->vocab_manager->getVocabulary($vocab_id)
         );
         $this->tpl->setOnScreenMessage(
-            ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS,
+            GlobalTemplate::MESSAGE_TYPE_SUCCESS,
             $this->lng->txt('md_vocab_update_successful'),
             true
         );
@@ -404,13 +402,13 @@ class ilMDVocabulariesGUI
         )->withAsync(true);
 
         return $this->ui_factory->table()->data(
-            $this->lng->txt('md_vocab_table_title'),
-            $columns,
             new DataRetrieval(
                 $this->vocab_manager,
                 $this->presentation,
                 $this->ui_factory
-            )
+            ),
+            $this->lng->txt('md_vocab_table_title'),
+            $columns,
         )->withActions($actions)->withRequest($this->http->request());
     }
 

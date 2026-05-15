@@ -18,9 +18,6 @@
 
 declare(strict_types=1);
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class ilUserCertificateTableProviderTest extends ilCertificateBaseTestCase
 {
     public function testFetchingDataSetForTableWithoutParamtersAndWithoutFilters(): void
@@ -41,8 +38,7 @@ class ilUserCertificateTableProviderTest extends ilCertificateBaseTestCase
                     'title' => 'CourseTest',
                     'obj_type' => 'crs',
                     'acquired_timestamp' => 1_539_867_618,
-                    'thumbnail_image_path' => 'some/path/test.svg',
-                    'thumbnail_image_ident' => '-',
+                    'tile_image_ident' => '-',
                     'description' => 'some description',
                     'firstname' => 'ilyas',
                     'lastname' => 'homer',
@@ -70,8 +66,7 @@ class ilUserCertificateTableProviderTest extends ilCertificateBaseTestCase
             'obj_id' => 100,
             'obj_type' => 'crs',
             'date' => 1_539_867_618,
-            'thumbnail_image_path' => 'some/path/test.svg',
-            'thumbnail_image_ident' => '-',
+            'tile_image_ident' => '-',
             'description' => 'some description',
             'firstname' => 'ilyas',
             'lastname' => 'homer',
@@ -98,8 +93,7 @@ class ilUserCertificateTableProviderTest extends ilCertificateBaseTestCase
                     'title' => 'CourseTest',
                     'obj_type' => 'crs',
                     'acquired_timestamp' => 1_539_867_618,
-                    'thumbnail_image_path' => 'some/path/test.svg',
-                    'thumbnail_image_ident' => '-',
+                    'tile_image_ident' => '-',
                     'description' => 'some description',
                     'firstname' => 'ilyas',
                     'lastname' => 'homer',
@@ -131,8 +125,7 @@ class ilUserCertificateTableProviderTest extends ilCertificateBaseTestCase
             'obj_id' => 100,
             'obj_type' => 'crs',
             'date' => 1_539_867_618,
-            'thumbnail_image_path' => 'some/path/test.svg',
-            'thumbnail_image_ident' => '-',
+            'tile_image_ident' => '-',
             'description' => 'some description',
             'firstname' => 'ilyas',
             'lastname' => 'homer',
@@ -159,8 +152,7 @@ class ilUserCertificateTableProviderTest extends ilCertificateBaseTestCase
                     'title' => 'CourseTest',
                     'obj_type' => 'crs',
                     'acquired_timestamp' => 1_539_867_618,
-                    'thumbnail_image_path' => 'some/path/test.svg',
-                    'thumbnail_image_ident' => '-',
+                    'tile_image_ident' => '-',
                     'description' => 'some description',
                     'firstname' => 'ilyas',
                     'lastname' => 'homer',
@@ -196,8 +188,7 @@ class ilUserCertificateTableProviderTest extends ilCertificateBaseTestCase
             'obj_id' => 100,
             'obj_type' => 'crs',
             'date' => 1_539_867_618,
-            'thumbnail_image_path' => 'some/path/test.svg',
-            'thumbnail_image_ident' => '-',
+            'tile_image_ident' => '-',
             'description' => 'some description',
             'firstname' => 'ilyas',
             'lastname' => 'homer',

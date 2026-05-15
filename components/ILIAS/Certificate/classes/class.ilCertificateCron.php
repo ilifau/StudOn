@@ -19,12 +19,15 @@
 declare(strict_types=1);
 
 use ILIAS\DI\Container;
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Cron\Job\JobManager;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * @author  Niels Theen <ntheen@databay.de>
  */
-class ilCertificateCron extends ilCronJob
+class ilCertificateCron extends CronJob
 {
     protected ?ilLanguage $lng;
     private ?Container $dic;
@@ -39,7 +42,7 @@ class ilCertificateCron extends ilCronJob
         ?ilLanguage $language = null,
         private ?ilCertificateObjectHelper $objectHelper = null,
         private ?ilSetting $settings = null,
-        private ?ilCronManager $cronManager = null,
+        private ?JobManager $cronManager = null,
     ) {
         if (null === $dic) {
             global $DIC;
@@ -107,12 +110,12 @@ class ilCertificateCron extends ilCronJob
         }
     }
 
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         $this->init();
 
-        $result = new ilCronJobResult();
-        $result->setStatus(ilCronJobResult::STATUS_NO_ACTION);
+        $result = new JobResult();
+        $result->setStatus(JobResult::STATUS_NO_ACTION);
 
         $currentMode = $this->settings->get('persistent_certificate_mode', 'persistent_certificate_mode_cron');
         if ($currentMode !== 'persistent_certificate_mode_cron') {
@@ -128,7 +131,7 @@ class ilCertificateCron extends ilCronJob
 
         $entries = $this->queueRepository->getAllEntriesFromQueue();
 
-        $status = ilCronJobResult::STATUS_OK;
+        $status = JobResult::STATUS_OK;
 
         $entryCounter = 0;
         $succeededGenerations = [];
@@ -190,9 +193,9 @@ class ilCertificateCron extends ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
+        return JobScheduleType::IN_MINUTES;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -289,10 +292,8 @@ class ilCertificateCron extends ilCronJob
             ILIAS_VERSION_NUMERIC,
             true,
             $cert_id,
-            $template->getBackgroundImagePath(),
-            $template->getThumbnailImagePath(),
             $template->getBackgroundImageIdentification(),
-            $template->getThumbnailImageIdentification(),
+            $template->getTileImageIdentification(),
             null,
         );
 

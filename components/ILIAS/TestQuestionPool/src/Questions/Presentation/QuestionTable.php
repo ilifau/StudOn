@@ -61,9 +61,9 @@ class QuestionTable extends \ilAssQuestionList implements Table\DataRetrieval
     public function getTable(): Table\Data
     {
         return $this->ui_factory->table()->data(
+            $this,
             $this->lng->txt('questions'),
-            $this->getColumns(),
-            $this
+            $this->getColumns()
         )
         ->withActions($this->getActions())
         ->withId('qpt' . $this->parent_obj_id . '_' . $this->request_ref_id);
@@ -157,13 +157,12 @@ class QuestionTable extends \ilAssQuestionList implements Table\DataRetrieval
         return [
             'title' => $f->link($this->lng->txt('title')),
             'description' => $f->text($this->lng->txt('description'))->withIsOptional(true, true),
-            'ttype' => $f->text($this->lng->txt('question_type'))->withIsOptional(true, true),
+            'question_type' => $f->text($this->lng->txt('question_type'))->withIsOptional(true, true),
             'points' => $f->number($this->lng->txt('points'))->withDecimals(2)->withIsOptional(true, true),
             'author' => $f->text($this->lng->txt('author'))->withIsOptional(true, true),
             'lifecycle' => $f->text($this->lng->txt('qst_lifecycle'))->withIsOptional(true, true),
             'taxonomies' => $f->text($this->lng->txt('qpl_settings_subtab_taxonomies'))->withIsOptional(true, true),
             'feedback' => $f->boolean($this->lng->txt('tst_feedback'), $icon_yes, $icon_no)->withIsOptional(true, true),
-            'hints' => $f->boolean($this->lng->txt('hints'), $icon_yes, $icon_no)->withIsOptional(true, true),
             'created' => $f->date(
                 $this->lng->txt('create_date'),
                 $this->current_user->getDateTimeFormat()
@@ -280,8 +279,9 @@ class QuestionTable extends \ilAssQuestionList implements Table\DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         $timezone = new \DateTimeZone($this->current_user->getTimeZone());
         foreach ($this->getData($order, $range) as $record) {
@@ -307,8 +307,9 @@ class QuestionTable extends \ilAssQuestionList implements Table\DataRetrieval
     }
 
     public function getTotalRowCount(
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): ?int {
         $this->setParentObjId($this->parent_obj_id);
         $this->load();
@@ -338,7 +339,6 @@ class QuestionTable extends \ilAssQuestionList implements Table\DataRetrieval
             $write_access ? $this->buildAction('edit_question', 'edit_question', 'single') : [],
             $write_access ? $this->buildAction('edit_page', 'edit_page', 'single') : [],
             $write_access ? $this->buildAction('feedback', 'tst_feedback', 'single') : [],
-            $write_access ? $this->buildAction('hints', 'hints', 'single') : [],
             $write_access ? $this->buildAction(\ilBulkEditQuestionsGUI::CMD_EDITTAUTHOR, 'bulkedit_author', 'multi') : [],
             $write_access ? $this->buildAction(\ilBulkEditQuestionsGUI::CMD_EDITLIFECYCLE, 'bulkedit_lifecycle', 'multi') : [],
             $write_access ? $this->buildAction(\ilBulkEditQuestionsGUI::CMD_EDITTAXONOMIES, 'bulkedit_taxonomies', 'multi') : [],

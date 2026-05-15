@@ -39,8 +39,7 @@ class DataService
 
     public function exportException(
         string $message
-    ) : ExportException
-    {
+    ): ExportException {
         return new ExportException($message);
     }
 }

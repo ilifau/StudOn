@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 class ilStudyProgrammeTypeTranslationTest extends \PHPUnit\Framework\TestCase
 {
     protected $backupGlobals = false;
@@ -11,9 +27,7 @@ class ilStudyProgrammeTypeTranslationTest extends \PHPUnit\Framework\TestCase
         return $tt;
     }
 
-    /**
-     * @depends test_init_and_id
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('test_init_and_id')]
     public function test_prg_type_id($tt)
     {
         $this->assertEquals(0, $tt->getPrgTypeId());
@@ -22,9 +36,7 @@ class ilStudyProgrammeTypeTranslationTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    /**
-     * @depends test_init_and_id
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('test_init_and_id')]
     public function test_lang($tt)
     {
         $this->assertEquals('', $tt->getLang());
@@ -32,9 +44,7 @@ class ilStudyProgrammeTypeTranslationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('de', $tt->getLang());
     }
 
-    /**
-     * @depends test_init_and_id
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('test_init_and_id')]
     public function test_member($tt)
     {
         $this->assertEquals('', $tt->getMember());
@@ -42,9 +52,7 @@ class ilStudyProgrammeTypeTranslationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('a_member', $tt->getMember());
     }
 
-    /**
-     * @depends test_init_and_id
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('test_init_and_id')]
     public function test_value($tt)
     {
         $this->assertEquals('', $tt->getValue());

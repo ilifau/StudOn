@@ -903,9 +903,8 @@ class ilTrQuery
         }
 
         if ($valid) {
-            $result["country"] = self::getSummaryPercentages("country", $query);
-            $result["sel_country"] = self::getSummaryPercentages(
-                "sel_country",
+            $result["country"] = self::getSummaryPercentages(
+                "country",
                 $query
             );
             $result["city"] = self::getSummaryPercentages("city", $query);
@@ -1134,7 +1133,7 @@ class ilTrQuery
 
     protected static function buildFilters(
         array $where,
-        array $a_filters = null,
+        ?array $a_filters = null,
         bool $a_aggregate = false
     ): string {
         global $DIC;
@@ -1154,7 +1153,6 @@ class ilTrQuery
                     case "street":
                     case "email":
                     case "matriculation":
-                    case "country":
                     case "city":
                     case "title":
                         $where[] = $ilDB->like(
@@ -1166,7 +1164,7 @@ class ilTrQuery
 
                     case "gender":
                     case "zipcode":
-                    case "sel_country":
+                    case "country":
                         $where[] = "usr_data." . $id . " = " . $ilDB->quote(
                             $value,
                             "text"
@@ -1387,7 +1385,7 @@ class ilTrQuery
 
     protected static function buildColumns(
         array &$a_fields,
-        array $a_additional_fields = null,
+        ?array $a_additional_fields = null,
         bool $a_aggregate = false
     ): array {
         if ($a_additional_fields === null || !count($a_additional_fields)) {
@@ -1700,7 +1698,7 @@ class ilTrQuery
     public static function getUserObjectMatrix(
         int $a_parent_ref_id,
         array $a_obj_ids,
-        string $a_user_filter = null,
+        ?string $a_user_filter = null,
         ?array $a_additional_fields = null,
         ?array $a_privacy_fields = null,
         ?int $a_check_agreement = null
@@ -2258,7 +2256,7 @@ class ilTrQuery
     public static function getObjectLPStatistics(
         array $a_obj_ids,
         int $a_year,
-        int $a_month = null,
+        ?int $a_month = null,
         bool $a_group_by_day = false
     ): array {
         global $DIC;

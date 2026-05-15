@@ -22,8 +22,6 @@ namespace ILIAS\GlobalScreen\Scope;
 
 use Closure;
 use ILIAS\UI\Component\Component;
-use ILIAS\GlobalScreen\isGlobalScreenItem;
-use ILIAS\UI\Component\JavaScriptBindable;
 use ILIAS\UI\Component\Symbol\Symbol;
 use ILIAS\UI\Help\Topic;
 

@@ -47,11 +47,11 @@ class NotificationSlateTest extends ILIAS_UI_TestBase
         $factory = new class () extends NoUIFactory {
             public I\SignalGenerator $sig_gen;
 
-            public function button(): C\Button\Factory
+            public function button(): I\Button\Factory
             {
                 return new I\Button\Factory();
             }
-            public function symbol(): ILIAS\UI\Component\Symbol\Factory
+            public function symbol(): I\Symbol\Factory
             {
                 return new I\Symbol\Factory(
                     new I\Symbol\Icon\Factory(),
@@ -59,11 +59,11 @@ class NotificationSlateTest extends ILIAS_UI_TestBase
                     new I\Symbol\Avatar\Factory()
                 );
             }
-            public function item(): C\Item\Factory
+            public function item(): I\Item\Factory
             {
                 return new I\Item\Factory();
             }
-            public function mainControls(): C\MainControls\Factory
+            public function mainControls(): I\MainControls\Factory
             {
                 return new I\MainControls\Factory(
                     $this->sig_gen,
@@ -133,12 +133,12 @@ class NotificationSlateTest extends ILIAS_UI_TestBase
 						<img class="icon name small" src="./assets/images/standard/icon_default.svg" alt="aria_label"/>
 					</div>
 					<div class="media-body">
-						<h4 class="il-item-notification-title">item title</h4>
+						<h2 class="il-item-notification-title">item title</h2>
 						<div class="il-aggregate-notifications" data-aggregatedby="id_1">
 							<div class="il-maincontrols-slate il-maincontrols-slate-notification">
 								<div class="il-maincontrols-slate-notification-title">
 									<button class="btn btn-bulky" data-action="">
-										<span class="glyph" role="img">
+										<span class="glyph" aria-hidden="true">
 											<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 										</span>
 										<span class="bulky-label">back</span>

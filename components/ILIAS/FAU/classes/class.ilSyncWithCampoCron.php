@@ -1,11 +1,13 @@
 <?php
 
 use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * fau: syncWithCampo - new class for campo data update cron job.
  */
-class ilSyncWithCampoCron extends ilCronJob
+class ilSyncWithCampoCron extends CronJob
 {
     public function getId(): string
     {
@@ -26,9 +28,9 @@ class ilSyncWithCampoCron extends ilCronJob
         return $DIC->language()->txt("fau_campo_data_update_info");
     }
     
-    public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
+    public function getDefaultScheduleType(): \ILIAS\Cron\Job\Schedule\JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
+        return \ILIAS\Cron\Job\Schedule\JobScheduleType::IN_MINUTES;
     }
     
     public function getDefaultScheduleValue(): ?int
@@ -46,18 +48,18 @@ class ilSyncWithCampoCron extends ilCronJob
         return true;
     }
     
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         global $DIC;
 
-        $result = new \ilCronJobResult();
+        $result = new JobResult();
 
         // First synchronize the campo data from the staging database
         // this will not set the counters
         $service = $DIC->fau()->sync()->campo();
         $service->synchronize();
         if ($service->hasErrors()) {
-            $result->setStatus(\ilCronJobResult::STATUS_FAIL);
+            $result->setStatus(JobResult::STATUS_FAIL);
             $result->setMessage(implode(', ', $service->getErrors()));
             return $result;
         }
@@ -67,10 +69,10 @@ class ilSyncWithCampoCron extends ilCronJob
         $service->synchronize();
 
         if ($service->hasErrors()) {
-            $result->setStatus(\ilCronJobResult::STATUS_FAIL);
+            $result->setStatus(JobResult::STATUS_FAIL);
             $result->setMessage(implode(', ', $service->getErrors()));
         } else {
-            $result->setStatus(\ilCronJobResult::STATUS_OK);
+            $result->setStatus(JobResult::STATUS_OK);
             $result->setMessage('Added Courses: ' . $service->getItemsAdded() . ', '
                 . 'Updated Courses: ' . $service->getItemsUpdated()
             );

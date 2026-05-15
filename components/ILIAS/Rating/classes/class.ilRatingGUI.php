@@ -167,8 +167,8 @@ class ilRatingGUI implements ilCtrlSecurityInterface
     protected function renderDetails(
         string $a_js_id,
         bool $a_may_rate,
-        array $a_categories = null,
-        string $a_onclick = null,
+        ?array $a_categories = null,
+        ?string $a_onclick = null,
         bool $a_average = false,
         bool $add_tooltip = false
     ): string {
@@ -486,8 +486,8 @@ class ilRatingGUI implements ilCtrlSecurityInterface
     public function getHTML(
         bool $a_show_overall = true,
         bool $a_may_rate = true,
-        string $a_onclick = null,
-        string $a_additional_id = null
+        ?string $a_onclick = null,
+        ?string $a_additional_id = null
     ): string {
         $f = $this->ui->factory();
         $r = $this->ui->renderer();
@@ -616,7 +616,7 @@ class ilRatingGUI implements ilCtrlSecurityInterface
             );
 
             $popover = $f->popover()->standard(
-                $f->legacy($this->renderDetails("rtov_", $may_rate, $categories, $a_onclick))
+                $f->legacy()->content($this->renderDetails("rtov_", $may_rate, $categories, $a_onclick))
             );
             $button = $button->withOnClick($popover->getShowSignal());
             $button = $button->withHelpTopics(
@@ -677,7 +677,7 @@ class ilRatingGUI implements ilCtrlSecurityInterface
 
         $panel = $ui->factory()->panel()->secondary()->legacy(
             $a_title,
-            $ui->factory()->legacy(
+            $ui->factory()->legacy()->content(
                 $this->renderDetails("rtsb_", $may_rate, $categories, null, true, true)
             )
         );

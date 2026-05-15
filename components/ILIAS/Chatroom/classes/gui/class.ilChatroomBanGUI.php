@@ -31,10 +31,10 @@ class ilChatroomBanGUI extends ilChatroomGUIHandler
     private readonly ilObjUser $user;
 
     public function __construct(
-        ilChatroomObjectGUI $gui,
-        ilCtrlInterface $controller = null,
-        ilLanguage $language = null,
-        ilObjUser $user = null
+        ?ilChatroomObjectGUI $gui,
+        ?ilCtrlInterface $controller = null,
+        ?ilLanguage $language = null,
+        ?ilObjUser $user = null
     ) {
         if ($controller === null) {
             global $DIC;
@@ -121,9 +121,7 @@ class ilChatroomBanGUI extends ilChatroomGUIHandler
         $this->exitIfNoRoomExists($room);
 
         $data = $room->getBannedUsers();
-        $actorId = array_filter(array_map(static function (array $row): int {
-            return (int) $row['actor_id'];
-        }, $data));
+        $actorId = array_filter(array_map(static fn(array $row): int => (int) $row['actor_id'], $data));
 
         $sortable_names = ilUserUtil::getNamePresentation($actorId);
         $names = ilUserUtil::getNamePresentation($actorId, false, false, '', false, false, false);

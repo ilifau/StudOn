@@ -99,8 +99,9 @@ class CertificateOverviewTable implements DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): Generator {
         /**
          * @var array{certificate_id: null|string, issue_date: null|DateTimeImmutable, object: null|string, owner: null|string} $filter_data
@@ -160,8 +161,11 @@ class CertificateOverviewTable implements DataRetrieval
         return $filter_data;
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         $ui_filter_data = $this->mapUiFilterData($this->ui_service->filter()->getData($this->filter));
 
         return $this->repo->fetchCertificatesForOverviewCount($ui_filter_data);
@@ -197,6 +201,7 @@ class CertificateOverviewTable implements DataRetrieval
         $ui_table = $this->ui_factory->table();
 
         return $ui_table->data(
+            $this,
             $this->lng->txt('certificates'),
             [
                 'certificate_id' => $ui_table->column()->text($this->lng->txt('certificate_id')),
@@ -205,7 +210,6 @@ class CertificateOverviewTable implements DataRetrieval
                 'obj_id' => $ui_table->column()->text($this->lng->txt('object_id')),
                 'owner' => $ui_table->column()->text($this->lng->txt('owner'))
             ],
-            $this
         )
             ->withOrder(new Order('issue_date', Order::DESC))
             ->withRange(new Range(0, 100))

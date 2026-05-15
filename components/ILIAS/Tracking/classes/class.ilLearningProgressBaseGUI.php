@@ -595,7 +595,7 @@ class ilLearningProgressBaseGUI
 
         $panel = $this->ui_factory->panel()->secondary()->legacy(
             '',
-            $this->ui_factory->legacy($tpl->get())
+            $this->ui_factory->legacy()->content($tpl->get())
         );
 
         return $this->ui_renderer->render($panel);

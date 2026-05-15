@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -31,7 +32,7 @@ class BarTest extends \ILIAS_UI_TestBase
 {
     protected I\SignalGeneratorInterface $signal_generator;
     protected I\Symbol\Glyph\Factory $glyph_factory;
-    protected C\Symbol\Glyph\Glyph $glyph_mock;
+    protected I\Symbol\Glyph\Glyph $glyph_mock;
     protected string $glyph_html;
     protected \ILIAS\Data\URI $uri_mock;
     protected string $uri;
@@ -40,7 +41,7 @@ class BarTest extends \ILIAS_UI_TestBase
     {
         $this->glyph_html = sha1(C\Symbol\Glyph\Glyph::class);
 
-        $this->glyph_mock = $this->createMock(C\Symbol\Glyph\Glyph::class);
+        $this->glyph_mock = $this->createMock(I\Symbol\Glyph\Glyph::class);
         $this->glyph_mock->method('getCanonicalName')->willReturn($this->glyph_html);
 
         $this->glyph_factory = $this->createMock(I\Symbol\Glyph\Factory::class);
@@ -112,20 +113,20 @@ EOT;
         $progress_factory = new I\Progress\Factory(
             $this->createMock(C\Progress\AsyncRefreshInterval::class),
             $this->signal_generator,
-            $this->createMock(C\Progress\State\Factory::class),
+            $this->createMock(I\Progress\State\Factory::class),
         );
 
         return new class ($progress_factory, $symbol_factory) extends \NoUIFactory {
             public function __construct(
-                protected C\Progress\Factory $progress_factory,
-                protected C\Symbol\Factory $symbol_factory,
+                protected I\Progress\Factory $progress_factory,
+                protected I\Symbol\Factory $symbol_factory,
             ) {
             }
-            public function progress(): C\Progress\Factory
+            public function progress(): I\Progress\Factory
             {
                 return $this->progress_factory;
             }
-            public function symbol(): C\Symbol\Factory
+            public function symbol(): I\Symbol\Factory
             {
                 return $this->symbol_factory;
             }

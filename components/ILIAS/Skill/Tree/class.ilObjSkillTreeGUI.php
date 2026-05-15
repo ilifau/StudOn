@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,8 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\DI\UIServices;
 use ILIAS\Skill\Service;
@@ -28,6 +27,7 @@ use ILIAS\Skill\Table;
 use ILIAS\Skill\Usage;
 use ILIAS\UI\Component\Input\Container\Form;
 use ILIAS\GlobalScreen\ScreenContext;
+use ILIAS\UICore\GlobalTemplate;
 
 /**
  * Skill tree gui class
@@ -462,6 +462,7 @@ class ilObjSkillTreeGUI extends ilObjectGUI
     {
         $ctrl = $this->ctrl;
 
+        $node_ids = [];
         if ($this->requested_table_action === "deleteTrees"
             && !empty($this->requested_table_tree_ids)
             && $this->requested_table_tree_ids[0] === "ALL_OBJECTS"
@@ -469,12 +470,29 @@ class ilObjSkillTreeGUI extends ilObjectGUI
             $all_trees = $this->skill_tree_manager->getTrees();
             foreach ($all_trees as $tree_obj) {
                 $tree = $this->skill_tree_factory->getTreeById($tree_obj->getId());
-                $this->requested_node_ids[] = $tree->readRootId();
+                $node_ids[] = $tree->readRootId();
             }
         } elseif ($this->requested_table_action === "deleteTrees") {
-            $this->requested_node_ids = array_map("intval", $this->requested_table_tree_ids);
+            $node_ids = array_map("intval", $this->requested_table_tree_ids);
         }
 
+        $remaining_node_ids = [];
+        foreach ($node_ids as $id) {
+            $tree_id = $this->skill_tree_repo->getTreeIdForNodeId($id);
+            $tree_obj = $this->skill_tree_manager->getTree($tree_id);
+            if (!$this->skill_tree_access_manager->hasDeleteTreePermission($tree_obj->getRefId())) {
+                continue;
+            }
+            $remaining_node_ids[] = $id;
+        }
+
+        if (count($remaining_node_ids) != count($node_ids)) {
+            $this->tpl->setOnScreenMessage(GlobalTemplate::MESSAGE_TYPE_FAILURE, $this->lng->txt("no_permission"), true);
+            $this->ctrl->redirectByClass("ilskilltreeadmingui", "listTrees");
+            return;
+        }
+
+        $this->requested_node_ids = $remaining_node_ids;
         $this->deleteNodes($this);
     }
 

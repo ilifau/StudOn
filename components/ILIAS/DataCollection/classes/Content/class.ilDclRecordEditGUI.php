@@ -438,8 +438,8 @@ class ilDclRecordEditGUI
         }
         $confirmation->setHeaderText($header_text);
 
-        $confirmation->setCancel($this->lng->txt('dcl_edit_record'), 'edit');
-        $confirmation->setConfirm($this->lng->txt('dcl_save_record'), 'save');
+        $confirmation->setCancel($this->lng->txt('edit'), 'edit');
+        $confirmation->setConfirm($this->lng->txt('save'), 'save');
 
         $record_data = "";
 
@@ -488,6 +488,7 @@ class ilDclRecordEditGUI
         $ilAppEventHandler = $DIC['ilAppEventHandler'];
 
         $this->initForm();
+        $this->setFormValues();
 
         // if save confirmation is enabled: Temporary file-uploads need to be handled
         $has_save_confirmed = $this->http->wrapper()->post()->has('save_confirmed');
@@ -651,7 +652,7 @@ class ilDclRecordEditGUI
             $dispatchEvent = "create";
             $ref_id = $this->http->wrapper()->query()->retrieve('ref_id', $this->refinery->kindlyTo()->int());
             $objDataCollection = new ilObjDataCollection($ref_id);
-            $objDataCollection->sendRecordNotification(ilDataCollectionMailNotification::TYPE_RECORD_CREATE, $record_obj);
+            $objDataCollection->sendRecordNotification(ilDclNotificationType::RECORD_CREATE, $record_obj);
         } else {
             $dispatchEventData['prev_record'] = $unchanged_obj;
         }

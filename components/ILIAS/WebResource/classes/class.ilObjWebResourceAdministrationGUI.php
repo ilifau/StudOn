@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * Web Resource Administration Settings.
@@ -53,7 +53,7 @@ class ilObjWebResourceAdministrationGUI extends ilObjectGUI
         $this->prepareOutput();
 
         if (!$this->rbac_system->checkAccess(
-            "visible,read",
+            "read",
             $this->object->getRefId()
         )) {
             $this->error->raiseError(
@@ -81,7 +81,7 @@ class ilObjWebResourceAdministrationGUI extends ilObjectGUI
     public function getAdminTabs(): void
     {
         if ($this->rbac_system->checkAccess(
-            "visible,read",
+            "read",
             $this->object->getRefId()
         )) {
             $this->tabs_gui->addTarget(

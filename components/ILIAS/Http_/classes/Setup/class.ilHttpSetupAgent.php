@@ -72,7 +72,7 @@ class ilHttpSetupAgent implements Setup\Agent
     /**
      * @inheritdoc
      */
-    public function getInstallObjective(Setup\Config $config = null): Setup\Objective
+    public function getInstallObjective(?Setup\Config $config = null): Setup\Objective
     {
         $http_config_stored = new ilHttpConfigStoredObjective($config);
 
@@ -89,7 +89,7 @@ class ilHttpSetupAgent implements Setup\Agent
     /**
      * @inheritdoc
      */
-    public function getUpdateObjective(Setup\Config $config = null): Setup\Objective
+    public function getUpdateObjective(?Setup\Config $config = null): Setup\Objective
     {
         if ($config !== null) {
             return new ilHttpConfigStoredObjective($config);

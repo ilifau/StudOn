@@ -22,15 +22,13 @@ use ILIAS\Exercise\Certificate\ExercisePlaceholderValues;
 use ILIAS\Course\Certificate\CoursePlaceholderValues;
 use ILIAS\Test\Certificate\TestPlaceholderValues;
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class ilCertificateTypeClassMapTest extends ilCertificateBaseTestCase
 {
     private ilCertificateTypeClassMap $classMap;
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->classMap = new ilCertificateTypeClassMap();
     }
 

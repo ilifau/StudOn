@@ -64,7 +64,7 @@ class ilImageMapEditorGUI
      * @return mixed
      * @throws ilCtrlException
      */
-    public function executeCommand()
+    public function executeCommand(): mixed
     {
         $ilCtrl = $this->ctrl;
 
@@ -204,6 +204,9 @@ class ilImageMapEditorGUI
         $st_item = $this->media_object->getMediaItem("Standard");
         $max = ilMapArea::_getMaxNr($st_item->getId());
         for ($i = 1; $i <= $max; $i++) {
+            if (!$this->request->hasRow($i)) {
+                continue;
+            }
             $area = new ilMapArea($st_item->getId(), $i);
             $area->setTitle(
                 $this->request->getAreaTitle($i)
@@ -557,14 +560,14 @@ class ilImageMapEditorGUI
         $mode = "media";
         //echo htmlentities($ilCtrl->getLinkTarget($this, "showImageMap"));
 
-        $random = new \ilRandom();
+        $random = new \Random\Randomizer();
         $params = array('map_edit_mode' => $a_map_edit_mode,
             'map_item' => $st_item->getId(),
             'map_mob_id' => $this->media_object->getId(),
             'mode' => $mode,
             'media_mode' => 'enable',
             'image_map_link' => $ilCtrl->getLinkTarget($this, "showImageMap", "", false, false),
-            'link_params' => "ref_id=" . $this->request->getRefId() . "&rand=" . $random->int(1, 999999),
+            'link_params' => "ref_id=" . $this->request->getRefId() . "&rand=" . $random->getInt(1, 999999),
             'ref_id' => $this->request->getRefId(),
             'pg_frame' => "",
             'enlarge_path' => ilUtil::getImagePath("media/enlarge.svg"),

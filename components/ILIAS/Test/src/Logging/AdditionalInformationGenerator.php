@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Test\Logging;
 
+use ILIAS\Mail\TemplateEngine\TemplateEngineInterface;
 use ILIAS\TestQuestionPool\Questions\GeneralQuestionPropertiesRepository;
 use ILIAS\UI\Factory as UIFactory;
 use ILIAS\UI\Component\Listing\Descriptive as DescriptiveListing;
@@ -57,10 +58,6 @@ class AdditionalInformationGenerator
     public const KEY_TEST_TITLE = 'title';
     public const KEY_TEST_DESCRIPTION = 'description';
     public const KEY_TEST_ONLINE = 'online';
-    public const KEY_TEST_VISIBILITY_PERIOD = 'crs_visibility_until';
-    public const KEY_TEST_VISIBILITY_PERIOD_FROM = 'from';
-    public const KEY_TEST_VISIBILITY_PERIOD_UNTIL = 'to';
-    public const KEY_TEST_VISIBLE_OUTSIDE_PERIOD = 'activation_visible_when_disabled';
     public const KEY_TEST_QUESTION_SET_TYPE = 'test_question_set_type';
     public const KEY_TEST_ANONYMITY = 'tst_anonymity';
     public const KEY_TEST_INTRODUCTION_ENABLED = 'tst_introduction';
@@ -83,7 +80,6 @@ class AdditionalInformationGenerator
     public const KEY_TEST_TITLE_PRESENTATION = 'tst_title_output';
     public const KEY_TEST_AUTOSAVE_ENABLED = 'autosave';
     public const KEY_TEST_SHUFFLE_QUESTIONS = 'tst_shuffle_questions';
-    public const KEY_TEST_HINTS_ENABLED = 'tst_setting_offer_hints_label';
     public const KEY_TEST_FEEDBACK_ENABLED = 'tst_instant_feedback';
     public const KEY_TEST_FEEDBACK_SHOW_POINTS = 'tst_instant_feedback_results';
     public const KEY_TEST_FEEDBACK_SHOW_GENERIC = 'tst_instant_feedback_answer_generic';
@@ -104,8 +100,6 @@ class AdditionalInformationGenerator
     public const KEY_TEST_CONCLUDING_REMARKS_ENABLED = 'final_statement';
     public const KEY_TEST_REDIRECT_MODE = 'redirect_after_finishing_tst';
     public const KEY_TEST_REDIRECT_URL = 'redirection_url';
-    public const KEY_TEST_MAIL_NOTIFICATION_CONTENT_TYPE = 'tst_finish_notification';
-    public const KEY_TEST_ALWAYS_SEND_NOTIFICATION = 'tst_finish_notification_content_type';
     public const KEY_TEST_TAXONOMIES_ENABLED = 'tst_activate_skill_service';
     public const KEY_TEST_HIDE_INFO_TAB = 'tst_hide_info_tab';
 
@@ -131,7 +125,6 @@ class AdditionalInformationGenerator
     public const KEY_SCORING_HIGHSCORE_SHOW_ACHIEVED_TS = 'tst_highscore_achieved_ts';
     public const KEY_SCORING_HIGHSCORE_SHOW_SCORE = 'tst_highscore_score';
     public const KEY_SCORING_HIGHSCORE_SHOW_PERCENTAGE = 'tst_highscore_percentage';
-    public const KEY_SCORING_HIGHSCORE_SHOW_HINTS = 'tst_highscore_hints';
     public const KEY_SCORING_HIGHSCORE_SHOW_WTIME = 'tst_highscore_wtime';
 
     public const KEY_PASS = 'pass';
@@ -209,8 +202,6 @@ class AdditionalInformationGenerator
         'type',
         'answers_select',
         'answers_text_box',
-        'tst_finish_notification_simple',
-        'tst_finish_notification_advanced',
         'test_question_set_type_fixed',
         'tst_title_output_full',
         'tst_title_output_hide_points',
@@ -265,7 +256,7 @@ class AdditionalInformationGenerator
     private array $tags;
 
     public function __construct(
-        private readonly \Mustache_Engine $mustache,
+        private readonly TemplateEngineInterface $template_engine,
         private readonly \ilLanguage $lng,
         private readonly UIFactory $ui_factory,
         private readonly Refinery $refinery,
@@ -425,7 +416,7 @@ class AdditionalInformationGenerator
                 ->setTimezone($environment['timezone'])
                 ->format($environment['date_format']);
         }
-        return $this->mustache->render(
+        return $this->template_engine->render(
             $this->refinery->string()->stripTags()->transform($value),
             $this->tags
         );

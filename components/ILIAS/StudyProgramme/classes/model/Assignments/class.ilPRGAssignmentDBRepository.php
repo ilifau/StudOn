@@ -18,6 +18,8 @@
 
 declare(strict_types=1);
 
+use ILIAS\User\Profile\Profile;
+
 /**
  * Assignments are relations of users to a PRG;
  * They hold progress-information for (sub-)nodes of the PRG-tree.
@@ -66,6 +68,7 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
     public function __construct(
         protected ilDBInterface $db,
         protected ilTree $tree,
+        protected Profile $profile,
         protected ilStudyProgrammeSettingsRepository $settings_repo,
         protected PRGEventsDelayed $events,
         ilExportFieldsInfo $user_field_info
@@ -204,8 +207,8 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
 
     public function getAllForNodeIsContained(
         int $prg_obj_id,
-        array $user_filter = null,
-        ilPRGAssignmentFilter $custom_filters = null
+        ?array $user_filter = null,
+        ?ilPRGAssignmentFilter $custom_filters = null
     ): array {
         $conditions = [
             'pgs.' . self::PROGRESS_FIELD_PRG_ID . ' = ' . $this->db->quote($prg_obj_id, 'integer')
@@ -225,8 +228,8 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
 
     public function countAllForNodeIsContained(
         int $prg_obj_id,
-        array $user_filter = null,
-        ilPRGAssignmentFilter $custom_filters = null
+        ?array $user_filter = null,
+        ?ilPRGAssignmentFilter $custom_filters = null
     ): int {
         $conditions = [
             'pgs.' . self::PROGRESS_FIELD_PRG_ID . ' = ' . $this->db->quote($prg_obj_id, 'integer')
@@ -240,7 +243,7 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
         return $this->count($conditions);
     }
 
-    public function getAllForSpecificNode(int $prg_obj_id, array $user_filter = null): array
+    public function getAllForSpecificNode(int $prg_obj_id, ?array $user_filter = null): array
     {
         $conditions = [
             self::ASSIGNMENT_FIELD_ROOT_PRG_ID . ' = ' . $this->db->quote($prg_obj_id, 'integer')
@@ -616,7 +619,7 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
 
     protected function buildUserInformation(array $row): ilPRGUserInformation
     {
-        $udf_data = new ilUserDefinedData((int) $row[self::ASSIGNMENT_FIELD_USR_ID]);
+        $udf_data = $this->profile->getDataFor((int) $row[self::ASSIGNMENT_FIELD_USR_ID]);
         $user_data_values = [];
         foreach ($this->user_data_fields as $field) {
             switch ($field) {
@@ -629,7 +632,7 @@ class ilPRGAssignmentDBRepository implements PRGAssignmentRepository
                     break;
                 case str_starts_with($field, 'udf_'):
                     $udf_field_id = str_replace('udf_', 'f_', $field);
-                    $user_data_values[$field] = $udf_data->get($udf_field_id);
+                    $user_data_values[$field] = $udf_data->getAdditionalFieldByIdentifier($udf_field_id);
                     break;
                 default:
                     $user_data_values[$field] = $row[$field];

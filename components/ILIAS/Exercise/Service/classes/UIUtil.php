@@ -35,8 +35,6 @@ class UIUtil
 
     public function formatTextInput(string $text): string
     {
-        $purifier = new \ilExcTextSubmissionPurifier();
-        $text = $purifier->purify($text);
         $text = \ilRTE::_replaceMediaObjectImageSrc($text, 1);
         if (!str_contains($text, "<p>")) {
             $text = nl2br($text);

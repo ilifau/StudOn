@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -21,21 +22,21 @@ namespace ILIAS\UI\Implementation\Component\Progress\State\Bar;
 
 use ILIAS\UI\Implementation\Component\ComponentHelper;
 use ILIAS\UI\Implementation\Component\Progress;
-use ILIAS\UI\Component\Progress\State\Bar;
+use ILIAS\UI\Component\Progress\State\Bar as C;
 
 /**
  * @author Thibeau Fuhrer <thibeau@sr.solutions>
  */
-class Factory implements Bar\Factory
+class Factory implements C\Factory
 {
     use ComponentHelper;
 
-    public function indeterminate(?string $message = null): Bar\State
+    public function indeterminate(?string $message = null): State
     {
         return new State(Status::INDETERMINATE, null, $message);
     }
 
-    public function determinate(int $visual_progress_value, ?string $message = null): Bar\State
+    public function determinate(int $visual_progress_value, ?string $message = null): State
     {
         $this->checkArg(
             'visual_progress_value',
@@ -46,12 +47,12 @@ class Factory implements Bar\Factory
         return new State(Status::DETERMINATE, $visual_progress_value, $message);
     }
 
-    public function success(string $message): Bar\State
+    public function success(string $message): State
     {
         return new State(Status::SUCCESS, Progress\Bar::MAX_VALUE, $message);
     }
 
-    public function failure(string $message): Bar\State
+    public function failure(string $message): State
     {
         return new State(Status::FAILURE, Progress\Bar::MAX_VALUE, $message);
     }

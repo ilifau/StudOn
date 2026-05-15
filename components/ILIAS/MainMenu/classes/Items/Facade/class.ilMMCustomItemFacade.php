@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -16,8 +16,12 @@
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\GlobalScreen\Scope\MainMenu\Factory\isItem;
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\MainMenuMainCollector as Main;
+use ILIAS\UI\Component\Legacy\Content;
 
 /**
  * Class ilMMCustomItemFacade
@@ -41,7 +45,7 @@ class ilMMCustomItemFacade extends ilMMAbstractItemFacade
         parent::__construct($identification, $collector);
         $this->custom_item_storage = $this->getCustomStorage();
         if ($this->custom_item_storage instanceof ilMMCustomItemStorage) {
-            if ($this->custom_item_storage->getType()) {
+            if ($this->custom_item_storage->getType() !== '' && $this->custom_item_storage->getType() !== '0') {
                 $this->type = $this->custom_item_storage->getType();
             }
             $this->role_based_visibility = $this->custom_item_storage->hasRoleBasedVisibility();
@@ -54,6 +58,7 @@ class ilMMCustomItemFacade extends ilMMAbstractItemFacade
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function update(): void
     {
         if ($this->isCustom()) {
@@ -77,6 +82,7 @@ class ilMMCustomItemFacade extends ilMMAbstractItemFacade
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function delete(): void
     {
         if (!$this->isDeletable()) {
@@ -102,6 +108,7 @@ class ilMMCustomItemFacade extends ilMMAbstractItemFacade
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function supportsRoleBasedVisibility(): bool
     {
         return true;
@@ -134,17 +141,10 @@ class ilMMCustomItemFacade extends ilMMAbstractItemFacade
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function getProviderNameForPresentation(): string
     {
         return "Custom";
-    }
-
-    /**
-     * @return string
-     */
-    public function getStatus(): string
-    {
-        return "";
     }
 
     /**
@@ -158,6 +158,7 @@ class ilMMCustomItemFacade extends ilMMAbstractItemFacade
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function getType(): string
     {
         return $this->type;
@@ -174,9 +175,10 @@ class ilMMCustomItemFacade extends ilMMAbstractItemFacade
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function isTopItem(): bool
     {
-        if ($this->raw_item instanceof \ILIAS\GlobalScreen\Scope\MainMenu\Factory\isItem) {
+        if ($this->raw_item instanceof isItem) {
             return parent::isTopItem();
         }
 
@@ -186,6 +188,7 @@ class ilMMCustomItemFacade extends ilMMAbstractItemFacade
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function setIsTopItm(bool $top_item): void
     {
         $this->top_item = $top_item;

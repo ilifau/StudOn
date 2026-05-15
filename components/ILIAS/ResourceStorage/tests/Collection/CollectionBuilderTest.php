@@ -29,7 +29,6 @@ use ILIAS\ResourceStorage\Collection\Collections;
 use ILIAS\ResourceStorage\Preloader\RepositoryPreloader;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Events\Subject;
-use ILIAS\ResourceStorage\Events\DataContainer;
 
 /**
  * Class CollectionBuilderTest
@@ -38,27 +37,26 @@ use ILIAS\ResourceStorage\Events\DataContainer;
 class CollectionBuilderTest extends TestCase
 {
     public const DUMMY_RCID = 'dummy-rcid';
-    private CollectionBuilder $collection_builder;
     /**
      * @var CollectionRepository|(CollectionRepository&object&MockObject)|(CollectionRepository&MockObject)|(object&MockObject)|MockObject
      */
-    private CollectionRepository|MockObject $collection_repo;
+    private ?MockObject $collection_repo = null;
     /**
      * @var ResourceBuilder|(ResourceBuilder&object&MockObject)|(ResourceBuilder&MockObject)|(object&MockObject)|MockObject
      */
-    private ResourceBuilder|MockObject $resource_builder;
+    private ?MockObject $resource_builder = null;
     private Collections $collections;
 
     protected function setUp(): void
     {
-        $this->collection_builder = new CollectionBuilder(
+        $collection_builder = new CollectionBuilder(
             $this->collection_repo = $this->createMock(CollectionRepository::class),
             new Subject(),
             new DummyIDGenerator(self::DUMMY_RCID)
         );
         $this->collections = new Collections(
             $this->resource_builder = $this->createMock(ResourceBuilder::class),
-            $this->collection_builder,
+            $collection_builder,
             $this->createMock(RepositoryPreloader::class),
             new Subject()
         );
@@ -98,7 +96,7 @@ class CollectionBuilderTest extends TestCase
             ->expects($this->exactly(6))
             ->method('has')
             ->willReturnCallback(
-                function ($rid) use (&$consecutive) {
+                function ($rid) use (&$consecutive): true {
                     $this->assertEquals(array_shift($consecutive), $rid);
                     return true;
                 }
@@ -109,11 +107,11 @@ class CollectionBuilderTest extends TestCase
         $this->assertInstanceOf(ResourceCollection::class, $collection);
         $this->assertNotInstanceOf(MockObject::class, $collection);
 
-        $this->assertEquals(3, $collection->count());
+        $this->assertSame(3, $collection->count());
 
         $collection = $this->collections->get($rcid, null);
 
-        $this->assertEquals(3, $collection->count());
+        $this->assertSame(3, $collection->count());
     }
 
     protected function arrayAsGenerator(array $array): \Generator

@@ -33,33 +33,32 @@ class PanelSecondaryLegacyTest extends ILIAS_UI_TestBase
     public function getUIFactory(): NoUIFactory
     {
         return new class () extends NoUIFactory {
-            public function legacyPanel(string $title, C\Legacy\Legacy $content): I\Component\Panel\Secondary\Legacy
+            public function legacyPanel(string $title, C\Legacy\Content $content): I\Component\Panel\Secondary\Legacy
             {
                 return new I\Component\Panel\Secondary\Legacy($title, $content);
             }
 
-            public function legacy(string $content): C\Legacy\Legacy
+            public function legacy(): I\Component\Legacy\Factory
             {
-                $f = new I\Component\Legacy\Factory(new I\Component\SignalGenerator());
-                return $f->legacy($content);
+                return new I\Component\Legacy\Factory(new I\Component\SignalGenerator());
             }
 
-            public function dropdown(): C\Dropdown\Factory
+            public function dropdown(): I\Component\Dropdown\Factory
             {
                 return new I\Component\Dropdown\Factory();
             }
 
-            public function viewControl(): C\ViewControl\Factory
+            public function viewControl(): I\Component\ViewControl\Factory
             {
                 return new I\Component\ViewControl\Factory(new SignalGenerator());
             }
 
-            public function button(): C\Button\Factory
+            public function button(): I\Component\Button\Factory
             {
                 return new I\Component\Button\Factory();
             }
 
-            public function symbol(): C\Symbol\Factory
+            public function symbol(): I\Component\Symbol\Factory
             {
                 return new I\Component\Symbol\Factory(
                     new I\Component\Symbol\Icon\Factory(),
@@ -79,7 +78,7 @@ class PanelSecondaryLegacyTest extends ILIAS_UI_TestBase
 
     public function testImplementsFactoryInterface(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $secondary_panel = $this->getUIFactory()->legacyPanel("List Title", $legacy);
 
         $this->assertInstanceOf("ILIAS\\UI\\Component\\Panel\\Secondary\\Legacy", $secondary_panel);
@@ -87,7 +86,7 @@ class PanelSecondaryLegacyTest extends ILIAS_UI_TestBase
 
     public function testGetTitle(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $secondary_panel = $this->getUIFactory()->legacyPanel("Title", $legacy);
 
         $this->assertEquals("Title", $secondary_panel->getTitle());
@@ -95,7 +94,7 @@ class PanelSecondaryLegacyTest extends ILIAS_UI_TestBase
 
     public function testGetLegacyComponent(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $secondary_panel = $this->getUIFactory()->legacyPanel("title", $legacy);
 
         $this->assertEquals($secondary_panel->getLegacyComponent(), $legacy);
@@ -103,7 +102,7 @@ class PanelSecondaryLegacyTest extends ILIAS_UI_TestBase
 
     public function testWithActions(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $actions = $this->getUIFactory()->dropdown()->standard(array(
             $this->getUIFactory()->button()->shy("ILIAS", "https://www.ilias.de"),
             $this->getUIFactory()->button()->shy("Github", "https://www.github.com")
@@ -117,7 +116,7 @@ class PanelSecondaryLegacyTest extends ILIAS_UI_TestBase
 
     public function testWithoutViewControls(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $secondary_panel = $this->getUIFactory()->legacyPanel("title", $legacy);
         $array_vc = $secondary_panel->getViewControls();
 
@@ -126,7 +125,7 @@ class PanelSecondaryLegacyTest extends ILIAS_UI_TestBase
 
     public function testWithSortationViewControl(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $sort_options = array(
             'internal_rating' => 'Best',
             'date_desc' => 'Most Recent',
@@ -144,7 +143,7 @@ class PanelSecondaryLegacyTest extends ILIAS_UI_TestBase
 
     public function testWithPaginationViewControl(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $pagination = $this->getUIFactory()->viewControl()->pagination()
             ->withTargetURL("http://ilias.de", 'page')
             ->withTotalEntries(98)
@@ -161,7 +160,7 @@ class PanelSecondaryLegacyTest extends ILIAS_UI_TestBase
 
     public function testWithSectionViewControl(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $back = $this->getUIFactory()->button()->standard("previous", "http://www.ilias.de");
         $next = $this->getUIFactory()->button()->standard("next", "http://www.github.com");
         $current = $this->getUIFactory()->button()->standard("current", "");
@@ -179,7 +178,7 @@ class PanelSecondaryLegacyTest extends ILIAS_UI_TestBase
 
     public function testRenderPanelSecondaryWithActions(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $actions = $this->getUIFactory()->dropdown()->standard(array(
             $this->getUIFactory()->button()->shy("ILIAS", "https://www.ilias.de"),
             $this->getUIFactory()->button()->shy("Github", "https://www.github.com")
@@ -216,7 +215,7 @@ EOT;
 
     public function testRenderPanelSecondaryWithSortation(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $sort_options = array(
             'a' => 'A',
             'b' => 'B'
@@ -235,7 +234,7 @@ EOT;
             <div class="dropdown il-viewcontrol il-viewcontrol-sortation l-bar__element" id="id_1">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-label="sortation" aria-haspopup="true" aria-expanded="false" aria-controls="id_1_ctrl">
                     <span class="label">vc_sort B</span>
-                    <span class="caret"></span>
+                    <span class="glyphicon-sort"></span>
                 </button>
                 <ul id="id_1_ctrl" class="dropdown-menu">
                     <li><button class="btn btn-link" data-action="?sortation=a" id="id_2">A</button></li>
@@ -253,7 +252,7 @@ EOT;
 
     public function testRenderPanelSecondaryWithPagination(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
 
         $pagination = $this->getUIFactory()->viewControl()->pagination()
             ->withTargetURL('http://ilias.de', 'page')
@@ -272,16 +271,16 @@ EOT;
         <div class="panel-title"><h2>Title</h2></div>
         <div class="panel-viewcontrols l-bar__space-keeper">
             <div class="il-viewcontrol-pagination l-bar__element">
-                <button class="btn btn-default" data-action="http://ilias.de?page=0" id="id_6">
-                    <span class="glyph" aria-label="back" role="img"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></span>
+                <button class="btn btn-default" aria-label="back" data-action="http://ilias.de?page=0" id="id_6">
+                    <span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></span>
                 </button>
                 <button class="btn btn-link" data-action="http://ilias.de?page=0" id="id_1">1</button>
                 <button class="btn btn-link engaged" aria-pressed="true" data-action="http://ilias.de?page=1" id="id_2">2</button>
                 <button class="btn btn-link" data-action="http://ilias.de?page=2" id="id_3">3</button>
                 <button class="btn btn-link" data-action="http://ilias.de?page=3" id="id_4">4</button>
                 <button class="btn btn-link" data-action="http://ilias.de?page=4" id="id_5">5</button>
-                <button class="btn btn-default" data-action="http://ilias.de?page=2" id="id_7">
-                    <span class="glyph" aria-label="next" role="img"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span>
+                <button class="btn btn-default" aria-label="next" data-action="http://ilias.de?page=2" id="id_7">
+                    <span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span>
                 </button>
             </div>
         </div>
@@ -295,7 +294,7 @@ EOT;
 
     public function testRenderPanelSecondaryWithSection(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $back = $this->getUIFactory()->button()->standard("previous", "http://www.ilias.de");
         $next = $this->getUIFactory()->button()->standard("next", "http://www.github.com");
         $current = $this->getUIFactory()->button()->standard("current", "");
@@ -327,7 +326,7 @@ EOT;
 
     public function testRenderPanelSecondaryWithFooter(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
         $footer_shy_button = $this->getUIFactory()->button()->shy("Action", "");
 
         $secondary_panel = $this->getUIFactory()->legacyPanel("Title", $legacy)
@@ -354,7 +353,7 @@ EOT;
 
     public function testRenderPanelSecondaryWithNoHeader(): void
     {
-        $legacy = $this->getUIFactory()->legacy("Legacy content");
+        $legacy = $this->getUIfactory()->legacy()->content("Legacy content");
 
         $secondary_panel = $this->getUIFactory()->legacyPanel("", $legacy);
 

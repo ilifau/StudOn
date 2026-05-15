@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -20,13 +16,17 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+declare(strict_types=1);
+
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * Course/group notifications
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
  */
-class ilMembershipCronNotifications extends ilCronJob
+class ilMembershipCronNotifications extends CronJob
 {
     protected ilLanguage $lng;
     protected ilDBInterface $db;
@@ -63,9 +63,9 @@ class ilMembershipCronNotifications extends ilCronJob
         return $this->lng->txt("enable_course_group_notifications_desc");
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
+        return JobScheduleType::DAILY;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -83,13 +83,13 @@ class ilMembershipCronNotifications extends ilCronJob
         return true;
     }
 
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         global $DIC;
 
         $this->logger->debug("===Member Notifications=== start");
 
-        $status = ilCronJobResult::STATUS_NO_ACTION;
+        $status = JobResult::STATUS_NO_ACTION;
         $status_details = null;
 
         $setting = new ilSetting("cron");
@@ -132,7 +132,7 @@ class ilMembershipCronNotifications extends ilCronJob
                 $DIC->cron()->manager()->ping($this->getId());
             }
             // mails were sent - set cron job status accordingly
-            $status = ilCronJobResult::STATUS_OK;
+            $status = JobResult::STATUS_OK;
         }
 
         ilDatePresentation::setUseRelativeDates($old_dt);
@@ -141,7 +141,7 @@ class ilMembershipCronNotifications extends ilCronJob
 
         // save last run
         $setting->set(get_class($this), date("Y-m-d H:i:s"));
-        $result = new ilCronJobResult();
+        $result = new JobResult();
         $result->setStatus($status);
         if ($status_details) {
             $result->setMessage($status_details);
@@ -302,8 +302,8 @@ class ilMembershipCronNotifications extends ilCronJob
         }
 
         $res = $a_is_sub
-            ? "- " . $res
-            : "# " . $res;
+            ? "  - " . $res
+            : "- " . $res;
 
         if (is_array($sub) && count($sub)) {
             $res .= "\n" . implode("\n", $sub);

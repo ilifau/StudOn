@@ -23,8 +23,6 @@ use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\UI\Component\Item\Item;
 
 /**
- * BlockGUI class for Personal Desktop Mail block
- * @author			Alex Killing <alex.killing@gmx.de>
  * @ilCtrl_IsCalledBy ilPDMailBlockGUI: ilColumnGUI
  */
 class ilPDMailBlockGUI extends ilBlockGUI
@@ -33,7 +31,6 @@ class ilPDMailBlockGUI extends ilBlockGUI
 
     private readonly GlobalHttpState $http;
     private readonly Refinery $refinery;
-    private int $requestMailObjId = 0;
     protected ilRbacSystem $rbacsystem;
     protected ilSetting $setting;
     /** @var string[] */

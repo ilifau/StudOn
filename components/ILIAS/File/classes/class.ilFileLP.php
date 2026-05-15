@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -26,6 +27,7 @@ class ilFileLP extends ilObjectLP
     /**
      * @return int[]
      */
+    #[\Override]
     public static function getDefaultModes(bool $a_lp_active): array
     {
         return [
@@ -35,11 +37,13 @@ class ilFileLP extends ilObjectLP
         ];
     }
 
+    #[\Override]
     public function getDefaultMode(): int
     {
         return ilLPObjSettings::LP_MODE_DEACTIVATED;
     }
 
+    #[\Override]
     public function getValidModes(): array
     {
         return [

@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\examples\Popover\Standard;
@@ -23,18 +39,18 @@ function show_popover_with_different_positions()
     $factory = $DIC->ui()->factory();
     $renderer = $DIC->ui()->renderer();
 
-    $content = $factory->legacy('The position of this popover is calculated automatically based on the available space. Note that the max width CSS setting is used here, as this text is quite long.');
+    $content = $factory->legacy()->content('The position of this popover is calculated automatically based on the available space. Note that the max width CSS setting is used here, as this text is quite long.');
     $popover = $factory->popover()->standard($content);
     $button = $factory->button()->standard('Auto Popover', '#')
         ->withOnClick($popover->getShowSignal());
 
-    $content = $factory->legacy('The position of this popover is either on top or bottom of the triggerer, based on the available space');
+    $content = $factory->legacy()->content('The position of this popover is either on top or bottom of the triggerer, based on the available space');
     $popover2 = $factory->popover()->standard($content)
         ->withVerticalPosition();
     $button2 = $factory->button()->standard('Vertical Popover', '#')
         ->withOnClick($popover2->getShowSignal());
 
-    $content = $factory->legacy('The position of this popover is either on the left or right of the triggerer, based on the available space');
+    $content = $factory->legacy()->content('The position of this popover is either on the left or right of the triggerer, based on the available space');
     $popover3 = $factory->popover()->standard($content)
         ->withHorizontalPosition();
     $button3 = $factory->button()->standard('Horizontal Popover', '#')

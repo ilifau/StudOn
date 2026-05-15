@@ -60,8 +60,6 @@ abstract class ilObject2GUI extends ilObjectGUI
     protected ilObjUser $user;
     protected ilAccessHandler $access;
     protected ilToolbarGUI $toolbar;
-    protected ArrayBasedRequestWrapper $post_wrapper;
-    protected RequestWrapper $request_wrapper;
     protected Factory $refinery;
     protected ilRbacAdmin $rbac_admin;
     protected ilRbacSystem $rbac_system;
@@ -98,9 +96,10 @@ abstract class ilObject2GUI extends ilObjectGUI
         $this->user = $DIC->user();
         $this->access = $DIC->access();
         $this->toolbar = $DIC->toolbar();
-        $this->request = $DIC->http()->request();
-        $this->post_wrapper = $DIC->http()->wrapper()->post();
-        $this->request_wrapper = $DIC->http()->wrapper()->query();
+        $this->http = $DIC['http'];
+        $this->request = $this->http->request();
+        $this->post_wrapper = $this->http->wrapper()->post();
+        $this->request_wrapper = $this->http->wrapper()->query();
         $this->refinery = $DIC->refinery();
         $this->retriever = new ilObjectRequestRetriever($DIC->http()->wrapper(), $this->refinery);
         $this->rbac_admin = $DIC->rbac()->admin();
@@ -491,7 +490,7 @@ abstract class ilObject2GUI extends ilObjectGUI
         string $perm,
         string $cmd = "",
         string $type = "",
-        int $ref_id = null
+        ?int $ref_id = null
     ): void {
         parent::checkPermission($perm, $cmd, $type, $ref_id);
     }
@@ -634,7 +633,7 @@ abstract class ilObject2GUI extends ilObjectGUI
     /**
      * Add object to tree at given position
      */
-    public function putObjectInTree(ilObject $obj, int $parent_node_id = null): void
+    public function putObjectInTree(ilObject $obj, ?int $parent_node_id = null): void
     {
         $this->object_id = $obj->getId();
 

@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -223,7 +224,7 @@ abstract class ilRemoteObjectBaseGUI extends ilObject2GUI
     /**
      * Edit settings
      */
-    public function editObject(ilPropertyFormGUI $form = null): void
+    public function editObject(?ilPropertyFormGUI $form = null): void
     {
         if (!$this->access->checkAccess("write", "", $this->object->getRefId())) {
             $this->error->raiseError($this->lng->txt('msg_no_perm_read'), $this->error->MESSAGE);

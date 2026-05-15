@@ -21,6 +21,7 @@ declare(strict_types=1);
 use ILIAS\DI\UIServices;
 use ILIAS\UI\Component\Input\Container\Form\Form;
 use ILIAS\UI\Component\Component;
+use ILIAS\Cron\Job\JobManager;
 
 /**
  * @ilCtrl_Calls      ilObjForumAdministrationGUI: ilPermissionGUI
@@ -28,12 +29,12 @@ use ILIAS\UI\Component\Component;
  */
 class ilObjForumAdministrationGUI extends ilObjectGUI
 {
-    private const PROP_SECTION_DEFAULTS = 'defaults';
-    private const PROP_SECTION_FEATURES = 'features';
-    private const PROP_SECTION_NOTIFICATIONS = 'notifications';
-    private const PROP_SECTION_DRAFTS = 'drafts';
+    private const string PROP_SECTION_DEFAULTS = 'defaults';
+    private const string PROP_SECTION_FEATURES = 'features';
+    private const string PROP_SECTION_NOTIFICATIONS = 'notifications';
+    private const string PROP_SECTION_DRAFTS = 'drafts';
 
-    private readonly ilCronManager $cronManager;
+    private readonly JobManager $cronManager;
     private readonly UIServices $ui;
 
     public function __construct($a_data, int $a_id, bool $a_call_by_reference = true, bool $a_prepare_output = true)
@@ -54,7 +55,7 @@ class ilObjForumAdministrationGUI extends ilObjectGUI
 
     public function executeCommand(): void
     {
-        if (!$this->rbac_system->checkAccess('visible,read', $this->object->getRefId())) {
+        if (!$this->rbac_system->checkAccess('read', $this->object->getRefId())) {
             $this->error->raiseError($this->lng->txt('no_permission'), $this->error->WARNING);
         }
 
@@ -81,7 +82,7 @@ class ilObjForumAdministrationGUI extends ilObjectGUI
 
     public function getAdminTabs(): void
     {
-        if ($this->rbac_system->checkAccess('visible,read', $this->object->getRefId())) {
+        if ($this->rbac_system->checkAccess('read', $this->object->getRefId())) {
             $this->tabs_gui->addTarget(
                 'settings',
                 $this->ctrl->getLinkTarget($this, 'editSettings'),
@@ -99,7 +100,7 @@ class ilObjForumAdministrationGUI extends ilObjectGUI
         }
     }
 
-    public function editSettings(Form $form = null): void
+    public function editSettings(?Form $form = null): void
     {
         $this->tabs_gui->activateTab('settings');
 
@@ -330,22 +331,29 @@ class ilObjForumAdministrationGUI extends ilObjectGUI
         return [];
     }
 
-    private function cronMessage(): Component
+    /**
+     * @return Component[]
+     */
+    private function cronMessage(): array
     {
-        $gui = new ilCronManagerGUI();
+        $gui = ilObjCronGUI::create();
         $data = $gui->addToExternalSettingsForm(ilAdministrationSettingsFormHandler::FORM_FORUM);
         $data = $data['cron_jobs'][1];
 
+        if (!$this->rbac_system->checkAccess('read', $gui->getRefId())) {
+            return [];
+        }
+
+        $this->ctrl->setParameterByClass(ilObjCronGUI::class, 'ref_id', $gui->getRefId());
         $url = $this->ctrl->getLinkTargetByClass(
-            [ilAdministrationGUI::class, ilObjSystemFolderGUI::class],
-            'jumpToCronJobs'
+            [ilAdministrationGUI::class, ilObjCronGUI::class],
         );
 
-        return $this->ui->factory()->messageBox()->info($this->lng->txt(key($data)) . ': ' . current($data))->withLinks(
-            [
+        return [
+            $this->ui->factory()->messageBox()->info($this->lng->txt(key($data)) . ': ' . current($data))->withLinks([
                 $this->ui->factory()->link()->standard($this->lng->txt('adm_external_setting_edit'), $url)
-            ]
-        );
+            ])
+        ];
     }
 
     private function forumJobActive(): bool

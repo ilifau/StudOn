@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Test\Results\Data;
 
+use ILIAS\Language\Language;
+
 enum StatusOfAttempt: string
 {
     case NOT_YET_STARTED = 'not_started';
@@ -39,5 +41,23 @@ enum StatusOfAttempt: string
             self::FINISHED_BY_DURATION,
             self::FINISHED_BY_PARTICIPANT,
         ]);
+    }
+
+    public static function build(int $current_attempt, ?int $last_finished_attempt, ?string $finalized_by): StatusOfAttempt
+    {
+        if ($last_finished_attempt === null || $current_attempt > $last_finished_attempt) {
+            return StatusOfAttempt::RUNNING;
+        }
+
+        if ($finalized_by === null || $finalized_by === '') {
+            return StatusOfAttempt::FINISHED_BY_UNKNOWN;
+        }
+
+        return StatusOfAttempt::tryFrom($finalized_by);
+    }
+
+    public function getTranslation(Language $lng): string
+    {
+        return $lng->txt($this->value);
     }
 }

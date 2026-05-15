@@ -38,6 +38,7 @@ class ilObjFileStakeholder extends AbstractResourceStakeholder
         return $this->default_owner;
     }
 
+    #[\Override]
     public function canBeAccessedByCurrentUser(ResourceIdentification $identification): bool
     {
         global $DIC;
@@ -70,6 +71,7 @@ class ilObjFileStakeholder extends AbstractResourceStakeholder
         return (isset($d->file_id) ? (int) $d->file_id : null);
     }
 
+    #[\Override]
     public function resourceHasBeenDeleted(ResourceIdentification $identification): bool
     {
         $object_id = $this->resolveObjectId($identification);

@@ -38,6 +38,7 @@ class BaseDirObjective extends BuildStaticConfigStoredObjective
         return self::BASE_DIR;
     }
 
+    #[\Override]
     public function buildIn(Environment $env): Artifact
     {
         $ilias_ini = $env->getResource(Environment::RESOURCE_ILIAS_INI);
@@ -61,6 +62,7 @@ class BaseDirObjective extends BuildStaticConfigStoredObjective
         return new ArrayArtifact($this->data);
     }
 
+    #[\Override]
     public function getPreconditions(Environment $environment): array
     {
         return [

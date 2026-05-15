@@ -23,8 +23,8 @@ use ILIAS\DI\UIServices;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use ILIAS\Refinery\Factory as RefFactory;
-use ILIAS\Refinery\Constraint;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
+use ILIAS\Search\ObjGUI\Readme\Helper as ServerReadmeHelper;
 
 /**
  * @author Tim Schmitz <schmitz@leifos.com>
@@ -41,6 +41,7 @@ class ilObjSearchLuceneSettingsFormGUI
     protected ilObjUser $user;
 
     protected ilObjSearchRpcClientCoordinator $coordinator;
+    protected ServerReadmeHelper $readme_helper;
 
     public function __construct(
         GlobalHttpState $http,
@@ -49,7 +50,8 @@ class ilObjSearchLuceneSettingsFormGUI
         UIServices $ui,
         RefFactory $refinery,
         ilObjUser $user,
-        ilObjSearchRpcClientCoordinator $coordinator
+        ilObjSearchRpcClientCoordinator $coordinator,
+        ServerReadmeHelper $readme_helper
     ) {
         $this->http = $http;
         $this->ctrl = $ctrl;
@@ -60,6 +62,7 @@ class ilObjSearchLuceneSettingsFormGUI
         $this->refinery = $refinery;
         $this->user = $user;
         $this->coordinator = $coordinator;
+        $this->readme_helper = $readme_helper;
     }
 
     public function executeCommand(): void
@@ -94,11 +97,12 @@ class ilObjSearchLuceneSettingsFormGUI
         bool $read_only,
         bool $get_from_post = false
     ): void {
+        $message = $this->readme_helper->getServerInfoMessageBox();
         $form = $this->initForm($read_only);
         if ($get_from_post) {
             $form = $form->withRequest($this->http->request());
         }
-        $this->tpl->setContent($this->renderer->render($form));
+        $this->tpl->setContent($this->renderer->render([$message, $form]));
     }
 
     protected function update(): void
@@ -114,18 +118,19 @@ class ilObjSearchLuceneSettingsFormGUI
 
         $settings = $this->getSettings();
         $data = $form->getData()['section'];
+        $text_data = $form->getData()['text_section'];
+        $index_data = $form->getData()['index_section'];
 
         $settings->enableLuceneUserSearch((bool) $data['user_search_enabled']);
-        $settings->setFragmentCount((int) $data['fragmentCount']);
-        $settings->setFragmentSize((int) $data['fragmentSize']);
-        $settings->setMaxSubitems((int) $data['maxSubitems']);
+        $settings->setFragmentCount((int) $text_data['fragmentCount']);
+        $settings->setFragmentSize((int) $text_data['fragmentSize']);
         $settings->enableLuceneMimeFilter(!is_null($data['mime']));
         if (!is_null($data['mime'])) {
             $settings->setLuceneMimeFilter((array) $data['mime']);
         }
         $settings->enablePrefixWildcardQuery((bool) $data['prefix']);
         $settings->setLastIndexTime(new ilDateTime(
-            $data['last_index']->getTimestamp(),
+            $index_data['last_index']->getTimestamp(),
             IL_CAL_UNIX
         ));
         $settings->update();
@@ -208,18 +213,6 @@ class ilObjSearchLuceneSettingsFormGUI
              $this->refinery->int()->isGreaterThanOrEqual(10)
          );
 
-        // Number of sub-items
-        $max_sub = $field_factory->numeric(
-            $this->lng->txt('lucene_max_sub'),
-            $this->lng->txt('lucene_max_sub_info')
-        )->withValue($settings->getMaxSubitems())
-         ->withRequired(true)
-         ->withAdditionalTransformation(
-             $this->refinery->int()->isLessThanOrEqual(10)
-         )->withAdditionalTransformation(
-             $this->refinery->int()->isGreaterThanOrEqual(1)
-         );
-
         // Last Index
         $timezone = $this->user->getTimeZone();
         $datetime = new DateTime(
@@ -236,20 +229,28 @@ class ilObjSearchLuceneSettingsFormGUI
             $datetime->format($last_index->getFormat()->toString() . ' H:i')
         );
 
-        /**
-         * TODO: Split up the form into two or three sections.
-         */
         $section = $this->factory->input()->field()->section(
             [
                 'user_search_enabled' => $user_search,
                 'mime' => $item_filter,
-                'prefix' => $prefix,
-                'fragmentCount' => $frag_count,
-                'fragmentSize' => $frag_size,
-                'maxSubitems' => $max_sub,
-                'last_index' => $last_index
+                'prefix' => $prefix
             ],
             $this->lng->txt('lucene_settings_title')
+        )->withDisabled($read_only);
+
+        $text_section = $this->factory->input()->field()->section(
+            [
+                'fragmentCount' => $frag_count,
+                'fragmentSize' => $frag_size
+            ],
+            $this->lng->txt('lucene_settings_text_section')
+        )->withDisabled($read_only);
+
+        $index_section = $this->factory->input()->field()->section(
+            [
+                'last_index' => $last_index
+            ],
+            $this->lng->txt('lucene_settings_index_section')
         )->withDisabled($read_only);
 
         if ($read_only) {
@@ -260,7 +261,11 @@ class ilObjSearchLuceneSettingsFormGUI
 
         return $this->factory->input()->container()->form()->standard(
             $action,
-            ['section' => $section]
+            [
+                'section' => $section,
+                'text_section' => $text_section,
+                'index_section' => $index_section
+            ]
         );
     }
 

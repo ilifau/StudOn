@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
@@ -50,9 +50,7 @@ class ilStudyProgrammeAutoCategoryTest extends TestCase
         return $ac;
     }
 
-    /**
-     * @depends testConstruction
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testConstruction')]
     public function testGetPrgObjId(ilStudyProgrammeAutoCategory $ac): void
     {
         $this->assertEquals(
@@ -61,9 +59,7 @@ class ilStudyProgrammeAutoCategoryTest extends TestCase
         );
     }
 
-    /**
-     * @depends testConstruction
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testConstruction')]
     public function testGetCategoryRefId(ilStudyProgrammeAutoCategory $ac): void
     {
         $this->assertEquals(
@@ -72,9 +68,7 @@ class ilStudyProgrammeAutoCategoryTest extends TestCase
         );
     }
 
-    /**
-     * @depends testConstruction
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testConstruction')]
     public function testGetLastEditorId(ilStudyProgrammeAutoCategory $ac): void
     {
         $this->assertEquals(
@@ -83,9 +77,7 @@ class ilStudyProgrammeAutoCategoryTest extends TestCase
         );
     }
 
-    /**
-     * @depends testConstruction
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testConstruction')]
     public function testGetLastEdited(ilStudyProgrammeAutoCategory $ac): void
     {
         $this->assertEquals(

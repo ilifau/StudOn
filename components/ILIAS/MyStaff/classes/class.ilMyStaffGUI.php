@@ -18,6 +18,7 @@
 
 use ILIAS\MyStaff\ilMyStaffAccess;
 use ILIAS\MyStaff\ListCourses\ilMStListCourse;
+use ILIAS\User\Profile\PublicProfileGUI;
 
 /**
  * Class ilMyStaffGUI
@@ -25,12 +26,12 @@ use ILIAS\MyStaff\ListCourses\ilMStListCourse;
  */
 class ilMyStaffGUI
 {
-    public const CMD_INDEX = 'index';
-    public const TAB_LIST_USERS = 'list_users';
-    public const TAB_LIST_COURSES = 'list_courses';
-    public const TAB_LIST_CERTIFICATES = 'list_certificates';
-    public const TAB_LIST_COMPETENCES = 'list_competences';
-    public const TAB_LIST_STUDY_PROGRAMME = 'list_study_programme';
+    public const string CMD_INDEX = 'index';
+    public const string TAB_LIST_USERS = 'list_users';
+    public const string TAB_LIST_COURSES = 'list_courses';
+    public const string TAB_LIST_CERTIFICATES = 'list_certificates';
+    public const string TAB_LIST_COMPETENCES = 'list_competences';
+    public const string TAB_LIST_STUDY_PROGRAMME = 'list_study_programme';
 
     public function __construct()
     {
@@ -108,11 +109,6 @@ class ilMyStaffGUI
                  */
                 switch ($action->getType()) {
                     case "profile": //personal profile
-                        $actions[] = $ui_fac->link()->standard(
-                            $action->getText(),
-                            $action->getHref() . "&back_url=" . $return_url
-                        );
-                        break;
                     case "compose": //mail
                     case "invite": //public chat
                     case "invite_osd": //direct chat (start conversation)

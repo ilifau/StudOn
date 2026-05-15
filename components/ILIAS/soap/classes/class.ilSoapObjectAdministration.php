@@ -16,8 +16,6 @@
  *
  *********************************************************************/
 
-declare(strict_types=1);
-
 /**
  * Soap object administration methods
  * @author  Stefan Meyer <meyer@leifos.com>
@@ -25,7 +23,6 @@ declare(strict_types=1);
  * @version $Id$
  * @package ilias
  */
-
 class ilSoapObjectAdministration extends ilSoapAdministration
 {
     /**
@@ -463,7 +460,8 @@ class ilSoapObjectAdministration extends ilSoapAdministration
                 !$objDefinition->isSystemObject($node['type']) &&
                 ($all || !in_array($node['type'], $filter, true)) &&
                 $access->checkAccess("read", "", (int) $node['ref_id']) &&
-                ($tmp = ilObjectFactory::getInstanceByRefId($node['ref_id'], false))) {
+                ($tmp = ilObjectFactory::getInstanceByRefId($node['ref_id'], false))
+            ) {
                 $nodes[] = $tmp;
             }
         }
@@ -586,8 +584,10 @@ class ilSoapObjectAdministration extends ilSoapAdministration
             $newObj = new $class_constr();
             if (isset($object_data['owner']) && $object_data['owner'] != '') {
                 if ((int) $object_data['owner']) {
-                    if (ilObject::_exists((int) $object_data['owner']) &&
-                        $ilObjDataCache->lookupType((int) $object_data['owner']) === 'usr') {
+                    if (
+                        ilObject::_exists((int) $object_data['owner']) &&
+                        $ilObjDataCache->lookupType((int) $object_data['owner']) === 'usr'
+                    ) {
                         $newObj->setOwner((int) $object_data['owner']);
                     }
                 } else {
@@ -680,9 +680,11 @@ class ilSoapObjectAdministration extends ilSoapAdministration
             );
         }
 
-        if (!$objDefinition->allowLink($source_obj->getType()) and
+        if (
+            !$objDefinition->allowLink($source_obj->getType()) and
             $source_obj->getType() !== 'cat' and
-            $source_obj->getType() !== 'crs') {
+            $source_obj->getType() !== 'crs'
+        ) {
             return $this->raiseError(
                 'Linking of object type: ' . $source_obj->getType() . ' is not allowed',
                 'Client'
@@ -1047,10 +1049,6 @@ class ilSoapObjectAdministration extends ilSoapAdministration
             return $this->raiseError('No valid target given.', 'Client');
         }
 
-        if(!$rbacsystem->checkAccess('move', $ref_id)) {
-            return $this->raiseError("No permission to move object with id: $ref_id", 'Client');
-        }
-
         // check for trash
         if (ilObject::_isInTrash($ref_id)) {
             return $this->raiseError('Object is trashed.', 'Client');
@@ -1283,11 +1281,13 @@ class ilSoapObjectAdministration extends ilSoapAdministration
             return true;
         }
         if ($a_action === 'create') {
-            if (count($a_object_data['references']) > 1 && in_array(
-                $a_object_data['type'],
-                ['cat', 'crs', 'grp', 'fold'],
-                true
-            )) {
+            if (
+                count($a_object_data['references']) > 1 && in_array(
+                    $a_object_data['type'],
+                    ['cat', 'crs', 'grp', 'fold'],
+                    true
+                )
+            ) {
                 return $this->raiseError(
                     "Cannot create references for type " . $a_object_data['type'],
                     'Client'

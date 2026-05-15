@@ -91,8 +91,9 @@ class ilBadgePersonalTableGUI implements DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): Generator {
         $records = $this->getRecords();
 
@@ -242,8 +243,9 @@ class ilBadgePersonalTableGUI implements DataRetrieval
     }
 
     public function getTotalRowCount(
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): ?int {
         return count($this->getRecords());
     }
@@ -371,9 +373,9 @@ class ilBadgePersonalTableGUI implements DataRetrieval
         $table = $this->factory
             ->table()
             ->data(
+                $this,
                 $this->lng->txt('badge_personal_badges'),
                 $this->getColumns($this->user->getDateTimeFormat()),
-                $this
             )
             ->withId(str_replace('\\', '', self::class))
             ->withOrder(new Order('title', Order::ASC))

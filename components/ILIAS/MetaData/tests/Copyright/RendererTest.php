@@ -23,10 +23,10 @@ namespace ILIAS\MetaData\Copyright;
 use PHPUnit\Framework\TestCase;
 use ILIAS\UI\Component\Symbol\Icon\Icon;
 use ILIAS\UI\Component\Link\Link;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy\Content;
 use ILIAS\UI\Implementation\Component\Symbol\Icon\Icon as IIcon;
 use ILIAS\UI\Implementation\Component\Link\Link as ILink;
-use ILIAS\UI\Implementation\Component\Legacy\Legacy as ILegacy;
+use ILIAS\UI\Implementation\Component\Legacy\Content as ILegacy;
 use ILIAS\Filesystem\Filesystem as WebFiles;
 use ILIAS\UI\Factory;
 use ILIAS\ResourceStorage\Services as IRSS;
@@ -39,14 +39,22 @@ class RendererTest extends TestCase
     protected function getMockRenderer(
         Icon $icon,
         Link $link,
-        Legacy $legacy,
+        Content $legacy,
         string $src_from_irss
     ): Renderer {
         return new class ($icon, $link, $legacy, $src_from_irss) extends Renderer {
+            protected ?string $icon_src = null;
+            protected ?string $icon_alt = null;
+            protected ?string $link_label = null;
+            protected ?string $link_action = null;
+            protected ?Relationship $link_relationship = null;
+            protected ?bool $link_disabled = null;
+            protected ?string $legacy_text = null;
+
             public function __construct(
                 protected Icon $icon,
                 protected Link $link,
-                protected Legacy $legacy,
+                protected Content $legacy,
                 protected string $src_from_irss
             ) {
             }
@@ -58,28 +66,58 @@ class RendererTest extends TestCase
 
             protected function customIcon(string $src, string $alt): Icon
             {
-                /** @noinspection PhpUndefinedMethodInspection */
-                $this->icon->checkParams($src, $alt);
+                $this->icon_src = $src;
+                $this->icon_alt = $alt;
                 return $this->icon;
             }
 
-            protected function standardLink(string $label, string $action): Link
-            {
-                /** @noinspection PhpUndefinedMethodInspection */
-                $this->link->checkParams($label, $action);
+            protected function standardLink(
+                string $label,
+                string $action,
+                ?Relationship $relationship,
+                bool $disabled
+            ): Link {
+                $this->link_label = $label;
+                $this->link_action = $action;
+                $this->link_relationship = $relationship;
+                $this->link_disabled = $disabled;
                 return $this->link;
             }
 
-            protected function textInLegacy(string $text): Legacy
+            protected function textInLegacy(string $text): Content
             {
-                /** @noinspection PhpUndefinedMethodInspection */
-                $this->legacy->checkParams($text);
+                $this->legacy_text = $text;
                 return $this->legacy;
             }
 
             protected function getSourceFromIRSS(string $string_id): string
             {
                 return $this->src_from_irss;
+            }
+
+            public function exposeImageData(): array
+            {
+                return [
+                    'icon_src' => $this->icon_src,
+                    'icon_alt' => $this->icon_alt
+                ];
+            }
+
+            public function exposeLinkData(): array
+            {
+                return [
+                    'link_label' => $this->link_label,
+                    'link_action' => $this->link_action,
+                    'link_relationship' => $this->link_relationship,
+                    'link_disabled' => $this->link_disabled
+                ];
+            }
+
+            public function exposeLegacyData(): array
+            {
+                return [
+                    'legacy_text' => $this->legacy_text
+                ];
             }
         };
     }
@@ -88,7 +126,6 @@ class RendererTest extends TestCase
     {
         return $this->getMockBuilder(IIcon::class)
                     ->disableOriginalConstructor()
-                    ->addMethods(['checkParams'])
                     ->getMock();
     }
 
@@ -97,15 +134,13 @@ class RendererTest extends TestCase
         return $this->getMockBuilder(ILink::class)
                     ->disableOriginalConstructor()
                     ->onlyMethods(['withAdditionalRelationshipToReferencedResource'])
-                    ->addMethods(['checkParams'])
                     ->getMock();
     }
 
-    protected function getMockLegacy(): MockObject|Legacy
+    protected function getMockLegacy(): MockObject|Content
     {
         return $this->getMockBuilder(ILegacy::class)
                     ->disableOriginalConstructor()
-                    ->addMethods(['checkParams'])
                     ->getMock();
     }
 
@@ -120,22 +155,12 @@ class RendererTest extends TestCase
 
     public function testToUIComponentsWithLinkAndImage(): void
     {
-        $icon = $this->getMockIcon();
-        $icon->expects($this->once())
-              ->method('checkParams')
-              ->with('image link', 'alt text');
         $link = $this->getMockLink();
-        $link->expects($this->once())
-             ->method('checkParams')
-             ->with('full name', 'link');
-        $link->expects($this->once())
-             ->method('withAdditionalRelationshipToReferencedResource')
-             ->with(Relationship::LICENSE);
         $uri = $this->getMockURI('link');
         $img_uri = $this->getMockURI('image link');
 
         $renderer = $this->getMockRenderer(
-            $icon,
+            $this->getMockIcon(),
             $link,
             $this->getMockLegacy(),
             ''
@@ -182,6 +207,22 @@ class RendererTest extends TestCase
         $this->assertSame(2, count($result));
         $this->assertInstanceOf(Icon::class, $result[0]);
         $this->assertInstanceOf(Link::class, $result[1]);
+        $this->assertSame(
+            [
+                'icon_src' => 'image link',
+                'icon_alt' => 'alt text'
+            ],
+            $renderer->exposeImageData()
+        );
+        $this->assertSame(
+            [
+                'link_label' => 'full name',
+                'link_action' => 'link',
+                'link_relationship' => Relationship::LICENSE,
+                'link_disabled' => false
+            ],
+            $renderer->exposeLinkData()
+        );
     }
 
     public function testToUIComponentsEmpty(): void
@@ -201,21 +242,12 @@ class RendererTest extends TestCase
 
     public function testToUIComponentsWithoutLink(): void
     {
-        $legacy = $this->getMockLegacy();
-        $legacy->expects($this->once())
-               ->method('checkParams')
-               ->with('full name');
-
-        $icon = $this->getMockIcon();
-        $icon->expects($this->once())
-              ->method('checkParams')
-              ->with('image link', 'alt text');
         $uri = $this->getMockURI('image link');
 
         $renderer = $this->getMockRenderer(
-            $icon,
+            $this->getMockIcon(),
             $this->getMockLink(),
-            $legacy,
+            $this->getMockLegacy(),
             ''
         );
         $data = new class ($uri) extends NullCopyrightData {
@@ -252,18 +284,23 @@ class RendererTest extends TestCase
         $result = $renderer->toUIComponents($data);
         $this->assertSame(2, count($result));
         $this->assertInstanceOf(Icon::class, $result[0]);
-        $this->assertInstanceOf(Legacy::class, $result[1]);
+        $this->assertInstanceOf(Content::class, $result[1]);
+        $this->assertSame(
+            [
+                'icon_src' => 'image link',
+                'icon_alt' => 'alt text'
+            ],
+            $renderer->exposeImageData()
+        );
+        $this->assertSame(
+            ['legacy_text' => 'full name'],
+            $renderer->exposeLegacyData()
+        );
     }
 
     public function testToUIComponentsWithLinkNoImage(): void
     {
         $link = $this->getMockLink();
-        $link->expects($this->once())
-             ->method('checkParams')
-             ->with('full name', 'link');
-        $link->expects($this->once())
-             ->method('withAdditionalRelationshipToReferencedResource')
-             ->with(Relationship::LICENSE);
         $uri = $this->getMockURI('link');
 
         $renderer = $this->getMockRenderer(
@@ -291,17 +328,20 @@ class RendererTest extends TestCase
         $result = $renderer->toUIComponents($data);
         $this->assertSame(1, count($result));
         $this->assertInstanceOf(Link::class, $result[0]);
+        $this->assertSame(
+            [
+                'link_label' => 'full name',
+                'link_action' => 'link',
+                'link_relationship' => Relationship::LICENSE,
+                'link_disabled' => false
+            ],
+            $renderer->exposeLinkData()
+        );
     }
 
     public function testToUIComponentsLinkWithoutFullName(): void
     {
         $link = $this->getMockLink();
-        $link->expects($this->once())
-             ->method('checkParams')
-             ->with('link', 'link');
-        $link->expects($this->once())
-             ->method('withAdditionalRelationshipToReferencedResource')
-             ->with(Relationship::LICENSE);
         $uri = $this->getMockURI('link');
 
         $renderer = $this->getMockRenderer(
@@ -324,18 +364,23 @@ class RendererTest extends TestCase
         $result = $renderer->toUIComponents($data);
         $this->assertSame(1, count($result));
         $this->assertInstanceOf(Link::class, $result[0]);
+        $this->assertSame(
+            [
+                'link_label' => 'link',
+                'link_action' => 'link',
+                'link_relationship' => Relationship::LICENSE,
+                'link_disabled' => false
+            ],
+            $renderer->exposeLinkData()
+        );
     }
 
     public function testToUIComponentsWithImageFromLink(): void
     {
-        $icon = $this->getMockIcon();
-        $icon->expects($this->once())
-              ->method('checkParams')
-              ->with('image link', 'alt text');
         $uri = $this->getMockURI('image link');
 
         $renderer = $this->getMockRenderer(
-            $icon,
+            $this->getMockIcon(),
             $this->getMockLink(),
             $this->getMockLegacy(),
             ''
@@ -369,18 +414,21 @@ class RendererTest extends TestCase
         $result = $renderer->toUIComponents($data);
         $this->assertSame(1, count($result));
         $this->assertInstanceOf(Icon::class, $result[0]);
+        $this->assertSame(
+            [
+                'icon_src' => 'image link',
+                'icon_alt' => 'alt text'
+            ],
+            $renderer->exposeImageData()
+        );
     }
 
     public function testToUIComponentsWithImageFromIRSS(): void
     {
-        $icon = $this->getMockIcon();
-        $icon->expects($this->once())
-              ->method('checkParams')
-              ->with('image link', 'alt text');
         $uri = $this->getMockURI('image link');
 
         $renderer = $this->getMockRenderer(
-            $icon,
+            $this->getMockIcon(),
             $this->getMockLink(),
             $this->getMockLegacy(),
             'image link'
@@ -409,17 +457,19 @@ class RendererTest extends TestCase
         $result = $renderer->toUIComponents($data);
         $this->assertSame(1, count($result));
         $this->assertInstanceOf(Icon::class, $result[0]);
+        $this->assertSame(
+            [
+                'icon_src' => 'image link',
+                'icon_alt' => 'alt text'
+            ],
+            $renderer->exposeImageData()
+        );
     }
 
     public function testToUIComponentsWithFallbackImage(): void
     {
-        $icon = $this->getMockIcon();
-        $icon->expects($this->once())
-              ->method('checkParams')
-              ->with('fallback src');
-
         $renderer = $this->getMockRenderer(
-            $icon,
+            $this->getMockIcon(),
             $this->getMockLink(),
             $this->getMockLegacy(),
             ''
@@ -434,6 +484,260 @@ class RendererTest extends TestCase
         $result = $renderer->toUIComponents($data);
         $this->assertSame(1, count($result));
         $this->assertInstanceOf(Icon::class, $result[0]);
+        $this->assertSame(
+            [
+                'icon_src' => 'fallback src',
+                'icon_alt' => ''
+            ],
+            $renderer->exposeImageData()
+        );
+    }
+
+    public function testToImageOnlyWithImageFromLink(): void
+    {
+        $uri = $this->getMockURI('image link');
+
+        $renderer = $this->getMockRenderer(
+            $this->getMockIcon(),
+            $this->getMockLink(),
+            $this->getMockLegacy(),
+            ''
+        );
+        $data = new class ($uri) extends NullCopyrightData {
+            public function __construct(protected URI $uri)
+            {
+            }
+
+            public function hasImage(): bool
+            {
+                return true;
+            }
+
+            public function isImageLink(): bool
+            {
+                return true;
+            }
+
+            public function imageLink(): ?URI
+            {
+                return $this->uri;
+            }
+
+            public function altText(): string
+            {
+                return 'alt text';
+            }
+        };
+
+        $result = $renderer->toImageOnly($data);
+        $this->assertNotNull($result);
+        $this->assertSame(
+            [
+                'icon_src' => 'image link',
+                'icon_alt' => 'alt text'
+            ],
+            $renderer->exposeImageData()
+        );
+    }
+
+    public function testToImageOnlyWithImageFromIRSS(): void
+    {
+        $uri = $this->getMockURI('image link');
+
+        $renderer = $this->getMockRenderer(
+            $this->getMockIcon(),
+            $this->getMockLink(),
+            $this->getMockLegacy(),
+            'image link'
+        );
+        $data = new class ($uri) extends NullCopyrightData {
+            public function __construct(protected URI $uri)
+            {
+            }
+
+            public function hasImage(): bool
+            {
+                return true;
+            }
+
+            public function imageFile(): string
+            {
+                return 'some string';
+            }
+
+            public function altText(): string
+            {
+                return 'alt text';
+            }
+        };
+
+        $result = $renderer->toImageOnly($data);
+        $this->assertNotNull($result);
+        $this->assertSame(
+            [
+                'icon_src' => 'image link',
+                'icon_alt' => 'alt text'
+            ],
+            $renderer->exposeImageData()
+        );
+    }
+
+    public function testToImageOnlyWithFallbackImage(): void
+    {
+        $renderer = $this->getMockRenderer(
+            $this->getMockIcon(),
+            $this->getMockLink(),
+            $this->getMockLegacy(),
+            ''
+        );
+        $data = new class () extends NullCopyrightData {
+            public function fallBackToDefaultImage(): bool
+            {
+                return true;
+            }
+        };
+
+        $result = $renderer->toImageOnly($data);
+        $this->assertNotNull($result);
+        $this->assertSame(
+            [
+                'icon_src' => 'fallback src',
+                'icon_alt' => ''
+            ],
+            $renderer->exposeImageData()
+        );
+    }
+
+    public function testToImageOnlyWithoutImage(): void
+    {
+        $renderer = $this->getMockRenderer(
+            $this->getMockIcon(),
+            $this->getMockLink(),
+            $this->getMockLegacy(),
+            ''
+        );
+        $data = new NullCopyrightData();
+
+        $result = $renderer->toImageOnly($data);
+        $this->assertNull($result);
+    }
+
+    public function testToLinkOnly(): void
+    {
+        $link = $this->getMockLink();
+        $uri = $this->getMockURI('link');
+
+        $renderer = $this->getMockRenderer(
+            $this->getMockIcon(),
+            $link,
+            $this->getMockLegacy(),
+            ''
+        );
+        $data = new class ($uri) extends NullCopyrightData {
+            public function __construct(
+                protected URI $uri
+            ) {
+            }
+
+            public function fullName(): string
+            {
+                return 'full name';
+            }
+
+            public function link(): ?URI
+            {
+                return $this->uri;
+            }
+        };
+
+        $result = $renderer->toLinkOnly($data);
+        $this->assertNotNull($result);
+        $this->assertSame(
+            [
+                'link_label' => 'full name',
+                'link_action' => 'link',
+                'link_relationship' => Relationship::LICENSE,
+                'link_disabled' => false
+            ],
+            $renderer->exposeLinkData()
+        );
+    }
+
+    public function testToLinkOnlyWithoutLinkOrFullName(): void
+    {
+        $renderer = $this->getMockRenderer(
+            $this->getMockIcon(),
+            $this->getMockLink(),
+            $this->getMockLegacy(),
+            ''
+        );
+
+        $result = $renderer->toLinkOnly(new NullCopyrightData());
+        $this->assertNull($result);
+    }
+
+    public function testToLinkOnlyWithoutLink(): void
+    {
+        $link = $this->getMockLink();
+        $renderer = $this->getMockRenderer(
+            $this->getMockIcon(),
+            $link,
+            $this->getMockLegacy(),
+            ''
+        );
+        $data = new class () extends NullCopyrightData {
+            public function fullName(): string
+            {
+                return 'full name';
+            }
+        };
+
+        $result = $renderer->toLinkOnly($data);
+        $this->assertNotNull($result);
+        $this->assertSame(
+            [
+                'link_label' => 'full name',
+                'link_action' => '',
+                'link_relationship' => null,
+                'link_disabled' => true
+            ],
+            $renderer->exposeLinkData()
+        );
+    }
+
+    public function testToLinkOnlyWithoutFullName(): void
+    {
+        $link = $this->getMockLink();
+        $uri = $this->getMockURI('link');
+
+        $renderer = $this->getMockRenderer(
+            $this->getMockIcon(),
+            $link,
+            $this->getMockLegacy(),
+            ''
+        );
+        $data = new class ($uri) extends NullCopyrightData {
+            public function __construct(protected URI $uri)
+            {
+            }
+
+            public function link(): ?URI
+            {
+                return $this->uri;
+            }
+        };
+
+        $result = $renderer->toLinkOnly($data);
+        $this->assertNotNull($result);
+        $this->assertSame(
+            [
+                'link_label' => 'link',
+                'link_action' => 'link',
+                'link_relationship' => Relationship::LICENSE,
+                'link_disabled' => false
+            ],
+            $renderer->exposeLinkData()
+        );
     }
 
     public function testCopyrightAsStringHasFullName(): void

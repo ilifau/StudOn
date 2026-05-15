@@ -49,6 +49,7 @@ class JsCollection extends AbstractCollection
         $this->path_storage[$strip_path] = $item->getBatch();
     }
 
+    #[\Override]
     public function getItemsInOrderOfDelivery(): array
     {
         $ordered = [];

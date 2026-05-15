@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Repository;
 
 use ILIAS\DI\UIServices;
@@ -26,7 +26,6 @@ use ILIAS\FileUpload\FileUpload;
 use ILIAS\GlobalScreen;
 use ILIAS\Repository\Form\FormAdapterGUI;
 use ILIAS\Repository\Modal\ModalAdapterGUI;
-use Slim\Http\Stream;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Repository\Filter\FilterAdapterGUI;
 use ILIAS\Repository\Button\ButtonAdapterGUI;
@@ -85,16 +84,16 @@ trait GlobalDICGUIServices
         return $this->DIC->ui()->mainTemplate();
     }
 
-    public function initFetch() : void
+    public function initFetch(): void
     {
         $main_tpl = $this->mainTemplate();
         $main_tpl->addJavaScript("assets/js/repository.js");
     }
 
-    public function clearAsnyOnloadCode() : void
+    public function clearAsnyOnloadCode(): void
     {
         $this->ui()->renderer()->renderAsync(
-            $this->ui()->factory()->legacy("")
+            $this->ui()->factory()->legacy()->content("")
         );
     }
 
@@ -137,7 +136,7 @@ trait GlobalDICGUIServices
      * @param array|string $class_path
      */
     public function form(
-        $class_path,
+        ?array $class_path,
         string $cmd,
         string $submit_caption = ""
     ): FormAdapterGUI {
@@ -177,7 +176,7 @@ trait GlobalDICGUIServices
      */
     public function filter(
         string $filter_id,
-        $class_path,
+        array $class_path,
         string $cmd,
         bool $activated = true,
         bool $expanded = true

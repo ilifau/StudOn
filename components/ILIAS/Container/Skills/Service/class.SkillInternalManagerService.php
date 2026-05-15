@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,8 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Container\Skills;
 
@@ -34,5 +33,35 @@ class SkillInternalManagerService
     public function getSkillDeletionManager(): ContainerSkillDeletionManager
     {
         return new ContainerSkillDeletionManager();
+    }
+
+    public function contProfileRetrieval(
+        \ILIAS\Skill\Service\SkillProfileService $profile_service,
+        \ilSkillManagementSettings $skmg_settings,
+        int $cont_member_role_id
+    ): ContProfileRetrieval {
+        return new ContProfileRetrieval(
+            $profile_service,
+            $skmg_settings,
+            $cont_member_role_id
+        );
+    }
+
+    public function contSkillRetrieval(
+        ContainerSkillManager $cont_skill_manager
+    ): ContSkillRetrieval {
+        return new ContSkillRetrieval(
+            $cont_skill_manager
+        );
+    }
+
+    public function contSkillMemberRetrieval(
+        ContainerSkillManager $cont_skill_manager,
+        \ilContainer $container
+    ): ContSkillMemberRetrieval {
+        return new ContSkillMemberRetrieval(
+            $cont_skill_manager,
+            $container
+        );
     }
 }

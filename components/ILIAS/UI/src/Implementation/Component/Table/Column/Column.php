@@ -70,8 +70,8 @@ abstract class Column implements C\Column
     }
 
     public function withOrderingLabels(
-        string $asc_label = null,
-        string $desc_label = null
+        ?string $asc_label = null,
+        ?string $desc_label = null
     ): self {
         $clone = clone $this;
         $clone->asc_label = $asc_label;

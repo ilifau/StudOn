@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=0);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=0);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=0);
 
 use ILIAS\UI\Implementation\Component\Listing\Workflow\Step;
 use ILIAS\UI\Renderer as UiRenderer;
@@ -444,7 +444,7 @@ class ilLOEditorStatus
 
     protected function lookupQuestionsAssigned(int $a_test_ref_id): bool
     {
-        if (ilLOUtils::lookupRandomTest(ilObject::_lookupObjId($a_test_ref_id))) {
+        if ($a_test_ref_id > 0 && ilLOUtils::lookupRandomTest(ilObject::_lookupObjId($a_test_ref_id))) {
             foreach ($this->getObjectives() as $objective_id) {
                 $seq = ilLORandomTestQuestionPools::lookupSequences(
                     $this->parent_obj->getId(),

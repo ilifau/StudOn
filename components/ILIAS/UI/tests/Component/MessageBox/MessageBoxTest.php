@@ -68,14 +68,16 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         return new class () extends NoUIFactory {
             public function listing(): IC\Listing\Factory
             {
-                return new IC\Listing\Factory();
+                return new IC\Listing\Factory(
+                    new IC\Listing\Workflow\Factory(),
+                    new IC\Listing\CharacteristicValue\Factory(),
+                    new IC\Listing\Entity\Factory(),
+                );
             }
         };
     }
 
-    /**
-     * @dataProvider getMessageboxTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getMessageboxTypeProvider')]
     public function testImplementsFactoryInterface(string $factory_method): void
     {
         $f = $this->getMessageBoxFactory();
@@ -84,9 +86,7 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         $this->assertInstanceOf("ILIAS\\UI\\Component\\MessageBox\\MessageBox", $f->$factory_method("Lorem ipsum dolor sit amet."));
     }
 
-    /**
-     * @dataProvider getMessageboxTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getMessageboxTypeProvider')]
     public function testMessageboxTypes(string $factory_method): void
     {
         $f = $this->getMessageBoxFactory();
@@ -96,9 +96,7 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         $this->assertEquals($factory_method, $g->getType());
     }
 
-    /**
-     * @dataProvider getMessageboxTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getMessageboxTypeProvider')]
     public function testMessageboxMessagetext(string $factory_method): void
     {
         $f = $this->getMessageBoxFactory();
@@ -108,9 +106,7 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         $this->assertEquals("Lorem ipsum dolor sit amet.", $g->getMessageText());
     }
 
-    /**
-     * @dataProvider getMessageboxTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getMessageboxTypeProvider')]
     public function testWithButtons(string $factory_method): void
     {
         $f = $this->getMessageBoxFactory();
@@ -124,9 +120,7 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         $this->assertNotEmpty($g2->getButtons());
     }
 
-    /**
-     * @dataProvider getMessageboxTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getMessageboxTypeProvider')]
     public function testWithLinks(string $factory_method): void
     {
         $f = $this->getMessageBoxFactory();
@@ -143,9 +137,7 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         $this->assertNotEmpty($g2->getLinks());
     }
 
-    /**
-     * @dataProvider getMessageboxTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getMessageboxTypeProvider')]
     public function testWithButtonsAndLinks(string $factory_method): void
     {
         $f = $this->getMessageBoxFactory();
@@ -164,9 +156,7 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         $this->assertTrue(count($g2->getButtons()) > 0 && count($g2->getLinks()) > 0);
     }
 
-    /**
-     * @dataProvider getMessageboxTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getMessageboxTypeProvider')]
     public function testRenderSimple(string $factory_method): void
     {
         $f = $this->getMessageBoxFactory();
@@ -182,9 +172,7 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
-    /**
-     * @dataProvider getMessageboxTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getMessageboxTypeProvider')]
     public function testRenderWithButtons(string $factory_method): void
     {
         $f = $this->getMessageBoxFactory();
@@ -206,9 +194,7 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
-    /**
-     * @dataProvider getMessageboxTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getMessageboxTypeProvider')]
     public function testRenderWithLinks(string $factory_method): void
     {
         $f = $this->getMessageBoxFactory();
@@ -233,9 +219,7 @@ class MessageBoxTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
-    /**
-     * @dataProvider getMessageboxTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getMessageboxTypeProvider')]
     public function testRenderWithButtonsAndLinks(string $factory_method): void
     {
         $f = $this->getMessageBoxFactory();

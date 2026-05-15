@@ -22,7 +22,6 @@ namespace ILIAS\GlobalScreen\Scope\MetaBar\Factory;
 
 use ILIAS\UI\Component\Symbol\Symbol;
 use Closure;
-use ILIAS\GlobalScreen\isGlobalScreenItem;
 use ILIAS\GlobalScreen\Scope\isDecorateable;
 
 /**

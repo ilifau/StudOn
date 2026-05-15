@@ -18,16 +18,17 @@
 
 declare(strict_types=1);
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ILIAS\DI\Container;
 
 class ilServicesActiveRecordFieldTest extends TestCase
 {
-    private ?\ILIAS\DI\Container $dic_backup = null;
+    private ?Container $dic_backup = null;
     /**
-     * @var ilDBInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var ilDBInterface|MockObject
      */
-    protected $db_mock;
+    protected ?MockObject $db_mock = null;
 
     protected function setUp(): void
     {
@@ -75,16 +76,17 @@ class ilServicesActiveRecordFieldTest extends TestCase
         $arFieldList = arFieldList::getInstance($test_ar);
 
         $primaryField = $arFieldList->getPrimaryField();
-        $this->assertEquals('id', $primaryField->getName());
-        $this->assertEquals(8, $primaryField->getLength());
-        $this->assertEquals('integer', $primaryField->getFieldType());
+        $this->assertSame('id', $primaryField->getName());
+        $this->assertSame(8, $primaryField->getLength());
+        $this->assertSame('integer', $primaryField->getFieldType());
         $this->assertEquals(false, $primaryField->getIndex());
         $this->assertEquals(true, $primaryField->getPrimary());
 
         $arField = $arFieldList->getFieldByName('string_data');
-        $this->assertEquals('string_data', $arField->getName());
-        $this->assertEquals(256, $arField->getLength());
-        $this->assertEquals('text', $arField->getFieldType());
+        $this->assertInstanceOf(\arField::class, $arField);
+        $this->assertSame('string_data', $arField->getName());
+        $this->assertSame(256, $arField->getLength());
+        $this->assertSame('text', $arField->getFieldType());
         $this->assertEquals(true, $arField->getIndex());
         $this->assertEquals(false, $arField->getPrimary());
     }

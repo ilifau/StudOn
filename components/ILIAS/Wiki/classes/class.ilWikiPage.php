@@ -231,7 +231,7 @@ class ilWikiPage extends ilPageObject
     public function update(
         bool $a_validate = true,
         bool $a_no_history = false
-    ) {
+    ): array|bool {
         $ilDB = $this->db;
         $this->wiki_log->debug("start...");
         // update wiki page data
@@ -637,8 +637,8 @@ class ilWikiPage extends ilPageObject
             return "";
         }
 
-        $random = new \ilRandom();
-        $rand = $random->int(1, $cnt);
+        $random = new \Random\Randomizer();
+        $rand = $random->getInt(1, $cnt);
 
         $ilDB->setLimit(1, $rand);
         $query = "SELECT title FROM il_wiki_page" .

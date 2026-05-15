@@ -139,14 +139,8 @@ class ilMainMenuSearchGUI
 
     protected function buildSearchLink(string $cmd): string
     {
-        if (ilSearchSettings::getInstance()->enabledLucene()) {
-            $default = strtolower(ilLuceneSearchGUI::class);
-        } else {
-            $default = strtolower(ilSearchGUI::class);
-        }
-
         return $this->ctrl->getLinkTargetByClass(
-            [strtolower(ilSearchControllerGUI::class), $default],
+            [strtolower(ilSearchControllerGUI::class), strtolower(ilSearchGUI::class)],
             $cmd
         );
     }

@@ -27,6 +27,8 @@ use ILIAS\UI\Implementation\Component\SignalGenerator;
 
 class ComponentDummy implements C\Component
 {
+    use I\Component\ComponentHelper;
+
     protected string $id;
 
     public function __construct($id = "")
@@ -63,7 +65,7 @@ class PanelTest extends ILIAS_UI_TestBase
             {
                 return new I\Component\Button\Factory();
             }
-            public function symbol(): C\Symbol\Factory
+            public function symbol(): I\Component\Symbol\Factory
             {
                 return new I\Component\Symbol\Factory(
                     new I\Component\Symbol\Icon\Factory(),
@@ -77,7 +79,8 @@ class PanelTest extends ILIAS_UI_TestBase
     public function getPanelFactory(): I\Component\Panel\Factory
     {
         return new I\Component\Panel\Factory(
-            $this->createMock(C\Panel\Listing\Factory::class)
+            $this->createMock(I\Component\Panel\Listing\Factory::class),
+            $this->createMock(I\Component\Panel\Secondary\Factory::class),
         );
     }
 
@@ -168,7 +171,7 @@ class PanelTest extends ILIAS_UI_TestBase
 
         $p = $fp->sub("Title", array(new ComponentDummy()));
 
-        $legacy = new I\Component\Legacy\Legacy("Legacy content", new SignalGenerator());
+        $legacy = new I\Component\Legacy\Content("Legacy content", new SignalGenerator());
         $secondary = new I\Component\Panel\Secondary\Legacy("Legacy panel title", $legacy);
 
         $p = $p->withFurtherInformation($secondary);
@@ -262,7 +265,7 @@ EOT;
         $expected_html = <<<EOT
 <div class="panel panel-sub panel-flex">
     <div class="panel-heading ilBlockHeader">
-        <h3>Title</h3>
+        <h2>Title</h2>
         <div class="panel-controls">
             <div class="dropdown" id="id_3"><button class="btn btn-default dropdown-toggle" type="button" aria-label="actions" aria-haspopup="true" aria-expanded="false" aria-controls="id_3_menu"><span class="caret"></span></button>
                 <ul id="id_3_menu" class="dropdown-menu">
@@ -295,7 +298,7 @@ EOT;
         $r = $this->getDefaultRenderer();
 
         $p = $fp->sub("Title", array());
-        $legacy = new I\Component\Legacy\Legacy("Legacy content", new SignalGenerator());
+        $legacy = new I\Component\Legacy\Content("Legacy content", new SignalGenerator());
         $secondary = new I\Component\Panel\Secondary\Legacy("Legacy panel title", $legacy);
         $p = $p->withFurtherInformation($secondary);
         $html = $r->render($p);
@@ -303,7 +306,7 @@ EOT;
         $expected_html = <<<EOT
 <div class="panel panel-sub panel-flex">
     <div class="panel-heading ilBlockHeader">
-        <h3>Title</h3>
+        <h2>Title</h2>
         <div class="panel-controls"></div>
     </div>
     <div class="panel-body">
@@ -312,7 +315,7 @@ EOT;
             <div class="col-sm-4">
                 <div class="panel panel-secondary panel-flex">
                     <div class="panel-heading ilHeader">
-                        <div class="panel-title"><h2>Legacy panel title</h2></div>
+                        <div class="panel-title"><h3>Legacy panel title</h3></div>
                         <div class="panel-controls"></div>
                     </div>
                     <div class="panel-body">Legacy content</div>
@@ -477,7 +480,7 @@ EOT;
             <div class="dropdown il-viewcontrol il-viewcontrol-sortation l-bar__element" id="id_1">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-label="sortation" aria-haspopup="true" aria-expanded="false" aria-controls="id_1_ctrl">
                     <span class="label">vc_sort B</span>
-                    <span class="caret"></span>
+                    <span class="glyphicon-sort"></span>
                 </button>
                 <ul id="id_1_ctrl" class="dropdown-menu">
                    <li><button class="btn btn-link" data-action="?sortation=a" id="id_2">A</button></li>
@@ -519,16 +522,16 @@ EOT;
         <div class="panel-title"><h2>Title</h2></div>
         <div class="panel-viewcontrols l-bar__space-keeper">
             <div class="il-viewcontrol-pagination l-bar__element">
-                <button class="btn btn-default" data-action="http://ilias.de?page=0" id="id_6">
-                    <span class="glyph" aria-label="back" role="img"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></span>
+                <button class="btn btn-default" aria-label="back" data-action="http://ilias.de?page=0" id="id_6">
+                    <span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></span>
                 </button>
                 <button class="btn btn-link" data-action="http://ilias.de?page=0" id="id_1">1</button>
                 <button class="btn btn-link engaged" aria-pressed="true" data-action="http://ilias.de?page=1" id="id_2">2</button>
                 <button class="btn btn-link" data-action="http://ilias.de?page=2" id="id_3">3</button>
                 <button class="btn btn-link" data-action="http://ilias.de?page=3" id="id_4">4</button>
                 <button class="btn btn-link" data-action="http://ilias.de?page=4" id="id_5">5</button>
-                <button class="btn btn-default" data-action="http://ilias.de?page=2" id="id_7">
-                    <span class="glyph" aria-label="next" role="img"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span>
+                <button class="btn btn-default" aria-label="next" data-action="http://ilias.de?page=2" id="id_7">
+                    <span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span>
                 </button>
             </div>
         </div>

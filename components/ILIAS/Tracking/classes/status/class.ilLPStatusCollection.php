@@ -269,7 +269,7 @@ class ilLPStatusCollection extends ilLPStatus
     public function determineStatus(
         int $a_obj_id,
         int $a_usr_id,
-        object $a_obj = null
+        ?object $a_obj = null
     ): int {
         global $DIC;
 
@@ -535,5 +535,25 @@ class ilLPStatusCollection extends ilLPStatus
             self::LP_STATUS_IN_PROGRESS_NUM,
             $a_user_ids
         );
+    }
+
+    public function determinePercentage(int $a_obj_id, int $a_usr_id, ?object $a_obj = null): int
+    {
+        $status_info = self::_getStatusInfo($a_obj_id);
+        if (empty($status_info)) {
+            return 0;
+        }
+        $passed = 0;
+        foreach ($status_info['collections'] as $item_ref_id) {
+            $obj_id = ilObject::_lookupObjId($item_ref_id);
+            if (ilLPStatusWrapper::_determineStatus($obj_id, $a_usr_id) === self::LP_STATUS_COMPLETED_NUM) {
+                $passed++;
+            }
+        }
+        $percentage = 0;
+        if ($status_info["num_collections"] > 0) {
+            $percentage = (int) ((100.0 / $status_info["num_collections"]) * $passed);
+        }
+        return $percentage;
     }
 }

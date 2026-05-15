@@ -20,6 +20,12 @@ declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\Resource;
 
+use ILIAS\ResourceStorage\Information\Repository\InformationRepository;
+use ILIAS\ResourceStorage\Resource\Repository\ResourceRepository;
+use ILIAS\ResourceStorage\Revision\Repository\RevisionRepository;
+use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderRepository;
+use ILIAS\ResourceStorage\StorageHandler\StorageHandler;
+use ILIAS\ResourceStorage\Policy\FileNamePolicyException;
 use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\FileUpload\DTO\UploadResult;
@@ -55,29 +61,25 @@ class ResourceBuilder
     /**
      * @readonly
      */
-    private \ILIAS\ResourceStorage\Information\Repository\InformationRepository $information_repository;
+    private InformationRepository $information_repository;
     /**
      * @readonly
      */
-    private \ILIAS\ResourceStorage\Resource\Repository\ResourceRepository $resource_repository;
+    private ResourceRepository $resource_repository;
     /**
      * @readonly
      */
-    private \ILIAS\ResourceStorage\Revision\Repository\RevisionRepository $revision_repository;
+    private RevisionRepository $revision_repository;
     /**
      * @readonly
      */
-    private \ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderRepository $stakeholder_repository;
+    private StakeholderRepository $stakeholder_repository;
 
     /**
      * @var StorableResource[]
      */
     protected array $resource_cache = [];
-    protected \ILIAS\ResourceStorage\Policy\FileNamePolicy $file_name_policy;
-    protected \ILIAS\ResourceStorage\StorageHandler\StorageHandler $primary_storage_handler;
-    private StorageHandlerFactory $storage_handler_factory;
-    private LockHandler $lock_handler;
-    private StreamAccess $stream_access;
+    protected StorageHandler $primary_storage_handler;
     private bool $auto_migrate = true;
 
     /**
@@ -85,21 +87,17 @@ class ResourceBuilder
      * @param FileNamePolicy|null $file_name_policy
      */
     public function __construct(
-        StorageHandlerFactory $storage_handler_factory,
+        private StorageHandlerFactory $storage_handler_factory,
         Repositories $repositories,
-        LockHandler $lock_handler,
-        StreamAccess $stream_access,
-        FileNamePolicy $file_name_policy = null
+        private LockHandler $lock_handler,
+        private StreamAccess $stream_access,
+        protected FileNamePolicy $file_name_policy = new NoneFileNamePolicy()
     ) {
-        $this->storage_handler_factory = $storage_handler_factory;
-        $this->lock_handler = $lock_handler;
-        $this->stream_access = $stream_access;
-        $this->primary_storage_handler = $storage_handler_factory->getPrimary();
+        $this->primary_storage_handler = $this->storage_handler_factory->getPrimary();
         $this->revision_repository = $repositories->getRevisionRepository();
         $this->resource_repository = $repositories->getResourceRepository();
         $this->information_repository = $repositories->getInformationRepository();
         $this->stakeholder_repository = $repositories->getStakeholderRepository();
-        $this->file_name_policy = $file_name_policy ?? new NoneFileNamePolicy();
     }
 
     //
@@ -345,7 +343,7 @@ class ResourceBuilder
 
     /**
      * @description after you have modified a resource, you can store it here
-     * @throws \ILIAS\ResourceStorage\Policy\FileNamePolicyException
+     * @throws FileNamePolicyException
      */
     public function store(StorableResource $resource): void
     {
@@ -415,7 +413,7 @@ class ResourceBuilder
 
     /**
      * @description  Store one Revision
-     * @throws \ILIAS\ResourceStorage\Policy\FileNamePolicyException
+     * @throws FileNamePolicyException
      */
     public function storeRevision(Revision $revision, ?StorableResource $resource = null): void
     {
@@ -528,10 +526,9 @@ class ResourceBuilder
 
     /**
      * @description Remove a complete revision. if there are other Stakeholder, only your stakeholder gets removed
-     * @param ResourceStakeholder|null $stakeholder
      * @return bool whether ResourceStakeholders handled this successful
      */
-    public function remove(StorableResource $resource, ResourceStakeholder $stakeholder = null): bool
+    public function remove(StorableResource $resource, ?ResourceStakeholder $stakeholder = null): bool
     {
         $sucessful = true;
         if ($stakeholder instanceof ResourceStakeholder) {
@@ -586,37 +583,38 @@ class ResourceBuilder
             $this->storeRevision($revision);
 
             return true;
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             return false;
         }
     }
 
     private function ensurePathInZIP(\ZipArchive $zip, string $path, bool $is_file): string
     {
-        if ($path === '' || $path === '/') {
-            return $path;
+        // ZIP entries must be stored as relative paths. Some extraction tools
+        // (e.g. Windows Explorer) silently hide entries whose names start with
+        // "/". See Mantis 0045580 / 0047237.
+        $path = ltrim($path, '/');
+        if ($path === '') {
+            return '';
         }
 
         $filename = '';
         if ($is_file) {
             $filename = basename($path);
             $path = dirname($path);
+            if (in_array($path, ['.', '/', ''], true)) {
+                return $filename;
+            }
         }
 
-        // try to determine if a path inside the zip exists with or without a slash at the beginning
-        // determine root directory of the path using regex
         $parts = explode('/', $path);
         $root = array_shift($parts);
-        $root = $root === '' ? array_shift($parts) : $root;
 
-        // check if the root directory exists without a slash at the beginning
-        if ($zip->locateName($root . '/') !== false) {
-            $root = $root;
-        } elseif ($zip->locateName('/' . $root . '/') !== false) {
-            // check if the root directory exists with a slash at the beginning
-            $root = '/' . $root;
-        } else {
-            // if the root directory does not exist, create it
+        // ensure the root directory exists (tolerate legacy entries that were
+        // stored with a leading slash)
+        if ($zip->locateName($root . '/') === false
+            && $zip->locateName('/' . $root . '/') === false
+        ) {
             $zip->addEmptyDir($root);
         }
 
@@ -628,7 +626,11 @@ class ResourceBuilder
             }
         }
 
-        return rtrim($path_inside_container, '/') . '/' . $filename;
+        if ($filename === '') {
+            return $path_inside_container . '/';
+        }
+
+        return $path_inside_container . '/' . $filename;
     }
 
     public function removePathInsideContainer(
@@ -650,7 +652,7 @@ class ResourceBuilder
                 if ($path === false) {
                     continue;
                 }
-                if (strpos($path, $path_inside_container) === 0) {
+                if (str_starts_with($path, $path_inside_container)) {
                     $zip->deleteIndex($i);
                 }
             }
@@ -663,7 +665,7 @@ class ResourceBuilder
             $this->storeRevision($revision);
 
             return $return;
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             $this->storage_handler_factory->getHandlerForRevision($revision)->clearFlavours($revision);
             return false;
         }
@@ -698,7 +700,7 @@ class ResourceBuilder
             $this->storeRevision($revision);
 
             return $return;
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             return false;
         }
 
@@ -731,7 +733,7 @@ class ResourceBuilder
             $this->storeRevision($revision);
 
             return $return;
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             return false;
         }
 
@@ -742,7 +744,7 @@ class ResourceBuilder
     {
         try {
             $this->storage_handler_factory->getHandlerForResource($resource)->deleteRevision($revision);
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
         }
 
         $this->information_repository->delete($revision->getInformation(), $revision);
@@ -755,7 +757,7 @@ class ResourceBuilder
         $revisions = $this->revision_repository->get($resource);
         $resource->setRevisions($revisions);
 
-        foreach ($revisions->getAll(true) as $i => $revision) {
+        foreach ($revisions->getAll(true) as $revision) {
             $information = $this->information_repository->get($revision);
             $revision->setInformation($information);
             $revision->setStorageID($resource->getStorageID());

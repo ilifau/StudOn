@@ -58,7 +58,7 @@ class ilForumCronNotificationDataProvider implements ilForumNotificationMailData
     public function __construct(
         array $row,
         private readonly int $notification_type,
-        ilForumNotificationCache $notificationCache = null
+        ?ilForumNotificationCache $notificationCache = null
     ) {
         $this->closest_container = $row['closest_container'];
         $this->obj_id = (int) $row['obj_id'];

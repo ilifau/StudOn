@@ -150,7 +150,7 @@ class ilErrorHandling
         global $log;
 
         $session_failure = ilSession::get('failure');
-        if ($session_failure && strpos($message, 'Cannot find this block') !== 0) {
+        if ($session_failure && !str_starts_with($message, 'Cannot find this block')) {
             $m = 'Fatal Error: Called raise error two times.<br>' .
                 'First error: ' . $session_failure . '<br>' .
                 'Last Error:' . $message;
@@ -159,8 +159,8 @@ class ilErrorHandling
             die($m);
         }
 
-        if (strpos($message, 'Cannot find this block') === 0) {
-            if (defined('DEVMODE') && DEVMODE) {
+        if (str_starts_with($message, 'Cannot find this block')) {
+            if ($this->isDevmodeActive()) {
                 echo '<b>DEVMODE</b><br><br>';
                 echo '<b>Template Block not found.</b><br>';
                 echo 'You used a template block in your code that is not available.<br>';
@@ -188,8 +188,7 @@ class ilErrorHandling
             $log->write($message);
         }
         if ($code === $this->FATAL) {
-            trigger_error(stripslashes($message), E_USER_ERROR);
-            exit();
+            throw new RuntimeException(stripslashes($message));
         }
 
         if ($code === $this->WARNING) {
@@ -440,8 +439,18 @@ class ilErrorHandling
                         $severity = Whoops\Util\Misc::translateErrorCode($level);
                         $ilLog->write("\n\n" . $severity . ' - ' . $message . "\n" . $file . ' - line ' . $line . "\n");
                     }
+
                     return true;
                 }
+            }
+
+            if ($level === E_USER_DEPRECATED) {
+                if ($ilLog) {
+                    $severity = Whoops\Util\Misc::translateErrorCode($level);
+                    $ilLog->write("\n\n" . $severity . ' - ' . $message . "\n" . $file . ' - line ' . $line . "\n");
+                }
+
+                return true;
             }
 
             if ($this->whoops instanceof RunInterface) {

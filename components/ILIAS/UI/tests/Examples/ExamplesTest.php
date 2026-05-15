@@ -38,6 +38,9 @@ class ExamplesTest extends ILIAS_UI_TestBase
     protected const MAY_NOT_HAVE_EXAMPLES = [
         \ILIAS\UI\Help\Topic::class,
         \ILIAS\UI\Component\Progress\State\Bar\State::class,
+        \ILIAS\UI\Component\Input\Field\Node\Node::class,
+        \ILIAS\UI\Component\Input\Field\Node\Async::class,
+        \ILIAS\UI\Component\Input\Field\Node\Leaf::class,
     ];
 
     protected static string $path_to_base_factory = "components/ILIAS/UI/src/Factory.php";
@@ -53,6 +56,11 @@ class ExamplesTest extends ILIAS_UI_TestBase
         $_SERVER["REQUEST_URI"] = "";
         $_SERVER['SCRIPT_NAME'] = "";
         $_SERVER['QUERY_STRING'] = "param=1";
+
+        // allows example Unit Tests to find resources like additional data or css
+        if (!defined('ILIAS_ABSOLUTE_PATH')) {
+            define('ILIAS_ABSOLUTE_PATH', realpath(__DIR__ . '/../../../../../'));
+        }
 
         //This avoids Undefined index: ilfilehash for the moment
         $_POST["ilfilehash"] = "";
@@ -74,6 +82,7 @@ class ExamplesTest extends ILIAS_UI_TestBase
             new ILIAS\Data\Factory(),
             $this->getLanguage()
         );
+
         (new InitUIFramework())->init($this->dic);
 
         $this->dic["ui.template_factory"] = $this->getTemplateFactory();
@@ -129,9 +138,7 @@ class ExamplesTest extends ILIAS_UI_TestBase
         }
     }
 
-    /**
-     * @dataProvider getFullFunctionNamesAndPathExample
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getFullFunctionNamesAndPathExample')]
     public function testAllExamplesRenderAString(string $example_function_name, string $example_path): void
     {
         global $DIC;
@@ -145,9 +152,7 @@ class ExamplesTest extends ILIAS_UI_TestBase
         }
     }
 
-    /**
-     * @dataProvider getFullFunctionNamesAndPathExample
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getFullFunctionNamesAndPathExample')]
     public function testAllExamplesHaveExpectedOutcomeInDocs(string $example_function_name, string $example_path)
     {
         $docs = $this->example_parser->parseYamlStringArrayFromFile($example_path);
@@ -177,9 +182,7 @@ class ExamplesTest extends ILIAS_UI_TestBase
         return $function_names;
     }
 
-    /**
-     * @dataProvider getListOfFullscreenExamples
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getListOfFullscreenExamples')]
     public function testFullscreenModeExamples(string $example_function_name, string $example_path): void
     {
         global $DIC;
@@ -198,6 +201,7 @@ class ExamplesTest extends ILIAS_UI_TestBase
         return [
             ['ILIAS\UI\examples\MainControls\Footer\base', "components/ILIAS/UI/src/examples/MainControls/Footer/base.php"],
             ['ILIAS\UI\examples\MainControls\MetaBar\renderMetaBarInFullscreenMode', "components/ILIAS/UI/src/examples/MainControls/MetaBar/base_metabar.php"],
+            ['ILIAS\UI\examples\MainControls\MetaBar\renderExtendedMetaBarInFullscreenMode', "components/ILIAS/UI/src/examples/MainControls/MetaBar/extended_example_for_developers.php"],
             ['ILIAS\UI\examples\Layout\Page\Standard\getUIMainbarExampleCondensed', "components/ILIAS/UI/src/examples/Layout/Page/Standard/ui_mainbar.php"],
             ['ILIAS\UI\examples\Layout\Page\Standard\getUIMainbarExampleFull', "components/ILIAS/UI/src/examples/Layout/Page/Standard/ui_mainbar.php"],
             ['ILIAS\UI\examples\Layout\Page\Standard\ui', "components/ILIAS/UI/src/examples/Layout/Page/Standard/ui.php"],

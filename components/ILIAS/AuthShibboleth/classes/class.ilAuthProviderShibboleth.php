@@ -1,18 +1,21 @@
 <?php
 
-/******************************************************************************
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * This file is part of ILIAS, a powerful learning management system.
- *
- * ILIAS is licensed with the GPL-3.0, you should have received a copy
- * of said license along with the source code.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
  *
  * If this is not the case or you just want to try ILIAS, you'll find
  * us at:
- *      https://www.ilias.de
- *      https://github.com/ILIAS-eLearning
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
  *
- *****************************************************************************/
+ *********************************************************************/
+
 /**
  * Shibboleth authentication provider
  *
@@ -63,7 +66,7 @@ class ilAuthProviderShibboleth extends ilAuthProvider
                 $shib_user->update();
                 $shib_user = ilShibbolethPluginWrapper::getInstance()->afterUpdateUser($shib_user);
                 ilShibbolethRoleAssignmentRules::updateAssignments($shib_user->getId(), $_SERVER);
-            } elseif (!($account_creation === ilShibbolethSettings::ACCOUNT_CREATION_DISABLED)) {
+            } elseif ($account_creation !== ilShibbolethSettings::ACCOUNT_CREATION_DISABLED) {
                 $shib_user->createFields();
                 $shib_user->setPref('hits_per_page', $this->settings->get('hits_per_page'));
 
@@ -90,7 +93,7 @@ class ilAuthProviderShibboleth extends ilAuthProvider
                 ilShibbolethRoleAssignmentRules::doAssignments($shib_user->getId(), $_SERVER);
             }
 
-            if(!$new_user || $account_creation === ilShibbolethSettings::ACCOUNT_CREATION_ENABLED) {
+            if (!$new_user || $account_creation === ilShibbolethSettings::ACCOUNT_CREATION_ENABLED) {
                 $status->setStatus(ilAuthStatus::STATUS_AUTHENTICATED);
                 $status->setAuthenticatedUserId(ilObjUser::_lookupId($shib_user->getLogin()));
             } elseif ($account_creation === ilShibbolethSettings::ACCOUNT_CREATION_WITH_APPROVAL) {
@@ -107,7 +110,7 @@ class ilAuthProviderShibboleth extends ilAuthProvider
             return false;
         }
 
-        ilSession::set('shibboleth_session_id', $_SERVER['Shib-Session-ID']);
+        ilSession::set('shibboleth_session_id', $_SERVER['Shib-Session-ID'] ?? '');
         return true;
     }
 }

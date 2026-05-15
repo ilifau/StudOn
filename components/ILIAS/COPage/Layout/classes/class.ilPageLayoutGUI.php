@@ -24,7 +24,7 @@ use ILIAS\Repository\Form\FormAdapterGUI;
  *
  * @author Hendrik Holtmann <holtmann@me.com>
  * @ilCtrl_Calls ilPageLayoutGUI: ilPageEditorGUI, ilEditClipboardGUI
- * @ilCtrl_Calls ilPageLayoutGUI: ilPublicUserProfileGUI, ilPageObjectGUI
+ * @ilCtrl_Calls ilPageLayoutGUI: ILIAS\User\Profile\PublicProfileGUI, ilPageObjectGUI
  */
 class ilPageLayoutGUI extends ilPageObjectGUI
 {
@@ -91,7 +91,7 @@ class ilPageLayoutGUI extends ilPageObjectGUI
      */
     public function properties(
         string $a_mode = "save",
-        ilPropertyFormGUI $a_form = null
+        ?ilPropertyFormGUI $a_form = null
     ): void {
         $ilTabs = $this->tabs;
 
@@ -170,7 +170,7 @@ class ilPageLayoutGUI extends ilPageObjectGUI
     /**
      * output tabs
      */
-    public function setTabs(ilTabsGUI $a_tabs = null): void
+    public function setTabs(?ilTabsGUI $a_tabs = null): void
     {
         $ilTabs = $this->tabs;
         $ilCtrl = $this->ctrl;

@@ -22,11 +22,11 @@ namespace ILIAS\Mail\Attachments;
 
 interface MailAttachmentCommands
 {
-    public const CMD_SHOW_ATTACHMENTS = 'showAttachments';
-    public const CMD_CANCEL_SAVE_ATTACHMENTS = 'cancelSaveAttachments';
-    public const CMD_DELETE_ATTACHMENTS = 'deleteAttachments';
-    public const CMD_HANDLE_TABLE_ACTIONS = 'handleTableActions';
-    public const DEFAULT_CMD = self::CMD_SHOW_ATTACHMENTS;
-    public const TABLE_CONFIRM_DELETE_ATTACHMENTS = 'confirmDeleteAttachments';
-    public const TABLE_ACTION_SAVE_ATTACHMENTS = 'saveAttachments';
+    public const string CMD_SHOW_ATTACHMENTS = 'showAttachments';
+    public const string CMD_CANCEL_SAVE_ATTACHMENTS = 'cancelSaveAttachments';
+    public const string CMD_DELETE_ATTACHMENTS = 'deleteAttachments';
+    public const string CMD_HANDLE_TABLE_ACTIONS = 'handleTableActions';
+    public const string DEFAULT_CMD = self::CMD_SHOW_ATTACHMENTS;
+    public const string TABLE_CONFIRM_DELETE_ATTACHMENTS = 'confirmDeleteAttachments';
+    public const string TABLE_ACTION_SAVE_ATTACHMENTS = 'saveAttachments';
 }

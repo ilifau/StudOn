@@ -17,13 +17,6 @@
  *********************************************************************/
 
 declare(strict_types=1);
-
-use ILIAS\Setup\ObjectiveConstructor;
-use ILIAS\Setup\Config;
-use ILIAS\Refinery\Factory;
-use ILIAS\Refinery;
-use ILIAS\Setup;
-use ILIAS\Setup\Objective;
 use ILIAS\Setup\Environment;
 use ILIAS\BookingManager\Setup\AccessRBACOperationClonedObjective;
 use ILIAS\File\Capabilities\Permissions;
@@ -33,6 +26,7 @@ use ILIAS\File\Capabilities\Permissions;
  */
 class ilFileObjectRBACDatabase extends ilDatabaseUpdateStepsExecutedObjective
 {
+    #[\Override]
     public function getPreconditions(Environment $environment): array
     {
         return array_merge(
@@ -51,13 +45,7 @@ class ilFileObjectRBACDatabase extends ilDatabaseUpdateStepsExecutedObjective
                     "object",
                     2001,
                     ["file"]
-                ),
-                new AccessRBACOperationClonedObjective(
-                    "file",
-                    Permissions::READ->value,
-                    Permissions::VIEW_CONTENT->value
-                ),
-
+                )
             ]
         );
     }

@@ -1,21 +1,25 @@
 <?php
-/******************************************************************************
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * This file is part of ILIAS, a powerful learning management system.
- *
- * ILIAS is licensed with the GPL-3.0, you should have received a copy
- * of said license along with the source code.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
  *
  * If this is not the case or you just want to try ILIAS, you'll find
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- *****************************************************************************/
-/** @noRector */
+ *********************************************************************/
+
 require_once("../vendor/composer/vendor/autoload.php");
 ilContext::init(ilContext::CONTEXT_SHIBBOLETH);
-ilInitialisation::initILIAS();
+require_once("../artifacts/bootstrap_default.php");
+
 global $DIC;
 
 $q = $DIC->http()->wrapper()->query();
@@ -24,7 +28,7 @@ if (
     && $q->has('action')
     && $q->retrieve('action', $DIC->refinery()->to()->string()) === 'logout'
 ) {
-    ilInitialisation::initILIAS();
+    entry_point("ILIAS Legacy Initialisation Adapter");
     // Logout out user from application
     // Destroy application session/cookie etc
     $GLOBALS['DIC']['ilAuthSession']->logout();
@@ -45,7 +49,7 @@ elseif (!empty(file_get_contents('php://input'))) {
     ilContext::init(ilContext::CONTEXT_SOAP);
 
     // Load ILIAS libraries and initialise ILIAS in non-web context
-    ilInitialisation::initILIAS();
+    entry_point("ILIAS Legacy Initialisation Adapter");
 
     // Set SOAP header
     $server = new SoapServer('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] . '/LogoutNotification.wsdl');
@@ -125,7 +129,7 @@ WSDL;
 
 /******************************************************************************/
 /// This function does the actual logout
-function LogoutNotification($SessionID)
+function LogoutNotification($SessionID): ?\SoapFault
 {
     // Delete session of user using $SessionID to locate the user's session file
     // on the file system or in the database
@@ -140,26 +144,32 @@ function LogoutNotification($SessionID)
 
     while ($session = $r->fetchRow(ilDBConstants::FETCHMODE_ASSOC)) {
         $session_data = unserializesession($session['data']);
-        if (is_array($session_data)
+        // Delete this session entry
+        if (
+            is_array($session_data)
             && array_key_exists('shibboleth_session_id', $session_data)
-            && $session_data['shibboleth_session_id'] == $SessionID
+            && $session_data['shibboleth_session_id'] === $SessionID
+            && !ilSession::_destroy($session['session_id']
+            )
         ) {
-            // Delete this session entry
-            if (ilSession::_destroy($session['session_id']) !== true) {
-                return new SoapFault('LogoutError', 'Could not delete session entry in database.');
-            }
+            return new SoapFault('LogoutError', 'Could not delete session entry in database.');
         }
     }
     // If no SoapFault is returned, all is fine
+    return null;
 }
 
 /******************************************************************************/
 // Deserializes session data and returns it in a hash array of arrays
-function unserializesession($serialized_string)
+/**
+ * @return mixed[]
+ */
+function unserializesession($serialized_string): array
 {
-    $variables = array();
-    $a = preg_split("/(\w+)\|/", $serialized_string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-    for ($i = 0; $i < count($a); $i = $i + 2) {
+    $variables = [];
+    $a = preg_split("/(\w+)\|/", (string) $serialized_string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+    $counter = count($a);
+    for ($i = 0; $i < $counter; $i += 2) {
         $variables[$a[$i]] = unserialize($a[$i + 1]);
     }
 

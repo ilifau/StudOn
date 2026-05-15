@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,7 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
 
 /**
  * Model of calendar entry recurrcences
@@ -28,14 +27,14 @@ declare(strict_types=1);
  */
 class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
 {
-    protected const REC_RECURRENCE = 0;
-    protected const REC_EXCLUSION = 1;
+    protected const int REC_RECURRENCE = 0;
+    protected const int REC_EXCLUSION = 1;
 
-    public const FREQ_NONE = 'NONE';
-    public const FREQ_DAILY = 'DAILY';
-    public const FREQ_WEEKLY = 'WEEKLY';
-    public const FREQ_MONTHLY = 'MONTHLY';
-    public const FREQ_YEARLY = 'YEARLY';
+    public const string FREQ_NONE = 'NONE';
+    public const string FREQ_DAILY = 'DAILY';
+    public const string FREQ_WEEKLY = 'WEEKLY';
+    public const string FREQ_MONTHLY = 'MONTHLY';
+    public const string FREQ_YEARLY = 'YEARLY';
 
     protected ilDBInterface $db;
 
@@ -157,6 +156,7 @@ class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
         $this->setFrequenceType('');
         $this->setInterval(1);
         $this->setFrequenceUntilCount(0);
+        $this->setFrequenceUntilDate(null);
     }
 
     public function getRecurrenceId(): int
@@ -204,7 +204,7 @@ class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
         return is_object($this->freq_until_date) ? $this->freq_until_date : null;
     }
 
-    public function setFrequenceUntilDate(ilDateTime $a_date = null): void
+    public function setFrequenceUntilDate(?ilDateTime $a_date = null): void
     {
         $this->freq_until_date = $a_date;
     }

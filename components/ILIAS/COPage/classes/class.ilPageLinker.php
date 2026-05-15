@@ -16,6 +16,8 @@
  *
  *********************************************************************/
 
+use ILIAS\User\Profile\PublicProfileGUI;
+
 /**
  * Page linker
  * @author Alexander Killing <killing@leifos.de>
@@ -32,7 +34,7 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
         string $cmd_gui_class,
         bool $offline = false,
         string $profile_back_url = "",
-        ilCtrl $ctrl = null
+        ?ilCtrl $ctrl = null
     ) {
         global $DIC;
 
@@ -134,7 +136,11 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
                         if ($targetframe == "Glossary") {
                             $ltarget = "";
                         }
-                        $href = "./goto.php?target=git_" . $target_id;
+                        if ($this->offline) {
+                            $href = "term_" . $target_id . ".html";
+                        } else {
+                            $href = "./goto.php?target=git_" . $target_id;
+                        }
                         break;
 
                     case "MediaObject":
@@ -189,10 +195,10 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
                         if ($obj_type == "usr") {
                             $back = $this->profile_back_url;
                             //var_dump($back); exit;
-                            $this->ctrl->setParameterByClass("ilpublicuserprofilegui", "user_id", $target_id);
+                            $this->ctrl->setParameterByClass(PublicProfileGUI::class, "user_id", $target_id);
                             if (strlen($back)) {
                                 $this->ctrl->setParameterByClass(
-                                    "ilpublicuserprofilegui",
+                                    PublicProfileGUI::class,
                                     "back_url",
                                     rawurlencode($back)
                                 );
@@ -200,14 +206,14 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
                             $href = "";
                             if (ilUserUtil::hasPublicProfile($target_id)) {
                                 $href = $this->ctrl->getLinkTargetByClass(
-                                    ["ilpublicuserprofilegui"],
+                                    [ilPublicProfileBaseClassGUI::class, PublicProfileGUI::class],
                                     "getHTML",
                                     "",
                                     false,
                                     true
                                 );
                             }
-                            $this->ctrl->setParameterByClass("ilpublicuserprofilegui", "user_id", "");
+                            $this->ctrl->setParameterByClass(PublicProfileGUI::class, "user_id", "");
                             $lcontent = ilUserUtil::getNamePresentation($target_id, false, false);
                             $lcontent = str_replace("&", "&amp;", htmlentities($lcontent));
                         }

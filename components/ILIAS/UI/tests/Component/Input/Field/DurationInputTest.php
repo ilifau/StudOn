@@ -63,6 +63,7 @@ class DurationInputTest extends ILIAS_UI_TestBase
     protected function buildFactory(): I\Input\Field\Factory
     {
         return new I\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\Field\Node\Factory::class),
             $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             new SignalGenerator(),
             $this->data_factory,
@@ -74,7 +75,7 @@ class DurationInputTest extends ILIAS_UI_TestBase
     public function getUIFactory(): NoUIFactory
     {
         return new class () extends NoUIFactory {
-            public function symbol(): C\Symbol\Factory
+            public function symbol(): I\Symbol\Factory
             {
                 return new S\Factory(
                     new S\Icon\Factory(),
@@ -198,13 +199,11 @@ class DurationInputTest extends ILIAS_UI_TestBase
             '<div class="c-field-duration">' . $f1 . $f2 . '</div>',
             'byline',
         );
-        $this->assertEquals($expected, $this->render($duration));
+        $this->assertEquals($expected, $this->renderInsideContainer($duration));
         return $duration;
     }
 
-    /**
-     * @depends testRender
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testRender')]
     public function testRenderWithDifferentLabels($duration): void
     {
         $other_start_label = 'other startlabel';
@@ -243,7 +242,7 @@ class DurationInputTest extends ILIAS_UI_TestBase
             '<div class="c-field-duration">' . $f1 . $f2 . '</div>',
             'byline'
         );
-        $this->assertEquals($expected, $this->render($duration));
+        $this->assertEquals($expected, $this->renderInsideContainer($duration));
     }
 
     public function testCommonRendering(): void

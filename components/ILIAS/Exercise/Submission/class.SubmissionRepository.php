@@ -36,7 +36,7 @@ class SubmissionRepository implements SubmissionRepositoryInterface
     public function __construct(
         protected IRSSWrapper $irss,
         protected InternalDataService $data,
-        \ilDBInterface $db = null
+        ?\ilDBInterface $db = null
     ) {
         global $DIC;
         $this->log = $DIC->logger()->exc();
@@ -70,7 +70,7 @@ class SubmissionRepository implements SubmissionRepositoryInterface
         int $team_id,
         ?array $submit_ids = null,
         bool $only_valid = false,
-        string $min_timestamp = null,
+        ?string $min_timestamp = null,
         bool $print_versions = false
     ): \Generator {
         $where = " team_id = " . $this->db->quote($team_id, "integer") . " ";
@@ -96,7 +96,7 @@ class SubmissionRepository implements SubmissionRepositoryInterface
         array $user_ids,
         ?array $submit_ids = null,
         bool $only_valid = false,
-        string $min_timestamp = null,
+        ?string $min_timestamp = null,
         bool $print_versions = false
     ): \Generator {
         $where = " " . $this->db->in("user_id", $user_ids, false, "integer") . " ";
@@ -122,7 +122,7 @@ class SubmissionRepository implements SubmissionRepositoryInterface
         bool $type_uses_print_versions,
         ?array $submit_ids = null,
         bool $only_valid = false,
-        string $min_timestamp = null,
+        ?string $min_timestamp = null,
         bool $print_versions = false
     ): \Generator {
         $sql = "SELECT * FROM exc_returned" .

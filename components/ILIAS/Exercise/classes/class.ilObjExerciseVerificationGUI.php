@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * GUI class for exercise verification
@@ -176,7 +176,7 @@ class ilObjExerciseVerificationGUI extends ilObject2GUI
      * @param mixed $default
      * @return mixed|null
      */
-    protected function getRequestValue(string $key, $default = null)
+    protected function getRequestValue(string $key, mixed $default = null): mixed
     {
         if (isset($this->request->getQueryParams()[$key])) {
             return $this->request->getQueryParams()[$key];

@@ -18,16 +18,14 @@
 
 declare(strict_types=1);
 
-/**
- * Class ilMailMimeSenderSystem
- * @author Michael Jansen <mjansen@databay.de>
- */
+use ILIAS\Mail\TemplateEngine\TemplateEngineFactoryInterface;
+
 abstract class ilMailMimeSenderUser implements ilMailMimeSender
 {
     public function __construct(
         protected ilSetting $settings,
         protected ilObjUser $user,
-        protected ilMustacheFactory $mustache_factory
+        protected TemplateEngineFactoryInterface $template_engine_factory
     ) {
     }
 
@@ -39,7 +37,7 @@ abstract class ilMailMimeSenderUser implements ilMailMimeSender
     public function getReplyToAddress(): string
     {
         if (
-            (bool) $this->settings->get('use_global_reply_to_addr', '0') &&
+            $this->settings->get('use_global_reply_to_addr', '0') &&
             is_string($this->settings->get('global_reply_to_addr', '')) &&
             $this->settings->get('global_reply_to_addr', '') !== ''
         ) {
@@ -86,7 +84,7 @@ abstract class ilMailMimeSenderUser implements ilMailMimeSender
         ];
 
         $template = $from;
-        $interpolated = $this->mustache_factory->getBasicEngine()->render($template, $placeholders);
+        $interpolated = $this->template_engine_factory->getBasicEngine()->render($template, $placeholders);
 
         if ($template !== $interpolated) {
             return $interpolated;

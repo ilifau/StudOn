@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,8 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Skill\Table;
 
@@ -81,7 +80,7 @@ class AssignMaterialsTable
 
         $title = $this->node_manager->getWrittenPath($this->basic_skill_id);
         $table = $this->ui_fac->table()
-                              ->data($title, $columns, $data_retrieval)
+                              ->data($data_retrieval, $title, $columns)
                               ->withId(
                                   self::class . "_" .
                                   $this->top_skill_id . "_" .
@@ -197,8 +196,9 @@ class AssignMaterialsTable
                 array $visible_column_ids,
                 Data\Range $range,
                 Data\Order $order,
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): \Generator {
                 $records = $this->getRecords($range);
                 foreach ($records as $idx => $record) {
@@ -223,13 +223,14 @@ class AssignMaterialsTable
             }
 
             public function getTotalRowCount(
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): ?int {
                 return count($this->getRecords());
             }
 
-            protected function getRecords(Data\Range $range = null): array
+            protected function getRecords(?Data\Range $range = null): array
             {
                 $skill = \ilSkillTreeNodeFactory::getInstance($this->basic_skill_id);
                 $records = [];

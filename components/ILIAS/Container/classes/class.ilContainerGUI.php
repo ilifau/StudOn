@@ -22,6 +22,7 @@ use ILIAS\DI\UIServices;
 use ILIAS\Repository\Clipboard\ClipboardManager;
 use ILIAS\Container\StandardGUIRequest;
 use ILIAS\Container\Content\ModeManager;
+use ILIAS\ILIASObject\Properties\Translations\TranslationGUI;
 
 /**
  * Class ilContainerGUI
@@ -315,8 +316,8 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $this->tpl->parseCurrentBlock();
 
         // get page object
-        $ot = ilObjectTranslation::getInstance($this->object->getId());
-        $lang = $ot->getEffectiveContentLang($ilUser->getCurrentLanguage(), "cont");
+        $ot = $this->object->getObjectTranslation();
+        $lang = $ot->getEffectiveCOPageLang($ilUser->getCurrentLanguage(), "cont");
         $page_gui = new ilContainerPageGUI($this->object->getId(), 0, $lang);
         $style = $this->content_style_domain->styleForRefId($this->object->getRefId());
         $page_gui->setStyleId($style->getEffectiveStyleId());
@@ -746,8 +747,8 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     public function addStandardRow(
         ilTemplate $a_tpl,
         string $a_html,
-        int $a_item_ref_id = null,
-        int $a_item_obj_id = null,
+        ?int $a_item_ref_id = null,
+        ?int $a_item_obj_id = null,
         string $a_image_type = ""
     ): void {
         $ilSetting = $this->settings;
@@ -759,7 +760,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
             if ($ilSetting->get('custom_icons')) {
                 global $DIC;
-                /** @var ilObjectCustomIconFactory $customIconFactory */
+                /** @var ILIAS\ILIASObject\Properties\AdditionalProperties\Icon\Factory $customIconFactory */
                 $customIconFactory = $DIC['object.customicons.factory'];
                 $customIcon = $customIconFactory->getPresenterByObjId($a_item_obj_id, $a_image_type);
 
@@ -2004,7 +2005,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         int $srcRef,
         int $dstRef,
         array &$mapping,
-        string $newName = null
+        ?string $newName = null
     ): int {
         $tree = $this->tree;
 
@@ -2110,8 +2111,10 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             $this->initFormPasswordInstruction();
         }
 
-        $uri_builder = new ilWebDAVUriBuilder($DIC->http()->request());
-        $href = $uri_builder->getUriToMountInstructionModalByRef($this->object->getRefId());
+        global $DIC;
+        /** @var ILIAS\WebDAV\Environment $webdav */
+        $webdav = $DIC[ILIAS\WebDAV\Environment::class];
+        $href = $webdav->getUriToMountInstructionModalByRef($this->object->getRefId());
 
         $this->gui->button(
             $this->lng->txt("mount_webfolder"),
@@ -2149,7 +2152,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
         $form = $this->initFormPasswordInstruction();
         if ($form->checkInput()) {
-            $ilUser->resetPassword($this->form->getInput('new_password'), $this->form->getInput('new_password'));
+            $ilUser->resetPassword($this->form->getInput('new_password'));
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('webdav_pwd_instruction_success'), true);
             $this->showPasswordInstructionObject(false);
             return;
@@ -2244,7 +2247,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     {
         $trans = null;
         if ($this->getCreationMode() === false) {
-            /** @var ilObjectTranslation $trans */
+            /** @var ILIAS\ILIASObject\Properties\Translations\Translations $trans */
             $trans = $this->object->getObjectTranslation();
         }
         $title = new ilTextInputGUI($this->lng->txt("title"), "title");
@@ -2257,7 +2260,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             $languages = $this->domain->metadata()->getLOMLanguagesForSelectInputs();
             $title->setInfo(
                 $this->lng->txt("language") . ": " . $languages[$trans->getDefaultLanguage()] .
-                ' <a href="' . $this->ctrl->getLinkTargetByClass("ilobjecttranslationgui", "") .
+                ' <a href="' . $this->ctrl->getLinkTargetByClass(TranslationGUI::class, "") .
                 '">&raquo; ' . $this->lng->txt("obj_more_translations") . '</a>'
             );
 
@@ -2586,7 +2589,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $this->ctrl->redirect($this, "trash");
     }
 
-    protected function restoreToNewLocationObject(ilPropertyFormGUI $form = null): void
+    protected function restoreToNewLocationObject(?ilPropertyFormGUI $form = null): void
     {
         $this->tabs_gui->activateTab('trash');
 
@@ -2716,12 +2719,13 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             );
         }
 
-        // Always show container trash
-        $this->tabs_gui->addTab(
-            'trash',
-            $this->lng->txt('trash'),
-            $this->ctrl->getLinkTarget($this, 'trash')
-        );
+        if ($this->checkPermissionBool("write")) {
+            $this->tabs_gui->addTab(
+                'trash',
+                $this->lng->txt('trash'),
+                $this->ctrl->getLinkTarget($this, 'trash')
+            );
+        }
 
         if ($this->checkPermissionBool("edit_permission")) {
             $this->tabs_gui->addTab(

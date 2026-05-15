@@ -15,6 +15,7 @@
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
 declare(strict_types=1);
 
 class ilDclTextFieldModel extends ilDclBaseFieldModel
@@ -41,7 +42,7 @@ class ilDclTextFieldModel extends ilDclBaseFieldModel
     /**
      * @throws ilDclInputException
      */
-    public function checkValidityFromForm(ilPropertyFormGUI &$form, ?int $record_id = null): void
+    public function checkValidityFromForm(ilPropertyFormGUI &$form, ?int $record_id): void
     {
         if ($this->getProperty(ilDclBaseFieldModel::PROP_URL)) {
             $value = [
@@ -54,8 +55,9 @@ class ilDclTextFieldModel extends ilDclBaseFieldModel
         $this->checkValidity($value, $record_id);
     }
 
-    public function checkValidity($value, ?int $record_id = null): bool
+    public function checkValidity($value, ?int $record_id): bool
     {
+        $this->checkUnique($value, $record_id);
         if (isset($value['link'])) {
             $value = $value['link'];
             $link = (substr($value, 0, 3) === 'www') ? 'https://' . $value : $value;
@@ -72,6 +74,11 @@ class ilDclTextFieldModel extends ilDclBaseFieldModel
         return parent::areEqual($value_1['link'] ?? $value_1, $value_2['link'] ?? $value_2);
     }
 
+    public function checkFieldCreationInput(ilPropertyFormGUI $form): bool
+    {
+        return parent::checkFieldCreationInput($form) && $this->checkUniqueProp($form);
+    }
+
     /**
      * @inheritDoc
      */
@@ -82,6 +89,7 @@ class ilDclTextFieldModel extends ilDclBaseFieldModel
             ilDclBaseFieldModel::PROP_REGEX,
             ilDclBaseFieldModel::PROP_URL,
             ilDclBaseFieldModel::PROP_LINK_DETAIL_PAGE_TEXT,
+            ilDclBaseFieldModel::PROP_UNIQUE,
         ];
     }
 

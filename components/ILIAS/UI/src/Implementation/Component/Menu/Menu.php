@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\UI\Implementation\Component\Menu;
 
@@ -37,7 +37,7 @@ abstract class Menu implements IMenu\Menu
     protected $label;
 
     /**
-     * @var Component\Component[]
+     * @var array<Component\Menu\Sub, Component\Clickable, Component\Link\Link, Component\Divider\Horizontal, Component\Input\Field\Node\Node>
      */
     protected array $items = [];
 
@@ -60,10 +60,11 @@ abstract class Menu implements IMenu\Menu
     protected function checkItemParameter(array $items): void
     {
         $classes = [
-            Sub::class,
+            Component\Menu\Sub::class,
             Component\Clickable::class,
             Component\Link\Link::class,
-            Component\Divider\Horizontal::class
+            Component\Divider\Horizontal::class,
+            Component\Input\Field\Node\Node::class,
         ];
         $this->checkArgListElements("items", $items, $classes);
     }

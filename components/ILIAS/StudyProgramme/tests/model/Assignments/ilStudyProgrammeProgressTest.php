@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\StudyProgramme\Assignment\Node;
 
@@ -256,9 +256,7 @@ class ilStudyProgrammeProgressTest extends \PHPUnit\Framework\TestCase
         $pgs = (new ilPRGProgress(123))->withStatus(777);
     }
 
-    /**
-     * @dataProvider ilPRGProgressStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('ilPRGProgressStatus')]
     public function testPRGProgressAllowedTransitionsForInProgress(int $status): void
     {
         $pgs = (new ilPRGProgress(123))->withStatus(ilPRGProgress::STATUS_IN_PROGRESS);
@@ -275,9 +273,7 @@ class ilStudyProgrammeProgressTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * @dataProvider ilPRGProgressStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('ilPRGProgressStatus')]
     public function testPRGProgressAllowedTransitionsForAccredited($status)
     {
         $pgs = (new ilPRGProgress(123))
@@ -296,9 +292,7 @@ class ilStudyProgrammeProgressTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * @dataProvider ilPRGProgressStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('ilPRGProgressStatus')]
     public function testPRGProgressAllowedTransitionsForCompleted($status)
     {
         $pgs = (new ilPRGProgress(123))
@@ -315,9 +309,7 @@ class ilStudyProgrammeProgressTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * @dataProvider ilPRGProgressStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('ilPRGProgressStatus')]
     public function testPRGProgressAllowedTransitionsForFailed($status)
     {
         $pgs = (new ilPRGProgress(123))
@@ -335,9 +327,7 @@ class ilStudyProgrammeProgressTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * @dataProvider ilPRGProgressStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('ilPRGProgressStatus')]
     public function testPRGProgressAllowedTransitionsForIrrelevant($status): void
     {
         $pgs = (new ilPRGProgress(123))->withStatus(ilPRGProgress::STATUS_NOT_RELEVANT);

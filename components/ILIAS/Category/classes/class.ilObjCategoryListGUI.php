@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\Category\StandardGUIRequest;
 
@@ -94,10 +94,11 @@ class ilObjCategoryListGUI extends ilObjectListGUI
         // BEGIN WebDAV
         switch ($cmd) {
             case 'mount_webfolder':
-                if (ilDAVActivationChecker::_isActive()) {
-                    global $DIC;
-                    $uri_builder = new ilWebDAVUriBuilder($DIC->http()->request());
-                    return $uri_builder->getUriToMountInstructionModalByRef($this->ref_id);
+                global $DIC;
+                /** @var ILIAS\WebDAV\Environment $webdav */
+                $webdav = $DIC[ILIAS\WebDAV\Environment::class];
+                if ($webdav->isActive()) {
+                    return $webdav->getUriToMountInstructionModalByRef($this->ref_id);
                 }
                 break;
             default:

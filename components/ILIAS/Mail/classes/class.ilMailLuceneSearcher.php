@@ -18,10 +18,6 @@
 
 declare(strict_types=1);
 
-/**
- * @author  Michael Jansen <mjansen@databay.de>
- * @ingroup ServicesMail
- */
 class ilMailLuceneSearcher
 {
     protected ilSetting $settings;

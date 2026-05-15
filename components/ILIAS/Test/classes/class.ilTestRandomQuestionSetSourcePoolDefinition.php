@@ -34,12 +34,12 @@ class ilTestRandomQuestionSetSourcePoolDefinition
     private ?int $pool_question_count = null;
 
     /**
-     * @var array<int tax_id, int node_id>
+     * @var array taxId => [nodeId, ...]
      */
     private array $original_taxonomy_filter = [];
 
     /**
-     * @var array<int tax_id, int node_id>
+     * @var array taxId => [nodeId, ...]
      */
     private array $mapped_taxonomy_filter = [];
 
@@ -128,16 +128,19 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 
     private function getOriginalTaxonomyFilterForDbValue(): ?string
     {
+        // TODO-RND2017: migrate to separate table for common selections by e.g. statistics
         return empty($this->original_taxonomy_filter) ? null : serialize($this->original_taxonomy_filter);
     }
 
     private function setOriginalTaxonomyFilterFromDbValue(?string $value): void
     {
+        // TODO-RND2017: migrate to separate table for common selections by e.g. statistics
         $this->original_taxonomy_filter = empty($value) ? [] : unserialize($value);
     }
 
     /**
-     * @return array<int tax_id, int node_id>
+     * get the mapped taxonomy filter conditions
+     * @return 	array	taxId => [nodeId, ...]
      */
     public function getMappedTaxonomyFilter(): array
     {
@@ -145,7 +148,8 @@ class ilTestRandomQuestionSetSourcePoolDefinition
     }
 
     /**
-     * @param array<int tax_id, int node_id> $filter
+     * set the original taxonomy filter condition
+     * @param array 	taxId => [nodeId, ...]
      */
     public function setMappedTaxonomyFilter(array $filter = []): void
     {
@@ -166,17 +170,20 @@ class ilTestRandomQuestionSetSourcePoolDefinition
     {
         $this->mapped_taxonomy_filter = [];
         foreach ($this->original_taxonomy_filter as $tax_id => $node_ids) {
+            $mapped_node_ids = [];
+
             $mapped_taxonomy_id = $taxonomies_keys_map->getMappedTaxonomyId($tax_id);
             if ($mapped_taxonomy_id === null) {
                 continue;
             }
 
             foreach ($node_ids as $node_id) {
-                $mapped_node_id = $taxonomies_keys_map->getMappedTaxNodeId((int) $node_id);
+                $mapped_node_id = $taxonomies_keys_map->getMappedTaxNodeId($node_id);
                 if ($mapped_node_id !== null) {
-                    $this->mapped_taxonomy_filter[$mapped_taxonomy_id][] = $mapped_node_id;
+                    $mapped_node_ids[] = $mapped_node_id;
                 }
             }
+            $this->mapped_taxonomy_filter[$mapped_taxonomy_id] = $mapped_node_ids;
         }
     }
 

@@ -91,10 +91,9 @@ const presentation = (function () {
         // carousel
         // +
         let displayDuration = tabContainer.dataset.copgTabsAutoAnimWait;
-        if (displayDuration == '' || displayDuration == 'NaN') {
+        if (displayDuration === '' || displayDuration === 'NaN') {
           displayDuration = 5000;
         }
-        console.log(displayDuration);
         // const randomStart = tabContainer.dataset.copgTabsRandomStart;
         const slides = tabContainer.querySelectorAll('& > div');
         const totalSlides = slides.length;
@@ -161,9 +160,11 @@ const presentation = (function () {
           });
           if (behaviour === 'FirstOpen') {
             const firstToggler = tabContainer.querySelector(`.${toggleClass}`);
-            const firstTogglerParent = firstToggler.parentNode;
-            const firstContentNode = firstTogglerParent.querySelector(`.${contentClass}`);
-            showTab(firstToggler, firstContentNode, activeHeadClass);
+            if (firstToggler) {
+              const firstTogglerParent = firstToggler.parentNode;
+              const firstContentNode = firstTogglerParent.querySelector(`.${contentClass}`);
+              showTab(firstToggler, firstContentNode, activeHeadClass);
+            }
           }
         }
       }

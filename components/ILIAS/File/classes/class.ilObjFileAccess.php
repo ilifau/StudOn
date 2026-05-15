@@ -18,7 +18,7 @@
 
 use ILIAS\File\Capabilities\Capabilities;
 use ILIAS\File\Capabilities\Permissions;
-use ILIAS\Object\ilObjectDIC;
+use ILIAS\ILIASObject\LocalDIC;
 
 /**
  * Access class for file objects.
@@ -54,6 +54,7 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
         return false;
     }
 
+    #[\Override]
     public function canBeDelivered(ilWACPath $ilWACPath): bool
     {
         return false;
@@ -70,6 +71,7 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
      *    );
      * @return array<int, mixed[]>
      */
+    #[\Override]
     public static function _getCommands(): array
     {
         return [
@@ -121,6 +123,7 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
      * checks whether a user may invoke a command or not
      * (this method is called by ilAccessHandler::checkAccess)
      */
+    #[\Override]
     public function _checkAccess(string $cmd, string $permission, int $ref_id, int $obj_id, ?int $user_id = null): bool
     {
         global $DIC;
@@ -170,6 +173,7 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
     /**
      * check whether goto script will succeed
      */
+    #[\Override]
     public static function _checkGoto(string $a_target): bool
     {
         global $DIC;
@@ -296,7 +300,7 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
             ' '
             . $lng->txt('copy_n_of_suffix')
         );
-        $nthCopyRegex = '/' . preg_replace('/%1\\\\\$s/', '(\d+)', $nthCopyRegex) . '$/';
+        $nthCopyRegex = '/' . preg_replace('/%1\\\\\$s/', '(\d+)', (string) $nthCopyRegex) . '$/';
 
         // Get the filename without any previously added number of copy.
         // Determine the number of copy, if it has not been specified.
@@ -362,6 +366,7 @@ class ilObjFileAccess extends ilObjectAccess implements ilWACCheckingClass
 
     public static function _lookupOnline(int $a_obj_id): bool
     {
-        return ilObjectDIC::dic()['object_properties_agregator']->getFor($a_obj_id, 'file')->getPropertyIsOnline()->getIsOnline();
+        // TODO: remove this call to LocalDIC, since this is an internal class, see https://mantis.ilias.de/view.php?id=45558
+        return LocalDIC::dic()['properties.aggregator']->getFor($a_obj_id, 'file')->getPropertyIsOnline()->getIsOnline();
     }
 }

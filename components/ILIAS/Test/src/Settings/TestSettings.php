@@ -28,29 +28,15 @@ use ILIAS\Refinery\Factory as Refinery;
 
 abstract class TestSettings
 {
-    protected int $test_id;
-
-    public function __construct(int $test_id)
+    public function __construct()
     {
-        $this->test_id = $test_id;
-    }
-
-    public function getTestId(): int
-    {
-        return $this->test_id;
-    }
-    public function withTestId(int $test_id): self
-    {
-        $clone = clone $this;
-        $clone->test_id = $test_id;
-        return $clone;
     }
 
     abstract public function toForm(
         \ilLanguage $lng,
         FieldFactory $f,
         Refinery $refinery,
-        array $environment = null
+        ?array $environment = null
     ): FormInput | array;
 
     abstract public function toStorage(): array;

@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\components\ResourceStorage\Resources\UI;
 
-use ILIAS\UI\Factory;
+use ILIAS\UI\Factory as UIFactory;
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 use ILIAS\ResourceStorage\Services;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
@@ -30,6 +30,7 @@ use ILIAS\components\ResourceStorage\Resources\Listing\ViewDefinition;
 use ILIAS\components\ResourceStorage\Resources\UI\Actions\ActionGenerator;
 use ILIAS\components\ResourceStorage\Resources\UI\Actions\NullActionGenerator;
 use ILIAS\UI\Component\Table\PresentationRow;
+use ILIAS\Refinery\Factory as Refinery;
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
@@ -42,21 +43,19 @@ class ResourceListingUI
 
     private \ilUIFilterService $filter_service;
     private \ilCtrlInterface $ctrl;
-    private Factory $ui_factory;
-    private \ILIAS\Refinery\Factory $refinery;
+    private UIFactory $ui_factory;
+    private Refinery $refinery;
     private ArrayBasedRequestWrapper $query;
     private \ilLanguage $language;
     private array $components = [];
-    private ActionGenerator $action_generator;
     private Services $irss;
 
     public function __construct(
         private ViewDefinition $view_definition,
         private TableDataSource $data_source,
-        ActionGenerator $action_generator = null
+        private ActionGenerator $action_generator = new NullActionGenerator()
     ) {
         global $DIC;
-        $this->action_generator = $action_generator ?? new NullActionGenerator();
         $this->ctrl = $DIC->ctrl();
         $this->storeRequestParameters();
         $this->language = $DIC->language();

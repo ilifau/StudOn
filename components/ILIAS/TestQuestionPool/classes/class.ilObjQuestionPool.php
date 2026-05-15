@@ -545,7 +545,12 @@ class ilObjQuestionPool extends ilObject
         return $export_dir;
     }
 
-    public function getAllQuestionIds(): array
+    /**
+     * Retrieve an array containing all question ids of the questionpool
+     *
+     * @return array An array containing all question ids of the questionpool
+     */
+    public function &getAllQuestions(): array
     {
         $result = $this->db->queryF(
             'SELECT question_id FROM qpl_questions WHERE obj_fi = %s AND qpl_questions.tstamp > 0 AND original_id IS NULL',
@@ -559,7 +564,7 @@ class ilObjQuestionPool extends ilObject
         return $questions;
     }
 
-    public function getIdsOfAvailableAndCompleteQuestions(): array
+    public function &getAllQuestionIds(): array
     {
         $query_result = $this->db->queryF(
             'SELECT question_id, qpl_qst_type.type_tag, qpl_qst_type.plugin FROM qpl_questions, qpl_qst_type WHERE original_id IS NULL AND qpl_questions.tstamp > 0 AND obj_fi = %s AND complete = %s AND qpl_questions.question_type_fi = qpl_qst_type.question_type_id',

@@ -20,7 +20,7 @@
  * Button GUI
  *
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
- * @deprecated 10 Use KS Buttons instead
+ * @deprecated with ILIAS 12. Use KS Buttons instead
  */
 abstract class ilButtonBase implements ilToolbarItem
 {
@@ -192,7 +192,7 @@ abstract class ilButtonBase implements ilToolbarItem
     /**
      * Render current HTML attributes
      */
-    protected function renderAttributes(array $a_additional_attr = null): string
+    protected function renderAttributes(?array $a_additional_attr = null): string
     {
         $attr = array();
         $attr["id"] = $this->getId();

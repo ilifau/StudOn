@@ -115,7 +115,7 @@ class ilLTIConsumerResultService
             $logger->info('LTI Consumer Result Service: request loaded');
             $this->operation = str_replace('Request', '', $request->getName());
 
-            $request = $body->replaceResultRequest;
+            $request = $body->{$this->operation . 'Request'};
             $token = ilCmiXapiAuthToken::getInstanceByToken((string) $request->resultRecord->sourcedGUID->sourcedId);
             $logger->info("LTI Consumer Result Service: operation loaded ($this->operation), user " . $token->getUsrId() . " and objId " . $token->getObjId());
 
@@ -127,6 +127,7 @@ class ilLTIConsumerResultService
                 return;
             }
 
+
             // check the object status
             $this->readProperties($this->result->obj_id);
 
@@ -134,7 +135,7 @@ class ilLTIConsumerResultService
                 $this->respondUnsupported();
                 return;
             }
-            $logger->info("LTI consumer readProperties: " . json_encode($this->result) . " - token: " . json_encode($token) . " - token->userId: " . json_encode($token->getUsrId()) . " - token->objectId: " . json_encode($token->getObjId()) . " - sourceId: " . (string) $request->resultRecord->sourcedGUID->sourcedId);
+
             // Verify the signature
             $this->readFields($this->result->obj_id);
             try {
@@ -244,9 +245,10 @@ class ilLTIConsumerResultService
     protected function deleteResult(\SimpleXMLElement $request): void
     {
         $this->result->result = null;
+        $this->result->setAttended(false);
         $this->result->save();
 
-        $lp_status = ilLPStatus::LP_STATUS_IN_PROGRESS_NUM;
+        $lp_status = ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM;
         $lp_percentage = 0;
         ilLPStatus::writeStatus($this->result->obj_id, $this->result->usr_id, $lp_status, $lp_percentage, true);
 
@@ -366,7 +368,7 @@ class ilLTIConsumerResultService
 
         $query = "
 			SELECT lti_ext_provider.provider_key, lti_ext_provider.provider_secret, lti_consumer_settings.launch_key, lti_consumer_settings.launch_secret
-			FROM lti_ext_provider, lti_consumer_settings
+                FROM lti_ext_provider, lti_consumer_settings
 			WHERE lti_ext_provider.id = lti_consumer_settings.provider_id
 			AND lti_consumer_settings.obj_id = %s
 		";
@@ -393,6 +395,8 @@ class ilLTIConsumerResultService
      */
     private function checkSignature(string $a_key, string $a_secret): void
     {
+        global $DIC;
+        $logger = $DIC->logger()->root();
         $platform = new ilLTIPlatform();
 
         $platform->setKey($a_key);
@@ -403,14 +407,16 @@ class ilLTIConsumerResultService
 
         $server = new OAuthServer($store);
         $method = new OAuthSignatureMethod_HMAC_SHA1();
+
         $server->add_signature_method($method);
+        $logger->info("s_key: " . $a_key . " s_secret: " . $a_secret . " platform key: " . $platform->getKey());
 
         $request_headers = OAuthUtil::get_headers();
         if (isset($request_headers['Authorization']) && str_starts_with($request_headers['Authorization'], 'OAuth ')) {
             $parameters = OAuthUtil::split_header($request_headers['Authorization']);
         }
         $request = OAuthRequest::from_request(null, null, $parameters ?? []);
-
+        $logger->info("Request: " . json_encode($request));
         $server->verify_request($request);
     }
 

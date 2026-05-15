@@ -51,8 +51,11 @@ class Conductor
     /** @var Modal[] */
     private array $modals = [];
 
-    public function __construct(private readonly Container $container, ?Internal $internal = null, Routing $routing = null)
-    {
+    public function __construct(
+        private readonly Container $container,
+        ?Internal $internal = null,
+        ?Routing $routing = null
+    ) {
         $this->internal = $internal ?? $this->createInternal();
         $this->routing = $routing ?? new Routing(
             $this->container->ctrl(),

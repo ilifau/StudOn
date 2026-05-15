@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace ILIAS\Cache;
 
 use ILIAS\Cache\Adaptor\Adaptor;
-use ILIAS\Cache\Adaptor\AvailableAdaptors;
 use ILIAS\Cache\Adaptor\Factory;
 use ILIAS\Cache\Container\ActiveContainer;
 use ILIAS\Cache\Container\Request;

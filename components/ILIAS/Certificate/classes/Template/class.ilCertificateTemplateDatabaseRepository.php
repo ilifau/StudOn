@@ -33,8 +33,8 @@ class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRe
 
     public function __construct(
         private readonly ilDBInterface $database,
-        ilLogger $logger = null,
-        ilObjectDataCache $objectDataCache = null
+        ?ilLogger $logger = null,
+        ?ilObjectDataCache $objectDataCache = null
     ) {
         if (null === $logger) {
             global $DIC;
@@ -72,16 +72,8 @@ class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRe
             'currently_active' => ['integer', (int) $certificateTemplate->isCurrentlyActive()],
             'deleted' => ['integer', (int) $certificateTemplate->isDeleted()],
             'background_image_ident' => [ilDBConstants::T_TEXT, $certificateTemplate->getBackgroundImageIdentification()],
-            'thumbnail_image_ident' => [ilDBConstants::T_TEXT, $certificateTemplate->getThumbnailImageIdentification()]
+            'tile_image_ident' => [ilDBConstants::T_TEXT, $certificateTemplate->getTileImageIdentification()]
         ];
-
-        if (
-            $this->database->tableColumnExists('il_cert_user_cert', 'background_image_path') &&
-            $this->database->tableColumnExists('il_cert_user_cert', 'thumbnail_image_path')
-        ) {
-            $columns['background_image_path'] = [ilDBConstants::T_TEXT, $certificateTemplate->getBackgroundImagePath()];
-            $columns['thumbnail_image_path'] = [ilDBConstants::T_TEXT, $certificateTemplate->getThumbnailImagePath()];
-        }
 
         $this->database->insert(self::TABLE_NAME, $columns);
 
@@ -192,8 +184,6 @@ class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRe
             0,
             false,
             '',
-            '',
-            '',
             ''
         );
     }
@@ -239,8 +229,6 @@ class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRe
             '0',
             0,
             true,
-            '',
-            '',
             '',
             ''
         );
@@ -314,7 +302,7 @@ class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRe
 
     public function fetchActiveCertificateTemplatesForCoursesWithDisabledLearningProgress(
         bool $isGlobalLpEnabled,
-        int $forRefId = null
+        ?int $forRefId = null
     ): array {
         $this->logger->debug(
             'START - Fetch all active course certificate templates with disabled learning progress: "%s"'
@@ -412,38 +400,31 @@ class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRe
     }
 
     public function updateDefaultBackgroundImagePaths(
-        ResourceIdentification|string $new_relative_path_or_rid,
-        ResourceIdentification|string $old_relative_path_or_rid,
+        ResourceIdentification|string $new_rid,
+        ResourceIdentification|string $old_rid
     ): void {
-        $this->logger->debug(
-            sprintf(
-                'START - Update all default background image paths/identifications from "%s" to "%s"',
-                $old_relative_path_or_rid,
-                $new_relative_path_or_rid
-            )
-        );
+        $this->logger->debug(sprintf(
+            'START - Update all default background image ResourceIdentifications from "%s" to "%s"',
+            $old_rid,
+            $new_rid
+        ));
 
         $affected_rows = $this->database->manipulateF(
-            'UPDATE ' . self::TABLE_NAME . ' SET background_image_ident = %s ' .
-            'WHERE currently_active = 1 AND (background_image_ident = %s OR background_image_ident = %s )',
+            'UPDATE il_cert_template SET background_image_ident = %s WHERE currently_active = 1 AND background_image_ident = %s',
             [
-                ilDBConstants::T_TEXT,
                 ilDBConstants::T_TEXT,
                 ilDBConstants::T_TEXT
             ],
             [
-                $new_relative_path_or_rid instanceof ResourceIdentification ? $new_relative_path_or_rid->serialize() : $new_relative_path_or_rid,
-                $old_relative_path_or_rid instanceof ResourceIdentification ? $old_relative_path_or_rid->serialize() : $old_relative_path_or_rid,
-                '/certificates/default/background.jpg'
+                $new_rid instanceof ResourceIdentification ? $new_rid->serialize() : $new_rid,
+                $old_rid instanceof ResourceIdentification ? $old_rid->serialize() : $old_rid,
             ]
         );
 
-        $this->logger->debug(
-            sprintf(
-                'END - Updated %s certificate templates using old path/identification',
-                $affected_rows
-            )
-        );
+        $this->logger->debug(sprintf(
+            'END - Updated %s certificate templates using old ResourceIdentification',
+            $affected_rows
+        ));
     }
 
     public function isResourceUsed(string $relative_image_identification): bool
@@ -457,7 +438,7 @@ class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRe
 
         $result = $this->database->queryF(
             'SELECT EXISTS(SELECT 1 FROM ' . self::TABLE_NAME . ' WHERE 
-            (background_image_ident = %s OR thumbnail_image_ident = %s)
+            (background_image_ident = %s OR tile_image_ident = %s)
              AND currently_active = 1) AS does_exist',
             [ilDBConstants::T_TEXT, ilDBConstants::T_TEXT],
             [$relative_image_identification, $relative_image_identification]
@@ -467,7 +448,7 @@ class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRe
 
         $this->logger->debug(
             sprintf(
-                'END - Image path "%s" is ' . $exists ? 'in use' : 'unused',
+                'END - Image identification "%s" is ' . $exists ? 'in use' : 'unused',
                 $relative_image_identification
             )
         );
@@ -490,10 +471,8 @@ class ilCertificateTemplateDatabaseRepository implements ilCertificateTemplateRe
             $row['ilias_version'],
             (int) $row['created_timestamp'],
             (bool) $row['currently_active'],
-            (string) ($row['background_image_path'] ?? ''),
-            (string) ($row['thumbnail_image_path'] ?? ''),
             (string) ($row['background_image_ident'] ?? ''),
-            (string) ($row['thumbnail_image_ident'] ?? ''),
+            (string) ($row['tile_image_ident'] ?? ''),
             isset($row['id']) ? (int) $row['id'] : null
         );
     }

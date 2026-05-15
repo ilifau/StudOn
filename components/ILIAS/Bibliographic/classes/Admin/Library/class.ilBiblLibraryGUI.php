@@ -16,6 +16,10 @@
  *
  *********************************************************************/
 
+use ILIAS\components\OrgUnit\ARHelper\DIC;
+use ILIAS\Refinery\Factory;
+use ILIAS\HTTP\Wrapper\WrapperFactory;
+
 /**
  * Class ilBiblLibraryGUI
  *
@@ -23,26 +27,24 @@
  */
 class ilBiblLibraryGUI
 {
-    use \ILIAS\components\OrgUnit\ARHelper\DIC;
+    use DIC;
     public const F_LIB_ID = 'lib_id';
     public const F_LIB_IDS = 'lib_ids';
     public const CMD_DELETE = 'delete';
     public const CMD_EDIT = 'edit';
     public const CMD_INDEX = 'index';
     public const CMD_ADD = 'add';
-    protected \ilBiblAdminLibraryFacadeInterface $facade;
     private \ilGlobalTemplateInterface $main_tpl;
-    protected \ILIAS\Refinery\Factory $refinery;
-    protected \ILIAS\HTTP\Wrapper\WrapperFactory $wrapper;
+    protected Factory $refinery;
+    protected WrapperFactory $wrapper;
 
     /**
      * ilBiblLibraryGUI constructor.
      */
-    public function __construct(ilBiblAdminLibraryFacadeInterface $facade)
+    public function __construct(protected \ilBiblAdminLibraryFacadeInterface $facade)
     {
         global $DIC;
         $this->main_tpl = $DIC->ui()->mainTemplate();
-        $this->facade = $facade;
         $this->wrapper = $DIC->http()->wrapper();
         $this->refinery = $DIC->refinery();
     }
@@ -56,11 +58,9 @@ class ilBiblLibraryGUI
      */
     public function executeCommand(): void
     {
-        switch ($this->ctrl()->getNextClass()) {
-            case null:
-                $cmd = $this->ctrl()->getCmd(self::CMD_INDEX);
-                $this->{$cmd}();
-                break;
+        if ($this->ctrl()->getNextClass() === null || $this->ctrl()->getNextClass() === '') {
+            $cmd = $this->ctrl()->getCmd(self::CMD_INDEX);
+            $this->{$cmd}();
         }
     }
 

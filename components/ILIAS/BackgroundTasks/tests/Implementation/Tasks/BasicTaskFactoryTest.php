@@ -1,4 +1,21 @@
 <?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 /**
  * Created by PhpStorm.
  * User: otruffer
@@ -18,13 +35,13 @@ use PHPUnit\Framework\TestCase;
 
 class BasicTaskFactoryTest extends TestCase
 {
-    public function testBasicFactory()
+    public function testBasicFactory(): void
     {
         $dic = new Container();
         $injector = new Injector($dic, new BaseDependencyMap());
         $taskFactory = new BasicTaskFactory($injector);
         $plusJob = $taskFactory->createTask(PlusJob::class, [1, 2]);
-        $this->assertTrue($plusJob instanceof PlusJob);
+        $this->assertInstanceOf(\ILIAS\BackgroundTasks\Implementation\Tasks\PlusJob::class, $plusJob);
         $plusJobInput = $plusJob->getInput();
         $one = new IntegerValue();
         $one->setValue(1);
@@ -35,7 +52,7 @@ class BasicTaskFactoryTest extends TestCase
         $b = new IntegerValue();
         $b->setValue(2);
         $plusJob = $taskFactory->createTask(PlusJob::class, [$a, $b]);
-        $this->assertTrue($plusJob instanceof PlusJob);
+        $this->assertInstanceOf(\ILIAS\BackgroundTasks\Implementation\Tasks\PlusJob::class, $plusJob);
         $plusJobInput = $plusJob->getInput();
         $this->assertTrue($plusJobInput[0]->equals($one));
     }

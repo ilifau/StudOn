@@ -61,7 +61,7 @@ final class WithdrawProcess implements WithdrawProcessInterface
 
         return [
             $this->ui->create()->divider()->horizontal(),
-            $this->ui->create()->legacy($this->ui->txt($lng))
+            $this->ui->create()->legacy()->content($this->ui->txt($lng))
         ];
     }
 
@@ -137,7 +137,7 @@ final class WithdrawProcess implements WithdrawProcessInterface
                 $this->ui->create()->panel()->standard($this->ui->txt('withdraw_usr_agreement'), [
                     $this->confirmation($gui),
                     $this->ui->create()->divider()->horizontal(),
-                    $this->ui->create()->legacy(nl2br($this->user->format($this->ui->txt('withdrawal_mail_info') . $this->ui->txt('withdrawal_mail_text'))))
+                    $this->ui->create()->legacy()->content(nl2br($this->user->format($this->ui->txt('withdrawal_mail_info') . $this->ui->txt('withdrawal_mail_text'))))
                 ])
             ]);
         }

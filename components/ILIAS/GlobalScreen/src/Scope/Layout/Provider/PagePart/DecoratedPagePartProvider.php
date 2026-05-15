@@ -23,7 +23,7 @@ namespace ILIAS\GlobalScreen\Scope\Layout\Provider\PagePart;
 use Closure;
 use ILIAS\UI\Component\Breadcrumbs\Breadcrumbs;
 use ILIAS\UI\Component\Image\Image;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy\Content;
 use ILIAS\UI\Component\MainControls\Footer;
 use ILIAS\UI\Component\MainControls\MainBar;
 use ILIAS\UI\Component\MainControls\MetaBar;
@@ -53,7 +53,7 @@ class DecoratedPagePartProvider implements PagePartProvider
     {
     }
 
-    private function getDecoratedOrOriginal(string $purpose, Legacy|null|MetaBar|MainBar|Breadcrumbs|Image|string|Footer|TContainer $original)
+    private function getDecoratedOrOriginal(string $purpose, Content|null|MetaBar|MainBar|Breadcrumbs|Image|string|Footer|TContainer $original)
     {
         if ($this->isDecorated($purpose)) {
             $deco = $this->deco;
@@ -70,9 +70,9 @@ class DecoratedPagePartProvider implements PagePartProvider
     }
 
 
-    public function getContent(): ?Legacy
+    public function getContent(): ?Content
     {
-        return $this->getDecoratedOrOriginal(Legacy::class, $this->original->getContent());
+        return $this->getDecoratedOrOriginal(Content::class, $this->original->getContent());
     }
 
 

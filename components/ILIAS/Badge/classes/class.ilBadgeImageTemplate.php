@@ -34,7 +34,7 @@ class ilBadgeImageTemplate
     protected FileUpload $upload_service;
     protected ilGlobalTemplateInterface $main_template;
 
-    public function __construct(int $a_id = null)
+    public function __construct(?int $a_id = null)
     {
         global $DIC;
 
@@ -133,7 +133,7 @@ class ilBadgeImageTemplate
         return $this->types;
     }
 
-    public function setTypes(array $types = null): void
+    public function setTypes(?array $types = null): void
     {
         $this->types = is_array($types)
             ? array_unique($types)
@@ -211,7 +211,7 @@ class ilBadgeImageTemplate
      */
     protected function getFilePath(
         int $a_id,
-        string $a_subdir = null
+        ?string $a_subdir = null
     ): string {
         $storage = new ilFSStorageBadgeImageTemplate($a_id);
         $storage->create();
@@ -375,8 +375,8 @@ class ilBadgeImageTemplate
         $this->image_rid = $image_rid;
     }
 
-    public function getImageFromResourceId(): string
-    {
+    public function getImageFromResourceId(
+    ): string {
         $image_src = '';
 
         if ($this->getImageRid()) {

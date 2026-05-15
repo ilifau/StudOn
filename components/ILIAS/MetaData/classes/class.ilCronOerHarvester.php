@@ -18,19 +18,21 @@
 
 declare(strict_types=1);
 
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
 use ILIAS\MetaData\OERHarvester\Initiator;
 use ILIAS\MetaData\OERHarvester\Settings\SettingsInterface;
 use ILIAS\MetaData\OERHarvester\Results\Wrapper as ResultWrapper;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * Cron job for definition for oer harvesting
  * @author Stefan Meyer <smeyer.ilias@gmx.de>
  */
-class ilCronOerHarvester extends ilCronJob
+class ilCronOerHarvester extends CronJob
 {
-    protected const CRON_JOB_IDENTIFIER = 'meta_oer_harvester';
-    protected const DEFAULT_SCHEDULE_VALUE = 1;
+    protected const string CRON_JOB_IDENTIFIER = 'meta_oer_harvester';
+    protected const int DEFAULT_SCHEDULE_VALUE = 1;
 
     private ilLogger $logger;
     private ilLanguage $lng;
@@ -74,9 +76,9 @@ class ilCronOerHarvester extends ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
+        return JobScheduleType::DAILY;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -174,11 +176,11 @@ class ilCronOerHarvester extends ilCronJob
         $checkbox_group->setValue($this->settings->getObjectTypesSelectedForHarvesting());
 
         foreach ($this->settings->getObjectTypesEligibleForHarvesting() as $type) {
-            $copyright_checkox = new ilCheckboxOption(
+            $type_checkox = new ilCheckboxOption(
                 $this->lng->txt('objs_' . $type),
                 $type
             );
-            $checkbox_group->addOption($copyright_checkox);
+            $checkbox_group->addOption($type_checkox);
         }
         $a_form->addItem($checkbox_group);
     }
@@ -197,11 +199,11 @@ class ilCronOerHarvester extends ilCronJob
         return true;
     }
 
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         $this->logger->info('Started cron oer harvester.');
         $harvester = $this->initiator->harvester();
-        $res = $harvester->run(new ResultWrapper(new ilCronJobResult()));
+        $res = $harvester->run(new ResultWrapper(new JobResult()));
         $this->logger->info('cron oer harvester finished');
 
         return $res->get();

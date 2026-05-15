@@ -18,6 +18,10 @@
 
 declare(strict_types=1);
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ILIAS\Refinery\Factory;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\DI\Container;
@@ -27,19 +31,20 @@ use ILIAS\ResourceStorage\Manager\Manager;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Revision\FileRevision;
 use ILIAS\ResourceStorage\Resource\StorableFileResource;
+use ILIAS\ILIASObject\Properties\AdditionalProperties\Icon\Factory as IconFactory;
 
 class ilModulesFileTest extends TestCase
 {
-    private ?\ILIAS\DI\Container $dic_backup = null;
+    private ?Container $dic_backup = null;
     /**
-     * @var Services|\PHPUnit\Framework\MockObject\MockObject
+     * @var Services|MockObject
      */
-    protected $storage_mock;
+    protected ?MockObject $storage_mock = null;
     /**
-     * @var ilDBInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var ilDBInterface|MockObject
      */
-    protected $db_mock;
-    protected $manager_mock;
+    protected ?MockObject $db_mock = null;
+    protected MockObject $manager_mock;
 
     protected function setUp(): void
     {
@@ -50,7 +55,7 @@ class ilModulesFileTest extends TestCase
         $DIC['resource_storage'] = $this->storage_mock = $this->createMock(Services::class);
         $this->manager_mock = $this->createMock(Manager::class);
         $DIC['ilUser'] = $this->createMock(ilObjUser::class);
-        $DIC['ilUser']->expects($this->any())->method('getPref')->willReturn('en');
+        $DIC['ilUser']->method('getPref')->willReturn('en');
         $DIC['ilDB'] = $this->db_mock = $this->createMock(ilDBInterface::class);
         $DIC['upload'] = $this->createMock(FileUpload::class);
         $DIC['ilias'] = $this->createMock(ILIAS::class);
@@ -65,9 +70,9 @@ class ilModulesFileTest extends TestCase
         $DIC['ilAppEventHandler'] = $this->createMock(ilAppEventHandler::class);
         $DIC['lng'] = $this->createMock(ilLanguage::class);
         $DIC['ilCtrl'] = $this->createMock(ilCtrlInterface::class);
-        $DIC['refinery'] = $this->createMock(\ILIAS\Refinery\Factory::class);
+        $DIC['refinery'] = $this->createMock(Factory::class);
         $DIC['http'] = $this->createMock(\ILIAS\HTTP\Services::class);
-        $DIC['object.customicons.factory'] = $this->createMock(ilObjectCustomIconFactory::class);
+        $DIC['object.customicons.factory'] = $this->createMock(IconFactory::class);
         /*  $DIC['ilCtrl'] = $this->getMockBuilder(ilCtrl::class)
                                 ->disableOriginalConstructor()
                                 ->disableArgumentCloning()
@@ -84,10 +89,8 @@ class ilModulesFileTest extends TestCase
         $DIC = $this->dic_backup;
     }
 
-    /**
-     * @preserveGlobalState disabled
-     * @runInSeparateProcess
-     */
+    #[PreserveGlobalState(false)]
+    #[RunInSeparateProcess]
     public function testAppendStream(): void
     {
         $this->markTestSkipped('Failed for some unknown reason.');
@@ -96,20 +99,20 @@ class ilModulesFileTest extends TestCase
         $title = 'Revision One';
         $file_stream = Streams::ofString('Test Content');
 
-        $this->storage_mock->expects($this->any())
+        $this->storage_mock
                            ->method('manage')
                            ->willReturn($this->manager_mock);
 
-        $this->db_mock->expects($this->any())
+        $this->db_mock
                       ->method('query')
-                      ->willReturnCallback(function ($query) {
+                      ->willReturnCallback(function ($query): MockObject {
                           $mock_object = $this->createMock(ilDBStatement::class);
-                          $mock_object->expects($this->any())->method('fetchAssoc')->willReturn([$query]);
+                          $mock_object->method('fetchAssoc')->willReturn([$query]);
 
                           return $mock_object;
                       });
 
-        $this->db_mock->expects($this->any())
+        $this->db_mock
                       ->method('fetchAssoc')
                       ->willReturnCallback(function (ilDBStatement $statement): ?array {
                           $row = $statement->fetchAssoc();
@@ -138,7 +141,7 @@ class ilModulesFileTest extends TestCase
         $property->setAccessible(true);
         $property->setValue($file, true);
         $file->setMode(ilObjFile::MODE_FILELIST);
-        $this->db_mock->expects($this->any())
+        $this->db_mock
                       ->method('fetchAssoc')
                       ->willReturn(
                           [
@@ -157,12 +160,11 @@ class ilModulesFileTest extends TestCase
             ['the_identification', $rid],
         ];
         $this->manager_mock
-            ->expects($this->any())
             ->method('find')
             ->willReturnCallback(
                 function (string $id) use (&$consecutive): ?ResourceIdentification {
                     $expected = array_shift($consecutive);
-                    list($eid, $ret) = $consecutive;
+                    [$eid, $ret] = $consecutive;
                     $this->assertEquals($eid, $id);
                     return $ret;
                 }
@@ -184,7 +186,7 @@ class ilModulesFileTest extends TestCase
                            ->with($rid)
                            ->willReturn($revision);
 
-        $this->manager_mock->expects($this->any())
+        $this->manager_mock
                            ->method('getResource')
                            ->with($rid)
                            ->willReturn($resource);

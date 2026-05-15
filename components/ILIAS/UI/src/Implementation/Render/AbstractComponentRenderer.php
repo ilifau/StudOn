@@ -24,7 +24,7 @@ use ILIAS\Data\Factory as DataFactory;
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\JavaScriptBindable;
 use ILIAS\UI\Component\Triggerer;
-use ILIAS\UI\Factory;
+use ILIAS\UI\Implementation\FactoryInternal;
 use ILIAS\UI\HelpTextRetriever;
 use ILIAS\UI\Help;
 use ILIAS\Language\Language;
@@ -45,7 +45,7 @@ abstract class AbstractComponentRenderer implements ComponentRenderer, HelpTextR
     private static array $component_storage;
 
     final public function __construct(
-        private Factory $ui_factory,
+        private FactoryInternal $ui_factory,
         private TemplateFactory $tpl_factory,
         private Language $lng,
         private JavaScriptBinding $js_binding,
@@ -69,7 +69,7 @@ abstract class AbstractComponentRenderer implements ComponentRenderer, HelpTextR
      *
      * This could be used to create and render subcomponents like close buttons, etc.
      */
-    final protected function getUIFactory(): Factory
+    final protected function getUIFactory(): FactoryInternal
     {
         return $this->ui_factory;
     }
@@ -153,9 +153,6 @@ abstract class AbstractComponentRenderer implements ComponentRenderer, HelpTextR
      */
     final protected function bindJavaScript(JavaScriptBindable $component): ?string
     {
-        if ($component instanceof Triggerer) {
-            $component = $this->addTriggererOnLoadCode($component);
-        }
         return $this->bindOnloadCode($component);
     }
 
@@ -201,7 +198,7 @@ abstract class AbstractComponentRenderer implements ComponentRenderer, HelpTextR
     /**
      * Add onload-code for triggerer.
      */
-    private function addTriggererOnLoadCode(Triggerer $triggerer): JavaScriptBindable
+    final protected function addTriggererOnLoadCode(Triggerer $triggerer): Triggerer
     {
         $triggered_signals = $triggerer->getTriggeredSignals();
         if (count($triggered_signals) == 0) {

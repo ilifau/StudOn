@@ -410,7 +410,7 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
     {
         $text = $this->questionpool_request->string('TEXT', '');
 
-        $text = ilObjAdvancedEditing::_getRichTextEditor() === 'tinymce'
+        $text = (new ilRTESettings($this->lng, $this->current_user))->getRichTextEditor() === 'tinymce'
             ? ilUtil::stripSlashes($text, false)
             : htmlentities($text);
 
@@ -649,8 +649,10 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
 
         for ($i = 0; $i < $count; $i++) {
             if ($withPoints) {
-                $points = $this->refinery->kindlyTo()->float()->transform($answers['points'][$i]);
-                $this->addAnswer($answers['answer'][$i], $points);
+                $this->addAnswer(
+                    $answers['answer'][$i],
+                    $this->refinery->kindlyTo()->float()->transform($answers['points'][$i])
+                );
             } else {
                 $this->addAnswer($answers[$i], 0);
             }

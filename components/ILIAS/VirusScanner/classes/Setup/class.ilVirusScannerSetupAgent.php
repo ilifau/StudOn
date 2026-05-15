@@ -52,12 +52,12 @@ class ilVirusScannerSetupAgent implements Setup\Agent
         ));
     }
 
-    public function getInstallObjective(Setup\Config $config = null): Setup\Objective
+    public function getInstallObjective(?Setup\Config $config = null): Setup\Objective
     {
         return new ilVirusScannerConfigStoredObjective($config);
     }
 
-    public function getUpdateObjective(Setup\Config $config = null): Setup\Objective
+    public function getUpdateObjective(?Setup\Config $config = null): Setup\Objective
     {
         if ($config !== null) {
             return new ilVirusScannerConfigStoredObjective($config);
@@ -71,7 +71,7 @@ class ilVirusScannerSetupAgent implements Setup\Agent
         return new Setup\Objective\NullObjective();
     }
 
-    public function getStatusObjective(Setup\Metrics\Storage $storage): Setup\Objective
+    public function getStatusObjective(?Setup\Metrics\Storage $storage): Setup\Objective
     {
         return new ilVirusScannerMetricsCollectedObjective($storage);
     }

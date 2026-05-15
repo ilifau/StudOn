@@ -24,7 +24,6 @@ use ILIAS\GlobalScreen\Collector\AbstractBaseCollector;
 use ILIAS\GlobalScreen\Collector\ItemCollector;
 use ILIAS\GlobalScreen\Scope\MetaBar\Factory\isItem;
 use ILIAS\GlobalScreen\Scope\MetaBar\Factory\isParent;
-use ILIAS\GlobalScreen\Scope\MetaBar\Provider\StaticMetaBarProvider;
 use Generator;
 use ILIAS\GlobalScreen\Scope\isDecorateable;
 use ILIAS\UI\Help\Topic;

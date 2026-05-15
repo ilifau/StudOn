@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -78,7 +79,7 @@ class ilResourceStorageFlavourArtifact extends BuildArtifactObjective
                 $reflection = new ReflectionClass($definition_name);
                 $definition = $reflection->newInstanceWithoutConstructor();
                 $definition_id = $definition->getId();
-            } catch (ReflectionException $e) {
+            } catch (ReflectionException) {
                 continue;
             }
 
@@ -89,7 +90,7 @@ class ilResourceStorageFlavourArtifact extends BuildArtifactObjective
                 );
             }
 
-            if (64 < strlen($definition_id)) {
+            if (64 < strlen((string) $definition_id)) {
                 throw new LogicException("ID of definition '$definition_name' exceeds 64 characters.");
             }
 

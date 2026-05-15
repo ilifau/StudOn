@@ -18,17 +18,20 @@
 
 declare(strict_types=1);
 
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Cron\Job\JobManager;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * Forum notifications
  * @author Michael Jansen <mjansen@databay.de>
  * @author Nadia Matuschek <nmatuschek@databay.de>
  */
-class ilForumCronNotification extends ilCronJob
+class ilForumCronNotification extends CronJob
 {
-    private const KEEP_ALIVE_CHUNK_SIZE = 25;
-    private const DEFAULT_MAX_NOTIFICATION_AGE_IN_DAYS = 30;
+    private const int KEEP_ALIVE_CHUNK_SIZE = 25;
+    private const int DEFAULT_MAX_NOTIFICATION_AGE_IN_DAYS = 30;
 
     /** @var ilForumCronNotificationDataProvider[] */
     private static array $providerObject = [];
@@ -49,15 +52,15 @@ class ilForumCronNotification extends ilCronJob
     private readonly ilDBInterface $ilDB;
     private readonly ilForumNotificationCache $notificationCache;
     private readonly \ILIAS\Refinery\Factory $refinery;
-    private readonly ilCronManager $cronManager;
+    private readonly JobManager $cronManager;
 
     public function __construct(
-        ilDBInterface $database = null,
-        ilForumNotificationCache $notificationCache = null,
-        ilLanguage $lng = null,
-        ilSetting $settings = null,
-        \ILIAS\Refinery\Factory $refinery = null,
-        ilCronManager $cronManager = null
+        ?ilDBInterface $database = null,
+        ?ilForumNotificationCache $notificationCache = null,
+        ?ilLanguage $lng = null,
+        ?ilSetting $settings = null,
+        ?\ILIAS\Refinery\Factory $refinery = null,
+        ?JobManager $cronManager = null
     ) {
         global $DIC;
 
@@ -84,9 +87,9 @@ class ilForumCronNotification extends ilCronJob
         return $this->lng->txt('cron_forum_notification_crob_desc');
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS;
+        return JobScheduleType::IN_HOURS;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -116,14 +119,14 @@ class ilForumCronNotification extends ilCronJob
         $this->logger->debug(sprintf('Current memory usage: %s', memory_get_usage(true)));
     }
 
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         global $DIC;
 
         $this->logger = $DIC->logger()->frm();
         $this->tree = $DIC->repositoryTree();
 
-        $status = ilCronJobResult::STATUS_NO_ACTION;
+        $status = JobResult::STATUS_NO_ACTION;
 
         $this->lng->loadLanguageModule('forum');
 
@@ -181,9 +184,9 @@ class ilForumCronNotification extends ilCronJob
         $this->logger->info($mess);
         $this->logger->info('Finished forum notification job');
 
-        $result = new ilCronJobResult();
+        $result = new JobResult();
         if ($this->num_sent_messages !== 0) {
-            $status = ilCronJobResult::STATUS_OK;
+            $status = JobResult::STATUS_OK;
             $result->setMessage($mess);
         }
 

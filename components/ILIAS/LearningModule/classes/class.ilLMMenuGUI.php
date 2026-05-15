@@ -67,7 +67,7 @@ class ilLMMenuGUI
                 $ui->mainTemplate()->addJavaScript("assets/js/Form.js");
                 $modal = $ui->factory()->modal()->roundtrip(
                     $lng->txt("cont_print_view"),
-                    $ui->factory()->legacy('some modal')
+                    $ui->factory()->legacy()->content('some modal')
                 )->withAsyncRenderUrl($this->ctrl->getLinkTargetByClass("illmpresentationgui", "showPrintViewSelection"));
 
                 $entries[] = [

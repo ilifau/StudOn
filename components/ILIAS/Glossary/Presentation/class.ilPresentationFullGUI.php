@@ -35,7 +35,7 @@ class ilPresentationFullGUI
     protected ilNavigationHistory $nav_history;
     protected UI\Factory $ui_fac;
     protected UI\Renderer $ui_ren;
-    protected $parent_obj;
+    protected object $parent_obj;
     protected ilObjGlossary $glossary;
     protected bool $offline = false;
     protected int $tax_node = 0;
@@ -187,7 +187,7 @@ class ilPresentationFullGUI
         foreach ($terms_sliced as $term) {
             $subs[] = $this->ui_fac->panel()->sub(
                 $term["term"],
-                $this->ui_fac->legacy($this->parent_obj->listDefinitions(
+                $this->ui_fac->legacy()->content($this->parent_obj->listDefinitions(
                     $this->request->getRefId(),
                     (int) $term["id"],
                     true,

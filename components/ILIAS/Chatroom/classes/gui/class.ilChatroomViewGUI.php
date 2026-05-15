@@ -251,7 +251,7 @@ class ilChatroomViewGUI extends ilChatroomGUIHandler
 
     private function legacy(string $html): Component
     {
-        return $this->uiFactory->legacy($html);
+        return $this->uiFactory->legacy()->content($html);
     }
 
     /**
@@ -260,7 +260,7 @@ class ilChatroomViewGUI extends ilChatroomGUIHandler
     private function panel(string $title, $body): string
     {
         if (is_array($body)) {
-            $body = $this->uiFactory->legacy(join('', array_map($this->uiRenderer->render(...), $body)));
+            $body = $this->uiFactory->legacy()->content(join('', array_map($this->uiRenderer->render(...), $body)));
         }
         $panel = $this->uiFactory->panel()->secondary()->legacy($title, $body);
 
@@ -278,8 +278,7 @@ class ilChatroomViewGUI extends ilChatroomGUIHandler
             $state = $this->http->wrapper()->post()->retrieve('state', $this->refinery->kindlyTo()->int());
         }
 
-        ilObjUser::_writePref(
-            $this->ilUser->getId(),
+        $this->ilUser->writePref(
             'chat_hide_automsg_' . $room->getRoomId(),
             (string) ((int) (!(bool) $state))
         );

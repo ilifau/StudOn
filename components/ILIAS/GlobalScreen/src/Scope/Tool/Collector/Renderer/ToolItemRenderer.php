@@ -24,7 +24,6 @@ use ILIAS\GlobalScreen\Collector\Renderer\DecoratorApplierTrait;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer\BaseTypeRenderer;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer\SlateSessionStateCode;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\isItem;
-use ILIAS\GlobalScreen\Scope\Tool\Factory\Tool;
 use ILIAS\UI\Component\Component;
 
 /**
@@ -36,6 +35,7 @@ class ToolItemRenderer extends BaseTypeRenderer
     use DecoratorApplierTrait;
 
 
+    #[\Override]
     public function getComponentForItem(isItem $item, bool $with_content = false): Component
     {
         /**

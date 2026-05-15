@@ -1,9 +1,5 @@
 <?php
 
-/** @noinspection PhpDynamicFieldDeclarationInspection */
-
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -19,6 +15,9 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+/** @noinspection PhpDynamicFieldDeclarationInspection */
+declare(strict_types=1);
 
 /**
  * Class ilObjSCORM2004LearningModule
@@ -487,8 +486,8 @@ class ilObjSCORM2004LearningModule extends ilObjSCORMLearningModule
         $obj_id = $this->getID();
         $users = array();
         $usersToDelete = array();
-        $fields = fgetcsv($fhandle, 4096, ';');
-        while (($csv_rows = fgetcsv($fhandle, 4096, ";")) !== false) {
+        $fields = fgetcsv($fhandle, 4096, ';', '"', '\\');
+        while (($csv_rows = fgetcsv($fhandle, 4096, ";", '"', '\\')) !== false) {
             $user_id = 0;
             $data = array_combine($fields, $csv_rows);
             //no check the format - sufficient to import users

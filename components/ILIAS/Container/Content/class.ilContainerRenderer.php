@@ -166,8 +166,8 @@ class ilContainerRenderer
 
     public function addTypeBlock(
         string $a_type,
-        string $a_prefix = null,
-        string $a_postfix = null
+        ?string $a_prefix = null,
+        ?string $a_postfix = null
     ): bool {
         if ($a_type !== "itgr" &&
             !$this->hasTypeBlock($a_type)) {
@@ -192,7 +192,7 @@ class ilContainerRenderer
     public function addCustomBlock(
         $a_id,
         string $a_caption,
-        string $a_actions = null,
+        ?string $a_actions = null,
         array $a_data = []
     ): bool {
         if (!$this->hasCustomBlock($a_id)) {
@@ -637,11 +637,7 @@ class ilContainerRenderer
                             break;
                     }
 
-                    if ($this->ctrl->isAsynch()) {
-                        $html = $renderer->renderAsync($deck);
-                    } else {
-                        $html = $renderer->render($deck);
-                    }
+                    $html = $renderer->render($deck);
                     $a_block_tpl->setCurrentBlock("tile_rows");
                     $a_block_tpl->setVariable("TILE_ROWS", $html);
                     $a_block_tpl->parseCurrentBlock();
@@ -692,7 +688,7 @@ class ilContainerRenderer
         ilTemplate $a_tpl,
         string $a_type = "",
         string $a_text = "",
-        array $a_types_in_block = null,
+        ?array $a_types_in_block = null,
         string $a_commands_html = "",
         string $a_order_id = "",
         array $a_data = []
@@ -773,7 +769,7 @@ class ilContainerRenderer
     protected function addStandardRow(
         ilTemplate $a_tpl,
         string $a_html,
-        string $a_item_id = null
+        ?string $a_item_id = null
     ): void {
         if ($a_item_id) {
             $a_tpl->setCurrentBlock("row");

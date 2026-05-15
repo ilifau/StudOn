@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,8 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Skill\Access;
 
@@ -116,5 +115,16 @@ class SkillTreeAccess
             return $this->access->checkAccessOfUser($a_usr_id, "write", $this->ref_id);
         }
         return $this->access->checkAccessOfUser($a_usr_id, "manage_profiles", $this->ref_id);
+    }
+
+    public function hasDeleteTreePermission(int $a_tree_ref_id = 0, int $a_usr_id = 0): bool
+    {
+        if ($a_tree_ref_id == 0) {
+            $a_tree_ref_id = $this->ref_id;
+        }
+        if ($a_usr_id == 0) {
+            $a_usr_id = $this->usr_id;
+        }
+        return $this->access->checkAccessOfUser($a_usr_id, "delete", $a_tree_ref_id);
     }
 }

@@ -67,9 +67,9 @@ class ilLanguageFolderTable implements DataTableInterface\DataRetrieval
     public function getTable(): DataTable\Data
     {
         $table = $this->ui_factory->table()->data(
+            $this,
             '',
             $this->getColums(),
-            $this
         );
         if ($this->access->checkAccess('write', '', $this->folder->getId())) {
             $table = $table->withActions($this->getActions());
@@ -132,7 +132,7 @@ class ilLanguageFolderTable implements DataTableInterface\DataRetrieval
     /**
      * Get language data
      */
-    public function getItems(Range $range = null, Order $order = null): array
+    public function getItems(?Range $range = null, ?Order $order = null): array
     {
         $languages = $this->folder->getLanguages();
         $data = [];
@@ -160,13 +160,14 @@ class ilLanguageFolderTable implements DataTableInterface\DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): Generator {
         foreach ($this->getItems($range, $order) as $idx => $record) {
             $obj_id = (string) $record['obj_id'];
             $language = $record['name'];
-            if (isset($record["status"]) && $record["status"]) {
+            if (array_key_exists('status', $record) and $record['status'] !== '') {
                 $language .= ' (' . $this->lng->txt($record["status"]) . ')';
             }
             $to_language = $this->url_builder
@@ -216,8 +217,11 @@ class ilLanguageFolderTable implements DataTableInterface\DataRetrieval
         );
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         return 1;
     }
 }

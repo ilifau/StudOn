@@ -30,17 +30,17 @@ function large()
     global $DIC;
 
     /**
-     * @var ILIAS\UI\Factory $f;
+     * @var \ILIAS\UI\Factory $f;
      */
     $f = $DIC['ui.factory'];
 
     /**
-     * @var ILIAS\UI\Renderer $r;
+     * @var \ILIAS\UI\Renderer $r;
      */
     $r = $DIC['ui.renderer'];
 
     /**
-     * @var ILIAS\Refinery\Factory $refinery;
+     * @var \ILIAS\Refinery\Factory $refinery;
      */
     $refinery = $DIC['refinery'];
     $df = new \ILIAS\Data\Factory();
@@ -82,8 +82,9 @@ function large()
             array $visible_column_ids,
             Range $range,
             Order $order,
-            ?array $filter_data,
-            ?array $additional_parameters
+            mixed $additional_viewcontrol_data,
+            mixed $filter_data,
+            mixed $additional_parameters
         ): \Generator {
             $records = array_values($this->records);
             foreach ($this->records as $record) {
@@ -93,8 +94,9 @@ function large()
         }
 
         public function getTotalRowCount(
-            ?array $filter_data,
-            ?array $additional_parameters
+            mixed $additional_viewcontrol_data,
+            mixed $filter_data,
+            mixed $additional_parameters
         ): ?int {
             return count($this->records);
         }
@@ -114,7 +116,7 @@ function large()
     };
 
     $target = (new URI((string) $request->getUri()))->withParameter('ordering_example', 4);
-    $table = $f->table()->data('large ids data table', $columns, $data_retrieval)
+    $table = $f->table()->data($data_retrieval, 'large ids data table', $columns)
         ->withActions($actions)
         ->withRequest($request);
 

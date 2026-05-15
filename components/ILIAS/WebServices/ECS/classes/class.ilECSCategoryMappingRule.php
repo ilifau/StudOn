@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -413,7 +414,7 @@ class ilECSCategoryMappingRule
             case self::ATTR_INT:
                 $this->logger->info(__METHOD__ . ': Checking for value: ' . $a_value);
                 $this->logger->info(__METHOD__ . ': Checking against attribute values: ' . $this->getMappingValue());
-                $values = array((string)$a_value);
+                $values = array((string) $a_value);
                 break;
 
             case self::ATTR_STRING:

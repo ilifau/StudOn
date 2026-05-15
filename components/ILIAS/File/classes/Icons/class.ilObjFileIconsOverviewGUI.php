@@ -20,6 +20,13 @@ declare(strict_types=1);
 
 namespace ILIAS\File\Icon;
 
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
+use ILIAS\HTTP\Wrapper\WrapperFactory;
+use Psr\Http\Message\RequestInterface;
+use ILIAS\ResourceStorage\Services;
+use ILIAS\ResourceStorage\Identification\ResourceIdentification;
+
 /**
  * @property \ilFileServicesSettings $file_settings
  * @author Lukas Zehnder <lukas@sr.solutions>
@@ -38,20 +45,23 @@ class ilObjFileIconsOverviewGUI
     private \ilCtrl $ctrl;
     private \ilLanguage $lng;
     private \ilToolbarGUI $toolbar;
-    private \ILIAS\UI\Factory $ui_factory;
-    private \ILIAS\UI\Renderer $ui_renderer;
+    private Factory $ui_factory;
+    private Renderer $ui_renderer;
     private \ilGlobalTemplateInterface $main_tpl;
-    private \ILIAS\HTTP\Wrapper\WrapperFactory $wrapper;
-    private \Psr\Http\Message\RequestInterface $http_request;
+    private WrapperFactory $wrapper;
+    private RequestInterface $http_request;
     private \ILIAS\Refinery\Factory $refinery;
-    private \ILIAS\ResourceStorage\Services $storage;
+    private Services $storage;
     private IconRepositoryInterface $icon_repo;
     private \ilFileServicesSettings $file_service_settings;
+    private \ilAccessHandler $access;
+    private bool $write_access;
 
     final public function __construct()
     {
         global $DIC;
         $this->ctrl = $DIC->ctrl();
+        $this->access = $DIC->access();
         $this->lng = $DIC->language();
         $this->lng->loadLanguageModule('file');
         $this->toolbar = $DIC->toolbar();
@@ -64,6 +74,11 @@ class ilObjFileIconsOverviewGUI
         $this->storage = $DIC->resourceStorage();
         $this->icon_repo = new IconDatabaseRepository();
         $this->file_service_settings = $DIC->fileServiceSettings();
+        $this->write_access = $this->access->checkAccess(
+            'write',
+            '',
+            (int) ($this->http_request->getQueryParams()['ref_id'] ?? 0)
+        );
     }
 
     final public function executeCommand(): void
@@ -88,16 +103,19 @@ class ilObjFileIconsOverviewGUI
     private function index(): void
     {
         // toolbar: add new icon button
-        $btn_new_icon = $this->ui_factory->button()->standard(
-            $this->lng->txt('add_icon'),
-            $this->ctrl->getLinkTargetByClass(self::class, self::CMD_OPEN_CREATION_FORM)
-        );
-        $this->toolbar->addComponent($btn_new_icon);
+        if ($this->write_access) {
+            $btn_new_icon = $this->ui_factory->button()->standard(
+                $this->lng->txt('add_icon'),
+                $this->ctrl->getLinkTargetByClass(self::class, self::CMD_OPEN_CREATION_FORM)
+            );
+            $this->toolbar->addComponent($btn_new_icon);
+        }
 
         // Listing of icons
         $listing = new IconListingUI(
             $this->icon_repo,
-            $this
+            $this,
+            $this->write_access
         );
 
         $content = [];
@@ -258,7 +276,7 @@ class ilObjFileIconsOverviewGUI
         // delete icon from irss
         $is_deleted_from_irss = false;
         $id = $this->storage->manage()->find($rid);
-        if ($id instanceof \ILIAS\ResourceStorage\Identification\ResourceIdentification) {
+        if ($id instanceof ResourceIdentification) {
             $this->storage->manage()->remove($id, new ilObjFileIconStakeholder());
             $is_deleted_from_irss = true;
         }

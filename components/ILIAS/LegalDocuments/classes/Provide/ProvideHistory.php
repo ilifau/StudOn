@@ -71,7 +71,7 @@ class ProvideHistory
             $create
         ));
 
-        return $this->container->ui()->factory()->legacy($table->getHTML());
+        return $this->container->ui()->factory()->legacy()->content($table->getHTML());
     }
 
     public function acceptDocument(ilObjUser $user, Document $document): void

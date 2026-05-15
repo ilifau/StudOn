@@ -38,7 +38,7 @@ class ilSurveyEvaluationGUI
     /**
      * @var mixed
      */
-    protected $last_questionblock_id;
+    protected string $last_questionblock_id = "";
     protected array $array_panels;
 
     protected ilLogger $log;
@@ -537,8 +537,8 @@ class ilSurveyEvaluationGUI
         ilExcel $a_excel,
         ilSurveyEvaluationResults $a_results,
         int &$a_excel_row,
-        array $a_grid = null,
-        array $a_text_answers = null,
+        ?array $a_grid = null,
+        ?array $a_text_answers = null,
         bool $a_include_mode = true
     ): void {
         $kv = array();
@@ -868,12 +868,12 @@ class ilSurveyEvaluationGUI
                         $qblock = ilObjSurvey::_getQuestionblock($qdata["questionblock_id"]);
                         if ($qblock["show_blocktitle"]) {
                             $listing->node(
-                                $this->ui->factory()->legacy($qdata["questionblock_title"]),
+                                $this->ui->factory()->legacy()->content($qdata["questionblock_title"]),
                                 "q" . $qdata["questionblock_id"]
                             );
                         } else {
                             $listing->node(
-                                $this->ui->factory()->legacy(""),
+                                $this->ui->factory()->legacy()->content(""),
                                 "q" . $qdata["questionblock_id"]
                             );
                         }
@@ -890,7 +890,7 @@ class ilSurveyEvaluationGUI
 
             if ($details) {
                 //TABLE OF CONTENTS
-                $panel_toc = $ui_factory->panel()->standard($this->lng->txt('cont_toc'), $ui_factory->legacy($listing->render()));
+                $panel_toc = $ui_factory->panel()->standard($this->lng->txt('cont_toc'), $ui_factory->legacy()->content($listing->render()));
                 $render_toc = $ui_renderer->render($panel_toc);
                 $dtmpl->setVariable("PANEL_TOC", $render_toc);
 

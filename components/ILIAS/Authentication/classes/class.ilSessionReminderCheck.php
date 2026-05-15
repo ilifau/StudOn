@@ -24,62 +24,56 @@ use ILIAS\HTTP\Response\ResponseHeader;
 use Psr\Http\Message\ResponseInterface;
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory as Refinery;
-use ILIAS\Data\Factory as DataFactory;
 
-class ilSessionReminderCheck
+readonly class ilSessionReminderCheck
 {
-    private GlobalHttpState $http;
-    private Refinery $refinery;
-    private ilLanguage $lng;
-    private ilDBInterface $db;
-    private ilIniFile $clientIni;
-    private ilLogger $logger;
-    private ClockInterface $clock;
-
     public function __construct(
-        GlobalHttpState $http,
-        Refinery $refinery,
-        ilLanguage $lng,
-        ilDBInterface $db,
-        ilIniFile $clientIni,
-        ilLogger $logger,
-        ClockInterface $utcClock,
-        private readonly ilSetting $settings
+        private GlobalHttpState $http,
+        private Refinery $refinery,
+        private ilLanguage $lng,
+        private ilDBInterface $db,
+        private ilIniFile $client_ini,
+        private ilLogger $logger,
+        private ClockInterface $clock,
+        private ilSetting $settings
     ) {
-        $this->http = $http;
-        $this->refinery = $refinery;
-        $this->lng = $lng;
-        $this->db = $db;
-        $this->clientIni = $clientIni;
-        $this->logger = $logger;
-        $this->clock = $utcClock;
     }
 
     public function handle(): ResponseInterface
     {
-        $sessionIdHash = ilUtil::stripSlashes(
+        $hash = ilUtil::stripSlashes(
             $this->http->wrapper()->post()->retrieve(
                 'hash',
                 $this->refinery->kindlyTo()->string()
             )
         );
 
-        $this->logger->debug('Session reminder call for session id hash: ' . $sessionIdHash);
+        $this->logger->debug('Session reminder call for session id hash: ' . $hash);
 
         // disable session writing and extension of expiration time
         ilSession::enableWebAccessWithoutSession(true);
 
         $response = ['remind' => false];
 
+        $concat = $this->db->concat(
+            [
+                ['usess.session_id'],
+                ['usess.user_id'],
+                ['od.create_date']
+            ]
+        );
         $res = $this->db->queryF(
-            'SELECT expires, user_id, data FROM usr_session WHERE MD5(session_id) = %s',
-            ['text'],
-            [$sessionIdHash]
+            'SELECT usess.expires, usess.user_id, usess.data ' .
+            'FROM usr_session usess ' .
+            'INNER JOIN object_data od ON od.obj_id = usess.user_id ' .
+            "WHERE SHA2($concat, 256) = %s",
+            [ilDBConstants::T_TEXT],
+            [$hash]
         );
 
         $num = $this->db->numRows($res);
 
-        if (0 === $num) {
+        if ($num === 0) {
             $response['message'] = 'ILIAS could not determine the session data.';
             return $this->toJsonResponse($response);
         }
@@ -96,11 +90,11 @@ class ilSessionReminderCheck
         }
 
         $expiration_time = $data['expires'];
-        if (null === $expiration_time) {
+        if ($expiration_time === null) {
             $response['message'] = 'ILIAS could not determine the expiration time from the session data.';
             return $this->toJsonResponse($response);
         }
-        $expiration_time = (int) $expiration_time;
+        $expiration_time = (int) $data['expires'];
 
         if ($this->isSessionAlreadyExpired($expiration_time)) {
             $response['message'] = 'The session is already expired. The client should have received a remind command before.';
@@ -140,7 +134,7 @@ class ilSessionReminderCheck
         }
 
         $response = [
-            'extend_url' => './ilias.php?baseClass=ilDashboardGUI',
+            'extend_url' => './ilias.php?baseClass=' . ilDashboardGUI::class,
             'txt' => str_replace(
                 "\\n",
                 '%0A',
@@ -148,7 +142,7 @@ class ilSessionReminderCheck
                     $this->lng->txt('session_reminder_alert'),
                     ilDatePresentation::secondsToString($expiration_time - $this->clock->now()->getTimestamp()),
                     $formatted_expiration_time,
-                    $this->clientIni->readVariable('client', 'name') . ' | ' . ilUtil::_getHttpPath()
+                    $this->client_ini->readVariable('client', 'name') . ' | ' . ilUtil::_getHttpPath()
                 )
             ),
             'remind' => true

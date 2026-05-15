@@ -35,7 +35,8 @@ class ColumnFactoryTest extends AbstractFactoryTestCase
         "statusIcon" => ["context" => false, "rules" => false],
         "timeSpan" => ["context" => false, "rules" => false],
         "link" => ["context" => false, "rules" => false],
-        "linkListing" => ["context" => false, "rules" => false]
+        "linkListing" => ["context" => false, "rules" => false],
+        "breadcrumb" => ["context" => false, "rules" => false],
     ];
 
     public static string $factory_title = 'ILIAS\\UI\\Component\\Table\\Column\\Factory';
@@ -69,9 +70,7 @@ class ColumnFactoryTest extends AbstractFactoryTestCase
         ];
     }
 
-    /**
-     * @dataProvider getColumnTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getColumnTypeProvider')]
     public function testDataTableColsImplementInterfaces(\Closure $col): void
     {
         $factory = $this->buildColumnFactory();

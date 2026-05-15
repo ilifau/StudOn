@@ -211,7 +211,6 @@ class ilDataCollectionDataSet extends ilDataSet
                         $field->setDatatypeId($datatype_id);
                         $field->setTitle($a_rec['title']);
                         $field->setDescription($a_rec['description']);
-                        $field->setUnique($a_rec['is_unique'] === '1');
                         $field->doCreate();
                         if ($datatype_id === ilDclDatatype::INPUTFORMAT_TEXT) {
                             $field->setProperty(ilDclBaseFieldModel::PROP_LENGTH, 200)->store();
@@ -452,6 +451,7 @@ class ilDataCollectionDataSet extends ilDataSet
                                 $value = null;
                                 break;
                             case ilDclDatatype::INPUTFORMAT_DATE:
+                            case ilDclDatatype::INPUTFORMAT_DATETIME:
                                 $value = $a_rec['value'];
                                 if ($value == '0000-00-00 00:00:00') {
                                     $value = null;
@@ -620,7 +620,6 @@ class ilDataCollectionDataSet extends ilDataSet
                     'description' => 'text',
                     'datatype_id' => 'integer',
                     'datatype_title' => 'text',
-                    'is_unique' => 'integer',
                 ];
             case 'il_dcl_tview_set':
                 return [

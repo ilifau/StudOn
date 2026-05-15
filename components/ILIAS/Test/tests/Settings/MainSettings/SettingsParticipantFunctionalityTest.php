@@ -22,12 +22,10 @@ use ILIAS\Test\Settings\MainSettings\SettingsParticipantFunctionality;
 
 class SettingsParticipantFunctionalityTest extends ilTestBaseTestCase
 {
-    /**
-     * @dataProvider getAndWithUsePreviousAnswerAllowedDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithUsePreviousAnswerAllowedDataProvider')]
     public function testGetAndWithUsePreviousAnswerAllowed(bool $io): void
     {
-        $Settings_participant_functionality = (new SettingsParticipantFunctionality(0))->withUsePreviousAnswerAllowed($io);
+        $Settings_participant_functionality = (new SettingsParticipantFunctionality())->withUsePreviousAnswerAllowed($io);
 
         $this->assertInstanceOf(SettingsParticipantFunctionality::class, $Settings_participant_functionality);
         $this->assertEquals($io, $Settings_participant_functionality->getUsePreviousAnswerAllowed());
@@ -41,12 +39,10 @@ class SettingsParticipantFunctionalityTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithSuspendTestAllowedDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithSuspendTestAllowedDataProvider')]
     public function testGetAndWithSuspendTestAllowed(bool $io): void
     {
-        $Settings_participant_functionality = (new SettingsParticipantFunctionality(0))->withSuspendTestAllowed($io);
+        $Settings_participant_functionality = (new SettingsParticipantFunctionality())->withSuspendTestAllowed($io);
 
         $this->assertInstanceOf(SettingsParticipantFunctionality::class, $Settings_participant_functionality);
         $this->assertEquals($io, $Settings_participant_functionality->getSuspendTestAllowed());
@@ -60,12 +56,10 @@ class SettingsParticipantFunctionalityTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithPostponedQuestionsMoveToEndDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithPostponedQuestionsMoveToEndDataProvider')]
     public function testGetAndWithPostponedQuestionsMoveToEnd(bool $io): void
     {
-        $Settings_participant_functionality = (new SettingsParticipantFunctionality(0))->withPostponedQuestionsMoveToEnd($io);
+        $Settings_participant_functionality = (new SettingsParticipantFunctionality())->withPostponedQuestionsMoveToEnd($io);
 
         $this->assertInstanceOf(SettingsParticipantFunctionality::class, $Settings_participant_functionality);
         $this->assertEquals($io, $Settings_participant_functionality->getPostponedQuestionsMoveToEnd());
@@ -79,12 +73,10 @@ class SettingsParticipantFunctionalityTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithQuestionListEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithQuestionListEnabledDataProvider')]
     public function testGetAndWithQuestionListEnabled(bool $io): void
     {
-        $Settings_participant_functionality = (new SettingsParticipantFunctionality(0))->withQuestionListEnabled($io);
+        $Settings_participant_functionality = (new SettingsParticipantFunctionality())->withQuestionListEnabled($io);
 
         $this->assertInstanceOf(SettingsParticipantFunctionality::class, $Settings_participant_functionality);
         $this->assertEquals($io, $Settings_participant_functionality->getQuestionListEnabled());
@@ -98,12 +90,10 @@ class SettingsParticipantFunctionalityTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithUsrPassOverviewModeDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithUsrPassOverviewModeDataProvider')]
     public function testGetAndWithUsrPassOverviewMode(int $io): void
     {
-        $Settings_participant_functionality = (new SettingsParticipantFunctionality(0))->withUsrPassOverviewMode($io);
+        $Settings_participant_functionality = (new SettingsParticipantFunctionality())->withUsrPassOverviewMode($io);
 
         $this->assertInstanceOf(SettingsParticipantFunctionality::class, $Settings_participant_functionality);
         $this->assertEquals($io, $Settings_participant_functionality->getUsrPassOverviewMode());
@@ -118,12 +108,10 @@ class SettingsParticipantFunctionalityTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithUsrPassOverviewEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithUsrPassOverviewEnabledDataProvider')]
     public function testGetAndWithQuestionMarkingEnabled(bool $io): void
     {
-        $Settings_participant_functionality = (new SettingsParticipantFunctionality(0));
+        $Settings_participant_functionality = (new SettingsParticipantFunctionality());
         $Settings_participant_functionality = $Settings_participant_functionality->withQuestionMarkingEnabled($io);
 
         $this->assertInstanceOf(SettingsParticipantFunctionality::class, $Settings_participant_functionality);

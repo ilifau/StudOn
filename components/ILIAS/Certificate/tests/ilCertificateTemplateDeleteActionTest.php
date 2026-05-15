@@ -18,9 +18,6 @@
 
 declare(strict_types=1);
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class ilCertificateTemplateDeleteActionTest extends ilCertificateBaseTestCase
 {
     public function testDeleteTemplateAndUseOldThumbnail(): void
@@ -45,8 +42,6 @@ class ilCertificateTemplateDeleteActionTest extends ilCertificateBaseTestCase
                 'v5.4.0',
                 1_234_567_890,
                 true,
-                'samples/background.jpg',
-                '',
                 '-',
                 '-'
             ));

@@ -37,7 +37,7 @@ interface ilFileDataForumInterface
     /**
      * @param list<int>|null $posting_ids_to_delete
      */
-    public function delete(array $posting_ids_to_delete = null): bool;
+    public function delete(?array $posting_ids_to_delete = null): bool;
 
     public function storeUploadedFiles(): bool;
 

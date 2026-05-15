@@ -16,7 +16,6 @@
  *
  *********************************************************************/
 
-
 declare(strict_types=1);
 
 class ilDataCollectionGlobalTemplate implements ilGlobalTemplateInterface
@@ -1262,7 +1261,7 @@ class ilDataCollectionGlobalTemplate implements ilGlobalTemplateInterface
         return $this->template->parseCurrentBlock($block_name);
     }
 
-    public function addBlockFile(string $var, string $block, string $template_name, string $in_module = null): bool
+    public function addBlockFile(string $var, string $block, string $template_name, ?string $in_module = null): bool
     {
         return $this->template->addBlockFile($var, $block, $template_name, $in_module);
     }

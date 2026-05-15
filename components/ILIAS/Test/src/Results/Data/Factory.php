@@ -117,7 +117,6 @@ class Factory
             $attempt_data->getMark(),
             $attempt_data->getAnsweredQuestionCount(),
             $attempt_data->getQuestionCount(),
-            $attempt_data->getRequestedHintsCount(),
             $attempt_data->getWorkingTime(),
             $participant_data->getTimeOnTask(),
             $attempt_data->getStartTime(),
@@ -172,7 +171,7 @@ class Factory
         int $active_id,
         int $attempt_id,
         bool $is_user_output
-    ): AttemptResult {
+    ): AttemptSolutions {
         return $this->buildAttemptResults(
             $settings,
             $test_obj,
@@ -188,7 +187,7 @@ class Factory
         int $active_id,
         int $attempt_id,
         bool $is_user_output
-    ): AttemptResult {
+    ): AttemptSolutions {
         $question_results = [];
 
         $results = $test_obj->getTestResult(
@@ -200,14 +199,7 @@ class Factory
         );
 
         // params of getSolutionOutput
-        $graphical_output = false;
-        $result_output = false;
         $show_question_only = $settings->getQuestionTextOnly();
-        $show_feedback = false; //general
-        $show_correct_solution = false;
-        $show_manual_scoring = false;
-        $show_question_text = true;
-        $show_inline_feedback = true;
 
         foreach ($results as $idx => $qresult) {
             if (!is_numeric($idx)) {
@@ -221,8 +213,6 @@ class Factory
             $usr_score = $qresult['reached'];
             $workedthrough = (bool) $qresult['workedthrough'];
             $answered = (bool) $qresult['answered'];
-            $requested_hints = (int) $qresult['requested_hints'];
-
 
             $question_gui = $test_obj->createQuestionGUI('', $qid);
             $shuffle_trafo = $this->shuffler->getAnswerShuffleFor($qid, $active_id, $attempt_id);
@@ -230,68 +220,60 @@ class Factory
             $question->setShuffler($shuffle_trafo);
             $question_gui->setObject($question);
 
-            $graphical_output = true;
-            $show_correct_solution = false;
             $show_feedback = $settings->getShowFeedback();
             $usr_solution = $question_gui->getSolutionOutput(
                 $active_id,
                 $attempt_id,
-                $graphical_output,
-                $result_output,
+                true,
+                false,
                 $show_question_only,
                 $show_feedback,
-                $show_correct_solution,
-                $show_manual_scoring,
-                $show_question_text,
-                $show_inline_feedback
+                false,
+                false,
+                true,
+                true
             );
 
-            $autosave_output = null;
-            $show_autosave_title = false;
-            if ($test_obj->getAutosave()) {
-                $autosave_output = $question_gui->getAutoSavedSolutionOutput(
+            if ($test_obj->getAutosave() &&
+                $type === 'assTextQuestion'
+            ) {
+                $usr_solution .= $question_gui->getAutoSavedSolutionOutput(
                     $active_id,
                     $attempt_id,
-                    $graphical_output,
-                    $result_output,
-                    $show_question_only,
-                    $show_feedback,
-                    $show_correct_solution,
-                    $show_manual_scoring,
-                    $show_question_text,
-                    $show_autosave_title,
-                    $show_inline_feedback
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true
                 );
             }
 
-            $graphical_output = false;
-            $show_correct_solution = true;
-            $show_feedback = false;
-            $show_inline_feedback = false;
             $best_solution = $question_gui->getSolutionOutput(
                 $active_id,
                 $attempt_id,
-                $graphical_output,
-                $result_output,
+                false,
+                false,
                 $show_question_only,
-                $show_feedback,
-                $show_correct_solution,
-                $show_manual_scoring,
-                $show_question_text,
-                $show_inline_feedback
+                false,
+                true,
+                false,
+                true,
+                false
             );
 
             if ($show_question_only) {
-                $usr_solution = $this->ui_renderer->render($this->ui_factory->legacy('<div class="ilc_question_Standard">' . $usr_solution . '</div>'));
-                $best_solution = $this->ui_renderer->render($this->ui_factory->legacy('<div class="ilc_question_Standard">' . $best_solution . '</div>'));
+                $usr_solution = $this->ui_renderer->render($this->ui_factory->legacy()->content('<div class="ilc_question_Standard">' . $usr_solution . '</div>'));
+                $best_solution = $this->ui_renderer->render($this->ui_factory->legacy()->content('<div class="ilc_question_Standard">' . $best_solution . '</div>'));
             }
 
             $feedback = $question_gui->getGenericFeedbackOutput($active_id, $attempt_id);
 
-            $recapitulation = null;
-            if ($is_user_output && $settings->getShowRecapitulation()) {
-                $recapitulation = $question_gui->getObject()->getSuggestedSolutionOutput();
-            }
+            $recapitulation = $is_user_output && $settings->getShowRecapitulation()
+                ? $question->getSuggestedSolutionOutput()
+                : null;
 
             $question_results[] = new QuestionResult(
                 $qid,
@@ -304,14 +286,12 @@ class Factory
                 $feedback,
                 $workedthrough,
                 $answered,
-                $requested_hints,
                 $recapitulation,
-                $autosave_output,
                 $idx
             );
         }
 
-        return new AttemptResult(
+        return new AttemptSolutions(
             $active_id,
             $attempt_id,
             $question_results

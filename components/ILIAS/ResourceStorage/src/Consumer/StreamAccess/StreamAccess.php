@@ -24,7 +24,6 @@ use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\ResourceStorage\Flavour\Flavour;
 use ILIAS\ResourceStorage\Revision\Revision;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
-use ILIAS\Filesystem\Exception\FileNotFoundException;
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
@@ -33,26 +32,16 @@ use ILIAS\Filesystem\Exception\FileNotFoundException;
 class StreamAccess
 {
     public const PHP_MEMORY = 'php://memory';
-    private StorageHandlerFactory $storage_handler_factory;
 
-    public function __construct(
-        string $storage_base_path,
-        StorageHandlerFactory $storage_handler_factory
-    ) {
-        $this->storage_handler_factory = $storage_handler_factory;
+    public function __construct(string $storage_base_path, private StorageHandlerFactory $storage_handler_factory)
+    {
     }
 
     public function populateRevision(Revision $revision): Revision
     {
-        try {
-            $stream = $this->storage_handler_factory->getHandlerForRevision($revision)->getStream($revision);
+        $stream = $this->storage_handler_factory->getHandlerForRevision($revision)->getStream($revision);
 
-            return $revision->withStreamResolver(new StreamResolver($stream));
-        } catch (FileNotFoundException) {
-            throw new \RuntimeException(
-                "Revision {$revision->getVersionNumber()} for Resource `{$revision->getIdentification()->serialize()}` not found in storage."
-            );
-        }
+        return $revision->withStreamResolver(new StreamResolver($stream));
     }
 
     public function populateFlavour(

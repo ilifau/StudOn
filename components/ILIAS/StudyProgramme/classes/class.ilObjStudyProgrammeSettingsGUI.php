@@ -22,6 +22,8 @@ use ILIAS\UI\Component\Input\Factory;
 use ILIAS\UI\Implementation\Component\Input\Field\Factory as InputFieldFactory;
 use ILIAS\UI\Renderer;
 use ILIAS\MetaData\Services\ServicesInterface as LOMServices;
+use ILIAS\ILIASObject\Properties\Translations\Translations;
+use ILIAS\ILIASObject\Properties\Translations\TranslationGUI;
 
 /**
  * @ilCtrl_Calls ilObjStudyProgrammeSettingsGUI: ilStudyProgrammeCommonSettingsGUI
@@ -202,7 +204,7 @@ class ilObjStudyProgrammeSettingsGUI
 
     protected function buildFormElements(
         InputFieldFactory $ff,
-        ilObjectTranslation $trans,
+        Translations $trans,
         array $sp_types,
         ilStudyProgrammeSettings $settings
     ): array {
@@ -234,7 +236,7 @@ class ilObjStudyProgrammeSettingsGUI
 
     protected function getEditSection(
         InputFieldFactory $ff,
-        ilObjectTranslation $trans
+        Translations $trans
     ): ILIAS\UI\Component\Input\Field\Section {
         $lang = '?';
         foreach ($this->lom_services->dataHelper()->getAllLanguages() as $language) {
@@ -254,7 +256,7 @@ class ilObjStudyProgrammeSettingsGUI
             ],
             $this->txt("prg_edit"),
             $this->txt("language") . ": " . $lang .
-            ' <a href="' . $this->ctrl->getLinkTargetByClass("ilobjecttranslationgui", "") .
+            ' <a href="' . $this->ctrl->getLinkTargetByClass(TranslationGUI::class, "") .
             '">&raquo; ' . $this->txt("obj_more_translations") . '</a>'
         );
     }

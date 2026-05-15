@@ -38,14 +38,19 @@ final class ilGlossarySetupAgent implements Setup\Agent
         throw new LogicException("ilGlossarySetupAgent has no config.");
     }
 
-    public function getInstallObjective(Setup\Config $config = null): Setup\Objective
+    public function getInstallObjective(?Setup\Config $config = null): Setup\Objective
     {
         return new Setup\Objective\NullObjective();
     }
 
-    public function getUpdateObjective(Setup\Config $config = null): Setup\Objective
+    public function getUpdateObjective(?Setup\Config $config = null): Setup\Objective
     {
-        return new ilDatabaseUpdateStepsExecutedObjective(new ilGlossaryDBUpdateSteps());
+        return new Setup\ObjectiveCollection(
+            'Glossary',
+            false,
+            new ilDatabaseUpdateStepsExecutedObjective(new ilGlossaryDBUpdateSteps()),
+            new ilDatabaseUpdateStepsExecutedObjective(new ilGlossaryDBUpdateSteps11())
+        );
     }
 
     public function getBuildObjective(): Setup\Objective
@@ -55,7 +60,12 @@ final class ilGlossarySetupAgent implements Setup\Agent
 
     public function getStatusObjective(Setup\Metrics\Storage $storage): Setup\Objective
     {
-        return new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilGlossaryDBUpdateSteps());
+        return new Setup\ObjectiveCollection(
+            'Glossary',
+            true,
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilGlossaryDBUpdateSteps()),
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilGlossaryDBUpdateSteps11()),
+        );
     }
 
     public function getMigrations(): array

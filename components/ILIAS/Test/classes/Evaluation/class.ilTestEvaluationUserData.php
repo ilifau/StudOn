@@ -282,7 +282,7 @@ class ilTestEvaluationUserData
         return $this->questions[$pass] ?? null;
     }
 
-    public function addQuestion(int $original_id, int $question_id, float $max_points, int $sequence = null, int $pass = 0): void
+    public function addQuestion(int $original_id, int $question_id, float $max_points, ?int $sequence = null, int $pass = 0): void
     {
         if (!isset($this->questions[$pass])) {
             $this->questions[$pass] = [];
@@ -388,14 +388,6 @@ class ilTestEvaluationUserData
         return $this->getLastPassObject();
     }
 
-    /**
-     * returns the count of hints requested by participant for scored testpass
-     */
-    public function getRequestedHintsCountFromScoredPass(): int
-    {
-        return $this->getRequestedHintsCount($this->getScoredPass());
-    }
-
     public function getExamIdFromScoredPass(): string
     {
         $exam_id = '';
@@ -406,22 +398,6 @@ class ilTestEvaluationUserData
         }
 
         return $exam_id;
-    }
-
-    /**
-     * returns the count of hints requested by participant for given testpass
-     *
-     * @throws ilTestException
-     */
-    public function getRequestedHintsCount(int $pass): int
-    {
-        if (!isset($this->passes[$pass]) || !($this->passes[$pass] instanceof ilTestEvaluationPassData)) {
-            throw new ilTestException("invalid pass index given: $pass");
-        }
-
-        $requestedHintsCount = $this->passes[$pass]->getRequestedHintsCount();
-
-        return $requestedHintsCount;
     }
 
     /**

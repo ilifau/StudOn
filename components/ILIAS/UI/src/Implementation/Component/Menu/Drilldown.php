@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,12 +16,15 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\UI\Implementation\Component\Menu;
 
 use ILIAS\UI\Component\Menu as IMenu;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\UI\Component\Signal;
+use ILIAS\UI\Component;
 
 /**
  * Drilldown Menu Control
@@ -36,7 +37,7 @@ class Drilldown extends Menu implements IMenu\Drilldown
     protected ?string $persistence_id = null;
 
     /**
-     * @param array <Sub|Component\Clickable|Component\Divider\Horizontal> $items
+     * @param array<Component\Menu\Sub, Component\Clickable, Component\Link\Link, Component\Divider\Horizontal, Component\Input\Field\Node\Node> $items
      */
     public function __construct(
         SignalGeneratorInterface $signal_generator,

@@ -26,7 +26,6 @@ use ILIAS\Exercise\Submission\SubmissionManager;
 class ilExAssignmentListTextTableGUI extends ilTable2GUI
 {
     protected SubmissionManager $subm;
-    protected \ILIAS\Exercise\InternalGUIService $gui;
     protected ilExAssignment $ass;
     protected bool $show_peer_review;
     protected ilExPeerReview $peer_review;
@@ -46,8 +45,6 @@ class ilExAssignmentListTextTableGUI extends ilTable2GUI
         $lng = $DIC->language();
 
         $this->subm = $DIC->exercise()->internal()->domain()->submission($a_ass->getId());
-        $this->gui = $DIC->exercise()->internal()->gui();
-
         $this->ass = $a_ass;
         $this->show_peer_review = $a_show_peer_review;
         $this->setId("excassltxt" . $this->ass->getId());
@@ -108,7 +105,7 @@ class ilExAssignmentListTextTableGUI extends ilTable2GUI
                     "uid" => $file["user_id"],
                     "uname" => ilUserUtil::getNamePresentation($file["user_id"]),
                     "udate" => $file["ts"],
-                    "utext" => $this->gui->getUIUtil()->formatTextInput($file["atext"]) // mob id to mob src
+                    "utext" => ilRTE::_replaceMediaObjectImageSrc($file["atext"], 1) // mob id to mob src
                 );
 
                 if (isset($peer_data[$file["user_id"]])) {
@@ -164,6 +161,6 @@ class ilExAssignmentListTextTableGUI extends ilTable2GUI
             "USER_DATE",
             ilDatePresentation::formatDate(new ilDate($a_set["udate"], IL_CAL_DATETIME))
         );
-        $this->tpl->setVariable("USER_TEXT", $a_set["utext"]);
+        $this->tpl->setVariable("USER_TEXT", nl2br($a_set["utext"]));
     }
 }

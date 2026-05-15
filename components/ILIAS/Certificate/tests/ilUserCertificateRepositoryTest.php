@@ -20,9 +20,6 @@ declare(strict_types=1);
 
 use ILIAS\Certificate\ValueObject\CertificateId;
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
 {
     public function testSaveOfUserCertificateToDatabase(): void
@@ -48,18 +45,9 @@ class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
                 'version' => ['integer', 1],
                 'ilias_version' => ['text', 'v5.4.0'],
                 'currently_active' => ['integer', true],
-                'background_image_path' => ['text', '/some/where/background.jpg'],
-                'thumbnail_image_path' => ['text', '/some/where/thumbnail.svg'],
                 'background_image_ident' => ['text', '-'],
-                'thumbnail_image_ident' => ['text', '-'],
+                'tile_image_ident' => ['text', '-'],
                 'certificate_id' => ['text', '11111111-2222-3333-4444-555555555555'],
-            ]
-        );
-
-        $database->method('tableColumnExists')->willReturnMap(
-            [
-                ['il_cert_user_cert', 'background_image_path', true],
-                ['il_cert_user_cert', 'thumbnail_image_path', true],
             ]
         );
 
@@ -90,8 +78,6 @@ class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
             'v5.4.0',
             true,
             new CertificateId('11111111-2222-3333-4444-555555555555'),
-            '/some/where/background.jpg',
-            '/some/where/thumbnail.svg',
             '-',
             '-',
             null
@@ -122,10 +108,8 @@ class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
                 'version' => 1,
                 'ilias_version' => 'v5.4.0',
                 'currently_active' => true,
-                'background_image_path' => '/some/where/background.jpg',
-                'thumbnail_image_path' => '/some/where/thumbnail.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-',
+                'tile_image_ident' => '-',
                 'title' => 'Some Title',
                 'certificate_id' => '11111111-2222-3333-4444-555555555555'
             ],
@@ -143,10 +127,8 @@ class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
                 'version' => 1,
                 'ilias_version' => 'v5.3.0',
                 'currently_active' => true,
-                'background_image_path' => '/some/where/else/background.jpg',
-                'thumbnail_image_path' => '/some/where/thumbnail.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-',
+                'tile_image_ident' => '-',
                 'title' => 'Someother Title',
                 'certificate_id' => '11111111-2222-3333-4444-555555555555'
             ],
@@ -194,10 +176,8 @@ class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
                 'version' => 1,
                 'ilias_version' => 'v5.4.0',
                 'currently_active' => true,
-                'background_image_path' => '/some/where/background.jpg',
-                'thumbnail_image_path' => '/some/where/thumbnail.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-',
+                'tile_image_ident' => '-',
                 'certificate_id' => '11111111-2222-3333-4444-555555555555'
             ],
             [
@@ -214,10 +194,8 @@ class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
                 'version' => 1,
                 'ilias_version' => 'v5.3.0',
                 'currently_active' => true,
-                'background_image_path' => '/some/where/else/background.jpg',
-                'thumbnail_image_path' => '/some/where/thumbnail.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-',
+                'tile_image_ident' => '-',
                 'certificate_id' => '11111111-2222-3333-4444-555555555555'
             ]
         );
@@ -240,9 +218,6 @@ class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
         $this->assertSame(141, $result->getId());
     }
 
-    /**
-     *
-     */
     public function testFetchNoActiveCertificateLeadsToException(): never
     {
         $this->expectException(ilException::class);
@@ -290,10 +265,8 @@ class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
                 'version' => 1,
                 'ilias_version' => 'v5.4.0',
                 'currently_active' => true,
-                'background_image_path' => '/some/where/background.jpg',
-                'thumbnail_image_path' => '/some/where/else/thumbnail.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-',
+                'tile_image_ident' => '-',
                 'title' => 'SomeTitle',
                 'someDescription' => 'SomeDescription',
                 'certificate_id' => '11111111-2222-3333-4444-555555555555'
@@ -312,10 +285,8 @@ class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
                 'version' => 1,
                 'ilias_version' => 'v5.3.0',
                 'currently_active' => true,
-                'background_image_path' => '/some/where/else/background.jpg',
-                'thumbnail_image_path' => '/some/where/else/thumbnail.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-',
+                'tile_image_ident' => '-',
                 'title' => 'SomeTitle',
                 'someDescription' => 'SomeDescription',
                 'certificate_id' => '11111111-2222-3333-4444-555555555555'
@@ -360,10 +331,8 @@ class ilUserCertificateRepositoryTest extends ilCertificateBaseTestCase
                 'version' => 1,
                 'ilias_version' => 'v5.4.0',
                 'currently_active' => true,
-                'background_image_path' => '/some/where/background.jpg',
-                'thumbnail_image_path' => '/some/where/else/thumbnail.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-',
+                'tile_image_ident' => '-',
                 'title' => 'SomeTitle',
                 'someDescription' => 'SomeDescription',
                 'certificate_id' => '11111111-2222-3333-4444-555555555555'

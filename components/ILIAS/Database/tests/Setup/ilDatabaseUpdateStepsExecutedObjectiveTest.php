@@ -17,7 +17,6 @@
  *********************************************************************/
 
 use PHPUnit\Framework\TestCase;
-
 use ILIAS\Setup\Environment;
 use ILIAS\Setup\ArrayEnvironment;
 
@@ -102,17 +101,14 @@ class ilDatabaseUpdateStepsExecutedObjectiveTest extends TestCase
 
         $this->objective->achieve($env);
 
-        $this->assertEquals([1,2,4], $this->steps->called);
+        $this->assertSame([1,2,4], $this->steps->called);
     }
 
     public function testUsesExecutionLock(): void
     {
         $execution_log = new class ($this) implements ilDatabaseUpdateStepExecutionLog {
-            protected ilDatabaseUpdateStepsExecutedObjectiveTest $test;
-
-            public function __construct(ilDatabaseUpdateStepsExecutedObjectiveTest $test)
+            public function __construct(protected ilDatabaseUpdateStepsExecutedObjectiveTest $test)
             {
-                $this->test = $test;
             }
             public function started(string $class, int $step): void
             {
@@ -154,7 +150,7 @@ class ilDatabaseUpdateStepsExecutedObjectiveTest extends TestCase
             ["finished", Test_ilDatabaseUpdateSteps::class, 4]
         ];
 
-        $this->assertEquals($expected, $this->steps->called);
+        $this->assertSame($expected, $this->steps->called);
     }
 
     public function testOnlyExecuteNonExecutedSteps(): void
@@ -189,7 +185,7 @@ class ilDatabaseUpdateStepsExecutedObjectiveTest extends TestCase
 
         $this->objective->achieve($env);
 
-        $this->assertEquals([2,4], $this->steps->called);
+        $this->assertSame([2,4], $this->steps->called);
     }
 
     public function testExceptionOnNonMatchingStartAndFinished(): void

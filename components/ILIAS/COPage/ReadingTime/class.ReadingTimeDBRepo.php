@@ -1,22 +1,29 @@
 <?php
 
-/* Copyright (c) 1998-2022 ILIAS open source, GPLv3, see LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 namespace ILIAS\COPage\ReadingTime;
 
-/**
- * @author Alexander Killing <killing@leifos.de>
- */
 class ReadingTimeDBRepo
 {
-    /**
-     * @var \ilDBInterface
-     */
-    protected $db;
+    protected \ilDBInterface $db;
 
     public function __construct()
     {
-        /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
         $this->db = $DIC->database();
     }
@@ -62,7 +69,7 @@ class ReadingTimeDBRepo
     public function getPagesWithMissingReadingTime(
         string $a_parent_type,
         int $a_parent_id
-    ) {
+    ): array {
         $db = $this->db;
         $q = "SELECT * FROM page_object " .
             " WHERE parent_id = " . $db->quote($a_parent_id, "integer") .

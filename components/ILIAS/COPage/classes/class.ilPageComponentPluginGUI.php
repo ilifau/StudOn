@@ -87,7 +87,7 @@ abstract class ilPageComponentPluginGUI
         string $plugin_version
     ): string;
 
-    public function create_plug() : void
+    public function create_plug(): void
     {
         $this->create();
     }

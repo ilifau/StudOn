@@ -43,9 +43,9 @@ class ilCertificateSettingsFormRepository implements ilCertificateFormRepository
     private readonly Refinery $refinery;
     private readonly ilObjCertificateSettings $global_certificate_settings;
     private IRSS $irss;
-    private Filesystem $web_fs;
+    private Filesystem $filesystem;
     private readonly ilGlobalTemplateInterface $page_template;
-    private readonly FitToSquare $card_thumbnail_definition;
+    private readonly FitToSquare $tile_image_definition;
 
     public function __construct(
         private readonly int $objectId,
@@ -56,15 +56,14 @@ class ilCertificateSettingsFormRepository implements ilCertificateFormRepository
         private readonly ilAccessHandler $access,
         private readonly ilToolbarGUI $toolbar,
         private readonly ilCertificatePlaceholderDescription $placeholderDescriptionObject,
-        UiFactory $ui_factory = null,
-        UiRenderer $ui_renderer = null,
-        ilPageFormats $pageFormats = null,
+        ?UiFactory $ui_factory = null,
+        ?UiRenderer $ui_renderer = null,
+        ?ilPageFormats $pageFormats = null,
         private readonly ilFormFieldParser $formFieldParser = new ilFormFieldParser(),
-        ilCertificateTemplateImportAction $importAction = null,
-        ilLogger $logger = null,
-        ilCertificateTemplateRepository $templateRepository = null,
-        Filesystem $web_fs = null,
-        Filesystem $tmp_fs = null
+        ?ilCertificateTemplateImportAction $importAction = null,
+        ?ilLogger $logger = null,
+        ?ilCertificateTemplateRepository $templateRepository = null,
+        ?Filesystem $filesystem = null
     ) {
         global $DIC;
 
@@ -75,7 +74,7 @@ class ilCertificateSettingsFormRepository implements ilCertificateFormRepository
         $this->ui_factory = $ui_factory ?? $DIC->ui()->factory();
 
         $this->irss = $DIC->resourceStorage();
-        $this->web_fs = $web_fs ?? $DIC->filesystem()->web();
+        $this->filesystem = $filesystem ?? $DIC->filesystem()->web();
 
         $this->pageFormats = $pageFormats ?? new ilPageFormats($language);
         $this->importAction = $importAction ?? new ilCertificateTemplateImportAction(
@@ -83,15 +82,14 @@ class ilCertificateSettingsFormRepository implements ilCertificateFormRepository
             $certificatePath,
             $placeholderDescriptionObject,
             $logger ?? $DIC->logger()->cert(),
-            $this->web_fs,
-            $tmp_fs ?? $DIC->filesystem()->temp(),
+            $this->filesystem,
             $this->irss
         );
         $this->templateRepository = $templateRepository ?? new ilCertificateTemplateDatabaseRepository(
             $DIC->database(),
             $logger ?? $DIC->logger()->cert()
         );
-        $this->card_thumbnail_definition = new FitToSquare(
+        $this->tile_image_definition = new FitToSquare(
             true,
             100
         );
@@ -198,7 +196,6 @@ class ilCertificateSettingsFormRepository implements ilCertificateFormRepository
 
         $bgimage->setAllowDeletion(true);
         $bg_image_rid = $certificateTemplate->getBackgroundImageIdentification();
-        $bg_image_path = $certificateTemplate->getBackgroundImagePath();
         if (
             (
                 $this->global_certificate_settings->getBackgroundImageIdentification() instanceof ResourceIdentification &&
@@ -217,53 +214,39 @@ class ilCertificateSettingsFormRepository implements ilCertificateFormRepository
         if ($identification instanceof ResourceIdentification) {
             $background_flavour = $this->irss->flavours()->get(
                 $identification,
-                $this->card_thumbnail_definition
+                $this->tile_image_definition
             );
             $flavour_urls = $this->irss->consume()->flavourUrls($background_flavour);
             foreach ($flavour_urls->getURLs(true) as $url) {
                 /** @var string $url */
                 $bgimage->setImage($url);
             }
-        } elseif ($bg_image_path !== '' && $this->web_fs->has($bg_image_path)) {
-            $bgimage->setImage(
-                ilWACSignedPath::signFile(
-                    ILIAS_HTTP_PATH . '/' . ILIAS_WEB_DIR . '/' . CLIENT_ID . $bg_image_path
-                )
-            );
         }
 
         $form->addItem($bgimage);
 
-        $thumbnailImage = new ilImageFileInputGUI(
-            $this->language->txt('certificate_card_thumbnail_image'),
-            'certificate_card_thumbnail_image'
+        $tile_image = new ilImageFileInputGUI(
+            $this->language->txt('certificate_card_tile_image'),
+            'certificate_card_tile_image'
         );
-        $thumbnailImage->setRequired(false);
-        $thumbnailImage->setUseCache(false);
-        $thumbnailImage->setSuffixes(['svg']);
+        $tile_image->setRequired(false);
+        $tile_image->setUseCache(false);
+        $tile_image->setSuffixes(['svg']);
 
-        $allowThumbnailDeletion = false;
+        $allow_tile_image_deletion = false;
 
-        $thumbnail_image_identification = $certificateTemplate->getThumbnailImageIdentification();
-        $old_thumbnail_image_path = $certificateTemplate->getThumbnailImagePath();
-        if ('' !== $thumbnail_image_identification) {
-            $identification = $this->irss->manage()->find($thumbnail_image_identification);
+        $tile_image_identification = $certificateTemplate->getTileImageIdentification();
+        if ('' !== $tile_image_identification) {
+            $identification = $this->irss->manage()->find($tile_image_identification);
             if ($identification instanceof ResourceIdentification) {
-                $thumbnailImage->setImage($this->irss->consume()->src($identification)->getSrc(true));
-                $allowThumbnailDeletion = true;
+                $tile_image->setImage($this->irss->consume()->src($identification)->getSrc(true));
+                $allow_tile_image_deletion = true;
             }
-        } elseif ($old_thumbnail_image_path !== '' && $this->web_fs->has($old_thumbnail_image_path)) {
-            $thumbnailImage->setImage(
-                ilWACSignedPath::signFile(
-                    ILIAS_HTTP_PATH . '/' . ILIAS_WEB_DIR . '/' . CLIENT_ID . $old_thumbnail_image_path
-                )
-            );
-            $allowThumbnailDeletion = true;
         }
 
-        $thumbnailImage->setAllowDeletion($allowThumbnailDeletion);
+        $tile_image->setAllowDeletion($allow_tile_image_deletion);
 
-        $form->addItem($thumbnailImage);
+        $form->addItem($tile_image);
 
         $rect = new ilCSSRectInputGUI($this->language->txt('certificate_margin_body'), 'margin_body');
         $rect->setRequired(true);

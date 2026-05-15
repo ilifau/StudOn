@@ -31,6 +31,7 @@ use ILIAS\ILIASObject\Creation\AddNewItemElementTypes;
  */
 class ilObjWorkspaceFolderGUI extends ilObject2GUI
 {
+    protected \ILIAS\Repository\ExternalGUIService $repo_gui_service;
     protected ilHelpGUI $help;
     protected ilTabsGUI $tabs;
     protected \ILIAS\DI\UIServices $ui;
@@ -54,6 +55,7 @@ class ilObjWorkspaceFolderGUI extends ilObject2GUI
         $this->ctrl = $DIC->ctrl();
         $this->ui = $DIC->ui();
         $this->session_repo = new WorkspaceSessionRepository();
+        $this->repo_gui_service = $DIC->repository()->gui();
 
         $this->std_request = new StandardGUIRequest(
             $DIC->http(),
@@ -182,7 +184,7 @@ class ilObjWorkspaceFolderGUI extends ilObject2GUI
             case "ilobjectownershipmanagementgui":
                 $this->prepareOutput();
                 $this->tabs_gui->activateTab("ownership");
-                $gui = new ilObjectOwnershipManagementGUI();
+                $gui = $this->repo_gui_service->ownershipManagementGUI();
                 $this->ctrl->forwardCommand($gui);
                 break;
 
@@ -862,7 +864,7 @@ class ilObjWorkspaceFolderGUI extends ilObject2GUI
         $tpl->setContent($cgui->getHTML());
     }
 
-    public function cancelDeletion()
+    public function cancelDeletion(): void
     {
         $this->session_repo->clearClipboard();
         parent::cancelDelete();

@@ -203,13 +203,14 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
         $available_taxonomy_ids
     ): array {
         $log_array = [];
+        // fau: taxFilter/typeFilter - submit multiple taxonomy and node selections - submit type selections
         $taxonomy_filter = [];
         foreach ($available_taxonomy_ids as $tax_id) {
             if ($this->getItemByPostVar("filter_tax_id_{$tax_id}")->getChecked()) {
                 $node_ids = (array) $this->getItemByPostVar("filter_tax_nodes_{$tax_id}")->getValue();
                 if (!empty($node_ids)) {
                     foreach ($node_ids as $node_id) {
-                        $taxonomy_filter[$tax_id][] = (int) $node_id;
+                        $taxonomy_filter[(int) $tax_id][] = (int) $node_id;
                     }
                 }
             }

@@ -18,7 +18,6 @@
 
 declare(strict_types=1);
 
-use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
 use ILIAS\UI\Factory as UIFactory;
 use ILIAS\UI\Renderer;
@@ -49,7 +48,6 @@ class ilObjRoleGUI extends ilObjectGUI
     protected int $role_id = 0;
     protected ilHelpGUI $help;
     private ilLogger $logger;
-    private GlobalHttpState $http;
     protected Factory $refinery;
     protected UIFactory $ui_factory;
     protected Renderer $ui_renderer;
@@ -67,19 +65,19 @@ class ilObjRoleGUI extends ilObjectGUI
         $this->logger = $DIC->logger()->ac();
 
         $this->role_id = $a_id;
-        $this->http = $DIC['http'];
         $this->refinery = $DIC['refinery'];
         $this->ui_factory = $DIC['ui.factory'];
         $this->ui_renderer = $DIC['ui.renderer'];
 
+        $this->type = 'role';
+
+        parent::__construct($a_data, $a_id, $a_call_by_reference, false);
         // Add ref_id of object that contains role
         $this->initParentRefId();
         $this->obj_obj_id = ilObject::_lookupObjId($this->getParentRefId());
         $this->obj_obj_type = ilObject::_lookupType($this->getParentObjId());
         $this->container_type = ilObject::_lookupType(ilObject::_lookupObjId($this->obj_ref_id));
 
-        $this->type = "role";
-        parent::__construct($a_data, $a_id, $a_call_by_reference, false);
         $this->ctrl->saveParameter($this, ['obj_id', 'rolf_ref_id']);
         $this->lng->loadLanguageModule('rbac');
     }
@@ -119,8 +117,7 @@ class ilObjRoleGUI extends ilObjectGUI
                 $eo = ilExportOptions::newInstance(ilExportOptions::allocateExportId());
                 $eo->addOption(ilExportOptions::KEY_ROOT, 0, $this->object->getId(), $this->obj_ref_id);
 
-                $exp = new ilExportGUI($this, new ilObjRole($this->object->getId()));
-                $exp->addFormat('xml');
+                $exp = new ilExportGUI($this, new ilObjRole($this->object->getId()), false);
                 $this->ctrl->forwardCommand($exp);
                 break;
 
@@ -408,7 +405,7 @@ class ilObjRoleGUI extends ilObjectGUI
         $this->ctrl->redirect($this, 'edit');
     }
 
-    private function buildEditPage(StandardForm $form = null): void
+    private function buildEditPage(?StandardForm $form = null): void
     {
         $page_content = [];
         if ($this->object->getId() != SYSTEM_ROLE_ID) {

@@ -21,7 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\UI\Implementation\Component\Input\Field;
 
 use ILIAS\UI\Component as C;
-use ILIAS\UI\Implementation\Component\Input\InputData;
+use ILIAS\UI\Component\Input\InputData;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\Triggerer;
 use ILIAS\Refinery\Constraint;
@@ -31,15 +31,11 @@ use Closure;
 /**
  * This implements the radio input.
  */
-class Radio extends FormInput implements C\Input\Field\Radio
+class Radio extends FormInput implements C\Input\Field\Radio, HasOptionFilterInternal
 {
     use JavaScriptBindable;
     use Triggerer;
-
-    /**
-     * @var array <string,string> {$value => $label}
-     */
-    protected array $options = [];
+    use HasOptionFilter;
 
     /**
      * @var array <string,array> {$option_value => $bylines}
@@ -71,7 +67,7 @@ class Radio extends FormInput implements C\Input\Field\Radio
     /**
      * @inheritdoc
      */
-    public function withOption(string $value, string $label, string $byline = null): C\Input\Field\Radio
+    public function withOption(string $value, string $label, ?string $byline = null): C\Input\Field\Radio
     {
         $clone = clone $this;
         $clone->options[$value] = $label;
@@ -79,14 +75,6 @@ class Radio extends FormInput implements C\Input\Field\Radio
             $clone->bylines[$value] = $byline;
         }
         return $clone;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getOptions(): array
-    {
-        return $this->options;
     }
 
 

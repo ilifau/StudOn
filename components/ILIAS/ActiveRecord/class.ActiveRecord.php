@@ -17,12 +17,11 @@
  *********************************************************************/
 
 /**
- * Class ActiveRecord
- * @author  Fabian Schmid <fs@studer-raimann.ch>
- * @author  Oskar Truffer <ot@studer-raimann.ch>
- * @experimental
- * @description
- * @version 2.0.7
+ * @depracated This service is now deprecated and will be removed with ILIAS 12 or 13 (depending on how quickly users
+ * can replace their implementations). The ActiveRecord was a simple way of handling database operations and object
+ * mapping in its day. However, the pattern is not very lightweight and has a very large overhead. It also leads to
+ * many database queries and high memory consumption. For several releases now, the “Repository Pattern” has been
+ * propagated as a better alternative.
  */
 #[\AllowDynamicProperties]
 abstract class ActiveRecord
@@ -144,7 +143,7 @@ abstract class ActiveRecord
 
     public function buildFromArray(array $array): static
     {
-        $class = $this::class;
+        $class = static::class;
         $primary = $this->getArFieldList()->getPrimaryFieldName();
         $primary_value = $array[$primary];
         if ($primary_value && arObjectCache::isCached($class, $primary_value)) {
@@ -165,7 +164,7 @@ abstract class ActiveRecord
      * @return string|mixed
      * @noinspection NullPointerExceptionInspection
      */
-    public function fixDateField($field_name, $value)
+    public function fixDateField($field_name, string $value)
     {
         if ($this->getArFieldList()->getFieldByName($field_name)->isDateField()) {
             return $this->getArConnector()->fixDate($value);
@@ -521,7 +520,7 @@ abstract class ActiveRecord
     public static function innerjoinAR(
         ActiveRecord $activeRecord,
         $on_this,
-        $on_external,
+        string $on_external,
         array $fields = ['*'],
         string $operator = '=',
         bool $both_external = false
@@ -543,9 +542,9 @@ abstract class ActiveRecord
      * @return $this
      */
     public static function innerjoin(
-        $tablename,
+        string $tablename,
         $on_this,
-        $on_external,
+        string $on_external,
         array $fields = ['*'],
         string $operator = '=',
         bool $both_external = false
@@ -562,9 +561,9 @@ abstract class ActiveRecord
      * @return $this
      */
     public static function leftjoin(
-        $tablename,
+        string $tablename,
         $on_this,
-        $on_external,
+        string $on_external,
         array $fields = ['*'],
         string $operator = '=',
         bool $both_external = false
@@ -682,7 +681,7 @@ abstract class ActiveRecord
      * @param null $values
      * @return mixed[]|mixed[][]|int[]|string[]|null[]
      */
-    public static function getArray(?string $key = null, $values = null): array
+    public static function getArray(?string $key = null, string|array|null $values = null): array
     {
         $activeRecordList = new ActiveRecordList(self::getCalledClass());
 
@@ -701,19 +700,20 @@ abstract class ActiveRecord
     public function __call($name, $arguments)
     {
         // Getter
-        if (preg_match("/get([a-zA-Z]*)/u", $name, $matches) && (is_countable($arguments) ? count(
+        if (preg_match("/get([a-zA-Z]*)/u", (string) $name, $matches) && (is_countable($arguments) ? count(
             $arguments
         ) : 0) === 0) {
             return $this->{self::fromCamelCase($matches[1])};
         }
         // Setter
-        if (!preg_match("/set([a-zA-Z]*)/u", $name, $matches)) {
-            return;
+        if (!preg_match("/set([a-zA-Z]*)/u", (string) $name, $matches)) {
+            return null;
         }
         if (count($arguments) !== 1) {
-            return;
+            return null;
         }
         $this->{self::fromCamelCase($matches[1])} = $arguments[0];
+        return null;
     }
 
     public static function _toCamelCase(string $str, bool $capitalise_first_char = false): ?string

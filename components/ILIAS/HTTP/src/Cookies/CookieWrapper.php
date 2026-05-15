@@ -31,14 +31,11 @@ use Dflydev\FigCookies\Modifier\SameSite;
  */
 class CookieWrapper implements Cookie
 {
-    private SetCookie $cookie;
-
     /**
      * CookieFacade constructor.
      */
-    public function __construct(SetCookie $cookie)
+    public function __construct(private SetCookie $cookie)
     {
-        $this->cookie = $cookie;
     }
 
     /**
@@ -114,7 +111,7 @@ class CookieWrapper implements Cookie
     /**
      * @inheritDoc
      */
-    public function withValue(string $value = null): Cookie
+    public function withValue(?string $value = null): Cookie
     {
         $clone = clone $this;
         $clone->cookie = $this->cookie->withValue($value);
@@ -158,7 +155,7 @@ class CookieWrapper implements Cookie
     /**
      * @inheritDoc
      */
-    public function withMaxAge(int $maxAge = null): Cookie
+    public function withMaxAge(?int $maxAge = null): Cookie
     {
         $clone = clone $this;
         $clone->cookie = $this->cookie->withMaxAge($maxAge);
@@ -169,7 +166,7 @@ class CookieWrapper implements Cookie
     /**
      * @inheritDoc
      */
-    public function withPath(string $path = null): Cookie
+    public function withPath(?string $path = null): Cookie
     {
         $clone = clone $this;
         $clone->cookie = $this->cookie->withPath($path);
@@ -180,7 +177,7 @@ class CookieWrapper implements Cookie
     /**
      * @inheritDoc
      */
-    public function withDomain(string $domain = null): Cookie
+    public function withDomain(?string $domain = null): Cookie
     {
         $clone = clone $this;
         $clone->cookie = $this->cookie->withDomain($domain);
@@ -191,7 +188,7 @@ class CookieWrapper implements Cookie
     /**
      * @inheritDoc
      */
-    public function withSecure(bool $secure = null): Cookie
+    public function withSecure(?bool $secure = null): Cookie
     {
         $clone = clone $this;
         $clone->cookie = $this->cookie->withSecure($secure);
@@ -202,7 +199,7 @@ class CookieWrapper implements Cookie
     /**
      * @inheritDoc
      */
-    public function withHttpOnly(bool $httpOnly = null): Cookie
+    public function withHttpOnly(?bool $httpOnly = null): Cookie
     {
         $clone = clone $this;
         $clone->cookie = $this->cookie->withHttpOnly($httpOnly);

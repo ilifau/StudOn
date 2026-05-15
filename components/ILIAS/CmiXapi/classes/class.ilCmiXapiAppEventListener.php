@@ -94,11 +94,6 @@ class ilCmiXapiAppEventListener
                 }
             }
         }
-
-        //       if(!is_null($xapiObjUser)) {
-        //            // add user as deleted
-        //            $model->setXapiUserAsDeleted($usr_id);
-        //        }
     }
 
     private static function onServiceObjectDeleteOrToTrash(array $parameter): void
@@ -137,7 +132,7 @@ class ilCmiXapiAppEventListener
             $crs_ref_ids = ilObject::_getAllReferences($crs_id);
             $idc = array_shift($crs_ref_ids);
 
-            //Todo check Verknï¿½pfungen?
+            //Todo check Verknüpfungen?
             $ref_ids = $tree->getSubTreeIds($idc);
             for ((int) $i = 0; $i < count($ref_ids); $i++) {
                 if (ilObject::_lookupType($ref_ids[$i], true) == "cmix") {

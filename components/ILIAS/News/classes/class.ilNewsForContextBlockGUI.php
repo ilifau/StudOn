@@ -18,6 +18,7 @@
 
 use ILIAS\News\Access\NewsAccess;
 use ILIAS\News\Data\NewsCollection;
+use ILIAS\News\Data\NewsContext;
 use ILIAS\News\Data\NewsCriteria;
 use ILIAS\News\Data\NewsItem;
 use ILIAS\News\InternalDomainService;
@@ -100,10 +101,8 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
             return;
         }
 
-        $collection = $this->domain->collection()->getNewsForContainer(
-            $this->std_request->getRefId(),
-            $this->ctrl->getContextObjId(),
-            $this->ctrl->getContextObjType(),
+        $collection = $this->domain->collection()->getNewsForContext(
+            new NewsContext($this->std_request->getRefId(), $this->ctrl->getContextObjId(), $this->ctrl->getContextObjType()),
             new NewsCriteria(read_user_id: $this->user->getId()),
             $this->user->getId(),
             true
@@ -618,8 +617,7 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
                     $tpl->setVariable("CONTEXT_LOCATOR", $cont_loc->getHTML());
                 }
 
-                $no_context_title = $grouping['no_context_title'] ?? false;
-                if ($no_context_title !== true) {
+                if (!($grouping['no_context_title'] ?? false)) {
                     if (!$context_opened) {
                         $tpl->setCurrentBlock("context");
                     }
@@ -656,7 +654,7 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
 
         $content = $tpl->get();
         $title = $this->getProperty('title') ?? $this->lng->txt("news_internal_news");
-        $panel = $ui_factory->panel()->standard($title, $ui_factory->legacy($content));
+        $panel = $ui_factory->panel()->standard($title, $ui_factory->legacy()->content($content));
 
         $pagination = $ui_factory->viewControl()->pagination()
                               ->withTargetURL($this->ctrl->getLinkTarget($this, "showNews"), "news_page")
@@ -1061,7 +1059,7 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
 
         $panel = $this->ui->factory()->panel()->standard(
             $lng->txt("news_internal_news"),
-            $this->ui->factory()->legacy($tpl->get())
+            $this->ui->factory()->legacy()->content($tpl->get())
         );
 
         return $this->ui->renderer()->render($panel);

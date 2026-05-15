@@ -250,17 +250,23 @@ class HarvesterTest extends TestCase
     }
 
     /**
-     * Records are passed as array via obj_id => metadata-xml as string
+     * Records are passed as array via obj_id => metadata-xml as string.
+     * Records supposed to be marked as deleted are as their obj_id to the
+     * second argument.
      */
-    protected function getExposedRecordRepository(array $returned_records = []): ExposedRecordRepository
-    {
-        return new class ($returned_records) extends NullExposedRecordRepository {
+    protected function getExposedRecordRepository(
+        array $returned_records = [],
+        array $deleted_records = []
+    ): ExposedRecordRepository {
+        return new class ($returned_records, $deleted_records) extends NullExposedRecordRepository {
             public array $exposed_deletions = [];
             public array $exposed_updates = [];
             public array $exposed_creations = [];
 
-            public function __construct(protected array $returned_records)
-            {
+            public function __construct(
+                protected array $returned_records,
+                protected array $deleted_records
+            ) {
             }
 
             public function getRecords(
@@ -270,23 +276,32 @@ class HarvesterTest extends TestCase
                 ?int $offset = null
             ): \Generator {
                 foreach ($this->returned_records as $obj_id => $metadata) {
-                    yield new class ($obj_id, $metadata) extends NullRecord {
+                    $is_deleted = in_array($obj_id, $this->deleted_records);
+                    yield new class ($obj_id, $is_deleted, $metadata) extends NullRecord {
                         public function __construct(
                             protected int $obj_id,
+                            protected bool $is_deleted,
                             protected string $metadata
                         ) {
                         }
 
                         public function infos(): RecordInfosInterface
                         {
-                            return new class ($this->obj_id) extends NullRecordInfos {
-                                public function __construct(protected int $obj_id)
-                                {
+                            return new class ($this->obj_id, $this->is_deleted) extends NullRecordInfos {
+                                public function __construct(
+                                    protected int $obj_id,
+                                    protected bool $is_deleted
+                                ) {
                                 }
 
                                 public function objID(): int
                                 {
                                     return $this->obj_id;
+                                }
+
+                                public function isDeleted(): bool
+                                {
+                                    return $this->is_deleted;
                                 }
                             };
                         }
@@ -301,16 +316,17 @@ class HarvesterTest extends TestCase
                 }
             }
 
-            public function deleteRecord(int $obj_id): void
+            public function deleteRecordsMarkedAsDeletedOlderThan(\DateInterval $interval): void
             {
-                $this->exposed_deletions[] = ['obj_id' => $obj_id];
+                $this->exposed_deletions[] = ['interval' => $interval];
             }
 
-            public function updateRecord(int $obj_id, \DOMDocument $metadata): void
+            public function updateRecord(int $obj_id, bool $is_deleted, ?\DOMDocument $metadata): void
             {
                 $this->exposed_updates[] = [
                     'obj_id' => $obj_id,
-                    'metadata' => $metadata->saveXML()
+                    'deleted' => $is_deleted,
+                    'metadata' => $metadata?->saveXML()
                 ];
             }
 
@@ -456,7 +472,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 1 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -487,7 +503,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 1 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -514,7 +530,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 1 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -541,7 +557,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 2 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -568,7 +584,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 1 new references.<br>' .
@@ -610,7 +626,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_NO_ACTION, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_NO_ACTION, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -638,7 +654,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_NO_ACTION, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_NO_ACTION, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -666,7 +682,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_NO_ACTION, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_NO_ACTION, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -694,7 +710,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_NO_ACTION, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_NO_ACTION, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -722,7 +738,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 2 new references.<br>' .
@@ -762,7 +778,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 1 new references.<br>' .
@@ -804,7 +820,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 3 new references.<br>' .
@@ -830,7 +846,7 @@ class HarvesterTest extends TestCase
         $this->assertSame([32, 67], $export_handler->exposed_created_exports_obj_ids);
     }
 
-    public function testRunDeleteExposedRecordIncorrectTypeOrCopyright(): void
+    public function testRunMarkExposedRecordAsDeletedIncorrectTypeOrCopyright(): void
     {
         $harvester = new Harvester(
             $this->getSettings(['type', 'second type'], [12, 5], 123, 456),
@@ -846,7 +862,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -862,14 +878,54 @@ class HarvesterTest extends TestCase
             $search_factory->exposed_search_params
         );
         $this->assertEmpty($record_repo->exposed_creations);
-        $this->assertEmpty($record_repo->exposed_updates);
         $this->assertSame(
-            [['obj_id' => 45]],
-            $record_repo->exposed_deletions
+            [[
+                'obj_id' => 45,
+                'deleted' => true,
+                'metadata' => null
+            ]],
+            $record_repo->exposed_updates
         );
+        $this->assertCount(1, $record_repo->exposed_deletions);
     }
 
-    public function testRunDeleteExposedRecordBlocked(): void
+    public function testRunSkipExposedRecordAlreadyMarkedAsDeletedIncorrectTypeOrCopyright(): void
+    {
+        $harvester = new Harvester(
+            $this->getSettings(['type', 'second type'], [12, 5], 123, 456),
+            $this->getObjectHandler([], 456, [32, 45]),
+            $this->getExportHandler(),
+            $this->getStatusRepository([32 => 12332]),
+            $record_repo = $this->getExposedRecordRepository([32 => '<el>32</el>', 45 => ''], [45]),
+            $search_factory = $this->getSearchFactory(32),
+            new NullLOMRepository(),
+            $this->getXMLWriter([32 => '<el>32</el>', 45 => '<el>45</el>']),
+            $this->getNullLogger()
+        );
+
+        $result = $harvester->run($this->getCronResultWrapper());
+
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_NO_ACTION, $result->exposed_status);
+        $this->assertSame(
+            'Deleted 0 deprecated references.<br>' .
+            'Created 0 new references.<br>' .
+            'Created, updated, or deleted 0 exposed records.',
+            $result->exposed_message
+        );
+        $this->assertSame(
+            [[
+                 'restricted' => true,
+                 'types' => ['type', 'second type'],
+                 'entries' => [12, 5]
+             ]],
+            $search_factory->exposed_search_params
+        );
+        $this->assertEmpty($record_repo->exposed_creations);
+        $this->assertEmpty($record_repo->exposed_updates);
+        $this->assertCount(1, $record_repo->exposed_deletions);
+    }
+
+    public function testRunMarkExposedRecordAsDeletedBlocked(): void
     {
         $harvester = new Harvester(
             $this->getSettings(['type', 'second type'], [12, 5], 123, 456),
@@ -885,7 +941,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -893,14 +949,18 @@ class HarvesterTest extends TestCase
             $result->exposed_message
         );
         $this->assertEmpty($record_repo->exposed_creations);
-        $this->assertEmpty($record_repo->exposed_updates);
         $this->assertSame(
-            [['obj_id' => 45]],
-            $record_repo->exposed_deletions
+            [[
+                 'obj_id' => 45,
+                 'deleted' => true,
+                 'metadata' => null
+             ]],
+            $record_repo->exposed_updates
         );
+        $this->assertCount(1, $record_repo->exposed_deletions);
     }
 
-    public function testRunDeleteExposedRecordObjectDeleted(): void
+    public function testRunMarkExposedRecordAsDeletedObjectDeleted(): void
     {
         $harvester = new Harvester(
             $this->getSettings(['type', 'second type'], [12, 5], 123, 456),
@@ -916,7 +976,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -924,14 +984,18 @@ class HarvesterTest extends TestCase
             $result->exposed_message
         );
         $this->assertEmpty($record_repo->exposed_creations);
-        $this->assertEmpty($record_repo->exposed_updates);
         $this->assertSame(
-            [['obj_id' => 45]],
-            $record_repo->exposed_deletions
+            [[
+                 'obj_id' => 45,
+                 'deleted' => true,
+                 'metadata' => null
+             ]],
+            $record_repo->exposed_updates
         );
+        $this->assertCount(1, $record_repo->exposed_deletions);
     }
 
-    public function testRunDeleteExposedRecordNotInSourceContainer(): void
+    public function testRunMarkExposedRecordAsDeletedNotInSourceContainer(): void
     {
         $harvester = new Harvester(
             $this->getSettings(['type', 'second type'], [12, 5], 123, 456),
@@ -947,7 +1011,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -955,11 +1019,15 @@ class HarvesterTest extends TestCase
             $result->exposed_message
         );
         $this->assertEmpty($record_repo->exposed_creations);
-        $this->assertEmpty($record_repo->exposed_updates);
         $this->assertSame(
-            [['obj_id' => 45]],
-            $record_repo->exposed_deletions
+            [[
+                 'obj_id' => 45,
+                 'deleted' => true,
+                 'metadata' => null
+             ]],
+            $record_repo->exposed_updates
         );
+        $this->assertCount(1, $record_repo->exposed_deletions);
     }
 
     public function testRunUpdateExposedRecord(): void
@@ -978,7 +1046,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -988,11 +1056,11 @@ class HarvesterTest extends TestCase
         $this->assertEmpty($record_repo->exposed_creations);
         $this->assertCount(1, $record_repo->exposed_updates);
         $this->assertSame(45, $record_repo->exposed_updates[0]['obj_id']);
+        $this->assertSame(false, $record_repo->exposed_updates[0]['deleted']);
         $this->assertXmlStringEqualsXmlString(
             '<el>45 changed</el>',
             $record_repo->exposed_updates[0]['metadata']
         );
-        $this->assertEmpty($record_repo->exposed_deletions);
         $this->assertEquals(
             [
                 ['obj_id' => 32, 'ref_id' => 45632, 'type' => 'type_45632'],
@@ -1000,6 +1068,48 @@ class HarvesterTest extends TestCase
             ],
             $writer->exposed_params
         );
+        $this->assertCount(1, $record_repo->exposed_deletions);
+    }
+
+    public function testRunUpdateExposedRecordMarkedAsDeleted(): void
+    {
+        $harvester = new Harvester(
+            $this->getSettings(['type', 'second type'], [12, 5], 123, 456),
+            $this->getObjectHandler([], 456, [32, 45]),
+            $this->getExportHandler(),
+            $this->getStatusRepository([32 => 12332, 45 => 12345]),
+            $record_repo = $this->getExposedRecordRepository([32 => '<el>32</el>', 45 => ''], [45]),
+            $this->getSearchFactory(32, 45),
+            new NullLOMRepository(),
+            $writer = $this->getXMLWriter([32 => '<el>32</el>', 45 => '<el>45 changed</el>']),
+            $this->getNullLogger()
+        );
+
+        $result = $harvester->run($this->getCronResultWrapper());
+
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(
+            'Deleted 0 deprecated references.<br>' .
+            'Created 0 new references.<br>' .
+            'Created, updated, or deleted 1 exposed records.',
+            $result->exposed_message
+        );
+        $this->assertEmpty($record_repo->exposed_creations);
+        $this->assertCount(1, $record_repo->exposed_updates);
+        $this->assertSame(45, $record_repo->exposed_updates[0]['obj_id']);
+        $this->assertSame(false, $record_repo->exposed_updates[0]['deleted']);
+        $this->assertXmlStringEqualsXmlString(
+            '<el>45 changed</el>',
+            $record_repo->exposed_updates[0]['metadata']
+        );
+        $this->assertEquals(
+            [
+                ['obj_id' => 32, 'ref_id' => 45632, 'type' => 'type_45632'],
+                ['obj_id' => 45, 'ref_id' => 45645, 'type' => 'type_45645']
+            ],
+            $writer->exposed_params
+        );
+        $this->assertCount(1, $record_repo->exposed_deletions);
     }
 
     public function testRunCreateNewExposedRecord(): void
@@ -1018,7 +1128,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_OK, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_OK, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -1033,7 +1143,6 @@ class HarvesterTest extends TestCase
             '<el>45 new</el>',
             $record_repo->exposed_creations[0]['metadata']
         );
-        $this->assertEmpty($record_repo->exposed_deletions);
         $this->assertEquals(
             [
                 ['obj_id' => 32, 'ref_id' => 45632, 'type' => 'type_45632'],
@@ -1041,6 +1150,7 @@ class HarvesterTest extends TestCase
             ],
             $writer->exposed_params
         );
+        $this->assertCount(1, $record_repo->exposed_deletions);
     }
 
     public function testRunDoNotCreateNewExposedRecordWhenBlocked(): void
@@ -1059,7 +1169,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_NO_ACTION, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_NO_ACTION, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -1068,7 +1178,7 @@ class HarvesterTest extends TestCase
         );
         $this->assertEmpty($record_repo->exposed_updates);
         $this->assertEmpty($record_repo->exposed_creations);
-        $this->assertEmpty($record_repo->exposed_deletions);
+        $this->assertCount(1, $record_repo->exposed_deletions);
     }
 
     public function testRunDoNotCreateNewExposedRecordWhenObjectDeleted(): void
@@ -1087,7 +1197,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_NO_ACTION, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_NO_ACTION, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -1096,7 +1206,7 @@ class HarvesterTest extends TestCase
         );
         $this->assertEmpty($record_repo->exposed_updates);
         $this->assertEmpty($record_repo->exposed_creations);
-        $this->assertEmpty($record_repo->exposed_deletions);
+        $this->assertCount(1, $record_repo->exposed_deletions);
     }
 
     public function testRunDoNotCreateNewExposedRecordWhenNotInSourceContainer(): void
@@ -1115,7 +1225,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_NO_ACTION, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_NO_ACTION, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -1124,7 +1234,7 @@ class HarvesterTest extends TestCase
         );
         $this->assertEmpty($record_repo->exposed_updates);
         $this->assertEmpty($record_repo->exposed_creations);
-        $this->assertEmpty($record_repo->exposed_deletions);
+        $this->assertCount(1, $record_repo->exposed_deletions);
     }
 
     public function testRunDoNotCreateNewExposedRecordWhenNoSourceContainerIsSet(): void
@@ -1143,7 +1253,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_NO_ACTION, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_NO_ACTION, $result->exposed_status);
         $this->assertSame(
             'Deleted 0 deprecated references.<br>' .
             'Created 0 new references.<br>' .
@@ -1152,7 +1262,7 @@ class HarvesterTest extends TestCase
         );
         $this->assertEmpty($record_repo->exposed_updates);
         $this->assertEmpty($record_repo->exposed_creations);
-        $this->assertEmpty($record_repo->exposed_deletions);
+        $this->assertCount(1, $record_repo->exposed_deletions);
     }
 
     public function testRunWithUnforeseenError(): void
@@ -1171,7 +1281,7 @@ class HarvesterTest extends TestCase
 
         $result = $harvester->run($this->getCronResultWrapper());
 
-        $this->assertSame(\ilCronJobResult::STATUS_FAIL, $result->exposed_status);
+        $this->assertSame(\ILIAS\Cron\Job\JobResult::STATUS_FAIL, $result->exposed_status);
         $this->assertSame(
             'error',
             $result->exposed_message

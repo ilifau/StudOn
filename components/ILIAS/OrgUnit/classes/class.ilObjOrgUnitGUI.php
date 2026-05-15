@@ -19,6 +19,7 @@
 declare(strict_types=1);
 
 use ILIAS\OrgUnit\Provider\OrgUnitToolProvider;
+use ILIAS\ILIASObject\Properties\Translations\TranslationGUI;
 
 /**
  * Class ilObjOrgUnit GUI class
@@ -32,7 +33,7 @@ use ILIAS\OrgUnit\Provider\OrgUnitToolProvider;
  * @ilCtrl_Calls      ilObjOrgUnitGUI: ilCommonActionDispatcherGUI
  * @ilCtrl_Calls      ilObjOrgUnitGUI: ilColumnGUI, ilObjectCopyGUI, ilUserTableGUI
  * @ilCtrl_Calls      ilObjOrgUnitGUI: ilDidacticTemplateGUI, illearningprogressgui
- * @ilCtrl_Calls      ilObjOrgUnitGUI: ilObjectTranslationGUI, ilLocalUserGUI, ilOrgUnitExportGUI
+ * @ilCtrl_Calls      ilObjOrgUnitGUI: ILIAS\ILIASObject\Properties\Translations\TranslationGUI, ilLocalUserGUI, ilOrgUnitExportGUI
  * @ilCtrl_Calls      ilObjOrgUnitGUI: ilExtIdGUI
  * @ilCtrl_Calls      ilObjOrgUnitGUI: ilOrgUnitSimpleImportGUI, ilOrgUnitSimpleUserImportGUI
  * @ilCtrl_Calls      ilObjOrgUnitGUI: ilOrgUnitTypeGUI, ilOrgUnitPositionGUI
@@ -81,7 +82,6 @@ class ilObjOrgUnitGUI extends ilContainerGUI
 
         $this->lng = $dic['lng'];
         $this->lng->loadLanguageModule("orgu");
-        $this->lng->loadLanguageModule("content");
 
         $DIC->globalScreen()->tool()->context()->current()->addAdditionalData(
             OrgUnitToolProvider::SHOW_ORGU_TREE,
@@ -247,10 +247,22 @@ class ilObjOrgUnitGUI extends ilContainerGUI
                 $ilOrgUnitExportGUI->addFormat('xml');
                 $this->ctrl->forwardCommand($ilOrgUnitExportGUI);
                 break;
-            case strtolower(ilObjectTranslationGUI::class):
+            case strtolower(TranslationGUI::class):
                 $this->tabs_gui->activateTab(self::TAB_SETTINGS);
                 $this->setSubTabsSettings('edit_translations');
-                $translations_gui = new ilObjectTranslationGUI($this);
+                $translations_gui = new TranslationGUI(
+                    $this->getObject(),
+                    $this->lng,
+                    $this->access,
+                    $this->user,
+                    $this->ctrl,
+                    $this->tpl,
+                    $this->ui_factory,
+                    $this->ui_renderer,
+                    $this->http,
+                    $this->refinery,
+                    $this->toolbar
+                );
                 $translations_gui->supportContentTranslation(false);
                 $this->ctrl->forwardCommand($translations_gui);
                 break;
@@ -355,12 +367,6 @@ class ilObjOrgUnitGUI extends ilContainerGUI
                         break;
                     case 'cancelMoveLink':
                         $this->cancelMoveLinkObject();
-                        break;
-                    case 'copy':
-                    case 'link':
-                    case 'editAvailabilityPeriod':
-                        $this->tpl->setOnScreenMessage('failure', $this->lng->txt("cont_operation_not_allowed"), true);
-                        $this->view();
                         break;
                 }
                 break;
@@ -599,7 +605,7 @@ class ilObjOrgUnitGUI extends ilContainerGUI
         $this->tabs_gui->addSubTab(
             "edit_translations",
             $this->lng->txt("obj_multilinguality"),
-            $this->ctrl->getLinkTargetByClass("ilobjecttranslationgui", "listTranslations")
+            $this->ctrl->getLinkTargetByClass(TranslationGUI::class, "listTranslations")
         );
 
         $ilOrgUnitType = $this->object->getOrgUnitType();
@@ -615,7 +621,7 @@ class ilObjOrgUnitGUI extends ilContainerGUI
 
         $this->tabs_gui->setSubTabActive($active_tab_id);
         switch ($next_class) {
-            case 'iltranslationgui':
+            case strtolower(TranslationGUI::class):
                 $this->tabs_gui->setSubTabActive("edit_translations");
                 break;
             case '':
@@ -703,8 +709,9 @@ class ilObjOrgUnitGUI extends ilContainerGUI
             $this->object->getOrgUnitTypeId()
         );
         $gui->setPropertyForm($form);
+        $form->checkInput();
         $gui->parse();
-        if ($form->checkInput() && $gui->importEditFormPostValues()) {
+        if ($gui->importEditFormPostValues()) {
             $gui->writeEditForm();
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'), true);
             $this->ctrl->redirect($this, 'editAdvancedSettings');

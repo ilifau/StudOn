@@ -181,12 +181,12 @@ class ilBTControllerGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInter
 
     public static function hash(string $url): string
     {
-        return base64_encode($url);
+        return base64_encode((string) $url);
     }
 
     public static function unhash(string $url): string|false
     {
-        return base64_decode($url);
+        return base64_decode((string) $url);
     }
 
     private function enforceBucketBelongsToCurrentUser(Bucket $bucket): void

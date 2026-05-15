@@ -23,6 +23,7 @@ use ILIAS\FileUpload\FileUpload;
 use ILIAS\ResourceStorage\Manager\Manager;
 use ILIAS\ResourceStorage\Revision\Revision;
 use ILIAS\ResourceStorage\Policy\FileNamePolicyException;
+use ILIAS\ILIASObject\Properties\CoreProperties\Online;
 
 /**
  * Class ilObjFile
@@ -92,6 +93,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         $this->file_info = $is_ref_id ? $repository->getByRefId($id) : $repository->getByObjectId($id);
     }
 
+    #[\Override]
     public function getPresentationTitle(): string
     {
         return $this->file_info->getHeaderTitle();
@@ -435,7 +437,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     {
         $this->createProperties(true);
         $this->updateCopyright();
-        $this->getObjectProperties()->storePropertyIsOnline(new ilObjectPropertyIsOnline(true));
+        $this->getObjectProperties()->storePropertyIsOnline(new Online(true));
         $this->notifyCreation($this->getId(), $this->getDescription());
     }
 
@@ -487,7 +489,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         $new_obj->setOnclickMode($this->getOnClickMode());
         $new_obj->update();
 
-        $new_obj->getObjectProperties()->storePropertyIsOnline(new ilObjectPropertyIsOnline(true));
+        $new_obj->getObjectProperties()->storePropertyIsOnline(new Online(true));
 
         // Copy learning progress settings
         $obj_settings = new ilLPObjSettings($this->getId());
@@ -509,6 +511,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         $this->initImplementation();
     }
 
+    #[\Override]
     protected function beforeUpdate(): bool
     {
         $suffix = $this->file_info->getSuffix();
@@ -526,6 +529,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         return true;
     }
 
+    #[\Override]
     protected function beforeDelete(): bool
     {
         // check, if file is used somewhere
@@ -537,9 +541,6 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     {
         // delete file data entry
         $this->database->manipulateF("DELETE FROM file_data WHERE file_id = %s", ['integer'], [$this->getId()]);
-
-        // delete history entries
-        ilHistory::_removeEntriesForObject($this->getId());
 
         // delete meta data
         if ($this->getMode() !== self::MODE_FILELIST) {
@@ -584,7 +585,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     /**
      * @return null
      */
-    public function replaceFile($a_upload_file, $a_filename)
+    public function replaceFile($a_upload_file, $a_filename): null
     {
         return null;
     }

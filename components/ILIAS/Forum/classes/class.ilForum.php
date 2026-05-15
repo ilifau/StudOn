@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-use ILIAS\User\Profile\Mode as PersonalProfileMode;
+use ILIAS\User\Profile\Visibility as PersonalProfileVisbility;
 
 /**
  * Class Forum
@@ -28,9 +28,9 @@ use ILIAS\User\Profile\Mode as PersonalProfileMode;
  */
 class ilForum
 {
-    private const SORT_TITLE = 1;
-    private const SORT_DATE = 2;
-    private const DEFAULT_PAGE_HITS = 30;
+    private const int SORT_TITLE = 1;
+    private const int SORT_DATE = 2;
+    private const int DEFAULT_PAGE_HITS = 30;
 
     /** @var array<int, int[]> */
     protected static array $moderators_by_ref_id_map = [];
@@ -54,6 +54,8 @@ class ilForum
     public ilDBInterface $db;
     public ilObjUser $user;
     public ilSetting $settings;
+    private ILIAS\UI\Factory $ui_factory;
+    private ILIAS\UI\Renderer $ui_renderer;
 
     public function __construct()
     {
@@ -65,6 +67,8 @@ class ilForum
         $this->user = $DIC->user();
         $this->settings = $DIC->settings();
         $this->event = $DIC->event();
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
     }
 
     public function setForumId(int $a_obj_id): void
@@ -1021,9 +1025,9 @@ class ilForum
         while ($row = $this->db->fetchAssoc($res)) {
             if (
                 !in_array($row['public_profile'], [
-                    PersonalProfileMode::PROFILE_ENABLED_LOGGED_IN_USERS,
-                    PersonalProfileMode::PROFILE_ENABLED_GLOBAL], true)
-                || ($this->user->isAnonymous() && $row['public_profile'] !== PersonalProfileMode::PROFILE_ENABLED_GLOBAL)
+                    PersonalProfileVisbility::PROFILE_ENABLED_LOGGED_IN_USERS,
+                    PersonalProfileVisbility::PROFILE_ENABLED_GLOBAL], true)
+                || ($this->user->isAnonymous() && $row['public_profile'] !== PersonalProfileVisbility::PROFILE_ENABLED_GLOBAL)
             ) {
                 $row['lastname'] = '';
                 $row['firstname'] = '';
@@ -1484,8 +1488,8 @@ class ilForum
 
         if ($type !== 'export') {
             if ($edit === 0) {
-                $text = ilMathJax::getInstance()->insertLatexImages($text, "\<span class\=\"latex\">", "\<\/span>");
-                $text = ilMathJax::getInstance()->insertLatexImages($text, "\[tex\]", "\[\/tex\]");
+                $text = ilRTE::replaceLatexSpan($text);
+                $text = $this->ui_renderer->render($this->ui_factory->legacy()->latexContent($text));
             }
 
             // workaround for preventing template engine

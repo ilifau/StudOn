@@ -26,12 +26,12 @@ use ILIAS\WOPI\Discovery\AppRepository;
 use ILIAS\WOPI\Discovery\ActionRepository;
 use ILIAS\Data\URI;
 use ILIAS\Cron\Job\JobResult;
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\CronJob;
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
  */
-class ilWOPICrawler extends ilCronJob
+class ilWOPICrawler extends CronJob
 {
     private ilLanguage $language;
     private ilSetting $settings;
@@ -76,9 +76,9 @@ class ilWOPICrawler extends ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_WEEKLY;
+        return JobScheduleType::WEEKLY;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -86,9 +86,9 @@ class ilWOPICrawler extends ilCronJob
         return 1;
     }
 
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
-        $result = new ilCronJobResult();
+        $result = new JobResult();
         if (!(bool) $this->settings->get('wopi_activated', '0')) {
             $result->setMessage($this->language->txt('wopi_crawler_cronjob_not_activated'));
             return $result;
@@ -96,14 +96,14 @@ class ilWOPICrawler extends ilCronJob
         $discovery_url = $this->settings->get('wopi_discovery_url');
 
         if (!$this->crawler->validate(new URI($discovery_url))) {
-            $result->setStatus(ilCronJobResult::STATUS_FAIL);
+            $result->setStatus(JobResult::STATUS_FAIL);
             $result->setMessage($this->language->txt('msg_error_wopi_invalid_discorvery_url'));
             return $result;
         }
 
         $apps = $this->crawler->crawl(new URI($discovery_url));
         if ($apps === null) {
-            $result->setStatus(ilCronJobResult::STATUS_FAIL);
+            $result->setStatus(JobResult::STATUS_FAIL);
             $result->setMessage($this->language->txt('wopi_crawler_cronjob_no_apps'));
             return $result;
         }

@@ -547,7 +547,7 @@ class ilLDAPQuery
         string $a_base_dn,
         string $a_filter,
         array $a_attributes,
-        array $controls = null
+        ?array $controls = null
     ) {
         $a_filter = $a_filter ?: "(objectclass=*)";
 

@@ -18,11 +18,11 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\LearningModule\Table;
+namespace ILIAS\LearningModule\Editing;
 
 use ILIAS\Data\Range;
 use ILIAS\Data\Order;
-use ILIAS\LearningModule\Editing\EditSubObjectsGUI;
+use ILIAS\Repository\RetrievalInterface;
 
 class SubObjectRetrieval implements RetrievalInterface
 {
@@ -69,6 +69,9 @@ class SubObjectRetrieval implements RetrievalInterface
         array $parameters = []
     ): \Generator {
         foreach ($this->getChilds() as $child) {
+            $active = true;
+            $scheduled = false;
+            $deactivated_elements = false;
             if ($child["type"] === "pg") {
                 // check activation
                 $lm_set = new \ilSetting("lm");
@@ -79,57 +82,27 @@ class SubObjectRetrieval implements RetrievalInterface
                 );
 
                 // is page scheduled?
-                $img_sc = ((bool) $lm_set->get("time_scheduled_page_activation") &&
-                    \ilLMPage::_isScheduledActivation($child["obj_id"], "lm"))
-                    ? "_sc"
-                    : "";
-
-                if (!$active) {
-                    $img = "standard/icon_pg_d" . $img_sc . ".svg";
-                    $alt = $this->lng->txt("cont_page_deactivated");
-                } else {
-                    if (\ilLMPage::_lookupContainsDeactivatedElements(
+                $scheduled = ((bool) $lm_set->get("time_scheduled_page_activation") &&
+                    \ilLMPage::_isScheduledActivation($child["obj_id"], "lm"));
+                if ($active) {
+                    $deactivated_elements = (\ilLMPage::_lookupContainsDeactivatedElements(
                         $child["obj_id"],
                         "lm"
-                    )) {
-                        $img = "standard/icon_pg_del" . $img_sc . ".svg";
-                        $alt = $this->lng->txt("cont_page_deactivated_elements");
-                    } else {
-                        $img = "standard/icon_pg" . $img_sc . ".svg";
-                        $alt = $this->lng->txt("pg");
-                    }
+                    ));
                 }
-            } else {
-                $img = "standard/icon_st.svg";
-                $alt = $this->lng->txt("st");
             }
             $trans_title = "";
             if (!in_array($this->transl, ["-", ""])) {
                 $trans_title = $this->getChildTitle($child);
             }
-            $target = "#";
-            if ($child["type"] === "pg") {
-                global $DIC;
-                $DIC->ctrl()->setParameterByClass(\ilLMPageGUI::class, "obj_id", $child["child"]);
-                $target = $DIC->ctrl()->getLinkTargetByClass([
-                    \ilObjLearningModuleGUI::class,
-                    \ilLMPageObjectGUI::class,
-                    \ilLMPageGUI::class
-                ], "edit");
-            } elseif ($child["type"] === "st") {
-                global $DIC;
-                $DIC->ctrl()->setParameterByClass(\ilStructureObjectGUI::class, "obj_id", $child["child"]);
-                $target = $DIC->ctrl()->getLinkTargetByClass([
-                    \ilObjLearningModuleGUI::class,
-                    \ilStructureObjectGUI::class,
-                    EditSubObjectsGUI::class
-                ], "editPages");
-            }
 
             yield [
                 "id" => $child["child"],
-                "type" => $this->f->symbol()->icon()->custom(\ilUtil::getImagePath($img), $alt),
-                "title" => $this->f->link()->standard($child["title"], $target),
+                "deactivated_elements" => $deactivated_elements,
+                "active" => $active,
+                "scheduled" => $scheduled,
+                "type" => $child["type"],
+                "title" => $child["title"],
                 "trans_title" => $trans_title
             ];
         }
@@ -140,5 +113,10 @@ class SubObjectRetrieval implements RetrievalInterface
         array $parameters = []
     ): int {
         return count($this->getChilds());
+    }
+
+    public function isFieldNumeric(string $field): bool
+    {
+        return $field === "id";
     }
 }

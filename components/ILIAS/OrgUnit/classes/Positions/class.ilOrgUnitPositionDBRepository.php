@@ -14,8 +14,7 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -90,8 +89,8 @@ class ilOrgUnitPositionDBRepository implements OrgUnitPositionRepository, Table\
      * @return ilOrgUnitPosition[]
      */
     public function getAllPositions(
-        Range $range = null,
-        Order $order = null
+        ?Range $range = null,
+        ?Order $order = null
     ): array {
         $sql_order_part = $order ? $order->join('ORDER BY', fn(...$o) => implode(' ', $o)) : '';
         $sql_range_part = $range ? sprintf('LIMIT %2$s OFFSET %1$s', ...$range->unpack()) : '';
@@ -323,8 +322,9 @@ class ilOrgUnitPositionDBRepository implements OrgUnitPositionRepository, Table\
     }
 
     public function getTotalRowCount(
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): ?int {
         return $this->getAllPositionsCount();
     }
@@ -334,8 +334,9 @@ class ilOrgUnitPositionDBRepository implements OrgUnitPositionRepository, Table\
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         foreach ($this->getAllPositions($range, $order) as $pos) {
             $row_id = (string) $pos->getId();

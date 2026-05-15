@@ -240,12 +240,12 @@ il.COPagePres = {
   /// /
 
   normalizePath(p) {
-    return (p || '').trim().replace(/^\.\//, '');
+    return (p || "").trim().replace(/^\.\//, "");
   },
 
   vttTextFromScript(scriptEl) {
     // Use textContent; trim to avoid accidental leading whitespace before WEBVTT
-    return (scriptEl.textContent || '').replace(/^\uFEFF/, '').trim();
+    return (scriptEl.textContent || "").replace(/^\uFEFF/, "").trim();
   },
 
   replaceTrackSrcWithBlob(trackEl, blobUrl) {
@@ -263,14 +263,14 @@ il.COPagePres = {
   },
 
   processVideo(videoEl) {
-    const tracks = Array.from(videoEl.querySelectorAll('track[src]'));
+    const tracks = Array.from(videoEl.querySelectorAll("track[src]"));
 
     tracks.forEach((trackEl) => {
-      const src = il.COPagePres.normalizePath(trackEl.getAttribute('src'));
+      const src = il.COPagePres.normalizePath(trackEl.getAttribute("src"));
       if (!src) return;
 
       const scriptEl = document.querySelector(
-        `script[type="text/vtt"][data-mob-path="${CSS.escape(src)}"]`,
+        `script[type="text/vtt"][data-mob-path="${CSS.escape(src)}"]`
       );
 
       if (!scriptEl) return;
@@ -278,7 +278,7 @@ il.COPagePres = {
       const vtt = il.COPagePres.vttTextFromScript(scriptEl);
       if (!vtt) return;
 
-      const blob = new Blob([vtt], { type: 'text/vtt' });
+      const blob = new Blob([vtt], { type: "text/vtt" });
       const blobUrl = URL.createObjectURL(blob);
 
       const newTrackEl = il.COPagePres.replaceTrackSrcWithBlob(trackEl, blobUrl);
@@ -286,12 +286,12 @@ il.COPagePres = {
       // Cleanup: revoke when the video element goes away (best-effort)
       // (No perfect "track unlil.COPagePres.oaded" event; this is a reasonable compromise.)
       const revoke = () => URL.revokeObjectURL(blobUrl);
-      videoEl.addEventListener('emptied', revoke, { once: true });
-      window.addEventListener('beforeunload', revoke, { once: true });
+      videoEl.addEventListener("emptied", revoke, { once: true });
+      window.addEventListener("beforeunload", revoke, { once: true });
 
       // If you want subtitles to show automatically when the track is default:
       // (Browser may require user interaction depending on settings.)
-      newTrackEl.track.mode = newTrackEl.default ? 'showing' : 'disabled';
+      newTrackEl.track.mode = newTrackEl.default ? "showing" : "disabled";
     });
   },
 
@@ -299,7 +299,7 @@ il.COPagePres = {
     if (!accEl) {
       accEl = document;
     }
-    document.querySelectorAll('video').forEach(il.COPagePres.processVideo);
+    document.querySelectorAll("video").forEach(il.COPagePres.processVideo);
   },
 
   initAudioVideo(acc_el) {

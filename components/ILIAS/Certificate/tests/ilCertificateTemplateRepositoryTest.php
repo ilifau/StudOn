@@ -18,9 +18,6 @@
 
 declare(strict_types=1);
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class ilCertificateTemplateRepositoryTest extends ilCertificateBaseTestCase
 {
     public function testCertificateWillBeSavedToTheDatabase(): void
@@ -55,19 +52,10 @@ class ilCertificateTemplateRepositoryTest extends ilCertificateBaseTestCase
                     'created_timestamp' => ['integer', 123_456_789],
                     'currently_active' => ['integer', true],
                     'deleted' => ['integer', 0],
-                    'background_image_path' => ['text', '/some/where/background.jpg'],
-                    'thumbnail_image_path' => ['text', '/some/path/test.svg'],
                     'background_image_ident' => ['text', '-'],
-                    'thumbnail_image_ident' => ['text', '-']
+                    'tile_image_ident' => ['text', '-']
                 ]
             );
-
-        $database->method('tableColumnExists')->willReturnMap(
-            [
-                ['il_cert_user_cert', 'background_image_path', true],
-                ['il_cert_user_cert', 'thumbnail_image_path', true],
-            ]
-        );
 
         $logger->expects($this->atLeastOnce())
             ->method('debug');
@@ -82,8 +70,6 @@ class ilCertificateTemplateRepositoryTest extends ilCertificateBaseTestCase
             'v5.4.0',
             123_456_789,
             true,
-            '/some/where/background.jpg',
-            '/some/path/test.svg',
             '-',
             '-'
         );
@@ -112,10 +98,8 @@ class ilCertificateTemplateRepositoryTest extends ilCertificateBaseTestCase
                 'ilias_version' => 'v5.4.0',
                 'created_timestamp' => 123_456_789,
                 'currently_active' => true,
-                'background_image_path' => '/some/where/background.jpg',
-                'thumbnail_image_path' => 'some/path/test.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-'
+                'tile_image_ident' => '-'
             ],
             [
                 'id' => 30,
@@ -128,10 +112,8 @@ class ilCertificateTemplateRepositoryTest extends ilCertificateBaseTestCase
                 'ilias_version' => 'v5.3.0',
                 'created_timestamp' => 123_456_789,
                 'currently_active' => false,
-                'background_image_path' => '/some/where/else/background.jpg',
-                'thumbnail_image_path' => 'some/path/test.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-'
+                'tile_image_ident' => '-'
             ]
         ];
         $database->method('fetchAssoc')->willReturnCallback(
@@ -173,10 +155,8 @@ class ilCertificateTemplateRepositoryTest extends ilCertificateBaseTestCase
                 'ilias_version' => 'v5.4.0',
                 'created_timestamp' => 123_456_789,
                 'currently_active' => true,
-                'background_image_path' => '/some/where/background.jpg',
-                'thumbnail_image_path' => 'some/path/test.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-'
+                'tile_image_ident' => '-'
             ],
             [
                 'id' => 30,
@@ -189,10 +169,8 @@ class ilCertificateTemplateRepositoryTest extends ilCertificateBaseTestCase
                 'ilias_version' => 'v5.3.0',
                 'created_timestamp' => 123_456_789,
                 'currently_active' => false,
-                'background_image_path' => '/some/where/else/background.jpg',
-                'thumbnail_image_path' => 'some/path/test.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-'
+                'tile_image_ident' => '-'
             ]
         ];
         $database->method('fetchAssoc')->willReturnCallback(
@@ -233,10 +211,8 @@ class ilCertificateTemplateRepositoryTest extends ilCertificateBaseTestCase
                     'ilias_version' => 'v5.4.0',
                     'created_timestamp' => 123_456_789,
                     'currently_active' => true,
-                    'background_image_path' => '/some/where/background.jpg',
-                    'thumbnail_image_path' => 'some/path/test.svg',
                     'background_image_ident' => '-',
-                    'thumbnail_image_ident' => '-'
+                    'tile_image_ident' => '-'
                 ],
                 [
                     'id' => 30,
@@ -249,10 +225,8 @@ class ilCertificateTemplateRepositoryTest extends ilCertificateBaseTestCase
                     'ilias_version' => 'v5.3.0',
                     'created_timestamp' => 123_456_789,
                     'currently_active' => false,
-                    'background_image_path' => '/some/where/else/background.jpg',
-                    'thumbnail_image_path' => 'some/path/test.svg',
                     'background_image_ident' => '-',
-                    'thumbnail_image_ident' => '-'
+                    'tile_image_ident' => '-'
                 ]
         ];
         $database->method('fetchAssoc')->willReturnCallback(
@@ -346,10 +320,8 @@ AND obj_id = 200');
                 'ilias_version' => 'v5.4.0',
                 'created_timestamp' => 123_456_789,
                 'currently_active' => true,
-                'background_image_path' => '/some/where/background.jpg',
-                'thumbnail_image_path' => 'some/path/test.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-'
+                'tile_image_ident' => '-'
             ],
             [
                 'id' => 30,
@@ -362,10 +334,8 @@ AND obj_id = 200');
                 'ilias_version' => 'v5.3.0',
                 'created_timestamp' => 123_456_789,
                 'currently_active' => false,
-                'background_image_path' => '/some/where/else/background.jpg',
-                'thumbnail_image_path' => 'some/path/test.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-'
+                'tile_image_ident' => '-'
             ]
         ];
         $database->method('fetchAssoc')->willReturnCallback(
@@ -424,10 +394,8 @@ AND obj_id = 200');
                 'ilias_version' => 'v5.4.0',
                 'created_timestamp' => 123_456_789,
                 'currently_active' => true,
-                'background_image_path' => '/some/where/background.jpg',
-                'thumbnail_image_path' => '/some/where/thumbnail.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-'
+                'tile_image_ident' => '-'
             ],
             [
                 'id' => 30,
@@ -440,10 +408,8 @@ AND obj_id = 200');
                 'ilias_version' => 'v5.3.0',
                 'created_timestamp' => 123_456_789,
                 'currently_active' => false,
-                'background_image_path' => '/some/where/else/background.jpg',
-                'thumbnail_image_path' => '/some/where/thumbnail.svg',
                 'background_image_ident' => '-',
-                'thumbnail_image_ident' => '-'
+                'tile_image_ident' => '-'
             ]
         ];
         $database->method('fetchAssoc')->willReturnCallback(
@@ -460,9 +426,6 @@ AND obj_id = 200');
         $this->assertSame(30, $templates[1]->getObjId());
     }
 
-    /**
-     *
-     */
     public function testFetchFirstCreatedTemplateFailsBecauseNothingWasSaved(): never
     {
         $this->expectException(ilException::class);

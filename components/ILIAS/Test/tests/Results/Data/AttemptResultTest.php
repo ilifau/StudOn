@@ -18,7 +18,7 @@
 
 namespace ILIAS\Test\Tests\Results\Data;
 
-use ILIAS\Test\Results\Data\AttemptResult;
+use ILIAS\Test\Results\Data\AttemptSolutions;
 use ILIAS\Test\Results\Data\QuestionResult;
 
 class AttemptResultTest extends \ilTestBaseTestCase
@@ -30,12 +30,10 @@ class AttemptResultTest extends \ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getActiveIdDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getActiveIdDataProvider')]
     public function testGetActiveId(int $IO): void
     {
-        $ilTestPassResult = new AttemptResult(
+        $ilTestPassResult = new AttemptSolutions(
             $IO,
             0,
             []
@@ -52,12 +50,10 @@ class AttemptResultTest extends \ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getPassDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getPassDataProvider')]
     public function testGetAttempt(int $IO): void
     {
-        $ilTestPassResult = new AttemptResult(
+        $ilTestPassResult = new AttemptSolutions(
             0,
             $IO,
             []
@@ -74,13 +70,11 @@ class AttemptResultTest extends \ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getQuestionResultsDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getQuestionResultsDataProvider')]
     public function testGetQuestionResults(\Closure $IO): void
     {
         $IO = $IO($this);
-        $ilTestPassResult = new AttemptResult(
+        $ilTestPassResult = new AttemptSolutions(
             0,
             0,
             $IO

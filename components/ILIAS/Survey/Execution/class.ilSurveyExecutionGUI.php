@@ -660,7 +660,7 @@ class ilSurveyExecutionGUI
                 $r = $this->gui->ui()->renderer();
                 $p = $f->panel()->standard(
                     "",
-                    $f->legacy($this->object->prepareTextareaOutput($this->object->getOutro()))
+                    $f->legacy()->content($this->object->prepareTextareaOutput($this->object->getOutro()))
                 );
 
                 $this->tpl->setContent($r->render($p));

@@ -82,10 +82,18 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         $min_auto_complete = (int) ($form->getInput('min_auto_complete') ?? assLongMenu::MIN_LENGTH_AUTOCOMPLETE);
         $hidden_text_files = $this->request_data_collector->string('hidden_text_files');
         $hidden_correct_answers = $this->request_data_collector->string('hidden_correct_answers');
-        $long_menu_type = $this->request_data_collector->raw('long_menu_type') ?? [];
+        $long_menu_type = $this->request_data_collector->intArray('long_menu_type');
         $this->object->setLongMenuTextValue($this->request_data_collector->string('longmenu_text'));
         $this->object->setAnswers($this->trimArrayRecursive($this->stripSlashesRecursive(json_decode($hidden_text_files))));
-        $this->object->setCorrectAnswers($this->trimArrayRecursive($this->stripSlashesRecursive(json_decode($hidden_correct_answers))));
+        $this->object->setCorrectAnswers(
+            $this->convertPointsToFloat(
+                $this->trimArrayRecursive(
+                    $this->stripSlashesRecursive(
+                        json_decode($hidden_correct_answers)
+                    )
+                )
+            )
+        );
         $this->object->setAnswerType(ilArrayUtil::stripSlashesRecursive($long_menu_type));
         $this->object->setQuestion($this->request_data_collector->string('question'));
         $this->object->setMinAutoComplete($min_auto_complete);
@@ -122,9 +130,12 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
     private function stripSlashesRecursive(array $data): array
     {
         return array_map(
-            function (string|array $v): string|array {
+            function (int|float|string|array $v): int|float|string|array {
                 if (is_array($v)) {
                     return $this->stripSlashesRecursive($v);
+                }
+                if (is_int($v) || is_float($v)) {
+                    return $v;
                 }
                 return ilUtil::stripSlashes($v);
             },
@@ -135,13 +146,28 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
     private function trimArrayRecursive(array $data): array
     {
         return array_map(
-            function (string|array $v): string|array {
+            function (int|float|string|array $v): int|float|string|array {
                 if (is_array($v)) {
                     return $this->trimArrayRecursive($v);
+                }
+                if (is_int($v) || is_float($v)) {
+                    return $v;
                 }
                 return trim($v);
             },
             $data
+        );
+    }
+
+    private function convertPointsToFloat(
+        array $correct_answers
+    ): array {
+        return array_map(
+            function (array $v): array {
+                $v[1] = $this->refinery->kindlyTo()->float()->transform($v[1]);
+                return $v;
+            },
+            $correct_answers
         );
     }
 
@@ -188,7 +214,7 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         $long_menu_text->setCols(80);
         if (!$this->object->getSelfAssessmentEditingMode()) {
             if ($this->object->getAdditionalContentEditingMode() == assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_RTE) {
-                $long_menu_text->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("assessment"));
+                $long_menu_text->setRteTags(ilRTESettings::_getUsedHTMLTags("assessment"));
                 $long_menu_text->setRTESupport($this->object->getId(), "qpl", "assessment");
                 $long_menu_text->setUseRte(true);
             }
@@ -253,8 +279,14 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         $answers = $this->object->getAnswersObject();
 
         if ($this->request_data_collector->isset('hidden_text_files')) {
-            $question_parts['list'] = json_decode($this->request_data_collector->raw('hidden_correct_answers')) ?? [];
-            $answers = $this->request_data_collector->raw('hidden_text_files');
+            $question_parts['list'] = $this->trimArrayRecursive(
+                $this->stripSlashesRecursive(
+                    json_decode(
+                        $this->request_data_collector->string('hidden_correct_answers')
+                    ) ?? []
+                )
+            );
+            $answers = $this->request_data_collector->string('hidden_text_files');
         }
 
         $this->tpl->addJavaScript('assets/js/longMenuQuestionGapBuilder.js');
@@ -274,10 +306,10 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         $tpl->setVariable('SAVE', $this->lng->txt('save'));
         $tpl->setVariable('CANCEL', $this->lng->txt('cancel'));
         $tpl->setVariable('ADD_BUTTON', $this->ui_renderer->render(
-            $this->ui_factory->symbol()->glyph()->add()->withAction('#')
+            $this->ui_factory->button()->shy('', '')->withSymbol($this->ui_factory->symbol()->glyph()->add())
         ));
         $tpl->setVariable('REMOVE_BUTTON', $this->ui_renderer->render(
-            $this->ui_factory->symbol()->glyph()->remove()->withAction('#')
+            $this->ui_factory->button()->shy('', '')->withSymbol($this->ui_factory->symbol()->glyph()->remove())
         ));
         $tag_input = new ilTagInputGUI();
         $tag_input->setPostVar('taggable');
@@ -285,8 +317,8 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         $tag_input->setTypeAheadMinLength(1);
         $tpl->setVariable('TAGGING_PROTOTYPE', $tag_input->render(''));
 
-        [$modal, $modal_id] = $this->getModalHtml();
-        $tpl->setVariable('MY_MODAL', $modal);
+        $modal_id = self::DEFAULT_MODAL_ID;
+        $tpl->setVariable('MY_MODAL', $this->getModalHtml($modal_id));
         $tpl->parseCurrentBlock();
         $this->tpl->addOnLoadCode(
             'longMenuQuestion.Init(' .
@@ -305,20 +337,14 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         return $form;
     }
 
-    /**
-     *
-     * @return array<string, string>
-     */
-    private function getModalHtml(): array
+    private function getModalHtml(string &$modal_id): string
     {
         $modal = $this->ui_factory->modal()->interruptive('', '', '');
         $doc = new DOMDocument();
         @$doc->loadHTML($this->ui_renderer->render($modal));
         $dialogs = $doc->getElementsByTagName('dialog');
-        return [
-            $doc->saveHTML(),
-            $dialogs->item(0)->attributes->getNamedItem('id')->nodeValue ?? self::DEFAULT_MODAL_ID
-        ];
+        $modal_id = $dialogs->item(0)->attributes->getNamedItem('id')->nodeValue ?? self::DEFAULT_MODAL_ID;
+        return $doc->saveHTML();
     }
 
     /**
@@ -392,7 +418,7 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
 
         $template = new ilTemplate("tpl.il_as_qpl_longmenu_question_output_solution.html", true, true, "components/ILIAS/TestQuestionPool");
         if ($show_question_text) {
-            $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
+            $template->setVariable("QUESTIONTEXT", $this->renderLatex($this->object->getQuestionForHTMLOutput()));
         }
         $template->setVariable('LONGMENU_TEXT_SOLUTION', $this->getLongMenuTextWithInputFieldsInsteadOfGaps($user_solution, true, $graphical_output));
 
@@ -476,7 +502,7 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
             . json_encode($this->object->getAvailableAnswerOptions())
             . ')');
 
-        $template->setVariable('QUESTIONTEXT', $this->object->getQuestionForHTMLOutput());
+        $template->setVariable('QUESTIONTEXT', $this->renderLatex($this->renderLatex($this->object->getQuestionForHTMLOutput())));
         $template->setVariable('LONGMENU_TEXT', $this->getLongMenuTextWithInputFieldsInsteadOfGaps($user_solution));
         return $template;
     }
@@ -710,7 +736,9 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
         $correct_answers = $this->object->getCorrectAnswers();
 
         foreach ($this->object->getAnswers() as $lm_index => $lm) {
-            $points_input = (float) str_replace(',', '.', $form->getInput('points_' . $lm_index));
+            $points_input = $this->refinery->kindlyTo()->float()->transform(
+                $form->getInput('points_' . $lm_index)
+            );
             $correct_answers_input = (array) $form->getInput('longmenu_' . $lm_index . '_tags');
 
             foreach ($correct_answers_input as $idx => $answer) {

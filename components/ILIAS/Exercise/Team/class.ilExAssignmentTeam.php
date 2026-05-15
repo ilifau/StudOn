@@ -274,7 +274,7 @@ class ilExAssignmentTeam
 
     public function writeLog(
         int $a_action,
-        string $a_details = null
+        ?string $a_details = null
     ): void {
         if ($this->id) {
             self::writeTeamLog($this->id, $a_action, $a_details);
@@ -287,7 +287,7 @@ class ilExAssignmentTeam
     public static function writeTeamLog(
         int $a_team_id,
         int $a_action,
-        string $a_details = null
+        ?string $a_details = null
     ): void {
         global $DIC;
 
@@ -384,8 +384,8 @@ class ilExAssignmentTeam
 
     public static function getAdoptableTeamAssignments(
         int $a_exercise_id,
-        int $a_exclude_ass_id = null,
-        int $a_user_id = null
+        ?int $a_exclude_ass_id = null,
+        ?int $a_user_id = null
     ): array {
         $res = array();
 
@@ -439,8 +439,8 @@ class ilExAssignmentTeam
     public static function adoptTeams(
         int $a_source_ass_id,
         int $a_target_ass_id,
-        int $a_user_id = null,
-        int $a_exc_ref_id = null
+        ?int $a_user_id = null,
+        ?int $a_exc_ref_id = null
     ): void {
         $teams = array();
 

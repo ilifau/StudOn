@@ -18,6 +18,10 @@
 
 namespace ILIAS\GlobalScreen\MainMenu;
 
+use PHPUnit\Framework\Attributes\BackupGlobals;
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use ILIAS\GlobalScreen\Identification\IdentificationFactory;
 use ILIAS\GlobalScreen\Identification\Serializer\CoreSerializer;
 use ILIAS\GlobalScreen\Identification\Serializer\SerializerInterface;
@@ -35,28 +39,19 @@ require_once('./vendor/composer/vendor/autoload.php');
  * Class IdentificationFactoryTest
  *
  * @author                 Fabian Schmid <fs@studer-raimann.ch>
- *
- * @runTestsInSeparateProcesses
- * @preserveGlobalState    disabled
- * @backupGlobals          disabled
- * @backupStaticAttributes disabled
  */
+#[BackupGlobals(false)]
+#[BackupStaticProperties(false)]
+#[PreserveGlobalState(false)]
+#[RunTestsInSeparateProcesses]
 class IdentificationTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
     public const MOCKED_PROVIDER_CLASSNAME = 'Mockery_1_ILIAS_GlobalScreen_Provider_Provider';
     /**
-     * @var Mockery\MockInterface|ProviderFactory
-     */
-    private $provider_factory;
-    /**
      * @var Mockery\MockInterface|Provider
      */
     private $provider_mock;
-    /**
-     * @var Mockery\MockInterface|ilPlugin
-     */
-    private $plugin_mock;
     private IdentificationFactory $identification;
 
 
@@ -67,17 +62,17 @@ class IdentificationTest extends TestCase
     {
         parent::setUp();
 
-        $this->plugin_mock = Mockery::mock(ilPlugin::class);
+        $plugin_mock = Mockery::mock(ilPlugin::class);
 
         $this->provider_mock = Mockery::mock(Provider::class);
         $this->provider_mock->shouldReceive('getProviderNameForPresentation')->andReturn('Provider')->byDefault();
 
-        $this->provider_factory = Mockery::mock(ProviderFactory::class);
-        $this->provider_factory->shouldReceive('getProviderByClassName')->with(self::MOCKED_PROVIDER_CLASSNAME)->andReturn($this->provider_mock);
-        $this->provider_factory->shouldReceive('isInstanceCreationPossible')->andReturn(true);
-        $this->provider_factory->shouldReceive('isRegistered')->andReturn(true);
+        $provider_factory = Mockery::mock(ProviderFactory::class);
+        $provider_factory->shouldReceive('getProviderByClassName')->with(self::MOCKED_PROVIDER_CLASSNAME)->andReturn($this->provider_mock);
+        $provider_factory->shouldReceive('isInstanceCreationPossible')->andReturn(true);
+        $provider_factory->shouldReceive('isRegistered')->andReturn(true);
 
-        $this->identification = new IdentificationFactory($this->provider_factory);
+        $this->identification = new IdentificationFactory($provider_factory);
     }
 
 

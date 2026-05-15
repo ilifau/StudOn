@@ -20,15 +20,16 @@ declare(strict_types=1);
 
 use ILIAS\Language\Language;
 use ILIAS\UI\Factory as UIFactory;
-use ILIAS\UI\Component\Legacy\Legacy as LegacyComponent;
+use ILIAS\UI\Component\Legacy\Content as LegacyComponent;
 use ILIAS\UI\Component\Card\Standard as StandardCard;
 use ILIAS\UI\Component\Image\Image as Image;
 use ILIAS\UI\Renderer;
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory as Refinery;
+use ILIAS\User\Profile\PublicProfileGUI;
 
 /**
- * @ilCtrl_Calls ilUsersGalleryGUI: ilPublicUserProfileGUI
+ * @ilCtrl_Calls ilUsersGalleryGUI: ILIAS\User\Profile\PublicProfileGUI
  * @ilCtrl_isCalledBy ilUsersGalleryGUI: ilCourseMembershipGUI, ilGroupMembershipGUI
  */
 class ilUsersGalleryGUI
@@ -79,8 +80,8 @@ class ilUsersGalleryGUI
         $cmd = $this->ctrl->getCmd('view');
 
         switch (strtolower($next_class)) {
-            case strtolower(ilPublicUserProfileGUI::class):
-                $profile_gui = new ilPublicUserProfileGUI(
+            case strtolower(PublicProfileGUI::class):
+                $profile_gui = new PublicProfileGUI(
                     $this->http->wrapper()->query()->retrieve(
                         'user',
                         $this->refinery->kindlyTo()->int()
@@ -211,7 +212,7 @@ JS;
         $list_html = $this->user_action_gui->renderDropDown($user->getId());
 
         if ($contact_btn_html || $list_html) {
-            return $this->ui_factory->legacy(
+            return $this->ui_factory->legacy()->content(
                 "<div style='display:grid; grid-template-columns: max-content max-content;'>"
                 . "<div>"
                 . $contact_btn_html
@@ -230,12 +231,12 @@ JS;
         int $user_id
     ): array {
         $this->ctrl->setParameterByClass(
-            ilPublicUserProfileGUI::class,
+            PublicProfileGUI::class,
             'user',
             $user_id
         );
         $public_profile_url = $this->ctrl->getLinkTargetByClass(
-            ilPublicUserProfileGUI::class,
+            PublicProfileGUI::class,
             'getHTML'
         );
 

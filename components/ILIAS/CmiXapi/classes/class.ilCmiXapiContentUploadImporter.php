@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\FileUpload\DTO\UploadResult as FileUploadResult;
 use ILIAS\FileUpload\DTO\ProcessingStatus as FileUploadProcessingStatus;
@@ -294,10 +294,6 @@ class ilCmiXapiContentUploadImporter
             //                ->withDirectoryHandling(ZipDirectoryHandling::FLAT_STRUCTURE)
         );
         $unzip->extract();
-        //        $zar = new \ZipArchive();
-        //        $zar->open($uploadFilePath);
-        //        $zar->extractTo($targetPath);
-        //        $zar->close();
     }
 
     protected function getAbsoluteObjectDirectory(): string

@@ -70,7 +70,7 @@ class SettingsGUI
         $lng->loadLanguageModule("rating");
 
         $form = $this->gui
-            ->form(self::class, "save")
+            ->form([self::class], "save")
             ->section("general", $lng->txt("wiki_settings"))
             ->addStdTitleAndDescription($this->obj_id, "wiki")
             ->textarea(
@@ -141,7 +141,7 @@ class SettingsGUI
             )
             ->end();
 
-        if(!$this->global_settings->get("disable_comments")) {
+        if (!$this->global_settings->get("disable_comments")) {
             $form = $form
                 ->checkbox(
                     "public_notes",

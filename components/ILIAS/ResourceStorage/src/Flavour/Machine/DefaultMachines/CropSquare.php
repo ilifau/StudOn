@@ -62,7 +62,7 @@ class CropSquare extends AbstractMachine implements FlavourMachine
         FileStream $stream,
         FlavourDefinition $for_definition
     ): \Generator {
-        if (!$for_definition instanceof \ILIAS\ResourceStorage\Flavour\Definition\CropToSquare) {
+        if (!$for_definition instanceof CropToSquare) {
             throw new \InvalidArgumentException('Invalid definition');
         }
         $image = $this->from($stream);

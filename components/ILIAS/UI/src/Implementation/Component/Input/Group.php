@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -26,6 +27,7 @@ use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Data\Result;
 use ILIAS\Data\Result\Ok;
 use ILIAS\Language\Language;
+use ILIAS\UI\Component\Input\InputData;
 
 /**
  * @author Thibeau Fuhrer <thibeau@sr.solutions>

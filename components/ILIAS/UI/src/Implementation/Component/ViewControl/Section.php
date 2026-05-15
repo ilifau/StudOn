@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\UI\Implementation\Component\ViewControl;
 
@@ -61,9 +61,9 @@ class Section implements C\ViewControl\Section
     }
 
     /**
-     * Returns the Default- or Split-Button placed in the middle of the control
+     * Returns the Default-Button placed in the middle of the control
      *
-     * @return Component the Default- or Split-Button placed in the middle of the control
+     * @return Component the Default-Button placed in the middle of the control
      */
     public function getSelectorButton(): Component
     {

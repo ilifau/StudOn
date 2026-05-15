@@ -54,7 +54,7 @@ class IIMEditorInit
         $dummy->getHTML();
         // ensure modal.js from ui framework is loaded
         $this->ui->renderer()->render(
-            $this->ui->factory()->modal()->roundtrip("", $this->ui->factory()->legacy(""))
+            $this->ui->factory()->modal()->roundtrip("", $this->ui->factory()->legacy()->content(""))
         );
     }
 

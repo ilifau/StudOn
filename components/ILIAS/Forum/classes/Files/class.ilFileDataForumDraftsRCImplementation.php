@@ -137,7 +137,7 @@ class ilFileDataForumDraftsRCImplementation implements ilFileDataForumInterface
         return true;
     }
 
-    public function delete(array $posting_ids_to_delete = null): bool
+    public function delete(?array $posting_ids_to_delete = null): bool
     {
         // Each element of $posting_ids_to_delete represents a "Draft Id", NOT a "Posting Id"
         if ($posting_ids_to_delete === null) {

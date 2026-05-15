@@ -28,7 +28,7 @@ use ILIAS\MetaData\Manipulator\ScaffoldProvider\ScaffoldProviderInterface;
 
 class Creator implements CreatorInterface
 {
-    protected const PLACEHOLDER_TITLE = 'PLACEHOLDER';
+    protected const string PLACEHOLDER_TITLE = 'PLACEHOLDER';
 
     protected ManipulatorInterface $manipulator;
     protected PathFactory $path_factory;

@@ -18,6 +18,7 @@
 
 declare(strict_types=1);
 
+use ILIAS\Test\Participants\ParticipantRepository;
 use ILIAS\Test\Results\Toplist\TestTopListRepository;
 use ILIAS\Test\Results\Toplist\DataRetrieval;
 use ILIAS\Test\Results\Toplist\TopListOrder;
@@ -45,7 +46,8 @@ class ilTestToplistGUI
         protected readonly UIFactory $ui_factory,
         protected readonly UIRenderer $ui_renderer,
         protected readonly DataFactory $data_factory,
-        protected readonly GlobalHttpState $http_state
+        protected readonly GlobalHttpState $http_state,
+        protected readonly ParticipantRepository $participant_repository
     ) {
     }
 
@@ -92,7 +94,7 @@ class ilTestToplistGUI
 
         return $this->ui_factory->panel()->standard(
             $title,
-            $this->ui_factory->legacy($content)
+            $this->ui_factory->legacy()->content($content)
         );
     }
 
@@ -133,10 +135,11 @@ class ilTestToplistGUI
             $this->ui_renderer,
             $this->data_factory,
             $list_type,
-            $order_by
+            $order_by,
+            $this->participant_repository
         );
         return $this->ui_factory->table()
-            ->data($title, $table->getColumns(), $table)
+            ->data($table, $title, $table->getColumns())
             ->withRequest($this->http_state->request());
     }
 

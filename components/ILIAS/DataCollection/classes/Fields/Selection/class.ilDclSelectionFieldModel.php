@@ -20,15 +20,15 @@ declare(strict_types=1);
 
 abstract class ilDclSelectionFieldModel extends ilDclBaseFieldModel
 {
-    public const SELECTION_TYPE_SINGLE = 'selection_type_single';
-    public const SELECTION_TYPE_MULTI = 'selection_type_multi';
-    public const SELECTION_TYPE_COMBOBOX = 'selection_type_combobox';
+    public const string SELECTION_TYPE_SINGLE = 'selection_type_single';
+    public const string SELECTION_TYPE_MULTI = 'selection_type_multi';
+    public const string SELECTION_TYPE_COMBOBOX = 'selection_type_combobox';
     public const PROP_SELECTION_TYPE = '';
     public const PROP_SELECTION_OPTIONS = '';
 
     public function getValidFieldProperties(): array
     {
-        return [$this::PROP_SELECTION_OPTIONS, $this::PROP_SELECTION_TYPE];
+        return [$this::PROP_SELECTION_OPTIONS, $this::PROP_SELECTION_TYPE, $this::PROP_UNIQUE];
     }
 
     public function getRecordQueryFilterObject(
@@ -83,12 +83,22 @@ abstract class ilDclSelectionFieldModel extends ilDclBaseFieldModel
             ilDclSelectionOption::flushOptions((int) $this->getId());
             $sorting = 1;
             foreach ($value as $id => $val) {
-                ilDclSelectionOption::storeOption((int) $this->getId(), $id, $sorting, $val);
+                ilDclSelectionOption::storeOption((int) $this->getId(), $id, $sorting, $this->sanitizeOptionValue($val));
                 $sorting++;
             }
             return null;
         }
         return parent::setProperty($key, $value);
+    }
+
+    public function sanitizeOptionValue(string $value): string
+    {
+        return $value;
+    }
+
+    public function personalizeOptionValue(string $value, ilObjUser $user): string
+    {
+        return $value;
     }
 
     /**
@@ -125,5 +135,16 @@ abstract class ilDclSelectionFieldModel extends ilDclBaseFieldModel
             $option->delete();
         }
         parent::doDelete();
+    }
+
+    public function checkFieldCreationInput(ilPropertyFormGUI $form): bool
+    {
+        return $this->checkUniqueProp($form) && parent::checkFieldCreationInput($form);
+    }
+
+    public function checkValidity($value, ?int $record_id): bool
+    {
+        $this->checkUnique($value, $record_id);
+        return parent::checkValidity($value, $record_id);
     }
 }

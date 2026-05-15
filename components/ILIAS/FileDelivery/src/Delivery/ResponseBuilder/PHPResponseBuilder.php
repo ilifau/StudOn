@@ -32,8 +32,6 @@ use ILIAS\Filesystem\Stream\Streams;
  */
 class PHPResponseBuilder implements ResponseBuilder
 {
-    private bool $send_caching_headers = true;
-
     public function getName(): string
     {
         return 'php';
@@ -66,23 +64,16 @@ class PHPResponseBuilder implements ResponseBuilder
             $response = $response->withHeader(ResponseHeader::ACCEPT_RANGES, 'bytes');
         }
 
-        if ($this->send_caching_headers) {
-            $file_modification_time = '';
-            $response = $response->withHeader(ResponseHeader::CONTENT_LENGTH, $stream->getSize());
-            try {
-                $file_modification_time = date("D, j M Y H:i:s", filemtime($uri) ?: time()) . " GMT";
-                $response = $response->withHeader(
-                    ResponseHeader::LAST_MODIFIED,
-                    $file_modification_time
-                );
-            } catch (\Throwable) {
-                $h = 1;
-            }
-
-            return $response->withHeader(ResponseHeader::ETAG, md5($uri . $file_modification_time));
+        $response = $response->withHeader(ResponseHeader::CONTENT_LENGTH, $stream->getSize());
+        try {
+            $response = $response->withHeader(
+                ResponseHeader::LAST_MODIFIED,
+                date("D, j M Y H:i:s", filemtime($uri) ?: time()) . " GMT"
+            );
+        } catch (\Throwable) {
         }
 
-        return $response;
+        return $response->withHeader(ResponseHeader::ETAG, md5((string) $uri));
     }
 
     protected function deliverFull(
@@ -143,7 +134,7 @@ class PHPResponseBuilder implements ResponseBuilder
                 $output_length = strlen($content);
             }
         } else {
-            $length = min($length, $buffer_size);
+            $length = $buffer_size;
             $content = stream_get_contents($fh, $length, $start);
             $output_length = strlen($content);
             $response = $response->withBody(
@@ -184,5 +175,4 @@ class PHPResponseBuilder implements ResponseBuilder
     {
         return true;
     }
-
 }

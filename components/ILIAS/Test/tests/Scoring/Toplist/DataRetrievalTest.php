@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace Results\Toplist;
 
 use ILIAS\Data\Factory;
+use ILIAS\Test\Participants\ParticipantRepository;
 use ILIAS\Test\Results\Toplist\TestTopListRepository;
 use ILIAS\Test\Results\Toplist\DataRetrieval;
 use ILIAS\Test\Results\Toplist\TopListOrder;
@@ -56,7 +57,8 @@ class DataRetrievalTest extends \ilTestBaseTestCase
             $DIC['ui.renderer'],
             $this->createMock(Factory::class),
             TopListType::GENERAL,
-            TopListOrder::BY_SCORE
+            TopListOrder::BY_SCORE,
+            $this->createMock(ParticipantRepository::class)
         );
     }
 
@@ -70,7 +72,6 @@ class DataRetrievalTest extends \ilTestBaseTestCase
         $this->testObjMock->method('getHighscoreAchievedTS')->willReturn(true);
         $this->testObjMock->method('getHighscoreScore')->willReturn(true);
         $this->testObjMock->method('getHighscorePercentage')->willReturn(true);
-        $this->testObjMock->method('getHighscoreHints')->willReturn(true);
         $this->testObjMock->method('getHighscoreWTime')->willReturn(true);
 
         $columns = $this->tableObj->getColumns();
@@ -82,7 +83,6 @@ class DataRetrievalTest extends \ilTestBaseTestCase
         $this->assertArrayHasKey('achieved', $columns);
         $this->assertArrayHasKey('score', $columns);
         $this->assertArrayHasKey('percentage', $columns);
-        $this->assertArrayHasKey('hints', $columns);
         $this->assertArrayHasKey('workingtime', $columns);
     }
 
@@ -91,7 +91,6 @@ class DataRetrievalTest extends \ilTestBaseTestCase
         $this->testObjMock->method('getHighscoreAchievedTS')->willReturn(true);
         $this->testObjMock->method('getHighscoreScore')->willReturn(false);
         $this->testObjMock->method('getHighscorePercentage')->willReturn(true);
-        $this->testObjMock->method('getHighscoreHints')->willReturn(true);
         $this->testObjMock->method('getHighscoreWTime')->willReturn(false);
 
         $columns = $this->tableObj->getColumns();
@@ -99,7 +98,6 @@ class DataRetrievalTest extends \ilTestBaseTestCase
         $this->assertNotEmpty($columns);
         $this->assertArrayHasKey('achieved', $columns);
         $this->assertArrayHasKey('percentage', $columns);
-        $this->assertArrayHasKey('hints', $columns);
 
         $this->assertArrayNotHasKey('score', $columns);
         $this->assertArrayNotHasKey('workingtime', $columns);

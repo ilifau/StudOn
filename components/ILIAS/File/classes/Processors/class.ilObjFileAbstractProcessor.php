@@ -48,9 +48,9 @@ abstract class ilObjFileAbstractProcessor implements ilObjFileProcessorInterface
     protected function createFileObj(
         ResourceIdentification $rid,
         int $parent_id,
-        string $title = null,
-        string $description = null,
-        string $copyright_id = null,
+        ?string $title = null,
+        ?string $description = null,
+        ?string $copyright_id = null,
         bool $create_reference = false
     ): ilObjFile {
         $revision = $this->storage->manage()->getCurrentRevision($rid);

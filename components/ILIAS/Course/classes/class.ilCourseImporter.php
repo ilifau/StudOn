@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=0);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +16,7 @@ declare(strict_types=0);
  *
  *********************************************************************/
 
+declare(strict_types=0);
 /**
  * @author  Stefan Meyer <meyer@leifos.com>
  * @ingroup components\ILIASCourse
@@ -30,12 +30,13 @@ class ilCourseImporter extends ilXmlImporter
     private array $final_processing_info = [];
 
     protected ilLogger $logger;
+    protected ilDBInterface $db;
 
     public function __construct()
     {
         global $DIC;
-
         $this->logger = $DIC->logger()->crs();
+        $this->db = $DIC->database();
     }
 
     public function init(): void
@@ -68,6 +69,10 @@ class ilCourseImporter extends ilXmlImporter
             $parser = new ilLOXmlParser($this->course, $a_xml);
             $parser->setMapping($a_mapping);
             $parser->parse();
+            (new \ILIAS\Conditions\Export\Repository($this->db))->updateCourseValuesResultRangePercentage(
+                $this->course->getId(),
+                $a_mapping
+            );
             return;
         }
 

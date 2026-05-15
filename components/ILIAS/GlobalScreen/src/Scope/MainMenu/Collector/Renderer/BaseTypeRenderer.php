@@ -32,7 +32,6 @@ use ILIAS\UI\Component\Symbol\Symbol;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use Throwable;
-use ILIAS\GlobalScreen\Scope\isDecorateable;
 use ILIAS\UI\Component\HasHelpTopics;
 
 /**
@@ -82,7 +81,7 @@ class BaseTypeRenderer implements TypeRenderer
 
     public function getComponentWithContent(isItem $item): Component
     {
-        return $this->ui_factory->legacy($item->getProviderIdentification()->serialize());
+        return $this->ui_factory->legacy()->content($item->getProviderIdentification()->serialize());
     }
 
     public function getComponentWithoutContent(isItem $item): Component
@@ -91,7 +90,7 @@ class BaseTypeRenderer implements TypeRenderer
             return $this->getComponentWithContent($item);
         }
         /** @var $item supportsAsynchronousLoading $content */
-        $content = $this->ui_factory->legacy('...');
+        $content = $this->ui_factory->legacy()->content('...');
         $name = $item instanceof hasTitle ? $item->getTitle() : "-";
         $slate = $this->ui_factory->mainControls()->slate()->legacy(
             $name,

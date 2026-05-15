@@ -29,6 +29,7 @@ class ReattachableStream extends Stream
      * Checks if the stream is attached to the wrapper.
      * If not, the stream is reattached.
      */
+    #[\Override]
     protected function assertStreamAttached(): void
     {
         if ($this->stream === null) {

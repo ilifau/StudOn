@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,8 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 // fau: fairSub#82 - use ObjSessionHelper
 use FAU\Ilias\Helper\ObjSessionHelper;
 // fau.
@@ -684,7 +683,6 @@ class ilObjSession extends ilObject
         }
 
         $parts = ilSessionParticipants::_getInstanceByObjId($this->getId());
-        $current = $parts->getCountParticipants();
 
         $refs = ilObject::_getAllReferences($this->getId());
         $ref_id = current($refs);

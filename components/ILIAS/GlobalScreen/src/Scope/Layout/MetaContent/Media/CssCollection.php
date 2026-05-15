@@ -20,8 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\GlobalScreen\Scope\Layout\MetaContent\Media;
 
-use ILIAS\Data\URI;
-
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
  */

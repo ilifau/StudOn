@@ -14,12 +14,10 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
 // no namespace for ilCtrl classes
 //namespace ILIAS\MyStaff\Courses\ShowUser;
-
 use ILIAS\MyStaff\ilMyStaffAccess;
 use ILIAS\MyStaff\ListCourses\ilMStListCourse;
 

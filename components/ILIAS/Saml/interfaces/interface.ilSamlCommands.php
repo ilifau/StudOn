@@ -20,25 +20,25 @@ declare(strict_types=1);
 
 interface ilSamlCommands
 {
-    public const CMD_LIST_IDPS = 'listIdps';
-    public const CMD_TABLE_ACTIONS = 'handleTableActions';
-    public const CMD_SHOW_NEW_IDP_FORM = 'showNewIdpForm';
-    public const CMD_SAVE_NEW_IDP = 'saveNewIdp';
-    public const CMD_DELETE_IDP = 'deleteIdp';
-    public const CMD_SAVE_SETTINGS = 'saveSettings';
-    public const CMD_SHOW_SETTINGS = 'showSettings';
-    public const CMD_SHOW_IDP_SETTINGS = 'showIdpSettings';
-    public const CMD_SAVE_IDP_SETTINGS = 'saveIdpSettings';
-    public const CMD_SAVE_USER_ATTRIBUTE_MAPPING = 'saveUserAttributeMapping';
-    public const CMD_SHOW_USER_ATTRIBUTE_MAPPING_FORM = 'showUserAttributeMappingForm';
+    public const string CMD_LIST_IDPS = 'listIdps';
+    public const string CMD_TABLE_ACTIONS = 'handleTableActions';
+    public const string CMD_SHOW_NEW_IDP_FORM = 'showNewIdpForm';
+    public const string CMD_SAVE_NEW_IDP = 'saveNewIdp';
+    public const string CMD_DELETE_IDP = 'deleteIdp';
+    public const string CMD_SAVE_SETTINGS = 'saveSettings';
+    public const string CMD_SHOW_SETTINGS = 'showSettings';
+    public const string CMD_SHOW_IDP_SETTINGS = 'showIdpSettings';
+    public const string CMD_SAVE_IDP_SETTINGS = 'saveIdpSettings';
+    public const string CMD_SAVE_USER_ATTRIBUTE_MAPPING = 'saveUserAttributeMapping';
+    public const string CMD_SHOW_USER_ATTRIBUTE_MAPPING_FORM = 'showUserAttributeMappingForm';
 
-    public const TABLE_ACTION_CONFIRM_DELETE_IDP = 'confirmDeleteIdp';
-    public const TABLE_ACTION_DEACTIVATE_IDP = 'deactivateIdp';
-    public const TABLE_ACTION_ACTIVATE_IDP = 'activateIdp';
-    public const TABLE_ACTION_SHOW_IDP_SETTINGS = 'showIdpSettings';
+    public const string TABLE_ACTION_CONFIRM_DELETE_IDP = 'confirmDeleteIdp';
+    public const string TABLE_ACTION_DEACTIVATE_IDP = 'deactivateIdp';
+    public const string TABLE_ACTION_ACTIVATE_IDP = 'activateIdp';
+    public const string TABLE_ACTION_SHOW_IDP_SETTINGS = 'showIdpSettings';
 
     /** @var list<string> */
-    public const GLOBAL_COMMANDS = [
+    public const array GLOBAL_COMMANDS = [
         self::CMD_LIST_IDPS,
         self::CMD_SHOW_SETTINGS,
         self::CMD_SAVE_SETTINGS,
@@ -46,12 +46,12 @@ interface ilSamlCommands
     ];
 
     /** @var list<string> */
-    public const GLOBAL_ENTITY_COMMANDS = [
+    public const array GLOBAL_ENTITY_COMMANDS = [
         self::CMD_DELETE_IDP,
     ];
 
     /** @var list<string> */
-    public const GLOBAL_ENTITY_TABLE_ACTIONS = [
+    public const array GLOBAL_ENTITY_TABLE_ACTIONS = [
         self::TABLE_ACTION_CONFIRM_DELETE_IDP,
         self::TABLE_ACTION_ACTIVATE_IDP,
         self::TABLE_ACTION_DEACTIVATE_IDP,

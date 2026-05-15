@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -151,7 +152,7 @@ class BookingCancellationGUI
                 \ilObjUser::_lookupFullname($booking_user_id);
 
         }
-        return $this->ui_factory->legacy(implode('<br/', $user_info));
+        return $this->ui_factory->legacy()->content(implode('<br/', $user_info));
     }
 
     protected function getInputs()

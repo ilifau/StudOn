@@ -36,6 +36,7 @@ use ILIAS\GlobalScreen\Scope\MainMenu\Factory\isTopItem;
  */
 class TopParentItemDrilldownRenderer extends BaseTypeRenderer
 {
+    #[\Override]
     public function getComponentWithContent(isItem $item): Component
     {
         $entries = [];
@@ -65,7 +66,7 @@ class TopParentItemDrilldownRenderer extends BaseTypeRenderer
     {
         $title = $item->getTitle();
         $symbol = $this->getStandardSymbol($item);
-        $type = get_class($item);
+        $type = $item::class;
 
         switch ($type) {
             case RepositoryLink::class:

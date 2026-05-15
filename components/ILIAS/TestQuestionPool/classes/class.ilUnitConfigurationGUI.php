@@ -103,7 +103,7 @@ abstract class ilUnitConfigurationGUI
      * @return void
      * @throws ilCtrlException
      */
-    protected function confirmDeleteUnits(array $unit_ids = null): void
+    protected function confirmDeleteUnits(?array $unit_ids = null): void
     {
         if (!$this->isCRUDContext()) {
             $this->showUnitsOfCategory();
@@ -366,8 +366,8 @@ abstract class ilUnitConfigurationGUI
     }
 
     protected function initUnitForm(
-        assFormulaQuestionUnitCategory $category = null,
-        assFormulaQuestionUnit $unit = null
+        ?assFormulaQuestionUnitCategory $category = null,
+        ?assFormulaQuestionUnit $unit = null
     ): ilPropertyFormGUI {
         if ($this->unit_form instanceof ilPropertyFormGUI) {
             return $this->unit_form;
@@ -524,7 +524,7 @@ abstract class ilUnitConfigurationGUI
      * @return void
      * @throws ilCtrlException
      */
-    protected function confirmDeleteCategories(array $category_ids = null): void
+    protected function confirmDeleteCategories(?array $category_ids = null): void
     {
         if (!$this->isCRUDContext()) {
             $this->{$this->getDefaultCommand()}();
@@ -664,7 +664,7 @@ abstract class ilUnitConfigurationGUI
         $this->{$this->getUnitCategoryOverviewCommand()}();
     }
 
-    protected function initUnitCategoryForm(assFormulaQuestionUnitCategory $cat = null): ilPropertyFormGUI
+    protected function initUnitCategoryForm(?assFormulaQuestionUnitCategory $cat = null): ilPropertyFormGUI
     {
         if ($this->unit_cat_form instanceof ilPropertyFormGUI) {
             return $this->unit_cat_form;

@@ -26,7 +26,7 @@ use ILIAS\GlobalScreen\Scope\Layout\Factory\FooterModification;
 use ILIAS\GlobalScreen\Scope\Layout\Provider\AbstractModificationProvider;
 use ILIAS\GlobalScreen\ScreenContext\Stack\CalledContexts;
 use ILIAS\GlobalScreen\ScreenContext\Stack\ContextCollection;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy\Content;
 use ILIAS\UI\Component\MainControls\Footer;
 use ILIAS\GlobalScreen\Scope\Layout\Factory\TitleModification;
 use ILIAS\GlobalScreen\Scope\Layout\Factory\ShortTitleModification;
@@ -78,10 +78,10 @@ class PageContentProvider extends AbstractModificationProvider
     public function getContentModification(CalledContexts $screen_context_stack): ?ContentModification
     {
         return $this->globalScreen()->layout()->factory()->content()->withModification(function (
-            ?Legacy $content
-        ): ?Legacy {
+            ?Content $content
+        ): ?Content {
             $ui = $this->dic->ui();
-            return $ui->factory()->legacy(
+            return $ui->factory()->legacy()->content(
                 $ui->renderer()->render($content) . self::$content
             );
         })->withLowPriority();

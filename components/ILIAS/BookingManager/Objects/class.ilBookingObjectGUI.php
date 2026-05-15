@@ -287,7 +287,7 @@ class ilBookingObjectGUI
     /**
      * Render creation form
      */
-    public function create(ilPropertyFormGUI $a_form = null): void
+    public function create(?ilPropertyFormGUI $a_form = null): void
     {
         if (!$this->access->canManageObjects($this->ref_id)) {
             return;
@@ -312,7 +312,7 @@ class ilBookingObjectGUI
     /**
      * Render edit form
      */
-    public function edit(ilPropertyFormGUI $a_form = null): void
+    public function edit(?ilPropertyFormGUI $a_form = null): void
     {
         if (!$this->access->canManageObjects($this->ref_id)) {
             return;
@@ -344,7 +344,7 @@ class ilBookingObjectGUI
      */
     public function initForm(
         string $a_mode = "create",
-        int $id = null
+        ?int $id = null
     ): ilPropertyFormGUI {
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;

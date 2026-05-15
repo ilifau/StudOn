@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -19,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\Flavour\Machine\DefaultMachines;
 
+use ILIAS\ResourceStorage\Flavour\Machine\FlavourMachine;
 use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\ResourceStorage\Flavour\Definition\FlavourDefinition;
 use ILIAS\ResourceStorage\Flavour\Definition\ToGreyScale;
@@ -30,7 +32,7 @@ use ILIAS\ResourceStorage\Information\FileInformation;
  * @author       Thibeau Fuhrer <thibeau@sr.solutions>
  * @noinspection AutoloadingIssuesInspection
  */
-class MakeGreyScale extends AbstractMachine implements \ILIAS\ResourceStorage\Flavour\Machine\FlavourMachine
+class MakeGreyScale extends AbstractMachine implements FlavourMachine
 {
     use GdImageToStreamTrait;
 

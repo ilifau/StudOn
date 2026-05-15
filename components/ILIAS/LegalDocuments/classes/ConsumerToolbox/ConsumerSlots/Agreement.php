@@ -85,8 +85,8 @@ final class Agreement implements AgreementInterface
     {
         return $this->user
             ->matchingDocument()
-            ->map(fn(Document $document) => $this->ui->create()->legacy($document->content()->value()))
-            ->except(fn() => new Ok($this->ui->create()->legacy(sprintf(
+            ->map(fn(Document $document) => $this->ui->create()->legacy()->content($document->content()->value()))
+            ->except(fn() => new Ok($this->ui->create()->legacy()->content(sprintf(
                 $this->ui->txt('no_agreement_description'),
                 'mailto:' . ilLegacyFormElementsUtil::prepareFormOutput(ilSystemSupportContacts::getMailsToAddress())
             ))))->value();

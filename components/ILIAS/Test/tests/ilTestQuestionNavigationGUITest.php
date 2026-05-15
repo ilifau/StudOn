@@ -24,15 +24,16 @@ declare(strict_types=1);
  */
 class ilTestQuestionNavigationGUITest extends ilTestBaseTestCase
 {
+    use UITestHelper;
+
     private ilTestQuestionNavigationGUI $testObj;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $test_helper = new UITestHelper();
-        $ui_factory = $test_helper->factory();
-        $ui_renderer = $test_helper->renderer();
+        $ui_factory = $this->factory();
+        $ui_renderer = $this->renderer();
 
         $this->testObj = new ilTestQuestionNavigationGUI(
             $this->createMock(ilLanguage::class),

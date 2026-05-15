@@ -149,7 +149,7 @@ class ilGlossaryTermGUI
     }
 
     public function editTerm(
-        ilPropertyFormGUI $a_form = null
+        ?ilPropertyFormGUI $a_form = null
     ): void {
         $ilTabs = $this->tabs_gui;
         $ilCtrl = $this->ctrl;
@@ -284,7 +284,7 @@ class ilGlossaryTermGUI
      */
     public function output(
         bool $a_offline = false,
-        ilGlobalTemplateInterface $a_tpl = null,
+        ?ilGlobalTemplateInterface $a_tpl = null,
         string $a_outputmode = "presentation"
     ): void {
         if ($a_tpl != null) {
@@ -315,8 +315,6 @@ class ilGlossaryTermGUI
         $page_gui->setPageLinker($this->page_linker);
         $page_gui->setTemplateOutput(false);
         $output = $page_gui->presentation($page_gui->getOutputMode());
-
-        ilMathJax::getInstance()->includeMathJax($tpl);
 
         $tpl->setCurrentBlock("definition");
         $tpl->setVariable("PAGE_CONTENT", $output);

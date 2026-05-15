@@ -32,7 +32,7 @@ class BreadcrumbsTest extends ILIAS_UI_TestBase
     public function getFactory(): NoUIFactory
     {
         return new class () extends NoUIFactory {
-            public function breadcrumbs(array $crumbs): C\Breadcrumbs\Breadcrumbs
+            public function breadcrumbs(array $crumbs): I\Component\Breadcrumbs\Breadcrumbs
             {
                 return new I\Component\Breadcrumbs\Breadcrumbs($crumbs);
             }
@@ -84,14 +84,13 @@ class BreadcrumbsTest extends ILIAS_UI_TestBase
         $c = $f->Breadcrumbs($crumbs);
 
         $html = $this->normalizeHTML($r->render($c));
-        $expected = '<nav aria-label="breadcrumbs_aria_label" class="breadcrumb-wrapper">'
-            . '	<div class="breadcrumb" dir="rtl">'
-            . '		<span class="breadcrumb-crumb" dir="ltr">'
-            . '			<a href="#">label2</a>'
-            . '		</span>'
-            . '     <span class="breadcrumb-separator" dir="rtl">&#9247;</span>'
-            . '		<span class="breadcrumb-crumb" dir="ltr">'
+        $expected = '<nav aria-label="breadcrumbs_aria_label" class="breadcrumb_wrapper">'
+            . '	<div class="breadcrumb">'
+            . '		<span class="crumb">'
             . '			<a href="#">label</a>'
+            . '		</span>'
+            . '		<span class="crumb">'
+            . '			<a href="#">label2</a>'
             . '		</span>'
             . '	</div>'
             . '</nav>';
@@ -114,14 +113,14 @@ class BreadcrumbsTest extends ILIAS_UI_TestBase
         $c = $f->Breadcrumbs($crumbs);
 
         $html = $this->brutallyTrimHTML($r->render($c));
-        $expected = '<nav aria-label="breadcrumbs_aria_label" class="breadcrumb-wrapper">'
-            . '	<div class="breadcrumb" dir="rtl">'
-            . '		    <span class="breadcrumb-crumb" dir="ltr">'
-            . '			    <a href="#">label with special characters + –...+}*@ç%#&/($</a>'
-            . '		    </span>'
-            . '         <span class="breadcrumb-separator" dir="rtl">&#9247;</span>'
-            . '		    <span class="breadcrumb-crumb" dir="ltr">'
+        $expected = '<nav aria-label="breadcrumbs_aria_label" class="breadcrumb_wrapper">'
+            . '	<div class="breadcrumb">'
+            . '		    <span class="crumb">'
             . '			    <a href="#">label without special characters</a>'
+            . '		    </span>'
+            . '		    <span class="crumb">'
+            . '			    <a href="#">label with special characters + –...+}*@ç%#&/($</a>'
+            . '&lrm;'
             . '		    </span>'
             . '	</div>'
             . '</nav>';

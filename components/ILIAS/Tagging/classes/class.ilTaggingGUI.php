@@ -259,7 +259,7 @@ class ilTaggingGUI
 
     public static function initJavascript(
         string $a_ajax_url,
-        ilGlobalTemplateInterface $a_main_tpl = null
+        ?ilGlobalTemplateInterface $a_main_tpl = null
     ): void {
         global $DIC;
 
@@ -291,7 +291,7 @@ class ilTaggingGUI
         global $DIC;
 
         $ui = $DIC->ui();
-        $modal = $ui->factory()->modal()->roundtrip('#tag_title#', $ui->factory()->legacy(''));
+        $modal = $ui->factory()->modal()->roundtrip('#tag_title#', $ui->factory()->legacy()->content(''));
         $modalt["show"] = $modal->getShowSignal()->getId();
         $modalt["close"] = $modal->getCloseSignal()->getId();
         $modalt["template"] = $ui->renderer()->renderAsync($modal);
@@ -302,7 +302,7 @@ class ilTaggingGUI
     // Get tagging js call
     public static function getListTagsJSCall(
         string $a_hash,
-        string $a_update_code = null
+        ?string $a_update_code = null
     ): string {
         if ($a_update_code === null) {
             $a_update_code = "null";

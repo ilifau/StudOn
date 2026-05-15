@@ -1,11 +1,13 @@
 <?php
 
 use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * fau: syncToCampo - new class for campo data update cron job.
  */
-class ilSyncToCampoCron extends ilCronJob
+class ilSyncToCampoCron extends CronJob
 {
     public function getId(): string
     {
@@ -26,9 +28,9 @@ class ilSyncToCampoCron extends ilCronJob
         return $DIC->language()->txt("fau_campo_members_update_info");
     }
     
-    public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
+    public function getDefaultScheduleType(): \ILIAS\Cron\Job\Schedule\JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
+        return \ILIAS\Cron\Job\Schedule\JobScheduleType::IN_MINUTES;
     }
     
     public function getDefaultScheduleValue(): ?int
@@ -46,21 +48,21 @@ class ilSyncToCampoCron extends ilCronJob
         return true;
     }
     
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         global $DIC;
 
-        $result = new \ilCronJobResult();
+        $result = new JobResult();
 
         // Then create or update the ilias courses based on that data
         $service = $DIC->fau()->sync()->toCampo();
         $service->synchronize();
 
         if ($service->hasErrors()) {
-            $result->setStatus(\ilCronJobResult::STATUS_FAIL);
+            $result->setStatus(JobResult::STATUS_FAIL);
             $result->setMessage(implode(', ', $service->getErrors()));
         } else {
-            $result->setStatus(\ilCronJobResult::STATUS_OK);
+            $result->setStatus(JobResult::STATUS_OK);
             $result->setMessage('Added Members: ' . $service->getItemsAdded() . ', '
                 . 'Updated Members: ' . $service->getItemsUpdated() . ', '
                 . 'Deleted Members: ' . $service->getItemsDeleted()

@@ -204,8 +204,12 @@ class ParticipantTableActions
         if ($selected_participants === 'ALL_OBJECTS') {
             return array_filter(
                 iterator_to_array($this->repository->getParticipants($this->test_obj->getTestId())),
-                fn(Participant $participant) => $action->allowActionForRecord($participant)
+                static fn(Participant $participant): bool => $action->allowActionForRecord($participant)
             );
+        }
+
+        if (!is_array($selected_participants)) {
+            return [];
         }
 
         return array_filter(
@@ -231,7 +235,7 @@ class ParticipantTableActions
                 },
                 $selected_participants
             ),
-            fn(Participant $participant) => $action->allowActionForRecord($participant)
+            static fn(?Participant $participant): bool => $participant instanceof Participant && $action->allowActionForRecord($participant)
         );
     }
 }

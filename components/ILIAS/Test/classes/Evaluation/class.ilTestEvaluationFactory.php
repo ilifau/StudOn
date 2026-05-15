@@ -130,7 +130,7 @@ class ilTestEvaluationFactory
         $current_attempt = null;
 
         foreach ($eval_data_rows as $row) {
-            if($row['pass'] === null) {
+            if ($row['pass'] === null) {
                 continue;
             }
 
@@ -155,7 +155,7 @@ class ilTestEvaluationFactory
                     $attempt->setStartTime($start_time);
                 }
                 $attempt->setStatusOfAttempt(
-                    $this->buildFinalizedBy($current_attempt, $row['last_finished_pass'], $row['finalized_by'])
+                    StatusOfAttempt::build($current_attempt, $row['last_finished_pass'], $row['finalized_by'])
                 );
             }
 
@@ -196,8 +196,6 @@ class ilTestEvaluationFactory
         $attempt->setNrOfAnsweredQuestions($row['answeredquestions']);
         $attempt->setWorkingTime($row['workingtime']);
         $attempt->setExamId((string) $row['exam_id']);
-        $attempt->setRequestedHintsCount($row['hint_count']);
-        $attempt->setDeductedHintPoints($row['hint_points']);
         return $attempt;
     }
 
@@ -444,18 +442,5 @@ class ilTestEvaluationFactory
         );
 
         return $times['first_access'];
-    }
-
-    private function buildFinalizedBy(int $current_attempt, ?int $last_finished_attempt, ?string $finalized_by): StatusOfAttempt
-    {
-        if ($last_finished_attempt === null || $current_attempt > $last_finished_attempt) {
-            return StatusOfAttempt::RUNNING;
-        }
-
-        if ($finalized_by === null) {
-            return StatusOfAttempt::FINISHED_BY_UNKNOWN;
-        }
-
-        return StatusOfAttempt::tryFrom($finalized_by);
     }
 }

@@ -93,7 +93,7 @@ interface Cookie
      *
      * @param null|string $value The cookie value.
      */
-    public function withValue(string $value = null): Cookie;
+    public function withValue(?string $value = null): Cookie;
 
 
     /**
@@ -127,7 +127,7 @@ interface Cookie
      *
      * @param null|int $maxAge Lifetime in seconds.
      */
-    public function withMaxAge(int $maxAge = null): Cookie;
+    public function withMaxAge(?int $maxAge = null): Cookie;
 
 
     /**
@@ -135,7 +135,7 @@ interface Cookie
      *
      * @param null|string $path The cookie path.
      */
-    public function withPath(string $path = null): Cookie;
+    public function withPath(?string $path = null): Cookie;
 
 
     /**
@@ -143,7 +143,7 @@ interface Cookie
      *
      * @param null|string $domain Cookie domain.
      */
-    public function withDomain(string $domain = null): Cookie;
+    public function withDomain(?string $domain = null): Cookie;
 
 
     /**
@@ -151,7 +151,7 @@ interface Cookie
      *
      * @param null|bool $secure Secure flag.
      */
-    public function withSecure(bool $secure = null): Cookie;
+    public function withSecure(?bool $secure = null): Cookie;
 
 
     /**
@@ -159,7 +159,7 @@ interface Cookie
      *
      * @param null|bool $httpOnly http only flag.
      */
-    public function withHttpOnly(bool $httpOnly = null): Cookie;
+    public function withHttpOnly(?bool $httpOnly = null): Cookie;
 
     /**
      * Sets the samesite attribute.

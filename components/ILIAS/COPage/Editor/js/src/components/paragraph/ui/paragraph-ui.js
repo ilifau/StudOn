@@ -470,6 +470,10 @@ export default class ParagraphUI {
     this.addBBCode('[anc name=""]', '[/anc]');
   }
 
+  textTemplate(content) {
+    this.addBBCode(content, '');
+  }
+
   cmdBList() {
     this.tinyWrapper.bulletList();
   }
@@ -944,6 +948,13 @@ export default class ParagraphUI {
           format = char_button.dataset.copgEdParFormat;
           char_button.addEventListener('click', (event) => {
             dispatch.dispatch(action.paragraph().editor().selectionFormat(format));
+          });
+          break;
+
+        case ACTIONS.TEXT_TEMPLATE:
+          const content = char_button.dataset.copgEdParContent;
+          char_button.addEventListener('click', (event) => {
+            dispatch.dispatch(action.paragraph().editor().textTemplate(content));
           });
           break;
 

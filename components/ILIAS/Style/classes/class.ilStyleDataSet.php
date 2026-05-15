@@ -47,20 +47,9 @@ class ilStyleDataSet extends ilDataSet
     protected Content\InternalDomainService $style_domain;
     protected ?ilObjStyleSheet $current_obj = null;
     protected Content\InternalRepoService $repo;
-    /**
-     * @var ilLogger
-     */
-    protected $log;
-
-    /**
-     * @var ilRbacSystem
-     */
-    protected $rbacsystem;
-
-    /**
-     * @var \ilObjUser
-     */
-    protected $user;
+    protected ilLogger $log;
+    protected ilRbacSystem $rbacsystem;
+    protected \ilObjUser $user;
 
     public function __construct()
     {
@@ -449,7 +438,7 @@ class ilStyleDataSet extends ilDataSet
                     $this->getIRSSContainerExportConfig(
                         $container,
                         "images"
-                );
+                    );
             }
         }
         return null;

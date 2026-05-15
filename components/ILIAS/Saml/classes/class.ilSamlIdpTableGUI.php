@@ -18,24 +18,24 @@
 
 declare(strict_types=1);
 
-final class ilSamlIdpTableGUI implements \ILIAS\UI\Component\Table\DataRetrieval, ilSamlCommands
+final readonly class ilSamlIdpTableGUI implements \ILIAS\UI\Component\Table\DataRetrieval, ilSamlCommands
 {
     /** @var list<ilSamlIdp> */
     private array $idps;
-    private readonly ILIAS\UI\URLBuilder $url_builder;
-    private readonly ILIAS\UI\URLBuilderToken $action_parameter_token;
-    private readonly ILIAS\UI\URLBuilderToken $row_id_token;
+    private ILIAS\UI\URLBuilder $url_builder;
+    private ILIAS\UI\URLBuilderToken $action_parameter_token;
+    private ILIAS\UI\URLBuilderToken $row_id_token;
 
     public function __construct(
-        private readonly ilSamlSettingsGUI $parent_gui,
-        private readonly \ILIAS\UI\Factory $ui_factory,
-        private readonly \ILIAS\UI\Renderer $ui_renderer,
-        private readonly ilLanguage $lng,
-        private readonly ilCtrlInterface $ctrl,
-        private readonly \Psr\Http\Message\ServerRequestInterface $http_request,
-        private readonly \ILIAS\Data\Factory $df,
-        private readonly string $parent_cmd,
-        private readonly bool $has_write_access
+        private ilSamlSettingsGUI $parent_gui,
+        private \ILIAS\UI\Factory $ui_factory,
+        private \ILIAS\UI\Renderer $ui_renderer,
+        private ilLanguage $lng,
+        private ilCtrlInterface $ctrl,
+        private \Psr\Http\Message\ServerRequestInterface $http_request,
+        private \ILIAS\Data\Factory $df,
+        private string $parent_cmd,
+        private bool $has_write_access
     ) {
         $this->idps = ilSamlIdp::getAllIdps();
 
@@ -60,9 +60,9 @@ final class ilSamlIdpTableGUI implements \ILIAS\UI\Component\Table\DataRetrieval
         return $this->ui_factory
             ->table()
             ->data(
+                $this,
                 $this->lng->txt('auth_saml_idps'),
                 $this->getColumnDefinition(),
-                $this
             )
             ->withId(str_replace('\\', '', self::class))
             ->withOrder(new \ILIAS\Data\Order('title', \ILIAS\Data\Order::ASC))
@@ -172,8 +172,9 @@ final class ilSamlIdpTableGUI implements \ILIAS\UI\Component\Table\DataRetrieval
         array $visible_column_ids,
         \ILIAS\Data\Range $range,
         \ILIAS\Data\Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): Generator {
         foreach ($this->getRecords($range, $order) as $item) {
             yield $row_builder
@@ -192,8 +193,11 @@ final class ilSamlIdpTableGUI implements \ILIAS\UI\Component\Table\DataRetrieval
         }
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         return count($this->idps);
     }
 }

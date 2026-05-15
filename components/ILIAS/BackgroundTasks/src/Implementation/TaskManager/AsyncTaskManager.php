@@ -22,8 +22,6 @@ use ILIAS\BackgroundTasks\Bucket;
 use ILIAS\BackgroundTasks\Implementation\Bucket\State;
 use ILIAS\BackgroundTasks\Implementation\Tasks\UserInteraction\UserInteractionRequiredException;
 use ILIAS\BackgroundTasks\Implementation\Tasks\UserInteraction\UserInteractionSkippedException;
-use ILIAS\BackgroundTasks\Task\UserInteraction;
-use ILIAS\Export\ImportStatus\Exception\ilException;
 
 class AsyncTaskManager extends BasicTaskManager
 {
@@ -68,9 +66,9 @@ class AsyncTaskManager extends BasicTaskManager
         );
 
         try {
-            $soap_client->call(self::CMD_START_WORKER, array(
+            $soap_client->call(self::CMD_START_WORKER, [
                 $session_id . '::' . $client_id,
-            ));
+            ]);
         } catch (\Throwable $t) {
             $DIC->logger()->bgtk()->warning($t->getMessage());
             $DIC->logger()->bgtk()->warning("Calling webserver failed, fallback to sync version");
@@ -82,14 +80,14 @@ class AsyncTaskManager extends BasicTaskManager
     }
 
     /**
-     * @return void|bool
+     * @return bool|null
      */
-    public function runAsync()
+    public function runAsync(): ?bool
     {
         global $DIC, $ilIliasIniFile;
 
         $n_of_tasks = $ilIliasIniFile->readVariable("background_tasks", "number_of_concurrent_tasks");
-        $n_of_tasks = $n_of_tasks ? $n_of_tasks : 5;
+        $n_of_tasks = $n_of_tasks ?: 5;
 
         $DIC->logger()->bgtk()->info("Starting background job.");
         $persistence = $DIC->backgroundTasks()->persistence();
@@ -99,7 +97,7 @@ class AsyncTaskManager extends BasicTaskManager
         if (count($persistence->getBucketIdsByState(State::RUNNING)) >= $MAX_PARALLEL_JOBS) {
             $DIC->logger()->bgtk()->info("Too many running jobs, worker going down.");
 
-            return;
+            return null;
         }
 
         while (true) {
@@ -116,10 +114,10 @@ class AsyncTaskManager extends BasicTaskManager
                 $this->executeTask($task, $observer);
                 $bucket->setState(State::FINISHED);
                 $this->persistence->updateBucket($bucket);
-            } catch (UserInteractionSkippedException $e) {
+            } catch (UserInteractionSkippedException) {
                 $bucket->setState(State::FINISHED);
                 $this->persistence->deleteBucket($bucket);
-            } catch (UserInteractionRequiredException $e) {
+            } catch (UserInteractionRequiredException) {
                 // We're okay!
                 $this->persistence->saveBucketAndItsTasks($bucket);
             } catch (\Exception $e) {

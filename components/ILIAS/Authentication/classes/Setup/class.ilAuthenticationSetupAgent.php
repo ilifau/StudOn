@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-use ILIAS\Authentication\Setup\AbandonLoadDependantSessionDatabaseUpdateObjective;
+use ILIAS\Authentication\Setup\AbandonCASAuthModeUpdateObjective;
 use ILIAS\Setup;
 use ILIAS\Refinery;
 
@@ -26,7 +26,7 @@ class ilAuthenticationSetupAgent implements Setup\Agent
 {
     use Setup\Agent\HasNoNamedObjective;
 
-    protected const DEFAULT_SESSION_EXPIRE_IN_SECONDS = 1_800;
+    protected const int DEFAULT_SESSION_EXPIRE_IN_SECONDS = 1_800;
 
     public function __construct(protected Refinery\Factory $refinery)
     {
@@ -39,12 +39,12 @@ class ilAuthenticationSetupAgent implements Setup\Agent
 
     public function getArrayToConfigTransformation(): Refinery\Transformation
     {
-        return $this->refinery->custom()->transformation(function ($data): \ilAuthenticationSetupConfig {
-            return new ilAuthenticationSetupConfig($data["session_max_idle"] ?? self::DEFAULT_SESSION_EXPIRE_IN_SECONDS);
+        return $this->refinery->custom()->transformation(function ($data): ilAuthenticationSetupConfig {
+            return new ilAuthenticationSetupConfig($data['session_max_idle'] ?? self::DEFAULT_SESSION_EXPIRE_IN_SECONDS);
         });
     }
 
-    public function getInstallObjective(Setup\Config $config = null): Setup\Objective
+    public function getInstallObjective(?Setup\Config $config = null): Setup\Objective
     {
         if ($config !== null) {
             return new ilSessionMaxIdleIsSetObjective($config);
@@ -55,22 +55,16 @@ class ilAuthenticationSetupAgent implements Setup\Agent
         );
     }
 
-    public function getUpdateObjective(Setup\Config $config = null): Setup\Objective
+    public function getUpdateObjective(?Setup\Config $config = null): Setup\Objective
     {
         if ($config !== null) {
             return new Setup\ObjectiveCollection(
                 'Authentication',
                 true,
-                new ilDatabaseUpdateStepsExecutedObjective(
-                    new ilAuthenticationDatabaseUpdateSteps8()
-                ),
-                new ilDatabaseUpdateStepsExecutedObjective(
-                    new AbandonAuthRichTextEditorDatabaseUpdateSteps()
-                ),
                 new ilSessionMaxIdleIsSetObjective($config),
                 new ilDatabaseUpdateStepsExecutedObjective(
-                    new AbandonLoadDependantSessionDatabaseUpdateObjective()
-                )
+                    new AbandonCASAuthModeUpdateObjective()
+                ),
             );
         }
 
@@ -78,14 +72,8 @@ class ilAuthenticationSetupAgent implements Setup\Agent
             'Authentication',
             true,
             new ilDatabaseUpdateStepsExecutedObjective(
-                new ilAuthenticationDatabaseUpdateSteps8()
+                new AbandonCASAuthModeUpdateObjective()
             ),
-            new ilDatabaseUpdateStepsExecutedObjective(
-                new AbandonAuthRichTextEditorDatabaseUpdateSteps()
-            ),
-            new ilDatabaseUpdateStepsExecutedObjective(
-                new AbandonLoadDependantSessionDatabaseUpdateObjective()
-            )
         );
     }
 
@@ -101,11 +89,7 @@ class ilAuthenticationSetupAgent implements Setup\Agent
             true,
             new ilDatabaseUpdateStepsMetricsCollectedObjective(
                 $storage,
-                new ilAuthenticationDatabaseUpdateSteps8()
-            ),
-            new ilDatabaseUpdateStepsMetricsCollectedObjective(
-                $storage,
-                new AbandonAuthRichTextEditorDatabaseUpdateSteps()
+                new AbandonCASAuthModeUpdateObjective()
             ),
         );
     }

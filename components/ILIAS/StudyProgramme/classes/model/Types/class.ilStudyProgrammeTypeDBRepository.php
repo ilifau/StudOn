@@ -396,8 +396,8 @@ class ilStudyProgrammeTypeDBRepository implements ilStudyProgrammeTypeRepository
      * @inheritdoc
      */
     public function getAllTypes(
-        Range $range = null,
-        Order $order = null
+        ?Range $range = null,
+        ?Order $order = null
     ): array {
         $return = [];
         foreach ($this->getAllTypesRecords($range, $order) as $row) {
@@ -709,9 +709,9 @@ class ilStudyProgrammeTypeDBRepository implements ilStudyProgrammeTypeRepository
     public function getTable(): DataTable\Data
     {
         return $this->ui_factory->table()->data(
+            $this,
             $this->lng->txt('prg_subtypes'),
             $this->getColums(),
-            $this
         );
     }
 
@@ -727,8 +727,9 @@ class ilStudyProgrammeTypeDBRepository implements ilStudyProgrammeTypeRepository
     }
 
     public function getTotalRowCount(
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): ?int {
         return $this->getAllTypesRecordCount();
     }
@@ -738,8 +739,9 @@ class ilStudyProgrammeTypeDBRepository implements ilStudyProgrammeTypeRepository
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         foreach ($this->getAllTypes($range, $order) as $idx => $type) {
             $default_language = $type->getDefaultLang();

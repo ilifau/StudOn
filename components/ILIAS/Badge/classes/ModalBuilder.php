@@ -36,7 +36,7 @@ class ModalBuilder
     private ilLanguage $lng;
     private ?ilBadgeAssignment $assignment = null;
 
-    public function __construct(ilBadgeAssignment $assignment = null)
+    public function __construct(?ilBadgeAssignment $assignment = null)
     {
         global $DIC;
 
@@ -61,7 +61,7 @@ class ModalBuilder
     ): Modal {
         if ($badge_image !== null) {
             if ($enclose_in_div) {
-                $modal_content[] = $this->ui_factory->legacy(
+                $modal_content[] = $this->ui_factory->legacy()->content(
                     '<div class="ilBadgeImage">' . $this->ui_renderer->render($badge_image) . '</div>'
                 );
             } else {

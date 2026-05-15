@@ -41,6 +41,7 @@ class ilFileExporter extends ilXmlExporter
      * @param array        ids
      * @return        array        array of array with keys "component", entity", "ids"
      */
+    #[\Override]
     public function getXmlExportTailDependencies(string $a_entity, string $a_target_release, array $a_ids): array
     {
         $md_ids = [];
@@ -72,7 +73,7 @@ class ilFileExporter extends ilXmlExporter
     public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $a_id): string
     {
         $xml = '';
-        if (ilObject::_lookupType((int) $a_id) == 'file') {
+        if (ilObject::_lookupType((int) $a_id) === 'file') {
             $file = new ilObjFile((int) $a_id, false);
             $writer = new ilFileXMLWriter();
             $writer->setFile($file);

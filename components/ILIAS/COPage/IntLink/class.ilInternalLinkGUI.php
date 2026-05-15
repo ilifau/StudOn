@@ -21,6 +21,7 @@ use ILIAS\COPage\IntLink\StandardGUIRequest;
 /**
  * Internal link selector
  * @author Alexander Killing <killing@leifos.de>
+ * @deprecated 10 This component will be removed with ILIAS 10
  */
 class ilInternalLinkGUI
 {
@@ -954,7 +955,7 @@ class ilInternalLinkGUI
         $lng = $DIC->language();
 
         $ui = $DIC->ui();
-        $modal = $ui->factory()->modal()->roundtrip($lng->txt("link_link"), $ui->factory()->legacy("<div id='ilIntLinkModalContent'></div>"));
+        $modal = $ui->factory()->modal()->roundtrip($lng->txt("link_link"), $ui->factory()->legacy()->content("<div id='ilIntLinkModalContent'></div>"));
         $modalt["show"] = $modal->getShowSignal()->getId();
         $modalt["close"] = $modal->getCloseSignal()->getId();
         $modalt["template"] = $ui->renderer()->renderAsync($modal);

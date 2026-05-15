@@ -18,6 +18,14 @@
 
 declare(strict_types=1);
 
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer as UIRenderer;
+use ILIAS\Data\Factory as DataFactory;
+use ILIAS\Registration\RegistrationCodesTable;
+use ILIAS\Registration\RegistrationCodeRepository;
+use ILIAS\Registration\RegistrationFilterComponent;
+use ILIAS\User\Settings\NewAccountMail\SettingsGUI as NewAccountMailSettingsGUI;
+
 /**
  * Class ilRegistrationSettingsGUI
  * @author       Stefan Meyer <smeyer.ilias@gmx.de>
@@ -44,9 +52,15 @@ class ilRegistrationSettingsGUI
     protected ilErrorHandling $error;
     protected ilTabsGUI $tabs;
     protected ilToolbarGUI $toolbar;
-    protected \ILIAS\HTTP\Services $http;
-    protected \ILIAS\Refinery\Factory $refinery;
-
+    protected readonly ILIAS\HTTP\Services $http;
+    protected readonly ILIAS\Refinery\Factory $refinery;
+    protected readonly Factory $ui_factory;
+    protected readonly UIRenderer $ui_renderer;
+    protected readonly ilUIService $ui_service;
+    protected readonly ilObjUser $user;
+    protected readonly RegistrationCodeRepository $code_repository;
+    protected readonly RegistrationFilterComponent $registration_code_filter;
+    protected readonly RegistrationCodesTable $registration_codes_table;
     protected ilRegistrationSettings $registration_settings;
     protected ?ilRegistrationRoleAssignments $assignments_obj = null;
     protected ?ilRegistrationRoleAccessLimitations $access_limitations_obj = null;
@@ -75,6 +89,11 @@ class ilRegistrationSettingsGUI
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
         $this->ref_id = $this->initRefIdFromQuery();
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
+        $this->ui_service = $DIC->uiService();
+        $this->user = $DIC->user();
+        $this->code_repository = new RegistrationCodeRepository($DIC->database());
     }
 
     protected function initRefIdFromQuery(): int
@@ -92,6 +111,14 @@ class ilRegistrationSettingsGUI
     {
         $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
+
+        if ($this->http->wrapper()->query()->has('registration_codes_table_action')) {
+            $cmd = $this->http->wrapper()->query()->retrieve(
+                'registration_codes_table_action',
+                $this->refinery->kindlyTo()->string()
+            );
+        }
+
         switch ($next_class) {
             default:
                 if (!$cmd) {
@@ -228,6 +255,14 @@ class ilRegistrationSettingsGUI
 
         if ($this->rbacsystem->checkAccess("write", $this->ref_id)) {
             $form_gui->addCommandButton('save', $this->lng->txt('save'));
+        } else {
+            foreach ($form_gui->getItems() as $item) {
+                if ($item instanceof ilFormSectionHeaderGUI) {
+                    continue;
+                }
+
+                $item->setDisabled(true);
+            }
         }
         return $form_gui;
     }
@@ -267,7 +302,7 @@ class ilRegistrationSettingsGUI
 
     public function view(): void
     {
-        $this->checkAccess('visible,read');
+        $this->checkAccess('read');
         $this->setSubTabs();
 
         // edit new accout mail
@@ -278,9 +313,11 @@ class ilRegistrationSettingsGUI
                 $this->ctrl->getLinkTargetByClass(
                     [
                         ilAdministrationGUI::class,
-                        ilObjUserFolderGUI::class
+                        ilObjUserFolderGUI::class,
+                        NewAccountMailSettingsGUI::class
+
                     ],
-                    'newAccountMail'
+                    'show'
                 )
             );
             $this->ctrl->setParameterByClass(ilObjUserFolderGUI::class, 'ref_id', $_GET['ref_id']);
@@ -411,7 +448,7 @@ class ilRegistrationSettingsGUI
         return true;
     }
 
-    public function editEmailAssignments(ilPropertyFormGUI $form = null): void
+    public function editEmailAssignments(?ilPropertyFormGUI $form = null): void
     {
         $this->checkAccess('write');
         $this->tabs->clearTargets();
@@ -468,7 +505,7 @@ class ilRegistrationSettingsGUI
         return $role_assignment_form;
     }
 
-    public function editRoleAccessLimitations(ilPropertyFormGUI $form = null): void
+    public function editRoleAccessLimitations(?ilPropertyFormGUI $form = null): void
     {
         global $DIC;
 
@@ -780,16 +817,53 @@ class ilRegistrationSettingsGUI
 
     public function listCodes(): void
     {
-        $this->checkAccess("visible,read");
+        $this->checkAccess('read');
         $this->setSubTabs('registration_codes');
-        if ($this->checkAccessBool("write")) {
+        if ($this->checkAccessBool('write')) {
             $this->toolbar->addButton(
-                $this->lng->txt("registration_codes_add"),
-                $this->ctrl->getLinkTarget($this, "addCodes")
+                $this->lng->txt('registration_codes_add'),
+                $this->ctrl->getLinkTarget($this, 'addCodes')
             );
         }
-        $ctab = new ilRegistrationCodesTableGUI($this, "listCodes");
-        $this->tpl->setContent($ctab->getHTML());
+        $this->tpl->setContent($this->ui_renderer->render([
+            $this->getRegistrationFilter()->getFilterComponent(),
+            $this->getRegistrationCodeTable()->getTableComponent($this->getRegistrationFilter())
+        ]));
+    }
+
+    public function getRegistrationCodeTable(): RegistrationCodesTable
+    {
+        if (!isset($this->registration_codes_table)) {
+            $this->registration_codes_table = new RegistrationCodesTable(
+                $this->http->request(),
+                $this->lng,
+                $this->ui_factory,
+                new DataFactory(),
+                $this->rbacreview,
+                $this->ctrl->getLinkTarget($this, 'listCodes', '', true),
+                $this->user,
+                $this->code_repository,
+                $this->checkAccessBool('write'),
+            );
+        }
+
+        return $this->registration_codes_table;
+    }
+
+    public function getRegistrationFilter(): RegistrationFilterComponent
+    {
+        if (!isset($this->registration_code_filter)) {
+            $this->registration_code_filter = new RegistrationFilterComponent(
+                $this->ctrl->getLinkTarget($this, 'listCodes', '', true),
+                $this->ui_factory,
+                $this->ui_service,
+                $this->lng,
+                $this->rbacreview,
+                $this->code_repository
+            );
+        }
+
+        return $this->registration_code_filter;
     }
 
     public function initAddCodesForm(): ilPropertyFormGUI
@@ -999,81 +1073,78 @@ class ilRegistrationSettingsGUI
                 )
             );
         }
-        ilRegistrationCode::deleteCodes($ids);
+        $this->code_repository->deleteCodes($ids);
         $this->tpl->setOnScreenMessage('success', $this->lng->txt('info_deleted'), true);
         $this->ctrl->redirect($this, "listCodes");
     }
 
     public function deleteConfirmation(): void
     {
-        $this->checkAccess("write");
-
-        $ids = [];
-        if ($this->http->wrapper()->post()->has('id')) {
-            $ids = $this->http->wrapper()->post()->retrieve(
-                'id',
+        $this->checkAccess('write');
+        $codes = [];
+        if ($this->http->wrapper()->query()->has('registration_codes_code_ids')) {
+            $ids = $this->http->wrapper()->query()->retrieve(
+                'registration_codes_code_ids',
                 $this->refinery->kindlyTo()->listOf(
-                    $this->refinery->kindlyTo()->int()
+                    $this->refinery->kindlyTo()->string()
                 )
             );
+            if ($ids === ['ALL_OBJECTS']) {
+                $codes = $this->code_repository->getCodesByFilter($this->getRegistrationFilter()->getFilterData());
+            } else {
+                $ids = $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())->transform($ids);
+                $codes = $this->code_repository->loadCodesByIds($ids);
+            }
         }
-        if (!count($ids)) {
+        if (!count($codes)) {
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt('err_select_one'), true);
             $this->ctrl->redirect($this, 'listCodes');
         }
         $this->setSubTabs('registration_codes');
 
         $gui = new ilConfirmationGUI();
-        $gui->setHeaderText($this->lng->txt("info_delete_sure"));
-        $gui->setCancel($this->lng->txt("cancel"), "listCodes");
-        $gui->setConfirm($this->lng->txt("confirm"), "deleteCodes");
-        $gui->setFormAction($this->ctrl->getFormAction($this, "deleteCodes"));
+        $gui->setHeaderText($this->lng->txt('info_delete_sure'));
+        $gui->setCancel($this->lng->txt('cancel'), 'listCodes');
+        $gui->setConfirm($this->lng->txt('confirm'), 'deleteCodes');
+        $gui->setFormAction($this->ctrl->getFormAction($this, 'deleteCodes'));
 
-        $data = ilRegistrationCode::loadCodesByIds($ids);
-        foreach ($data as $code) {
-            $gui->addItem("id[]", (string) $code["code_id"], $code["code"]);
+        foreach ($codes as $code) {
+            $gui->addItem('id[]', (string) $code['code_id'], $code['code']);
         }
         $this->tpl->setContent($gui->getHTML());
     }
 
-    public function resetCodesFilter(): void
-    {
-        $utab = new ilRegistrationCodesTableGUI($this, "listCodes");
-        $utab->resetOffset();
-        $utab->resetFilter();
-
-        $this->listCodes();
-    }
-
-    public function applyCodesFilter(): void
-    {
-        $utab = new ilRegistrationCodesTableGUI($this, "listCodes");
-        $utab->resetOffset();
-        $utab->writeFilterToSession();
-
-        $this->listCodes();
-    }
-
     public function exportCodes(): void
     {
-        $this->checkAccess('read');
-        $utab = new ilRegistrationCodesTableGUI($this, "listCodes");
+        $codes = [];
+        if ($this->http->wrapper()->query()->has('registration_codes_code_ids')) {
+            $ids = $this->http->wrapper()->query()->retrieve(
+                'registration_codes_code_ids',
+                $this->refinery->kindlyTo()->listOf(
+                    $this->refinery->kindlyTo()->string()
+                )
+            );
+            if ($ids === ['ALL_OBJECTS']) {
+                $codes = $this->code_repository->getCodesByFilter($this->getRegistrationFilter()->getFilterData());
+            } else {
+                $ids = $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())->transform($ids);
+                $codes = $this->code_repository->loadCodesByIds($ids);
+            }
 
-        $codes = ilRegistrationCode::getCodesForExport(
-            $utab->filter["code"],
-            $utab->filter["role"] ? (int) $utab->filter["role"] : null,
-            $utab->filter["generated"],
-            $utab->filter["alimit"]
-        );
+            $codes = array_filter(array_map(
+                static fn($code) => (string) ($code['code'] ?? ''),
+                $codes
+            ));
+        }
 
         if (count($codes)) {
             ilUtil::deliverData(
                 implode("\r\n", $codes),
-                "ilias_registration_codes_" . date("d-m-Y") . ".txt",
-                "text/plain"
+                'ilias_registration_codes_' . date('d-m-Y') . '.txt',
+                'text/plain'
             );
         } else {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("registration_export_codes_no_data"));
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('registration_export_codes_no_data'));
             $this->listCodes();
         }
     }

@@ -31,9 +31,14 @@ use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
  */
 class StakeholderRepositoryTests extends AbstractTestBase
 {
-    protected \ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderDBRepository $stakeholder_repository;
-    protected \ILIAS\ResourceStorage\Identification\ResourceIdentification $identification;
+    public function __construct()
+    {
+        parent::__construct(static::class);
+    }
+    protected StakeholderDBRepository $stakeholder_repository;
+    protected ResourceIdentification $identification;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -65,7 +70,7 @@ class StakeholderRepositoryTests extends AbstractTestBase
     protected function getResourceStakeholder(
         ?string $stakeholder_id = null,
         ?string $stakeholder_classname = null
-    ): \ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder {
+    ): ResourceStakeholder {
         return new class ($stakeholder_id, $stakeholder_classname) implements ResourceStakeholder {
             /**
              * @var string|mixed

@@ -275,7 +275,7 @@ class LaunchGUI
 
             foreach ($this->launch_information as $key => $value) {
                 if (is_numeric($key)) {
-                    $items[] = $f->legacy($value);
+                    $items[] = $f->legacy()->content($value);
                 } else {
                     $key_value[$key] = $value;
                 }

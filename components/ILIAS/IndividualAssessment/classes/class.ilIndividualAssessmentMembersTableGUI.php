@@ -22,6 +22,7 @@ use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Component\Dropdown\Dropdown;
+use ILIAS\User\Profile\PublicProfileGUI;
 
 /**
  * List of members fo iass
@@ -79,7 +80,7 @@ class ilIndividualAssessmentMembersTableGUI
      *
      * @param 	ILIAS\UI\Component\Component[] 	$view_constrols
      */
-    public function render(array $view_constrols, int $offset = 0, int $limit = null): string
+    public function render(array $view_constrols, int $offset = 0, ?int $limit = null): string
     {
         $ptable = $this->factory->table()->presentation(
             "",
@@ -293,7 +294,7 @@ class ilIndividualAssessmentMembersTableGUI
     /**
      * Returns readable status
      */
-    protected function getStatus(bool $finalized, int $status, int $examiner_id = null): string
+    protected function getStatus(bool $finalized, int $status, ?int $examiner_id = null): string
     {
         if ($status == 0) {
             $status = ilIndividualAssessmentMembers::LP_IN_PROGRESS;
@@ -323,7 +324,7 @@ class ilIndividualAssessmentMembersTableGUI
     /**
      * Returns login of examiner
      */
-    protected function getFullNameFor(int $user_id = null): string
+    protected function getFullNameFor(?int $user_id = null): string
     {
         if (is_null($user_id)) {
             return "";
@@ -336,9 +337,12 @@ class ilIndividualAssessmentMembersTableGUI
     protected function getProfileLink(string $full_name, int $user_id): string
     {
         $back_url = $this->ctrl->getLinkTarget($this->parent, "view");
-        $this->ctrl->setParameterByClass('ilpublicuserprofilegui', 'user_id', $user_id);
-        $this->ctrl->setParameterByClass('ilpublicuserprofilegui', "back_url", rawurlencode($back_url));
-        $link = $this->ctrl->getLinkTargetByClass('ilpublicuserprofilegui', 'getHTML');
+        $this->ctrl->setParameterByClass(PublicProfileGUI::class, 'user_id', $user_id);
+        $this->ctrl->setParameterByClass(PublicProfileGUI::class, "back_url", rawurlencode($back_url));
+        $link = $this->ctrl->getLinkTargetByClass(
+            [ilPublicProfileBaseClassGUI::class, PublicProfileGUI::class],
+            'getHTML'
+        );
         $link = $this->factory->link()->standard($full_name, $link);
 
         return $this->renderer->render($link);
@@ -361,8 +365,8 @@ class ilIndividualAssessmentMembersTableGUI
     protected function getLocationInfos(
         bool $finalized,
         int $usr_id,
-        string $location = null,
-        int $examiner_id = null
+        ?string $location = null,
+        ?int $examiner_id = null
     ): array {
         if (!$this->mayViewLocation($finalized, $usr_id, $examiner_id)) {
             return [];
@@ -394,7 +398,7 @@ class ilIndividualAssessmentMembersTableGUI
      *
      * @return string[]
      */
-    protected function getInternalRecordNote(string $internal_note = null): array
+    protected function getInternalRecordNote(?string $internal_note = null): array
     {
         if (is_null($internal_note)) {
             return [];
@@ -441,7 +445,7 @@ class ilIndividualAssessmentMembersTableGUI
     /**
      * Check user may view the location
      */
-    protected function mayViewLocation(bool $finalized, int $usr_id, int $examiner_id = null): bool
+    protected function mayViewLocation(bool $finalized, int $usr_id, ?int $examiner_id = null): bool
     {
         return
             $this->checkEditable($finalized, $usr_id, $examiner_id) ||
@@ -453,7 +457,7 @@ class ilIndividualAssessmentMembersTableGUI
     /**
      * Check the current user has edit permission on record
      */
-    protected function checkEditable(bool $finalized, int $usr_id, int $examiner_id = null): bool
+    protected function checkEditable(bool $finalized, int $usr_id, ?int $examiner_id = null): bool
     {
         if ($finalized) {
             return false;
@@ -497,7 +501,7 @@ class ilIndividualAssessmentMembersTableGUI
     /**
      * Check the current user is allowed to download the record file
      */
-    protected function checkDownloadFile(int $usr_id, string $file_name = null): bool
+    protected function checkDownloadFile(int $usr_id, ?string $file_name = null): bool
     {
         if ((!is_null($file_name) && $file_name !== '')
             && ($this->iass_access->isSystemAdmin() || $this->userMayDownloadAttachment($usr_id))
@@ -513,7 +517,7 @@ class ilIndividualAssessmentMembersTableGUI
         return $this->iass_access->mayViewUser($usr_id) || $this->iass_access->mayGradeUser($usr_id);
     }
 
-    protected function wasEditedByViewer(int $examiner_id = null): bool
+    protected function wasEditedByViewer(?int $examiner_id = null): bool
     {
         return $examiner_id === $this->current_user_id || null === $examiner_id;
     }

@@ -1,17 +1,21 @@
 <?php
-/******************************************************************************
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
  *
- * This file is part of ILIAS, a powerful learning management system.
- *
- * ILIAS is licensed with the GPL-3.0, you should have received a copy
- * of said license along with the source code.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
  *
  * If this is not the case or you just want to try ILIAS, you'll find
  * us at:
- *      https://www.ilias.de
- *      https://github.com/ILIAS-eLearning
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
  *
- *****************************************************************************/
+ *********************************************************************/
+
 /**
  * Plugin definition
  *
@@ -33,14 +37,14 @@ abstract class ilShibbolethAuthenticationPlugin extends ilPlugin implements ilSh
         }
         if (is_array($a_user_data[$a_keyword])) {
             foreach ($a_user_data[$a_keyword] as $values) {
-                if (strcasecmp(trim($values), $a_value) === 0) {
+                if (strcasecmp(trim((string) $values), $a_value) === 0) {
                     return true;
                 }
             }
 
             return false;
         }
-        return strcasecmp(trim($a_user_data[$a_keyword]), trim($a_value)) === 0;
+        return strcasecmp(trim((string) $a_user_data[$a_keyword]), trim($a_value)) === 0;
     }
 
 

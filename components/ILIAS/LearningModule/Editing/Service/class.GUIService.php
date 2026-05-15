@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\LearningModule\Editing;
 
@@ -62,161 +62,21 @@ class GUIService
         );
     }
 
-    public function subObjectTableGUI(
+    public function subObjectTableBuilder(
         string $title,
         int $lm_id,
         string $type,
-        object $parent_gui
-    ): \ILIAS\LearningModule\Table\TableAdapterGUI {
-        $lng = $this->domain->lng();
-        $user = $this->domain->user();
-        $transl = $this->request()->getTranslation();
-        $table = new \ILIAS\LearningModule\Table\TableAdapterGUI(
-            "subobj",
+        object $parent_gui,
+        string $parent_cmd
+    ): SubObjectTableBuilder {
+        return new SubObjectTableBuilder(
+            $this->domain,
+            $this->gui,
             $title,
-            $this->domain->subObjectRetrieval(
-                $lm_id,
-                $type,
-                $this->request()->getObjId(),
-                $transl
-            ),
-            $parent_gui
+            $lm_id,
+            $type,
+            $parent_gui,
+            $parent_cmd
         );
-        $table = $table
-            ->ordering("saveOrder")
-            ->iconColumn("type", $lng->txt("type"))
-            ->linkColumn("title", $lng->txt("title"));
-        if (!in_array($transl, ["-", ""])) {
-            $table = $table->textColumn("trans_title", $lng->txt("title") .
-            " (" . $lng->txt("meta_l_" . $transl) . ")");
-        }
-
-        if ($type === "st") {
-            $acts = [
-                [
-                    "editPages",
-                    $lng->txt("lm_list_pages"),
-                    [\ilObjLearningModuleGUI::class, \ilStructureObjectGUI::class, EditSubObjectsGUI::class],
-                    "editPages",
-                    "obj_id"
-                ],
-                [
-                    "editTitle",
-                    $lng->txt("cont_edit_title"),
-                    null,
-                    "",
-                    "",
-                    true
-                ],
-                [
-                    "insertChapterAfter",
-                    $lng->txt("lm_insert_chapter_after"),
-                    null,
-                    "",
-                    "",
-                    true
-                ],
-                [
-                    "insertChapterBefore",
-                    $lng->txt("lm_insert_chapter_before"),
-                    null,
-                    "",
-                    "",
-                    true
-                ]
-            ];
-            if ($user->clipboardHasObjectsOfType("st")) {
-                $acts[] = [
-                    "insertChapterClipAfter",
-                    $lng->txt("lm_insert_chapter_clip_after"),
-                    [EditSubObjectsGUI::class],
-                    "insertChapterClipAfter",
-                    "target_id"
-                ];
-                $acts[] = [
-                    "insertChapterClipBefore",
-                    $lng->txt("lm_insert_chapter_clip_before"),
-                    [EditSubObjectsGUI::class],
-                    "insertChapterClipBefore",
-                    "target_id"
-                ];
-            }
-        } else {
-            $acts = [
-                [
-                    "editPage",
-                    $lng->txt("lm_edit_content"),
-                    [\ilObjLearningModuleGUI::class, \ilLMPageObjectGUI::class],
-                    "edit",
-                    "obj_id"
-                ],
-                [
-                    "editTitle",
-                    $lng->txt("cont_edit_title"),
-                    null,
-                    "",
-                    "",
-                    true
-                ],
-                [
-                    "insertPageAfter",
-                    $lng->txt("lm_insert_page_after"),
-                    null,
-                    "",
-                    "",
-                    true
-                ],
-                [
-                    "insertPageBefore",
-                    $lng->txt("lm_insert_page_before"),
-                    null,
-                    "",
-                    "",
-                    true
-                ]
-            ];
-            if ($user->clipboardHasObjectsOfType("pg")) {
-                $acts[] = [
-                    "insertPageClipAfter",
-                    $lng->txt("lm_insert_page_clip_after"),
-                    [EditSubObjectsGUI::class],
-                    "insertPageClipAfter",
-                    "target_id"
-                ];
-                $acts[] = [
-                    "insertPageClipBefore",
-                    $lng->txt("lm_insert_page_clip_before"),
-                    [EditSubObjectsGUI::class],
-                    "insertPageClipBefore",
-                    "target_id"
-                ];
-            }
-        }
-        foreach ($acts as $a) {
-            $table = $table->singleAction($a[0], $a[1], $a[5] ?? false);
-            if (!is_null($a[2])) {
-                $table = $table->redirect($a[2], $a[3], $a[4]);
-            }
-        }
-        $table = $table
-            ->standardAction(
-                "delete",
-                $lng->txt("delete")
-            )
-            ->standardAction(
-                "cutItems",
-                $lng->txt("cut")
-            )
-            ->standardAction(
-                "copyItems",
-                $lng->txt("copy")
-            );
-        if ($type === "pg") {
-            $table = $table->standardAction(
-                "activatePages",
-                $lng->txt("cont_de_activate")
-            );
-        }
-        return $table;
     }
 }

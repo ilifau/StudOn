@@ -14,8 +14,8 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
 declare(strict_types=1);
 
 use ILIAS\components\OrgUnit\ARHelper\BaseCommands;
@@ -274,7 +274,7 @@ class ilOrgUnitUserAssignmentGUI extends BaseCommands
         );
 
         return $this->ui_factory->table()
-            ->data($position->getTitle(), $columns, $this->assignmentRepo)
+            ->data($this->assignmentRepo, $position->getTitle(), $columns)
             ->withId(implode('.', ['orgustaff',$this->getParentRefId(),$position->getId()]))
             ->withActions($actions)
             ->withAdditionalParameters([

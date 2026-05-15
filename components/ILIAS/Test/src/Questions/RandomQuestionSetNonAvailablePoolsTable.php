@@ -52,8 +52,9 @@ class RandomQuestionSetNonAvailablePoolsTable implements DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): Generator {
         foreach ($this->getData($range, $order) as $record) {
             $derive = $record['status'] === \ilTestRandomQuestionSetNonAvailablePool::UNAVAILABILITY_STATUS_LOST;
@@ -65,8 +66,11 @@ class RandomQuestionSetNonAvailablePoolsTable implements DataRetrieval
         }
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         return count($this->pool_definition_list->getNonAvailablePools());
     }
 
@@ -84,7 +88,7 @@ class RandomQuestionSetNonAvailablePoolsTable implements DataRetrieval
     public function getComponent(): DataTable
     {
         return $this->ui_factory->table()
-            ->data($this->lng->txt('tst_non_avail_pools_table'), $this->getColumns(), $this)
+            ->data($this, $this->lng->txt('tst_non_avail_pools_table'), $this->getColumns())
             ->withRequest($this->request)
             ->withActions($this->getActions())
             ->withId('tst_non_avail_pools_table');

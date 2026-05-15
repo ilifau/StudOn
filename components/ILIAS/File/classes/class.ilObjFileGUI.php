@@ -18,7 +18,6 @@
 
 use ILIAS\UI\Component\Input\Container\Form\FormInput;
 use ILIAS\UI\Component\Input\Field\Section;
-use ILIAS\HTTP\Wrapper\WrapperFactory;
 use ILIAS\UI\Renderer;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\Filesystem\Exception\FileNotFoundException;
@@ -29,8 +28,6 @@ use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ILIAS\File\Icon\IconDatabaseRepository;
 use ILIAS\components\File\Settings\General;
-use ILIAS\UI\Implementation\Component\Input\UploadLimitResolver;
-use ILIAS\Data\DataSize;
 use ILIAS\Refinery\String\Group;
 use ILIAS\Data\Factory;
 use ILIAS\WOPI\Discovery\ActionDBRepository;
@@ -41,6 +38,7 @@ use ILIAS\File\Capabilities\Capabilities;
 use ILIAS\File\Capabilities\CapabilityBuilder;
 use ILIAS\File\Capabilities\CapabilityCollection;
 use ILIAS\File\Capabilities\Context;
+use ILIAS\ILIASObject\Properties\CoreProperties\TitleAndDescription;
 
 /**
  * GUI class for file objects.
@@ -87,11 +85,9 @@ class ilObjFileGUI extends ilObject2GUI
     protected ?ilLogger $log = null;
     protected ilObjectService $obj_service;
     protected \ILIAS\Refinery\Factory $refinery;
-    protected WrapperFactory $http;
     protected General $general_settings;
     protected ilFileServicesSettings $file_service_settings;
     protected IconDatabaseRepository $icon_repo;
-    private UploadLimitResolver $upload_limit;
     protected \ILIAS\UI\Component\Input\Factory $inputs;
     protected Renderer $renderer;
     protected ServerRequestInterface $request;
@@ -105,8 +101,6 @@ class ilObjFileGUI extends ilObject2GUI
     public function __construct(int $a_id = 0, int $a_id_type = self::REPOSITORY_NODE_ID, int $a_parent_node_id = 0)
     {
         global $DIC;
-        $this->http = $DIC->http()->wrapper();
-        $this->request = $DIC->http()->request();
         $this->refinery = $DIC->refinery();
         $this->file_service_settings = $DIC->fileServiceSettings();
         $this->user = $DIC->user();
@@ -121,7 +115,6 @@ class ilObjFileGUI extends ilObject2GUI
         $this->obj_service = $DIC->object();
         $this->lng->loadLanguageModule(ilObjFile::OBJECT_TYPE);
         $this->icon_repo = new IconDatabaseRepository();
-        $this->upload_limit = $DIC['ui.upload_limit_resolver'];
         $this->inputs = $DIC->ui()->factory()->input();
         $this->renderer = $DIC->ui()->renderer();
         $this->request = $DIC->http()->request();
@@ -147,6 +140,18 @@ class ilObjFileGUI extends ilObject2GUI
         $this->capabilities = $capability_builder->get($capability_context);
     }
 
+    protected function recordReadEvent(): void
+    {
+        // Record read event and catchup with write events
+        ilChangeEvent::_recordReadEvent(
+            $this->object->getType(),
+            $this->object->getRefId(),
+            $this->object->getId(),
+            $this->user->getId()
+        );
+        $this->updateLearningProgress();
+    }
+
     protected function updateLearningProgress(): void
     {
         if ($this->object->getLPMode() === ilLPObjSettings::LP_MODE_CONTENT_VISITED) {
@@ -170,6 +175,7 @@ class ilObjFileGUI extends ilObject2GUI
         return $this->parent_id;
     }
 
+    #[\Override]
     public function executeCommand(): void
     {
         global $DIC;
@@ -257,8 +263,8 @@ class ilObjFileGUI extends ilObject2GUI
 
             case "illearningprogressgui":
                 $ilTabs->activateTab('learning_progress');
-                $user_id = $this->http->query()->has('user_id')
-                    ? $this->http->query()->retrieve('user_id', $this->refinery->kindlyTo()->int())
+                $user_id = $this->request_wrapper->has('user_id')
+                    ? $this->request_wrapper->retrieve('user_id', $this->refinery->kindlyTo()->int())
                     : $ilUser->getId();
                 $new_gui = new ilLearningProgressGUI(
                     ilLearningProgressGUI::LP_CONTEXT_REPOSITORY,
@@ -300,7 +306,7 @@ class ilObjFileGUI extends ilObject2GUI
                 };
 
                 $this->tabs_gui->activateTab('content');
-                $this->updateLearningProgress();
+                $this->recordReadEvent();
 
                 if ($this->id_type === Context::CONTEXT_WORKSPACE) {
                     $goto_link = ilWorkspaceAccessHandler::getGotoLink(
@@ -410,11 +416,13 @@ class ilObjFileGUI extends ilObject2GUI
     /**
      * @return array
      */
+    #[\Override]
     protected function initCreateForm(string $new_type): Standard
     {
         return $this->initUploadForm();
     }
 
+    #[\Override]
     protected function getCreationFormTitle(): string
     {
         return $this->lng->txt('upload_files');
@@ -432,19 +440,11 @@ class ilObjFileGUI extends ilObject2GUI
             self::UPLOAD_ORIGIN_STANDARD
         );
 
-        // add file input
-        $size = new DataSize(
-            $this->upload_limit->getBestPossibleUploadLimitInBytes($this->upload_handler),
-            DataSize::MB
-        );
 
         $inputs[self::PARAM_FILES] = $this->ui->factory()->input()->field()->file(
             $this->upload_handler,
             $this->lng->txt('upload_files'),
-            sprintf(
-                $this->lng->txt('upload_files_limit'),
-                (string) $size
-            ),
+            null,
             $this->ui->factory()->input()->field()->group([
                 self::PARAM_TITLE => $this->ui->factory()->input()->field()->text(
                     $this->lng->txt('title')
@@ -476,8 +476,8 @@ class ilObjFileGUI extends ilObject2GUI
      */
     protected function uploadFiles(): void
     {
-        $origin = ($this->http->query()->has(self::PARAM_UPLOAD_ORIGIN)) ?
-            $this->http->query()->retrieve(
+        $origin = ($this->request_wrapper->has(self::PARAM_UPLOAD_ORIGIN)) ?
+            $this->request_wrapper->retrieve(
                 self::PARAM_UPLOAD_ORIGIN,
                 $this->refinery->kindlyTo()->string()
             ) : self::UPLOAD_ORIGIN_STANDARD;
@@ -507,14 +507,14 @@ class ilObjFileGUI extends ilObject2GUI
 
         $errors = false;
         foreach ($files as $file_data) {
-            $rid = $this->storage->manage()->find($file_data[$this->upload_handler->getFileIdentifierParameterName()]);
+            $rid = $this->storage->manage()->find($file_data[0]);
             if (null !== $rid) {
                 try {
                     $processor->process(
                         $rid,
-                        $file_data[self::PARAM_TITLE] ?? null,
-                        $file_data[self::PARAM_DESCRIPTION] ?? null,
-                        $data[self::PARAM_COPYRIGHT_ID] ?? $data[1] ?? null
+                        $file_data[1][self::PARAM_TITLE] ?? null,
+                        $file_data[1][self::PARAM_DESCRIPTION] ?? null,
+                        $data[self::PARAM_COPYRIGHT_ID] ?? null
                     );
                 } catch (Throwable $t) {
                     $errors = true;
@@ -552,7 +552,8 @@ class ilObjFileGUI extends ilObject2GUI
         $this->ctrl->redirectToURL($link);
     }
 
-    public function putObjectInTree(ilObject $obj, int $parent_node_id = null): void
+    #[\Override]
+    public function putObjectInTree(ilObject $obj, ?int $parent_node_id = null): void
     {
         // this is needed to support multi fileuploads in personal and shared resources
         $backup_node_id = $this->node_id;
@@ -563,6 +564,7 @@ class ilObjFileGUI extends ilObject2GUI
     /**
      * updates object entry in object_data
      */
+    #[\Override]
     public function update(): void
     {
         $data = [];
@@ -571,7 +573,7 @@ class ilObjFileGUI extends ilObject2GUI
         $inputs = $form->getData();
 
         /**
-         * @var $title_and_description ilObjectPropertyTitleAndDescription
+         * @var ILIAS\ILIASObject\Properties\CoreProperties\TitleAndDescription $title_and_description
          */
         $title_and_description = $inputs['file_info']['title_and_description'];
 
@@ -588,7 +590,7 @@ class ilObjFileGUI extends ilObject2GUI
         $description = $title_and_description->getLongDescription();
         $this->object->setDescription($description);
 
-        $updated_title_and_description = new ilObjectPropertyTitleAndDescription($title, $description);
+        $updated_title_and_description = new TitleAndDescription($title, $description);
         $this->object->getObjectProperties()->storePropertyTitleAndDescription($updated_title_and_description);
 
         $this->object->setImportantInfo($inputs['file_info']['important_info']);
@@ -619,6 +621,7 @@ class ilObjFileGUI extends ilObject2GUI
         $this->ctrl->redirectByClass(self::class, self::CMD_EDIT);
     }
 
+    #[\Override]
     public function edit(): void
     {
         global $DIC;
@@ -733,23 +736,17 @@ class ilObjFileGUI extends ilObject2GUI
 
     public function sendFile(): bool
     {
-        $hist_entry_id = $this->http->query()->has('hist_id')
-            ? $this->http->query()->retrieve('hist_id', $this->refinery->kindlyTo()->int())
+        $hist_entry_id = $this->request_wrapper->has('hist_id')
+            ? $this->request_wrapper->retrieve('hist_id', $this->refinery->kindlyTo()->int())
             : null;
         try {
-            if (ANONYMOUS_USER_ID === $this->user->getId() && $this->http->query()->has('transaction')) {
+            if (ANONYMOUS_USER_ID === $this->user->getId() && $this->request_wrapper->has('transaction')) {
                 $this->object->sendFile($hist_entry_id);
             }
 
             if ($this->capabilities->get(Capabilities::DOWNLOAD)->isUnlocked()) {
                 // Record read event and catchup with write events
-                ilChangeEvent::_recordReadEvent(
-                    $this->object->getType(),
-                    $this->object->getRefId(),
-                    $this->object->getId(),
-                    $this->user->getId()
-                );
-                $this->updateLearningProgress();
+                $this->recordReadEvent();
 
                 $this->object->sendFile($hist_entry_id);
             } else {
@@ -996,6 +993,7 @@ class ilObjFileGUI extends ilObject2GUI
     }
 
     // get tabs
+    #[\Override]
     protected function setTabs(): void
     {
         global $DIC;
@@ -1140,6 +1138,7 @@ class ilObjFileGUI extends ilObject2GUI
         }
     }
 
+    #[\Override]
     protected function initHeaderAction(?string $a_sub_type = null, ?int $a_sub_id = null): ?\ilObjectListGUI
     {
         $lg = parent::initHeaderAction($a_sub_type, $a_sub_id);

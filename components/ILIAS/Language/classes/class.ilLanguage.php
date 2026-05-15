@@ -14,8 +14,7 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -96,7 +95,7 @@ class ilLanguage implements \ILIAS\Language\Language
         }
         if ($DIC->offsetExists("ilUser")) {
             $ilUser = $DIC->user();
-            $this->lang_user = $ilUser->prefs["language"];
+            $this->lang_user = $ilUser->getLanguage();
         }
 
         $langs = $this->getInstalledLanguages();
@@ -434,7 +433,7 @@ class ilLanguage implements \ILIAS\Language\Language
         if ($ilUser instanceof ilObjUser &&
             (($ilUser->getId() && !$ilUser->isAnonymous()))
         ) {
-            ilSession::set("lang", $ilUser->getPref("language"));
+            ilSession::set("lang", $ilUser->getLanguage());
         }
 
         $get_lang = null;
@@ -466,7 +465,7 @@ class ilLanguage implements \ILIAS\Language\Language
      * $a_lang_key language key string or array of language keys
      */
 
-    public function toJS($a_lang_key, ilGlobalTemplateInterface $a_tpl = null): void
+    public function toJS($a_lang_key, ?ilGlobalTemplateInterface $a_tpl = null): void
     {
         global $DIC;
         $tpl = $DIC["tpl"];
@@ -491,7 +490,7 @@ class ilLanguage implements \ILIAS\Language\Language
      *
      * $a_map array of key value pairs (key is text string, value is content)
      */
-    public function toJSMap(array $a_map, ilGlobalTemplateInterface $a_tpl = null): void
+    public function toJSMap(array $a_map, ?ilGlobalTemplateInterface $a_tpl = null): void
     {
         global $DIC;
         $tpl = $DIC["tpl"];

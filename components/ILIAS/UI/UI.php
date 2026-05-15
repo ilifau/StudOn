@@ -32,6 +32,539 @@ class UI implements Component\Component
         array | \ArrayAccess &$pull,
         array | \ArrayAccess &$internal,
     ): void {
+        $define[] = UI\Factory::class;
+        $define[] = UI\Renderer::class;
+        $define[] = UI\HelpTextRetriever::class;
+        $define[] = UI\Storage::class;
+        $define[] = UI\Component\Progress\AsyncRefreshInterval::class;
+        $define[] = UI\Component\Input\Field\PhpUploadLimit::class;
+        $define[] = UI\Component\Input\Field\GlobalUploadLimit::class;
+        $define[] = UI\Implementation\FactoryInternal::class;
+        $define[] = UI\Implementation\Render\ImagePathResolver::class;
+
+        $implement[UI\Factory::class] = static fn() =>
+            $use[UI\Implementation\FactoryInternal::class];
+        $implement[UI\Implementation\FactoryInternal::class] = static fn() =>
+            $internal[UI\Implementation\Factory::class];
+        $implement[UI\Renderer::class] = static fn() =>
+            $internal[UI\Implementation\DefaultRenderer::class];
+        $implement[UI\Component\Progress\AsyncRefreshInterval::class] = static fn() =>
+            $internal[UI\Implementation\Component\Progress\DefaultAsyncRefreshInterval::class];
+
+        // =================================================================================
+        // ATTENTION: these factories are only populated inside $provide in order to
+        // keep plugin renderer- and factory-exchanges possible. These factories will
+        // only be internal again, once this functionality is improved for ILIAS 11.
+        $provide[UI\Implementation\Component\Counter\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Counter\Factory::class];
+        $provide[UI\Implementation\Component\Button\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Button\Factory::class];
+        $provide[UI\Implementation\Component\Listing\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Listing\Factory::class];
+        $provide[UI\Implementation\Component\Listing\Workflow\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Listing\Workflow\Factory::class];
+        $provide[UI\Implementation\Component\Listing\CharacteristicValue\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Listing\CharacteristicValue\Factory::class];
+        $provide[UI\Implementation\Component\Listing\Entity\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Listing\Entity\Factory::class];
+        $provide[UI\Implementation\Component\Image\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Image\Factory::class];
+        $provide[UI\Implementation\Component\Player\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Player\Factory::class];
+        $provide[UI\Implementation\Component\Panel\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Panel\Factory::class];
+        $provide[UI\Implementation\Component\Modal\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Modal\Factory::class];
+        $provide[UI\Implementation\Component\Progress\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Progress\Factory::class];
+        $provide[UI\Implementation\Component\Progress\State\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Progress\State\Factory::class];
+        $provide[UI\Implementation\Component\Progress\State\Bar\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Progress\State\Bar\Factory::class];
+        $provide[UI\Implementation\Component\Dropzone\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Dropzone\Factory::class];
+        $provide[UI\Implementation\Component\Popover\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Popover\Factory::class];
+        $provide[UI\Implementation\Component\Divider\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Divider\Factory::class];
+        $provide[UI\Implementation\Component\Link\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Link\Factory::class];
+        $provide[UI\Implementation\Component\Dropdown\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Dropdown\Factory::class];
+        $provide[UI\Implementation\Component\Item\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Item\Factory::class];
+        $provide[UI\Implementation\Component\ViewControl\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\ViewControl\Factory::class];
+        $provide[UI\Implementation\Component\Chart\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Chart\Factory::class];
+        $provide[UI\Implementation\Component\Input\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Input\Factory::class];
+        $provide[UI\Implementation\Component\Table\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Table\Factory::class];
+        $provide[UI\Implementation\Component\MessageBox\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\MessageBox\Factory::class];
+        $provide[UI\Implementation\Component\Card\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Card\Factory::class];
+        $provide[UI\Implementation\Component\Layout\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Layout\Factory::class];
+        $provide[UI\Implementation\Component\Layout\Page\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Layout\Page\Factory::class];
+        $provide[UI\Implementation\Component\Layout\Alignment\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Layout\Alignment\Factory::class];
+        $provide[UI\Implementation\Component\MainControls\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\MainControls\Factory::class];
+        $provide[UI\Implementation\Component\Tree\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Tree\Factory::class];
+        $provide[UI\Implementation\Component\Tree\Node\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Tree\Node\Factory::class];
+        $provide[UI\Implementation\Component\Menu\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Menu\Factory::class];
+        $provide[UI\Implementation\Component\Symbol\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Symbol\Factory::class];
+        $provide[UI\Implementation\Component\Toast\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Toast\Factory::class];
+        $provide[UI\Implementation\Component\Legacy\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Legacy\Factory::class];
+        $provide[UI\Implementation\Component\Launcher\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Launcher\Factory::class];
+        $provide[UI\Implementation\Component\Entity\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Entity\Factory::class];
+        $provide[UI\Implementation\Component\Panel\Secondary\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Panel\Secondary\Factory::class];
+        $provide[UI\Implementation\Component\Panel\Listing\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Panel\Listing\Factory::class];
+        $provide[UI\Implementation\Component\Modal\InterruptiveItem\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Modal\InterruptiveItem\Factory::class];
+        $provide[UI\Implementation\Component\Chart\ProgressMeter\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Chart\ProgressMeter\Factory::class];
+        $provide[UI\Implementation\Component\Chart\Bar\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Chart\Bar\Factory::class];
+        $provide[UI\Implementation\Component\Input\ViewControl\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Input\ViewControl\Factory::class];
+        $provide[UI\Implementation\Component\Input\Container\ViewControl\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Input\Container\ViewControl\Factory::class];
+        $provide[UI\Implementation\Component\Table\Column\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Table\Column\Factory::class];
+        $provide[UI\Implementation\Component\Table\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Table\Factory::class];
+        $provide[UI\Implementation\Component\MainControls\Slate\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\MainControls\Slate\Factory::class];
+        $provide[UI\Implementation\Component\Symbol\Icon\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Symbol\Icon\Factory::class];
+        $provide[UI\Implementation\Component\Symbol\Glyph\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Symbol\Glyph\Factory::class];
+        $provide[UI\Implementation\Component\Symbol\Avatar\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Symbol\Avatar\Factory::class];
+        $provide[UI\Implementation\Component\Input\Container\Form\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Input\Container\Form\Factory::class];
+        $provide[UI\Implementation\Component\Input\Container\Filter\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Input\Container\Filter\Factory::class];
+        $provide[UI\Implementation\Component\Input\Field\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Input\Field\Factory::class];
+        $provide[UI\Implementation\Component\Input\Field\Node\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Input\Field\Node\Factory::class];
+        $provide[UI\Implementation\Component\Prompt\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Prompt\Factory::class];
+        $provide[UI\Implementation\Component\Prompt\State\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Prompt\State\Factory::class];
+        $provide[UI\Implementation\Component\Input\UploadLimitResolver::class] = static fn() =>
+            $internal[UI\Implementation\Component\Input\UploadLimitResolver::class];
+        $provide[UI\Implementation\Component\Navigation\Factory::class] = static fn() =>
+            $internal[UI\Implementation\Component\Navigation\Factory::class];
+        $provide[UI\Implementation\Render\JavaScriptBinding::class] = static fn() =>
+            $internal[UI\Implementation\Render\JavaScriptBinding::class];
+        $provide[UI\Implementation\Component\SignalGeneratorInterface::class] = static fn() =>
+            $internal[UI\Implementation\Component\SignalGeneratorInterface::class];
+        $provide[UI\Implementation\Render\TemplateFactory::class] = static fn() =>
+            $internal[UI\Implementation\Render\TemplateFactory::class];
+
+
+        // =================================================================================
+
+        $internal[UI\Implementation\Factory::class] = static fn() =>
+            new UI\Implementation\Factory(
+                $internal[UI\Implementation\Component\Counter\Factory::class],
+                $internal[UI\Implementation\Component\Button\Factory::class],
+                $internal[UI\Implementation\Component\Listing\Factory::class],
+                $internal[UI\Implementation\Component\Image\Factory::class],
+                $internal[UI\Implementation\Component\Player\Factory::class],
+                $internal[UI\Implementation\Component\Panel\Factory::class],
+                $internal[UI\Implementation\Component\Modal\Factory::class],
+                $internal[UI\Implementation\Component\Progress\Factory::class],
+                $internal[UI\Implementation\Component\Dropzone\Factory::class],
+                $internal[UI\Implementation\Component\Popover\Factory::class],
+                $internal[UI\Implementation\Component\Divider\Factory::class],
+                $internal[UI\Implementation\Component\Link\Factory::class],
+                $internal[UI\Implementation\Component\Dropdown\Factory::class],
+                $internal[UI\Implementation\Component\Item\Factory::class],
+                $internal[UI\Implementation\Component\ViewControl\Factory::class],
+                $internal[UI\Implementation\Component\Chart\Factory::class],
+                $internal[UI\Implementation\Component\Input\Factory::class],
+                $internal[UI\Implementation\Component\Table\Factory::class],
+                $internal[UI\Implementation\Component\MessageBox\Factory::class],
+                $internal[UI\Implementation\Component\Card\Factory::class],
+                $internal[UI\Implementation\Component\Layout\Factory::class],
+                $internal[UI\Implementation\Component\MainControls\Factory::class],
+                $internal[UI\Implementation\Component\Tree\Factory::class],
+                $internal[UI\Implementation\Component\Menu\Factory::class],
+                $internal[UI\Implementation\Component\Symbol\Factory::class],
+                $internal[UI\Implementation\Component\Toast\Factory::class],
+                $internal[UI\Implementation\Component\Legacy\Factory::class],
+                $internal[UI\Implementation\Component\Launcher\Factory::class],
+                $internal[UI\Implementation\Component\Entity\Factory::class],
+                $internal[UI\Implementation\Component\Prompt\Factory::class],
+                $internal[UI\Implementation\Component\Navigation\Factory::class],
+            );
+
+        $internal[UI\Implementation\Component\Counter\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Counter\Factory();
+
+        $internal[UI\Implementation\Component\Button\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Button\Factory();
+
+        $internal[UI\Implementation\Component\Listing\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Listing\Factory(
+                $internal[UI\Implementation\Component\Listing\Workflow\Factory::class],
+                $internal[UI\Implementation\Component\Listing\CharacteristicValue\Factory::class],
+                $internal[UI\Implementation\Component\Listing\Entity\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Listing\Workflow\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Listing\Workflow\Factory();
+        $internal[UI\Implementation\Component\Listing\CharacteristicValue\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Listing\CharacteristicValue\Factory();
+        $internal[UI\Implementation\Component\Listing\Entity\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Listing\Entity\Factory();
+
+        $internal[UI\Implementation\Component\Image\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Image\Factory();
+
+        $internal[UI\Implementation\Component\Player\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Player\Factory();
+
+        $internal[UI\Implementation\Component\Panel\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Panel\Factory(
+                $internal[UI\Implementation\Component\Panel\Listing\Factory::class],
+                $internal[UI\Implementation\Component\Panel\Secondary\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Panel\Listing\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Panel\Listing\Factory();
+        $internal[UI\Implementation\Component\Panel\Secondary\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Panel\Secondary\Factory();
+
+        $internal[UI\Implementation\Component\Modal\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Modal\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $internal[UI\Implementation\Component\Modal\InterruptiveItem\Factory::class],
+                $internal[UI\Implementation\Component\Input\Field\Factory::class],
+            );
+        $internal[UI\Implementation\Component\SignalGeneratorInterface::class] = static fn() =>
+            new UI\Implementation\Component\SignalGenerator();
+        $internal[UI\Implementation\Component\Modal\InterruptiveItem\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Modal\InterruptiveItem\Factory();
+
+        $internal[UI\Implementation\Component\Progress\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Progress\Factory(
+                $use[UI\Component\Progress\AsyncRefreshInterval::class],
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $internal[UI\Implementation\Component\Progress\State\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Progress\State\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Progress\State\Factory(
+                $internal[UI\Implementation\Component\Progress\State\Bar\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Progress\State\Bar\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Progress\State\Bar\Factory();
+        $internal[UI\Implementation\Component\Progress\DefaultAsyncRefreshInterval::class] = static fn() =>
+            new UI\Implementation\Component\Progress\DefaultAsyncRefreshInterval();
+
+        $internal[UI\Implementation\Component\Dropzone\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Dropzone\Factory(
+                $internal[UI\Implementation\Component\Dropzone\File\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Dropzone\File\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Dropzone\File\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $internal[UI\Implementation\Component\Input\Field\Factory::class],
+            );
+
+        $internal[UI\Implementation\Component\Popover\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Popover\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+            );
+
+        $internal[UI\Implementation\Component\Divider\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Divider\Factory();
+
+        $internal[UI\Implementation\Component\Link\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Link\Factory();
+
+        $internal[UI\Implementation\Component\Dropdown\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Dropdown\Factory();
+
+        $internal[UI\Implementation\Component\Item\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Item\Factory();
+
+        $internal[UI\Implementation\Component\ViewControl\Factory::class] = static fn() =>
+            new UI\Implementation\Component\ViewControl\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+            );
+
+        $internal[UI\Implementation\Component\Chart\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Chart\Factory(
+                $internal[UI\Implementation\Component\Chart\ProgressMeter\Factory::class],
+                $internal[UI\Implementation\Component\Chart\Bar\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Chart\ProgressMeter\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Chart\ProgressMeter\Factory();
+        $internal[UI\Implementation\Component\Chart\Bar\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Chart\Bar\Factory();
+
+        $internal[UI\Implementation\Component\Input\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Input\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $internal[UI\Implementation\Component\Input\Field\Factory::class],
+                $internal[UI\Implementation\Component\Input\Container\Factory::class],
+                $internal[UI\Implementation\Component\Input\ViewControl\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Input\Field\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Input\Field\Factory(
+                $internal[UI\Implementation\Component\Input\Field\Node\Factory::class],
+                $internal[UI\Implementation\Component\Input\UploadLimitResolver::class],
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $pull[Data\Factory::class],
+                $pull[Refinery\Factory::class],
+                $use[Language\Language::class]
+            );
+        $internal[UI\Implementation\Component\Input\Field\Node\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Input\Field\Node\Factory();
+        $internal[UI\Implementation\Component\Input\UploadLimitResolver::class] = static fn() =>
+            new UI\Implementation\Component\Input\UploadLimitResolver(
+                $use[UI\Component\Input\Field\PhpUploadLimit::class],
+                $use[UI\Component\Input\Field\GlobalUploadLimit::class],
+            );
+        $internal[UI\Implementation\Component\Input\Container\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Input\Container\Factory(
+                $internal[UI\Implementation\Component\Input\Container\Form\Factory::class],
+                $internal[UI\Implementation\Component\Input\Container\Filter\Factory::class],
+                $internal[UI\Implementation\Component\Input\Container\ViewControl\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Input\Container\Form\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Input\Container\Form\Factory(
+                $internal[UI\Implementation\Component\Input\Field\Factory::class],
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+            );
+        $internal[UI\Implementation\Component\Input\Container\Filter\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Input\Container\Filter\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $internal[UI\Implementation\Component\Input\Field\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Input\Container\ViewControl\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Input\Container\ViewControl\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $internal[UI\Implementation\Component\Input\ViewControl\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Input\ViewControl\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Input\ViewControl\Factory(
+                $internal[UI\Implementation\Component\Input\Field\Factory::class],
+                $pull[Data\Factory::class],
+                $pull[Refinery\Factory::class],
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $use[Language\Language::class],
+            );
+
+        $internal[UI\Implementation\Component\Table\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Table\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $internal[UI\Implementation\Component\Input\ViewControl\Factory::class],
+                $internal[UI\Implementation\Component\Input\Container\ViewControl\Factory::class],
+                $pull[Data\Factory::class],
+                $internal[UI\Implementation\Component\Table\Column\Factory::class],
+                $internal[UI\Implementation\Component\Table\Action\Factory::class],
+                $use[UI\Storage::class],
+                $internal[UI\Implementation\Component\Table\DataRowBuilder::class],
+                $internal[UI\Implementation\Component\Table\OrderingRowBuilder::class],
+            );
+        $internal[UI\Implementation\Component\Table\Column\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Table\Column\Factory(
+                $use[\ILIAS\Language\Language::class],
+            );
+        $internal[UI\Implementation\Component\Table\Action\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Table\Action\Factory();
+        $internal[UI\Implementation\Component\Table\DataRowBuilder::class] = static fn() =>
+            new UI\Implementation\Component\Table\DataRowBuilder();
+        $internal[UI\Implementation\Component\Table\OrderingRowBuilder::class] = static fn() =>
+            new UI\Implementation\Component\Table\OrderingRowBuilder();
+
+        $internal[UI\Implementation\Component\MessageBox\Factory::class] = static fn() =>
+            new UI\Implementation\Component\MessageBox\Factory();
+
+        $internal[UI\Implementation\Component\Card\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Card\Factory();
+
+        $internal[UI\Implementation\Component\Layout\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Layout\Factory(
+                $internal[UI\Implementation\Component\Layout\Page\Factory::class],
+                $internal[UI\Implementation\Component\Layout\Alignment\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Layout\Page\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Layout\Page\Factory();
+        $internal[UI\Implementation\Component\Layout\Alignment\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Layout\Alignment\Factory();
+
+        $internal[UI\Implementation\Component\MainControls\Factory::class] = static fn() =>
+            new UI\Implementation\Component\MainControls\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $internal[UI\Implementation\Component\MainControls\Slate\Factory::class],
+            );
+        $internal[UI\Implementation\Component\MainControls\Slate\Factory::class] = static fn() =>
+            new UI\Implementation\Component\MainControls\Slate\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+                $internal[UI\Implementation\Component\Counter\Factory::class],
+                $internal[UI\Implementation\Component\Symbol\Factory::class],
+            );
+
+        $internal[UI\Implementation\Component\Tree\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Tree\Factory(
+                $internal[UI\Implementation\Component\Tree\Node\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Tree\Node\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Tree\Node\Factory();
+
+        $internal[UI\Implementation\Component\Menu\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Menu\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+            );
+
+        $internal[UI\Implementation\Component\Symbol\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Symbol\Factory(
+                $internal[UI\Implementation\Component\Symbol\Icon\Factory::class],
+                $internal[UI\Implementation\Component\Symbol\Glyph\Factory::class],
+                $internal[UI\Implementation\Component\Symbol\Avatar\Factory::class],
+            );
+        $internal[UI\Implementation\Component\Symbol\Icon\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Symbol\Icon\Factory();
+        $internal[UI\Implementation\Component\Symbol\Glyph\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Symbol\Glyph\Factory();
+        $internal[UI\Implementation\Component\Symbol\Avatar\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Symbol\Avatar\Factory();
+
+        $internal[UI\Implementation\Component\Toast\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Toast\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+            );
+
+        $internal[UI\Implementation\Component\Legacy\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Legacy\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+            );
+
+        $internal[UI\Implementation\Component\Launcher\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Launcher\Factory(
+                $internal[UI\Implementation\Component\Modal\Factory::class],
+            );
+
+        $internal[UI\Implementation\Component\Entity\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Entity\Factory();
+
+        $internal[UI\Implementation\Component\Prompt\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Prompt\Factory(
+                $internal[UI\Implementation\Component\SignalGeneratorInterface::class],
+            );
+        $internal[UI\Implementation\Component\Prompt\State\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Prompt\State\Factory();
+
+        $internal[UI\Implementation\Component\Navigation\Factory::class] = static fn() =>
+            new UI\Implementation\Component\Navigation\Factory(
+                $pull[Data\Factory::class],
+                $pull[Refinery\Factory::class],
+                $use[UI\Storage::class],
+            );
+
+        $internal[UI\Implementation\DefaultRenderer::class] = static fn() =>
+            new UI\Implementation\DefaultRenderer(
+                $internal[UI\Implementation\Render\Loader::class],
+                $internal[UI\Implementation\Render\JavaScriptBinding::class],
+                $use[Language\Language::class],
+            );
+        $internal[UI\Implementation\Render\Loader::class] = static fn() =>
+            new UI\Implementation\Render\LoaderCachingWrapper(
+                new UI\Implementation\Render\LoaderResourceRegistryWrapper(
+                    $internal[UI\Implementation\Render\ResourceRegistry::class],
+                    new UI\Implementation\Render\FSLoader(
+                        new UI\Implementation\Render\DefaultRendererFactory(
+                            $use[UI\Implementation\FactoryInternal::class],
+                            $internal[UI\Implementation\Render\TemplateFactory::class],
+                            $use[Language\Language::class],
+                            $internal[UI\Implementation\Render\JavaScriptBinding::class],
+                            $use[UI\Implementation\Render\ImagePathResolver::class],
+                            $pull[Data\Factory::class],
+                            $use[UI\HelpTextRetriever::class],
+                            $internal[UI\Implementation\Component\Input\UploadLimitResolver::class],
+                        ),
+                        new UI\Implementation\Component\Button\ButtonRendererFactory(
+                            $use[UI\Implementation\FactoryInternal::class],
+                            $internal[UI\Implementation\Render\TemplateFactory::class],
+                            $use[Language\Language::class],
+                            $internal[UI\Implementation\Render\JavaScriptBinding::class],
+                            $use[UI\Implementation\Render\ImagePathResolver::class],
+                            $pull[Data\Factory::class],
+                            $use[UI\HelpTextRetriever::class],
+                            $internal[UI\Implementation\Component\Input\UploadLimitResolver::class],
+                        ),
+                        new UI\Implementation\Component\Input\Field\FieldRendererFactory(
+                            $use[UI\Implementation\FactoryInternal::class],
+                            $internal[UI\Implementation\Render\TemplateFactory::class],
+                            $use[Language\Language::class],
+                            $internal[UI\Implementation\Render\JavaScriptBinding::class],
+                            $use[UI\Implementation\Render\ImagePathResolver::class],
+                            $pull[Data\Factory::class],
+                            $use[UI\HelpTextRetriever::class],
+                            $internal[UI\Implementation\Component\Input\UploadLimitResolver::class],
+                        ),
+                        new UI\Implementation\Component\MessageBox\MessageBoxRendererFactory(
+                            $use[UI\Implementation\FactoryInternal::class],
+                            $internal[UI\Implementation\Render\TemplateFactory::class],
+                            $use[Language\Language::class],
+                            $internal[UI\Implementation\Render\JavaScriptBinding::class],
+                            $use[UI\Implementation\Render\ImagePathResolver::class],
+                            $pull[Data\Factory::class],
+                            $use[UI\HelpTextRetriever::class],
+                            $internal[UI\Implementation\Component\Input\UploadLimitResolver::class],
+                        ),
+                        new UI\Implementation\Component\Input\Container\Form\FormRendererFactory(
+                            $use[UI\Implementation\FactoryInternal::class],
+                            $internal[UI\Implementation\Render\TemplateFactory::class],
+                            $use[Language\Language::class],
+                            $internal[UI\Implementation\Render\JavaScriptBinding::class],
+                            $use[UI\Implementation\Render\ImagePathResolver::class],
+                            $pull[Data\Factory::class],
+                            $use[UI\HelpTextRetriever::class],
+                            $internal[UI\Implementation\Component\Input\UploadLimitResolver::class],
+                        ),
+                        new UI\Implementation\Component\Menu\MenuRendererFactory(
+                            $use[UI\Implementation\FactoryInternal::class],
+                            $internal[UI\Implementation\Render\TemplateFactory::class],
+                            $use[Language\Language::class],
+                            $internal[UI\Implementation\Render\JavaScriptBinding::class],
+                            $use[UI\Implementation\Render\ImagePathResolver::class],
+                            $pull[Data\Factory::class],
+                            $use[UI\HelpTextRetriever::class],
+                            $internal[UI\Implementation\Component\Input\UploadLimitResolver::class],
+                        ),
+                    )
+                )
+            );
+        $internal[UI\Implementation\Render\JavaScriptBinding::class] = static fn() =>
+            new UI\Implementation\Render\ilJavaScriptBinding(
+                $use[UICore\GlobalTemplate::class],
+            );
+        $internal[UI\Implementation\Render\ResourceRegistry::class] = static fn() =>
+            new UI\Implementation\Render\ilResourceRegistry(
+                $use[UICore\GlobalTemplate::class],
+            );
+        $internal[UI\Implementation\Render\TemplateFactory::class] = static fn() =>
+            new UI\Implementation\Render\ilTemplateWrapperFactory();
+
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "js/Button/button.js");
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
@@ -59,8 +592,6 @@ class UI implements Component\Component
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "js/Input/Field/input.js");
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
-            new Component\Resource\ComponentJS($this, "js/Input/Field/tagInput.js");
-        $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "js/Item/dist/notification.js");
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "js/MainControls/dist/mainbar.js");
@@ -69,15 +600,13 @@ class UI implements Component\Component
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "js/MainControls/system_info.js");
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
-            new Component\Resource\ComponentJS($this, "js/Menu/dist/drilldown.js");
+            new Component\Resource\ComponentJS($this, "js/Menu/dist/drilldown.min.js");
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "js/Modal/dist/modal.min.js");
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "js/Prompt/dist/prompt.min.js");
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "js/Page/stdpage.js");
-        $contribute[Component\Resource\PublicAsset::class] = fn() =>
-            new Component\Resource\NodeModule("webui-popover/dist/jquery.webui-popover.min.js");
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "js/Popover/popover.js");
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
@@ -95,7 +624,7 @@ class UI implements Component\Component
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\OfComponent($this, "ui-examples", "assets");
         $contribute[Component\Resource\PublicAsset::class] = static fn() =>
-            new Component\Resource\NodeModule("@yaireo/tagify/dist/tagify.min.js");
+            new Component\Resource\NodeModule("@yaireo/tagify/dist/tagify.js");
         $contribute[Component\Resource\PublicAsset::class] = static fn() =>
             new Component\Resource\NodeModule("@yaireo/tagify/dist/tagify.css");
         $contribute[Component\Resource\PublicAsset::class] = static fn() =>
@@ -104,6 +633,11 @@ class UI implements Component\Component
             new Component\Resource\ComponentJS($this, "js/Progress/dist/progress.min.js");
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "js/MainControls/dist/footer.min.js");
+        $contribute[Component\Resource\PublicAsset::class] = fn() =>
+            new Component\Resource\ComponentJS($this, "js/Input/ViewControl/dist/input.viewcontrols.min.js");
+        $contribute[Component\Resource\PublicAsset::class] = fn() =>
+            new Component\Resource\ComponentJS($this, "js/MathJax/mathjax_config.js");
+
         /*
         those are contributed by MediaObjects
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
@@ -115,8 +649,30 @@ class UI implements Component\Component
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\NodeModule("mediaelement/build/renderers/vimeo.min.js");
         */
+        /* This library was missing after discussing dependencies for ILIAS 10 */
+        $contribute[Component\Resource\PublicAsset::class] = fn() =>
+            new Component\Resource\NodeModule("webui-popover/dist/jquery.webui-popover.min.js");
 
+        // This is included via anonymous classes
+        // because MathJax resources are taken from node_modules and they may be directories
+        foreach (['tex-chtml-full.js', 'a11y', 'adaptors', 'input', 'output', 'sre', 'ui'] as $asset) {
+            $contribute[Component\Resource\PublicAsset::class] = static fn(
+            ) => new readonly class ($asset) implements Component\Resource\PublicAsset {
+                public function __construct(private string $asset)
+                {
+                }
 
+                public function getSource(): string
+                {
+                    return 'node_modules/mathjax/es5/' . $this->asset;
+                }
+
+                public function getTarget(): string
+                {
+                    return 'node_modules/mathjax/es5/' . $this->asset;
+                }
+            };
+        };
 
         // This is included via anonymous classes as a testament to the fact, that
         // the templates-folder should probably be moved to some component.

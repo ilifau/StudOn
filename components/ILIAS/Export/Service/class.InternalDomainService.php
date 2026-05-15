@@ -36,7 +36,7 @@ class InternalDomainService
         $this->initDomainServices($DIC);
     }
 
-    public function html() : HTML\DomainService
+    public function html(): HTML\DomainService
     {
         return self::$instance['html'] ??= new HTML\DomainService(
             $this->data->html(),

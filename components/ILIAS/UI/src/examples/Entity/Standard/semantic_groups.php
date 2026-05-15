@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\Examples\Entity\Standard;
@@ -26,12 +42,12 @@ function semantic_groups()
     $renderer = $DIC->ui()->renderer();
 
     $entity = $f->entity()->standard('Primary Identifier', 'Secondary Identifier')
-        ->withBlockingAvailabilityConditions($f->legacy('Blocking Conditions'))
-        ->withFeaturedProperties($f->legacy('Featured_properties'))
-        ->withPersonalStatus($f->legacy('Personal Status'))
-        ->withMainDetails($f->legacy('Main Details'))
-        ->withAvailability($f->legacy('Availability'))
-        ->withDetails($f->legacy('Details'))
+        ->withBlockingAvailabilityConditions($f->legacy()->content('Blocking Conditions'))
+        ->withFeaturedProperties($f->legacy()->content('Featured_properties'))
+        ->withPersonalStatus($f->legacy()->content('Personal Status'))
+        ->withMainDetails($f->legacy()->content('Main Details'))
+        ->withAvailability($f->legacy()->content('Availability'))
+        ->withDetails($f->legacy()->content('Details'))
         ->withReactions($f->button()->tag('reaction', '#'))
         ->withPrioritizedReactions($f->symbol()->glyph()->like())
         ->withActions($f->button()->shy('action', '#'))

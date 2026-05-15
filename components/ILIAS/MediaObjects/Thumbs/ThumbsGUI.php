@@ -20,13 +20,11 @@ declare(strict_types=1);
 
 namespace ILIAS\MediaObjects\Thumbs;
 
-
 use ILIAS\MediaObjects\InternalDomainService;
 use ILIAS\MediaObjects\InternalGUIService;
 
 class ThumbsGUI
 {
-
     private ThumbsManager $thumbs_manager;
     protected \ILIAS\MediaObjects\MediaObjectManager $media_manager;
 
@@ -37,7 +35,7 @@ class ThumbsGUI
         $this->thumbs_manager = $this->domain->thumbs();
     }
 
-    public function getThumbHtml(int $mob_id) : string
+    public function getThumbHtml(int $mob_id): string
     {
         $mob = new \ilObjMediaObject($mob_id);
         $f = $this->gui->ui()->factory();

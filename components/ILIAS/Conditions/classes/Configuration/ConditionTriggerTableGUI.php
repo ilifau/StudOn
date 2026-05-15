@@ -35,13 +35,13 @@ use ilConditionHandlerGUI;
 
 class ConditionTriggerTableGUI implements DataRetrieval
 {
-    public const ACTION_TOKEN = 'action';
-    public const ID_TOKEN = 'id';
-    public const TABLE_NS = 'cond_trigger_table';
+    public const string ACTION_TOKEN = 'action';
+    public const string ID_TOKEN = 'id';
+    public const string TABLE_NS = 'cond_trigger_table';
 
-    public const ACTION_TOKEN_NS = self::TABLE_NS . '_' . self::ACTION_TOKEN;
+    public const string ACTION_TOKEN_NS = self::TABLE_NS . '_' . self::ACTION_TOKEN;
 
-    public const ID_TOKEN_NS = self::TABLE_NS . '_' . self::ID_TOKEN;
+    public const string ID_TOKEN_NS = self::TABLE_NS . '_' . self::ID_TOKEN;
 
     protected \Psr\Http\Message\ServerRequestInterface $http_request;
     protected \ILIAS\UI\Renderer $ui_renderer;
@@ -79,8 +79,9 @@ class ConditionTriggerTableGUI implements DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): Generator {
         $records = $this->provider->limitData($range, $order);
         foreach ($records as $row) {
@@ -89,8 +90,11 @@ class ConditionTriggerTableGUI implements DataRetrieval
         }
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         return count($this->provider->getData());
     }
 
@@ -162,9 +166,9 @@ class ConditionTriggerTableGUI implements DataRetrieval
         return $this->ui_factory
             ->table()
             ->data(
+                $this,
                 $this->lng->txt('active_preconditions'),
                 $this->getColumns(),
-                $this
             )
             ->withId(self::class)
             ->withActions($this->getActions())

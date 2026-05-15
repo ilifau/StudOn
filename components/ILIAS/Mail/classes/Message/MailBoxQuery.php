@@ -26,14 +26,12 @@ use DateTimeImmutable;
 use DateTimeZone;
 use ILIAS\Data\Order;
 use ilUserSearchOptions;
+use ILIAS\ResourceStorage\Identification\ResourceCollectionIdentification;
 
-/**
- * Database query for mails of a user
- */
 class MailBoxQuery
 {
-    private const DEFAULT_ORDER_COLUMN = MailBoxOrderColumn::SEND_TIME;
-    private const DEFAULT_ORDER_DIRECTION = Order::ASC;
+    private const MailBoxOrderColumn DEFAULT_ORDER_COLUMN = MailBoxOrderColumn::SEND_TIME;
+    private const string DEFAULT_ORDER_DIRECTION = Order::ASC;
 
     private ilDBInterface $db;
     private ?int $folder_id = null;
@@ -182,7 +180,7 @@ class MailBoxQuery
     public function withOrderDirection(?string $order_direction): MailBoxQuery
     {
         $clone = clone $this;
-        if (in_array($order_direction, [Order::ASC, Order::DESC])) {
+        if (\in_array($order_direction, [Order::ASC, Order::DESC], true)) {
             $clone->order_direction = $order_direction;
         } else {
             $clone->order_direction = self::DEFAULT_ORDER_DIRECTION;
@@ -246,7 +244,7 @@ class MailBoxQuery
     /**
      * Query for mail data with applied filter
      * @param bool $short get only data that is needed for a listing
-     * @return MailRecordData[]
+     * @return list<MailRecordData>
      */
     public function query($short): array
     {
@@ -280,6 +278,15 @@ class MailBoxQuery
 
         $set = [];
         while ($row = $this->db->fetchAssoc($res)) {
+            if (isset($row['attachments']) && \is_string($row['attachments']) && str_contains($row['attachments'], '{')) {
+                $unserialized_attachments = unserialize($row['attachments'], ['allowed_classes' => false]);
+                $row['attachments'] = \is_array($unserialized_attachments) ? $unserialized_attachments : null;
+            } elseif (isset($row['attachments']) && \is_string($row['attachments']) && $row['attachments'] !== '') {
+                $row['attachments'] = new ResourceCollectionIdentification($row['attachments']);
+            } else {
+                $row['attachments'] = null;
+            }
+
             $set[] = new MailRecordData(
                 isset($row['mail_id']) ? (int) $row['mail_id'] : 0,
                 isset($row['user_id']) ? (int) $row['user_id'] : 0,
@@ -294,10 +301,7 @@ class MailBoxQuery
                 isset($row['rcp_to']) ? (string) $row['rcp_to'] : null,
                 isset($row['rcp_cc']) ? (string) $row['rcp_cc'] : null,
                 isset($row['rcp_bcc']) ? (string) $row['rcp_bcc'] : null,
-                isset($row['attachments']) ? (array) unserialize(
-                    stripslashes($row['attachments']),
-                    ['allowed_classes' => false]
-                ) : [],
+                $row['attachments'],
                 isset($row['tpl_ctx_id']) ? (string) $row['tpl_ctx_id'] : null,
                 isset($row['tpl_ctx_params']) ? (string) $row['tpl_ctx_params'] : null
             );

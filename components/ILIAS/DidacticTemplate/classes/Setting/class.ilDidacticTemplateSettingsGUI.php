@@ -243,7 +243,7 @@ class ilDidacticTemplateSettingsGUI
         $this->overview();
     }
 
-    protected function showImportForm(ilPropertyFormGUI $form = null): void
+    protected function showImportForm(?ilPropertyFormGUI $form = null): void
     {
         $setting = $this->initTemplateFromRequest();
         if ($setting instanceof ilDidacticTemplateSetting) {
@@ -382,7 +382,7 @@ class ilDidacticTemplateSettingsGUI
         }
     }
 
-    protected function editTemplate(?int $template_id = null, ilPropertyFormGUI $form = null): void
+    protected function editTemplate(?int $template_id = null, ?ilPropertyFormGUI $form = null): void
     {
         $setting = null;
         if (is_null($template_id)) {
@@ -762,7 +762,7 @@ class ilDidacticTemplateSettingsGUI
         }
     }
 
-    public function showEditImportForm(ilPropertyFormGUI $form = null): void
+    public function showEditImportForm(?ilPropertyFormGUI $form = null): void
     {
         $this->initTemplateFromRequest();
         $this->setEditTabs("import");
@@ -792,9 +792,9 @@ class ilDidacticTemplateSettingsGUI
 
     public function editImport(ilDidacticTemplateSetting $a_settings): void
     {
-        ilDidacticTemplateObjSettings::transferAutoGenerateStatus($a_settings->getId(), $a_settings->getId());
-        $assignments = ilDidacticTemplateObjSettings::getAssignmentsByTemplateID($a_settings->getId());
-        $a_settings->delete();
+        ilDidacticTemplateObjSettings::transferAutoGenerateStatus($this->setting->getId(), $a_settings->getId());
+        $assignments = ilDidacticTemplateObjSettings::getAssignmentsByTemplateID($this->setting->getId());
+        $this->setting->delete();
         foreach ($assignments as $obj) {
             ilDidacticTemplateObjSettings::assignTemplate($obj["ref_id"], $obj["obj_id"], $a_settings->getId());
         }

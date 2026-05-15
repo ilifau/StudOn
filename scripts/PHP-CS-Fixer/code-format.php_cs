@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../../vendor/composer/vendor/autoload.php';
-
 $finder = PhpCsFixer\Finder::create()
 	->exclude(array(
 		__DIR__ . '/../../components/ILIAS/setup_/sql',

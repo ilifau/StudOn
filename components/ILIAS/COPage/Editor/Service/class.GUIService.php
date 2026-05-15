@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,15 +16,15 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\COPage\Editor;
 
 use ILIAS\COPage\InternalGUIService;
 use ILIAS\COPage\InternalDomainService;
 use ILIAS\COPage\Editor\UI\Init;
+use ILIAS\COPage\Editor\Server\UIWrapper;
 
-/**
- * @author Alexander Killing <killing@leifos.de>
- */
 class GUIService
 {
     protected InternalGUIService $gui_service;
@@ -43,5 +41,10 @@ class GUIService
     public function init(): Init
     {
         return new Init();
+    }
+
+    public function uiWrapper(): UIWrapper
+    {
+        return new UIWrapper($this->gui_service->ui(), $this->domain_service->lng());
     }
 }

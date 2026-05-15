@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * Import class
@@ -75,7 +75,11 @@ class ilImportContainer extends ilImport
         $class_name = "ilObj" . $this->objDefinition->getClassName($a_type);
 
         $new = new $class_name();
-        $new->setTitle('Import');
+
+        # Patch Start: Fix multilingualism replaces course title
+        $new->setTitle('NO TITLE');
+        # Patch End: Fix multilingualism replaces course title
+
         $new->create(true);
         $new->createReference();
         $new->putInTree($this->getMapping()->getTargetId());

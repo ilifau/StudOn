@@ -146,11 +146,11 @@ class ilPCLoginPageElementGUI extends ilPageContentGUI
         }
     }
 
-    public function update_login_page_element() : void
+    public function update_login_page_element(): void
     {
         $this->update();
     }
-    
+
     /**
      * Update Login page element
      */

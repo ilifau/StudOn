@@ -18,16 +18,11 @@
 
 declare(strict_types=1);
 
-require_once("../vendor/composer/vendor/autoload.php");
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = $_POST;
-} else {
-    $data = $_GET;
-    if (isset($_GET['client_id'])) {
-        unset($_GET['client_id']);
-    }
-}
+/**
+ * There is no way to process a $_GET Request with
+ * a valid third-party client_id param in regular initILIAS
+ */
 
 function sanitizeJson(string $string)
 {
@@ -38,7 +33,28 @@ function sanitizeJson(string $string)
     return json_decode($string, true);
 }
 
-ilInitialisation::initILIAS();
+
+if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
+    $orig = new ArrayObject($_POST);
+    $data = $orig->getArrayCopy();
+} elseif (strtoupper($_SERVER['REQUEST_METHOD']) == 'GET') {
+    $orig = new ArrayObject($_GET);
+    $data = $orig->getArrayCopy();
+    // early removing client_id from $_GET
+    // otherwise the client_id is interpreted as ILIAS client_id
+    // and client.ini.php will not be found
+    if (isset($_GET['client_id'])) {
+        unset($_GET['client_id']);
+    }
+} else {
+    header($_SERVER["SERVER_PROTOCOL"] . " 405 Method Not Allowed", true, 405);
+    exit;
+}
+
+require_once '../vendor/composer/vendor/autoload.php';
+require_once __DIR__ . '/../artifacts/bootstrap_default.php';
+entry_point('ILIAS Legacy Initialisation Adapter');
+
 global $DIC;
 $scope = $data['scope'] ?? '';
 $responseType = $data['response_type'] ?? '';
@@ -49,23 +65,42 @@ $nonce = $data['nonce'] ?? '';
 $ltiMessageHint = $data['lti_message_hint'] ?? '';
 $loginHint = $data['login_hint'] ?? '';
 
+$isDlMode = false;
 $hint = null;
 $deploymentId = null;
 $provider_id = 0;
 $childRefId = 0;
 $refId = 0;
 
+if (
+    $scope === 'openid' &&
+    $responseType === 'id_token' &&
+    $redirectUri !== '' &&
+    $clientId !== ''
+) {
+    $provider_id = ilLTIConsumeProvider::getProviderIdFromClientId($clientId);
+    $provider = ilLTIConsumeProvider::getInstance($provider_id);
+
+    $hint = sanitizeJson($ltiMessageHint);
+    if ($provider->getContentItemUrl() == $redirectUri && isset($hint['deployment_id'])) {
+
+        $isDlMode = true;
+        $deploymentId = (int) $hint['deployment_id'];
+        $ownerId = ilObjectFactory::getInstanceByRefId(224)->getOwner();
+        $childRefId = ilObjLTIConsumer::getRefIdOfConsumerByDeploymentId((string) $deploymentId);
+        $refId = $DIC->repositoryTree()->getParentId($childRefId);
+    }
+
+}
+
 
 if (empty($ltiMessageHint)) {
     $DIC->http()->saveResponse(
         $DIC->http()->response()->withStatus(400)
     );
-    try {
-        $DIC->http()->sendResponse();
-        $DIC->http()->close();
-    } catch (\ILIAS\HTTP\Response\Sender\ResponseSendingException $e) {
-        $DIC->http()->close();
-    }
+    $DIC->http()->sendResponse();
+    $DIC->http()->close();
+    exit;
 }
 
 $parts = explode(":", $ltiMessageHint);
@@ -91,11 +126,55 @@ if ($isContentSelection) {
 } else {
     $url = "../../../goto.php?target=lti_" . $ref_id . "&client_id=" . $il_client_id;
 }
+
+function buildSameSiteNoneSessionCookieHeader(): ?string
+{
+    if (session_status() !== PHP_SESSION_ACTIVE || session_id() === '') {
+        return null;
+    }
+
+    $cookieParams = session_get_cookie_params();
+    $secure = (bool) ($cookieParams['secure'] ?? false);
+    if (!$secure) {
+        return null;
+    }
+
+    $cookieName = session_name();
+    $cookieValue = session_id();
+    $path = (string) ($cookieParams['path'] ?? '/');
+    $domain = (string) ($cookieParams['domain'] ?? '');
+    $httpOnly = (bool) ($cookieParams['httponly'] ?? true);
+
+    $parts = [
+        rawurlencode($cookieName) . '=' . rawurlencode($cookieValue),
+        'Path=' . $path,
+        'Secure',
+        'SameSite=None'
+    ];
+
+    if ($domain !== '') {
+        $parts[] = 'Domain=' . $domain;
+    }
+    if ($httpOnly) {
+        $parts[] = 'HttpOnly';
+    }
+
+    return implode('; ', $parts);
+}
+
+$response = $DIC->http()->response()
+    ->withStatus(302)
+    ->withAddedHeader('Location', $url);
+
+$sessionCookieHeader = buildSameSiteNoneSessionCookieHeader();
+if ($sessionCookieHeader !== null) {
+    $response = $response->withAddedHeader('Set-Cookie', $sessionCookieHeader);
+}
+
 $DIC->http()->saveResponse(
-    $DIC->http()->response()
-        ->withStatus(302)
-        ->withAddedHeader('Location', $url)
+    $response
 );
+
 try {
     $DIC->http()->sendResponse();
     $DIC->http()->close();

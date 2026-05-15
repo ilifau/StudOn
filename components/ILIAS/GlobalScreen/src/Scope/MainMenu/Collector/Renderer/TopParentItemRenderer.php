@@ -39,6 +39,7 @@ class TopParentItemRenderer extends BaseTypeRenderer
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function getComponentWithContent(isItem $item): Component
     {
         $f = $this->ui_factory;

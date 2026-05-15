@@ -202,6 +202,16 @@ class CapabilityTest extends TestCase
             ],
             Capabilities::NONE
         ];
+        yield 'docu_case' => [
+            true,
+            true,
+            true,
+            [
+                Permissions::READ,
+                Permissions::VISIBLE,
+            ],
+            Capabilities::FORCED_INFO_PAGE
+        ];
     }
 
     #[DataProvider('environmentProvider')]
@@ -209,10 +219,11 @@ class CapabilityTest extends TestCase
         bool $wopi_view,
         bool $wopi_edit,
         bool $infopage_first,
-        array $permissions,
+        array $user_permissions,
         Capabilities $expected_best
     ): void {
         static $id;
+        $permissions = $user_permissions;
 
         $id++;
 

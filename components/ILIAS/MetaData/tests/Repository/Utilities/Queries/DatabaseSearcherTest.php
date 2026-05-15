@@ -46,7 +46,7 @@ use ILIAS\MetaData\Search\Filters\Placeholder;
 
 class DatabaseSearcherTest extends TestCase
 {
-    protected const RESULT = [
+    protected const array RESULT = [
         ['rbac_id' => 37, 'obj_id' => 55, 'obj_type' => 'type1'],
         ['rbac_id' => 123, 'obj_id' => 85, 'obj_type' => 'type2'],
         ['rbac_id' => 98, 'obj_id' => 4, 'obj_type' => 'type3']

@@ -18,31 +18,30 @@
 
 declare(strict_types=1);
 
-/**
- * Class ilMailTemplatePlaceholderResolver
- * @author Michael Jansen <mjansen@databay.de>
- */
+use ILIAS\Mail\TemplateEngine\TemplateEngineInterface;
+use ILIAS\Mail\TemplateEngine\MailTemplateContextAdapter;
+
 class ilMailTemplatePlaceholderResolver
 {
-    public function __construct(protected Mustache_Engine $mustache_engine)
+    public function __construct(protected TemplateEngineInterface $template_engine)
     {
     }
 
     /**
-     * @param array<int|string> $contextParameters
+     * @param array<int|string> $context_parameters
      */
     public function resolve(
         ilMailTemplateContext $context,
         string $message,
         ?ilObjUser $user = null,
-        array $contextParameters = []
+        array $context_parameters = []
     ): string {
-        return $this->mustache_engine->render(
+        return $this->template_engine->render(
             $message,
-            new ilMailTemplateContextAdapter(
+            new MailTemplateContextAdapter(
                 [$context],
-                $contextParameters,
-                $this->mustache_engine,
+                $context_parameters,
+                $this->template_engine,
                 $user
             )
         );

@@ -18,17 +18,15 @@
 
 declare(strict_types=1);
 
-/**
- * Class ilMailMimeSenderUserByEmailAddress
- * @author Michael Jansen <mjansen@databay.de>
- */
+use ILIAS\Mail\TemplateEngine\TemplateEngineFactoryInterface;
+
 class ilMailMimeSenderUserByEmailAddress extends ilMailMimeSenderUser
 {
-    public function __construct(ilSetting $settings, string $emailAddress, ilMustacheFactory $mustache_factory)
+    public function __construct(ilSetting $settings, string $email_address, TemplateEngineFactoryInterface $template_engine_factory)
     {
         $user = new ilObjUser();
-        $user->setEmail($emailAddress);
+        $user->setEmail($email_address);
 
-        parent::__construct($settings, $user, $mustache_factory);
+        parent::__construct($settings, $user, $template_engine_factory);
     }
 }

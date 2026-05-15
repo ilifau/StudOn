@@ -91,7 +91,7 @@ class ilTutorialSupportBlockGUI extends ilBlockGUI
         ) {
             return $tutor_item;
         }
-        $dropdown_actions[] = $this->ui->factory()->legacy(
+        $dropdown_actions[] = $this->ui->factory()->legacy()->content(
             ilBuddySystemLinkButton::getInstanceByUserId($tutor_id)->getHTML()
         );
         $dropdown = $this->ui->factory()->dropdown()->standard($dropdown_actions);

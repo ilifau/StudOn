@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\UI\Component\Menu;
 
@@ -64,6 +64,7 @@ interface Factory
      *     top level of the Drilldown Menu.
      * context:
      *   - Drilldown Menus are primarily used in Mainbar-Slates to break down navigational topics into smaller parts.
+     *   - A drilldown menu is also used in resource selectors to navigate a large hierarchical dataset.
      *
      * rules:
      *   usage:

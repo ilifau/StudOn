@@ -20,17 +20,17 @@ declare(strict_types=1);
 
 namespace ILIAS\Repository\Form;
 
-use ILIAS\Object\ilObjectDIC;
 use ILIAS\DI\Container;
-use ILIAS\Object\Properties\CoreProperties\TileImage\ilObjectPropertyTileImage;
+use ILIAS\ILIASObject\Properties\CoreProperties\TitleAndDescription;
+use ILIAS\ILIASObject\LocalDIC;
 
 trait StdObjProperties
 {
-    protected \ilObjectPropertiesAgregator $object_prop;
+    protected \ILIAS\ILIASObject\Properties\Aggregator $object_prop;
 
-    protected function initStdObjProperties(Container $DIC)
+    protected function initStdObjProperties(Container $DIC): void
     {
-        $this->object_prop = ilObjectDIC::dic()['object_properties_agregator'];
+        $this->object_prop = LocalDIC::dic()['properties.aggregator'];
     }
 
     public function addStdTitleAndDescription(
@@ -64,7 +64,7 @@ trait StdObjProperties
     ): void {
         $obj_prop = $this->object_prop->getFor($obj_id, $type);
         $obj_prop->storePropertyTitleAndDescription(
-            new \ilObjectPropertyTitleAndDescription(
+            new TitleAndDescription(
                 $this->getData("title"),
                 $this->getData("description")
             )
@@ -77,7 +77,7 @@ trait StdObjProperties
     ): void {
         $obj_prop = $this->object_prop->getFor($obj_id, $type);
         $obj_prop->storePropertyTitleAndDescription(
-            new \ilObjectPropertyTitleAndDescription(
+            new TitleAndDescription(
                 $this->getData("title"),
                 ""
             )
@@ -367,7 +367,7 @@ trait StdObjProperties
         }
     }
 
-    public function getDidacticTemplateIdFromRequest() : ?int
+    public function getDidacticTemplateIdFromRequest(): ?int
     {
         $new_tpl_id = null;
         if ($this->http->wrapper()->query()->has('didactic_template_id')) {

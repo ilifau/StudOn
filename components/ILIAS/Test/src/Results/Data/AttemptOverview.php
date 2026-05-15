@@ -22,6 +22,7 @@ namespace ILIAS\Test\Results\Data;
 
 use ILIAS\Test\Results\Presentation\Settings as ResultPresentationSettings;
 use ILIAS\Language\Language;
+use ILIAS\Test\Results\Data\StatusOfAttempt;
 use ILIAS\UI\Factory as UIFactory;
 use ILIAS\UI\Component\Listing\Descriptive as DescriptiveListing;
 use ILIAS\Test\Scoring\Marks\Mark;
@@ -38,7 +39,6 @@ class AttemptOverview
         private readonly ?Mark $mark = null,
         private readonly int $nr_of_answered_questions = 0,
         private readonly int $nr_of_questions_in_attempt = 0,
-        private readonly ?int $requested_hints_count = null,
         private readonly int $time_on_task = 0,
         private readonly int $total_time_on_task = 0,
         private readonly ?\DateTimeImmutable $attempt_started_date = null,
@@ -141,10 +141,6 @@ class AttemptOverview
                 ? $this->mark?->getShortName() ?? '-'
                 : '-'
         ];
-
-        if ($this->settings->getShowHints()) {
-            $items[$lng->txt('tst_question_hints_requested_hint_count_header')] = (string) $this->requested_hints_count;
-        }
 
         return $ui_factory->listing()->descriptive(
             $items + [

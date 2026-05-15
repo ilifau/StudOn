@@ -64,6 +64,7 @@ class Renderer extends AbstractComponentRenderer
 
         $dropzone = $this->initClientsideDropzone($dropzone);
         $dropzone = $dropzone->withAdditionalDrop($modal->getShowSignal());
+        $dropzone = $this->addTriggererOnLoadCode($dropzone);
 
         $this->bindAndApplyJavaScript($dropzone, $template);
 
@@ -97,6 +98,7 @@ class Renderer extends AbstractComponentRenderer
 
         $dropzone = $this->initClientsideDropzone($dropzone);
         $dropzone = $dropzone->withAdditionalDrop($modal->getShowSignal());
+        $dropzone = $this->addTriggererOnLoadCode($dropzone);
 
         $this->bindAndApplyJavaScript($dropzone, $template);
 

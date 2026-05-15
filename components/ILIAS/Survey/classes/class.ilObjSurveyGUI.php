@@ -18,6 +18,7 @@
 
 use ILIAS\Survey\Participants;
 use ILIAS\Survey\InternalGUIService;
+use ILIAS\User\Profile\PublicProfileGUI;
 
 /**
  * @ilCtrl_Calls ilObjSurveyGUI: ilSurveyEvaluationGUI, ilSurveyExecutionGUI
@@ -166,7 +167,7 @@ class ilObjSurveyGUI extends ilObjectGUI implements ilCtrlBaseClassInterface
             case "ilinfoscreengui":
                 if (!in_array(
                     $this->ctrl->getCmdClass(),
-                    array('ilpublicuserprofilegui', 'ilobjportfoliogui')
+                    array(strtolower(PublicProfileGUI::class), 'ilobjportfoliogui')
                 )) {
                     $this->addHeaderAction();
                     $this->infoScreen(); // forwards command
@@ -591,7 +592,7 @@ class ilObjSurveyGUI extends ilObjectGUI implements ilCtrlBaseClassInterface
      * Display the properties form
      */
     public function propertiesObject(
-        ilPropertyFormGUI $a_form = null
+        ?ilPropertyFormGUI $a_form = null
     ): void {
         $ilTabs = $this->tabs;
         $ilHelp = $this->help;
@@ -648,7 +649,7 @@ class ilObjSurveyGUI extends ilObjectGUI implements ilCtrlBaseClassInterface
             $newObj = new ilObjSurvey();
             $newObj->setType($new_type);
             $newObj->setTitle("dummy");
-            $newObj->create(true);
+            $newObj->create();
             $this->putObjectInTree($newObj);
 
             // copy uploaded file to import directory

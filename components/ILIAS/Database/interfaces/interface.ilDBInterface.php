@@ -18,8 +18,8 @@
 
 declare(strict_types=1);
 
-use ILIAS\components\Database\Integrity\Integrity;
-use ILIAS\components\Database\PDO\FieldDefinition\ForeignKeyConstraints;
+use ILIAS\Database\Integrity\Integrity;
+use ILIAS\Database\PDO\FieldDefinition\ForeignKeyConstraints;
 
 /**
  * Interface ilDBInterface
@@ -201,7 +201,7 @@ interface ilDBInterface
     /**
      * Prepare a query (SELECT) statement to be used with execute.
      */
-    public function prepare(string $a_query, array $a_types = null, array $a_result_types = null): ilDBStatement;
+    public function prepare(string $a_query, ?array $a_types = null, ?array $a_result_types = null): ilDBStatement;
 
     public function prepareManip(string $a_query, ?array $a_types = null): ilDBStatement;
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -163,7 +164,7 @@ class ActiveRecordList
     public function innerjoinAR(
         ActiveRecord $activeRecord,
         $on_this,
-        $on_external,
+        string $on_external,
         array $fields = ['*'],
         string $operator = '=',
         bool $both_external = false
@@ -416,7 +417,7 @@ class ActiveRecordList
      * @param string|array $values which values should be taken? if null all are given. If only a string is given then the result is an 1D array!
      * @return mixed[]|mixed[][]|int[]|string[]|null[]
      */
-    public function getArray(string $key = null, string|array $values = null): array
+    public function getArray(?string $key = null, string|array|null $values = null): array
     {
         $this->load();
 
@@ -497,8 +498,8 @@ class ActiveRecordList
                     $arField = $obj->getArFieldList()->getFieldByName($key);
                     if ($arField !== null && ($arField->isDateField() && $this->getDateFormat())) {
                         $res_awake[$key . '_unformatted'] = $value;
-                        $res_awake[$key . '_unix'] = strtotime($value);
-                        $value = date($this->getDateFormat(), strtotime($value));
+                        $res_awake[$key . '_unix'] = strtotime((string) $value);
+                        $value = date($this->getDateFormat(), strtotime((string) $value));
                     }
                     $waked = $this->getAR()->wakeUp($key, $value);
                     $res_awake[$key] = $waked ?? $value;

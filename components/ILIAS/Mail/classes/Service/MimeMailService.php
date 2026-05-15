@@ -28,20 +28,6 @@ class MimeMailService
 {
     public function __construct(protected Container $dic)
     {
-        if (!isset($this->dic['mail.mime.transport.factory'])) {
-            $this->dic['mail.mime.transport.factory'] = static function (Container $c): ilMailMimeTransportFactory {
-                return new ilMailMimeTransportFactory($c->settings(), $c->event());
-            };
-        }
-
-        if (!isset($this->dic['mail.mime.sender.factory'])) {
-            $this->dic['mail.mime.sender.factory'] = static function (Container $c): ilMailMimeSenderFactory {
-                return new ilMailMimeSenderFactory(
-                    $c->settings(),
-                    $c->mail()->mustacheFactory()
-                );
-            };
-        }
     }
 
     public function transportFactory(): ilMailMimeTransportFactory

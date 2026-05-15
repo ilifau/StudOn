@@ -52,7 +52,7 @@ abstract class SurveyQuestionEvaluation
      *
      * @return ilSurveyEvaluationResults|array
      */
-    public function getResults()
+    public function getResults(): ilSurveyEvaluationResults|array
     {
         $results = new ilSurveyEvaluationResults($this->question);
         $answers = $this->getAnswerData();
@@ -124,7 +124,7 @@ abstract class SurveyQuestionEvaluation
     protected function parseResults(
         ilSurveyEvaluationResults $a_results,
         array $a_answers,
-        SurveyCategories $a_categories = null
+        ?SurveyCategories $a_categories = null
     ): void {
         $num_users_answered = count($a_answers);
 

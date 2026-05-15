@@ -22,7 +22,7 @@
  * @author Alexander Killing <killing@leifos.de>
  * @author Stefan Wanzenried <sw@studer-raimann.ch>
  *
- * @deprecated 10
+ * @deprecated with ILIAS 12
  */
 class ilToolbarGUI
 {
@@ -207,7 +207,7 @@ class ilToolbarGUI
         $this->items[] = array("type" => "text", "text" => $a_text);
     }
 
-    public function addSpacer(string $a_width = null): void
+    public function addSpacer(?string $a_width = null): void
     {
         $this->items[] = array("type" => "spacer", "width" => $a_width);
     }

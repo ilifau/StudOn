@@ -24,7 +24,7 @@ class ilAccessibilityDocumentHtmlPurifier extends ilHtmlPurifierAbstractLibWrapp
     private array $allowedTags = [];
     protected string $cacheDirectory = '';
 
-    public function __construct(array $allowedTags = null, string $cacheDirectory = null)
+    public function __construct(?array $allowedTags = null, ?string $cacheDirectory = null)
     {
         if (null === $cacheDirectory) {
             $cacheDirectory = ilHtmlPurifierAbstractLibWrapper::_getCacheDirectory();
@@ -32,7 +32,7 @@ class ilAccessibilityDocumentHtmlPurifier extends ilHtmlPurifierAbstractLibWrapp
         $this->cacheDirectory = $cacheDirectory;
 
         if (null === $allowedTags) {
-            $allowedTags = ilObjAdvancedEditing::_getUsedHTMLTags('textarea');
+            $allowedTags = ilRTESettings::_getUsedHTMLTags('textarea');
         }
         $this->allowedTags = $allowedTags;
 

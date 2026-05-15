@@ -20,16 +20,64 @@ use Phiki\Phiki;
 use Phiki\Grammar\Grammar;
 use Phiki\Theme\Theme;
 
-/**
- * Class ilPCSourceCode
- *
- * Paragraph of ilPageObject
- *
- * @author Roland Küstermann
- * @author Alex Killing <alex.killing@gmx.de>
- */
 class ilPCSourceCode extends ilPCParagraph
 {
+    public const string JAVA = "java";
+    public const string PHP = "php";
+    public const string C = "c";
+    public const string CPP = "cpp";
+    public const string HTML = "html4strict";
+    public const string XML = "xml";
+    public const string VISUAL_BASIC = "vb";
+    public const string LATEX = "latex";
+    public const string DELPHI = "delphi";
+    public const string PYTHON = "python";
+    public const string CSS = "css";
+    public const string JAVASCRIPT = "javascript";
+    public const string SQL = "sql";
+    public const string BASH = "bash";
+    public const string POWERSHELL = "powershell";
+
+    /**
+     * @var string[]
+     */
+    protected static array $langs = array(
+        self::BASH => "Bash",
+        self::C => "C",
+        self::CPP => "C++",
+        self::CSS => "CSS",
+        self::DELPHI => "Delphi",
+        self::HTML => "HTML",
+        self::JAVA => "Java",
+        self::JAVASCRIPT => "Javascript",
+        self::LATEX => "LaTeX",
+        self::PHP => "PHP",
+        self::POWERSHELL => "Powershell",
+        self::PYTHON => "Python",
+        self::SQL => "SQL",
+        self::VISUAL_BASIC => "Visual Basic",
+        self::XML => "XML"
+    );
+
+    protected static array $v51_map = array(
+        "php3" => "php",
+        "java122" => "java",
+        "html" => "html4strict"
+    );
+
+    public static function getSupportedLanguages(): array
+    {
+        $langs = array();
+        $map = array_flip(self::$v51_map);
+        foreach (self::$langs as $k => $v) {
+            if (isset($map[$k])) {
+                $k = $map[$k];
+            }
+            $langs[$k] = $v;
+        }
+        return $langs;
+    }
+
     public function init(): void
     {
         $this->setType("src");
@@ -157,7 +205,7 @@ class ilPCSourceCode extends ilPCParagraph
         return $a_output;
     }
 
-    protected function phikiMap(string $lang): ?Grammar
+    protected function phikiMap(string $lang) : ?Grammar
     {
         $grammar = match ($lang) {
             "java" => Grammar::Java,

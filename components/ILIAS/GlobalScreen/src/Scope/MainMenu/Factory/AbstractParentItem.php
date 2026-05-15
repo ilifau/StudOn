@@ -26,11 +26,11 @@ namespace ILIAS\GlobalScreen\Scope\MainMenu\Factory;
  */
 abstract class AbstractParentItem extends AbstractBaseItem implements isParent
 {
-    private int $amount = 0;
     /**
      * @var isItem[]
      */
     protected array $children = [];
+    protected int $amount = 0;
 
     /**
      * @inheritDoc
@@ -66,7 +66,7 @@ abstract class AbstractParentItem extends AbstractBaseItem implements isParent
      */
     public function hasChildren(): bool
     {
-        return (count($this->children) > 0);
+        return ($this->children !== []);
     }
 
     /**

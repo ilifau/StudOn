@@ -19,10 +19,9 @@
 declare(strict_types=1);
 
 use ILIAS\ResourceStorage\Services as IRSS;
+use ILIAS\Language\Language;
+use ILIAS\User\Profile\Fields\Custom\Custom;
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class ilCertificateTemplatePreviewActionTest extends ilCertificateBaseTestCase
 {
     public function testA(): void
@@ -48,6 +47,8 @@ class ilCertificateTemplatePreviewActionTest extends ilCertificateBaseTestCase
         $user = $this->getMockBuilder(ilObjUser::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $user->method('getId')
+            ->willReturn(100);
 
         $pdfFileNameFactory = $this->getMockBuilder(ilCertificatePdfFileNameFactory::class)
             ->disableOriginalConstructor()
@@ -57,8 +58,9 @@ class ilCertificateTemplatePreviewActionTest extends ilCertificateBaseTestCase
             ->method('create')
             ->willReturn('test');
 
-        $user->method('getId')
-            ->willReturn(100);
+        $lng = $this->getMockBuilder(Language::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $utilHelper = $this->getMockBuilder(ilCertificateUtilHelper::class)
             ->disableOriginalConstructor()
@@ -69,25 +71,23 @@ class ilCertificateTemplatePreviewActionTest extends ilCertificateBaseTestCase
             ->method('deliverData');
 
         $userDefinedFieldsHelper = $this->getMockBuilder(ilCertificateUserDefinedFieldsHelper::class)
-            ->getMock();
-
-        $definitionsMock = $this->getMockBuilder(ilUserDefinedFields::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $definitionsMock->method('getDefinitions')
+        $field = $this->getMockBuilder(Custom::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $field->method('getidentifier')
+            ->willReturn('70ddbac5-c162-474d-9365-e374975fd021');
+        $field->method('getLabel')
+            ->willReturn('Some Field Name');
+
+        $userDefinedFieldsHelper->method('getFields')
             ->willReturn(
                 [
-                    'f_1' => [
-                        'certificate' => true,
-                        'field_id' => 100,
-                        'field_name' => 'Some Field Name',
-                    ]
+                    $field
                 ]
             );
-
-        $userDefinedFieldsHelper->method('createInstance')
-            ->willReturn($definitionsMock);
 
         $rpcClientFactoryHelper = $this->getMockBuilder(ilCertificateRpcClientFactoryHelper::class)
             ->getMock();
@@ -109,6 +109,7 @@ class ilCertificateTemplatePreviewActionTest extends ilCertificateBaseTestCase
             $irss,
             'some/where/',
             $user,
+            $lng,
             $utilHelper,
             $userDefinedFieldsHelper,
             $rpcClientFactoryHelper,

@@ -22,13 +22,10 @@ namespace ILIAS\App\tests;
 
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class RootFolderTest
- * @author Michael Jansen <mjansen@databay.de>
- */
 final class RootFolderTest extends TestCase
 {
-    private const ALLOWED_ROOT_FOLDER_FILES = [
+    private const array ALLOWED_ROOT_FOLDER_FILES = [
+        '.npmrc',
         '.eslintrc.json',
         '.gitignore',
         '.htaccess',
@@ -47,6 +44,7 @@ final class RootFolderTest extends TestCase
         'LICENSE',
         'package-lock.json',
         'package.json',
+        'package_new.json',
         'README.md',
         'unzip_test_file.zip',
         '.DS_Store',
@@ -54,7 +52,7 @@ final class RootFolderTest extends TestCase
         '.project'
     ];
 
-    private const ALLOWED_ROOT_FOLDER_DIRS = [
+    private const array ALLOWED_ROOT_FOLDER_DIRS = [
         '.git',
         '.github',
         '.idea',
@@ -117,7 +115,7 @@ final class RootFolderTest extends TestCase
 
         $this->assertEmpty(
             $unexpected_files,
-            sprintf(
+            \sprintf(
                 'The following files are not expected in the ILIAS root folder: %s',
                 implode(', ', $unexpected_files)
             )
@@ -143,7 +141,7 @@ final class RootFolderTest extends TestCase
 
         $this->assertEmpty(
             $unexpected_directories,
-            sprintf(
+            \sprintf(
                 'The following directories are not expected in the ILIAS root folder: %s',
                 implode(', ', $unexpected_directories)
             )

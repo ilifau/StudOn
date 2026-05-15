@@ -109,6 +109,13 @@ class ilDclTextFieldRepresentation extends ilDclBaseFieldRepresentation
         $prop_page_details->setInfo($this->lng->txt('dcl_link_detail_page_desc'));
         $opt->addSubItem($prop_page_details);
 
+        $prop_unique = new ilDclCheckboxInputGUI(
+            $this->lng->txt('dcl_unique'),
+            $this->getPropertyInputFieldId(ilDclBaseFieldModel::PROP_UNIQUE)
+        );
+        $prop_unique->setInfo($this->lng->txt('dcl_unique_desc'));
+        $opt->addSubItem($prop_unique);
+
         $prop_regex = new ilDclTextInputGUI(
             $this->lng->txt('dcl_regex'),
             $this->getPropertyInputFieldId(ilDclBaseFieldModel::PROP_REGEX)

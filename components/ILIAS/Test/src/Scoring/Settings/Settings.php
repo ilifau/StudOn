@@ -20,33 +20,28 @@ declare(strict_types=1);
 
 namespace ILIAS\Test\Scoring\Settings;
 
+use ILIAS\Test\ExportImport\Exportable;
 use ILIAS\Test\Settings\TestSettings;
 use ILIAS\Test\Logging\AdditionalInformationGenerator;
-
 use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
 use ILIAS\UI\Component\Input\Container\Form\FormInput;
 use ILIAS\Refinery\Factory as Refinery;
 
-class Settings extends TestSettings
+class Settings extends TestSettings implements Exportable
 {
-    public const COUNT_PARTIAL_SOLUTIONS = 0;
-    public const COUNT_CORRECT_SOLUTIONS = 1;
+    public const int COUNT_PARTIAL_SOLUTIONS = 0;
+    public const int COUNT_CORRECT_SOLUTIONS = 1;
 
     protected int $count_system = self::COUNT_PARTIAL_SOLUTIONS;
     protected int $score_cutting = 0;
     protected int $pass_scoring = 0;
 
 
-    public function __construct(int $test_id)
-    {
-        parent::__construct($test_id);
-    }
-
     public function toForm(
         \ilLanguage $lng,
         FieldFactory $f,
         Refinery $refinery,
-        array $environment = null
+        ?array $environment = null
     ): FormInput {
         $trafo = $refinery->kindlyTo()->Int();
         $fields = [
@@ -134,5 +129,22 @@ class Settings extends TestSettings
         $clone = clone $this;
         $clone->pass_scoring = $pass_scoring;
         return $clone;
+    }
+
+    public function toExport(): array
+    {
+        return [
+            'count_system' => $this->getCountSystem(),
+            'score_cutting' => $this->getScoreCutting(),
+            'pass_scoring' => $this->getPassScoring()
+        ];
+    }
+
+    public static function fromExport(array $data): static
+    {
+        return (new self())
+            ->withCountSystem((int) $data['count_system'])
+            ->withScoreCutting((int) $data['score_cutting'])
+            ->withPassScoring((int) $data['pass_scoring']);
     }
 }

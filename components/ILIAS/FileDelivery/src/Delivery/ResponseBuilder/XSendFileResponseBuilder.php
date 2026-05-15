@@ -29,6 +29,9 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class XSendFileResponseBuilder implements ResponseBuilder
 {
+    /**
+     * @var string
+     */
     private const X_SENDFILE_HEADER = 'X-Sendfile';
 
     public function getName(): string

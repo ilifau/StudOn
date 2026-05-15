@@ -106,7 +106,7 @@ class CustomBreadcrumbPagePartProvider implements PagePartProvider
         return $this->original->getActions();
     }
 
-    public function getContent(): ?\ILIAS\UI\Component\Legacy\Legacy
+    public function getContent(): ?\ILIAS\UI\Component\Legacy\Content
     {
         return $this->original->getContent();
     }

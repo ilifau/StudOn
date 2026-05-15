@@ -21,7 +21,6 @@ namespace ILIAS\ResourceStorage\Consumer;
 use ILIAS\Filesystem\Util\Archive\Archives;
 use ILIAS\ResourceStorage\Resource\StorableResource;
 use ILIAS\ResourceStorage\Consumer\StreamAccess\StreamAccess;
-use ILIAS\ResourceStorage\Resource\StorableContainerResource;
 use ILIAS\Data\URI;
 use ILIAS\FileDelivery\Delivery\StreamDelivery;
 
@@ -34,20 +33,18 @@ class ContainerURIConsumer implements ContainerConsumer
 
     private Archives $archives;
     protected ?int $revision_number = null;
-    private StorableResource $resource;
 
     /**
      * DownloadConsumer constructor.
      */
     public function __construct(
         private SrcBuilder $src_builder,
-        StorableContainerResource $resource,
+        private StorableResource $resource,
         private StreamAccess $stream_access,
         private string $start_file,
         private float $valid_for_at_least_minutes = 60.0
     ) {
         global $DIC;
-        $this->resource = $resource;
         $this->archives = $DIC->archives();
     }
 

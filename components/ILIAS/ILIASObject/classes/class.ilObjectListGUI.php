@@ -18,6 +18,8 @@
 
 declare(strict_types=1);
 
+use ILIAS\ILIASObject\LocalDIC;
+use ILIAS\ILIASObject\Properties\Properties;
 use ILIAS\Repository\Clipboard\ClipboardManager;
 use ILIAS\DI\UIServices;
 use ILIAS\UI\Component\Button\Button;
@@ -30,7 +32,7 @@ use ILIAS\UI\Implementation\Component\SignalGenerator;
 use ILIAS\Notes\Note;
 use ILIAS\Container\Content\ModeSessionRepository;
 use ILIAS\HTTP\Services as HTTPServices;
-use ILIAS\Object\ilObjectDIC;
+use ILIAS\WebDAV\Mount\ModalGUI;
 
 /**
  * Important note:
@@ -76,8 +78,8 @@ class ilObjectListGUI
     protected array $access_cache;
     protected ilAccessHandler $access;
     protected ilObjUser $user;
-    protected ilObjectDIC $object_dic;
-    protected ilObjectProperties $object_properties;
+    protected LocalDIC $object_dic;
+    protected Properties $object_properties;
     protected ilObjectDefinition $obj_definition;
     protected ilTree $tree;
     protected ilSetting $settings;
@@ -198,8 +200,8 @@ class ilObjectListGUI
         global $DIC;
 
         $this->access = $DIC['ilAccess'];
-        $this->user = $DIC['ilUser'];
-        $this->object_dic = ilObjectDIC::dic();
+        $this->user = $DIC['user']->getLoggedInUser();
+        $this->object_dic = LocalDIC::dic();
         $this->obj_definition = $DIC['objDefinition'];
         $this->tree = $DIC['tree'];
         $this->settings = $DIC['ilSetting'];
@@ -441,7 +443,7 @@ class ilObjectListGUI
         return $this->link_enabled;
     }
 
-    public function enablePath(bool $path, int $start_node = 0, \ilPathGUI $path_gui = null): void
+    public function enablePath(bool $path, int $start_node = 0, ?\ilPathGUI $path_gui = null): void
     {
         $this->path_enabled = $path;
         $this->path_start_node = $start_node;
@@ -723,7 +725,7 @@ class ilObjectListGUI
         $this->access_cache = [];
         $this->ref_id = $ref_id;
         $this->obj_id = $obj_id;
-        $this->object_properties = $this->object_dic['object_properties_agregator']->getFor($obj_id);
+        $this->object_properties = $this->object_dic['properties.aggregator']->getFor($obj_id);
         $this->setTitle($title);
         $this->setDescription($description);
 
@@ -805,9 +807,11 @@ class ilObjectListGUI
     {
         if ($this->context == self::CONTEXT_REPOSITORY || $this->context == self::CONTEXT_SEARCH) {
             // BEGIN WebDAV Get mount webfolder link.
-            if ($cmd == 'mount_webfolder' && ilDAVActivationChecker::_isActive()) {
-                $uri_builder = new ilWebDAVUriBuilder($this->http->request());
-                return $uri_builder->getUriToMountInstructionModalByRef($this->ref_id);
+            global $DIC;
+            /** @var ILIAS\WebDAV\Environment $webdav */
+            $webdav = $DIC[ILIAS\WebDAV\Environment::class];
+            if ($webdav->isActive()) {
+                return $webdav->getUriToMountInstructionModalByRef($this->ref_id);
             }
             // END WebDAV Get mount webfolder link.
 
@@ -874,30 +878,6 @@ class ilObjectListGUI
                         'value' => $this->lng->txt('offline')
                     ];
             }
-
-            // BEGIN WebDAV Display locking information
-            if (ilDAVActivationChecker::_isActive()) {
-                // Show lock info
-                $webdav_dic = new ilWebDAVDIC();
-                $webdav_dic->initWithoutDIC();
-                $webdav_lock_backend = $webdav_dic->locksbackend();
-                if ($this->user->getId() !== ANONYMOUS_USER_ID) {
-                    if ($lock = $webdav_lock_backend->getLocksOnObjectId($this->obj_id)) {
-                        $lock_user = new ilObjUser($lock->getIliasOwner());
-
-                        $props[] = [
-                            'alert' => false,
-                            'property' => $this->lng->txt('in_use_by'),
-                            'value' => $lock_user->getLogin(),
-                            'link' =>
-                                './ilias.php?user=' .
-                                $lock_user->getId() .
-                                '&cmd=showUserProfile&cmdClass=ildashboardgui&baseClass=ilDashboardGUI'
-                        ];
-                    }
-                }
-            }
-            // END WebDAV Display warning for invisible files and files with special characters
         }
 
         return $props;
@@ -1593,7 +1573,7 @@ class ilObjectListGUI
         if ($cmd === 'mount_webfolder') {
             $onclick = "triggerWebDAVModal('$href')";
             $href = '#';
-            ilWebDAVMountInstructionsModalGUI::maybeRenderWebDAVModalInGlobalTpl();
+            ModalGUI::maybeRenderWebDAVModalInGlobalTpl();
         }
 
         $action = $this->ui->factory()
@@ -2151,9 +2131,9 @@ class ilObjectListGUI
 
     public function enableRating(
         bool $value,
-        string $text = null,
+        ?string $text = null,
         bool $categories = false,
-        array $ctrl_path = null,
+        ?array $ctrl_path = null,
         bool $force_rate_parent = false
     ): void {
         $this->rating_enabled = $value;
@@ -2246,7 +2226,7 @@ class ilObjectListGUI
         string $redraw_url,
         string $notes_url,
         string $tags_url,
-        ilGlobalTemplateInterface $tpl = null
+        ?ilGlobalTemplateInterface $tpl = null
     ): void {
         global $DIC;
 
@@ -2276,10 +2256,10 @@ class ilObjectListGUI
     public function addHeaderIcon(
         string $id,
         string $img,
-        string $tooltip = null,
-        string $onclick = null,
-        string $status_text = null,
-        string $href = null
+        ?string $tooltip = null,
+        ?string $onclick = null,
+        ?string $status_text = null,
+        ?string $href = null
     ): void {
         $this->header_icons[$id] = [
             'img' => $img,
@@ -2300,12 +2280,28 @@ class ilObjectListGUI
         $this->header_icons[$id] = ['glyph' => $glyph, 'onclick' => $onclick];
     }
 
+    protected function getHeaderGlyphShyButton(
+        ILIAS\UI\Component\Symbol\Glyph\Glyph $glyph,
+        string $onclick_js
+    ): ILIAS\UI\Component\Button\Shy {
+        return $this->ui->factory()->button()
+            ->shy('', '')
+            ->withSymbol($glyph)
+            ->withAdditionalOnLoadCode(
+                static function (string $id) use ($onclick_js): string {
+                    return '$("#' . $id . '").on("click", function(event) {'
+                        . $onclick_js
+                        . ' return false; });';
+                }
+            );
+    }
+
     public function setAjaxHash(string $hash): void
     {
         $this->ajax_hash = $hash;
     }
 
-    public function getHeaderAction(ilGlobalTemplateInterface $main_tpl = null): string
+    public function getHeaderAction(?ilGlobalTemplateInterface $main_tpl = null): string
     {
         if ($main_tpl == null) {
             $main_tpl = $this->main_tpl;
@@ -2330,7 +2326,7 @@ class ilObjectListGUI
                 $f = $this->ui->factory();
                 $this->addHeaderGlyph(
                     'tags',
-                    $f->symbol()->glyph()->tag('#')
+                    $f->symbol()->glyph()->tag()
                       ->withCounter($f->counter()->status(count($tags))),
                     ilTaggingGUI::getListTagsJSCall($this->ajax_hash, $redraw_js)
                 );
@@ -2352,7 +2348,7 @@ class ilObjectListGUI
                 $f = $this->ui->factory();
                 $this->addHeaderGlyph(
                     'notes',
-                    $f->symbol()->glyph()->note('#')
+                    $f->symbol()->glyph()->note()
                       ->withCounter($f->counter()->status((int) $cnt[$this->obj_id][Note::PRIVATE])),
                     ilNoteGUI::getListNotesJSCall($this->ajax_hash, $redraw_js)
                 );
@@ -2367,7 +2363,7 @@ class ilObjectListGUI
                 $f = $this->ui->factory();
                 $this->addHeaderGlyph(
                     'comments',
-                    $f->symbol()->glyph()->comment('#')
+                    $f->symbol()->glyph()->comment()
                       ->withCounter($f->counter()->status((int) $cnt[$this->obj_id][Note::PUBLIC])),
                     ilNoteGUI::getListCommentsJSCall($this->ajax_hash, $redraw_js)
                 );
@@ -2413,13 +2409,16 @@ class ilObjectListGUI
 
                 if (is_array($attr)) {
                     if (isset($attr['glyph']) && $attr['glyph']) {
-                        if ($attr['onclick']) {
-                            $htpl->setCurrentBlock('prop_glyph_oc');
-                            $htpl->setVariable('GLYPH_ONCLICK', $attr['onclick']);
-                            $htpl->parseCurrentBlock();
-                        }
                         $renderer = $this->ui->renderer();
-                        $html = $renderer->render($attr['glyph']);
+                        if (!empty($attr['onclick'])) {
+                            $html = $renderer->render(
+                                $this->getHeaderGlyphShyButton($attr['glyph'], $attr['onclick'])
+                            );
+                        } else {
+                            $html = '<span class="prop">'
+                                . $renderer->render($attr['glyph'])
+                                . '</span>';
+                        }
                         $htpl->setCurrentBlock('prop_glyph');
                         $htpl->setVariable('GLYPH', $html);
                         $htpl->parseCurrentBlock();
@@ -2695,17 +2694,6 @@ class ilObjectListGUI
         return $this->adm_commands_included;
     }
 
-    public function storeAccessCache(): void
-    {
-        if ($this->acache->getLastAccessStatus() == 'miss' && !$this->prevent_access_caching) {
-            $this->acache->storeEntry(
-                $this->user->getId() . ':' . $this->ref_id,
-                serialize($this->access_cache),
-                $this->ref_id
-            );
-        }
-    }
-
     /**
      * Get all item information (title, commands, description) in HTML
      */
@@ -2736,16 +2724,6 @@ class ilObjectListGUI
                     true
                 );
             }
-        }
-
-        // read from cache
-        $this->acache = new ilListItemAccessCache();
-        $cres = $this->acache->getEntry($this->user->getId() . ':' . $ref_id);
-        if ($this->acache->getLastAccessStatus() == 'hit') {
-            $this->access_cache = unserialize($cres);
-        } else {
-            // write to cache
-            $this->storeAccessCache();
         }
 
         // visible check
@@ -3151,7 +3129,7 @@ class ilObjectListGUI
 
         $sections = [];
         if ($description !== '') {
-            $sections[] = $ui->factory()->legacy('<div class="il-multi-line-cap-3">' . $description . '</div>');
+            $sections[] = $ui->factory()->legacy()->content('<div class="il-multi-line-cap-3">' . $description . '</div>');
         }
 
         $this->populateCommands(false);

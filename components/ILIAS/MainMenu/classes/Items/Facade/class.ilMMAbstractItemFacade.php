@@ -37,6 +37,7 @@ use ILIAS\GlobalScreen\Scope\MainMenu\Factory\TopItem\TopParentItem;
 use ILIAS\UI\Component\Link\Link;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\isParent;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\hasTitle;
+use ILIAS\UI\Component\Legacy\Content;
 
 /**
  * Class ilMMAbstractItemFacade
@@ -85,6 +86,11 @@ abstract class ilMMAbstractItemFacade implements ilMMItemFacadeInterface
     public function supportsRoleBasedVisibility(): bool
     {
         return false;
+    }
+
+    public function canBeDeactivated(): bool
+    {
+        return !$this->raw_item->isAlwaysAvailable();
     }
 
     /**
@@ -145,7 +151,7 @@ abstract class ilMMAbstractItemFacade implements ilMMItemFacadeInterface
 
     public function getAmountOfChildren(): int
     {
-        if ($this->filtered_item instanceof isParent) {
+        if ($this->filtered_item instanceof isParent || $this->filtered_item instanceof isTopItem) {
             return $this->filtered_item->getAmountOfChildren();
         }
 
@@ -202,14 +208,17 @@ abstract class ilMMAbstractItemFacade implements ilMMItemFacadeInterface
         $this->default_title = $default_title;
     }
 
-    public function getStatus(): string
+    public function getStatus(): ?Content
     {
-        global $DIC;
-        if (!$this->raw_item->isAvailable() || $this->raw_item->isAlwaysAvailable()) {
-            return $DIC->ui()->renderer()->render($this->raw_item->getNonAvailableReason());
+        $non_available_reason = $this->raw_item->getNonAvailableReason();
+        if (!$this->raw_item->isAvailable()) {
+            return $non_available_reason;
+        }
+        if ($this->raw_item->isAlwaysAvailable()) {
+            return $non_available_reason;
         }
 
-        return "";
+        return null;
     }
 
     /**
@@ -257,6 +266,11 @@ abstract class ilMMAbstractItemFacade implements ilMMItemFacadeInterface
     public function isTopItem(): bool
     {
         return $this->raw_item instanceof isTopItem;
+    }
+
+    public function canHaveChildren(): bool
+    {
+        return $this->raw_item instanceof isParent;
     }
 
     public function isChild(): bool
@@ -371,6 +385,11 @@ abstract class ilMMAbstractItemFacade implements ilMMItemFacadeInterface
         }
     }
 
+    public function getTitle(): string
+    {
+        return $this->getDefaultTitle();
+    }
+
     /**
      * @inheritDoc
      */
@@ -385,4 +404,6 @@ abstract class ilMMAbstractItemFacade implements ilMMItemFacadeInterface
             }
         }
     }
+
+
 }

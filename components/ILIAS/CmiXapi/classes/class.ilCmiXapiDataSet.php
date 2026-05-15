@@ -193,12 +193,11 @@ class ilCmiXapiDataSet extends ilDataSet
 
         $exportArchiveDir = ilExport::_getExportDirectory($id) . "/" . $this->_archive['directories']['archiveDir'] . "/";
 
-        // build metadata xml file
-        file_put_contents(
-            $exportArchiveDir . $this->_archive['files']['metadata'],
-            $this->buildMetaData($id)
-        );
-
+        // build metadata xml file //TODO Check
+        //        file_put_contents(
+        //            $exportArchiveDir . $this->_archive['files']['metadata'],
+        //            $this->buildMetaData($id)
+        //        );
 
         // build content zip file
         if (isset($this->_archive['files']['content'])) {
@@ -291,12 +290,12 @@ class ilCmiXapiDataSet extends ilDataSet
         //var_dump($this->data); exit;
     }
 
-    public function buildMetaData(int $id): string
-    {
-        $md2xml = new ilMD2XML($id, $id, "cmix");
-        $md2xml->startExport();
-        return $md2xml->getXML();
-    }
+    //    public function buildMetaData(int $id): string
+    //    {
+    //        $md2xml = new ilMD2XML($id, $id, "cmix");
+    //        $md2xml->startExport();
+    //        return $md2xml->getXML();
+    //    }
 
     private function buildManifest(): string
     {

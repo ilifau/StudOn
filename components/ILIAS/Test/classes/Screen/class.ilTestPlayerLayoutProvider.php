@@ -86,7 +86,7 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
                 $tools_button = $f->button()->bulky($icon, $lng->txt("tools"), "#")
                     ->withEngagedState(true);
 
-                $question_listing = $f->legacy($r->render($question_listing));
+                $question_listing = $f->legacy()->content($r->render($question_listing));
 
                 $label = $lng->txt('mainbar_button_label_questionlist');
                 $entry = $f->maincontrols()->slate()->legacy(

@@ -28,7 +28,9 @@ use ILIAS\Init\ErrorHandling\Http\PlainTextFallbackResponder;
 
 try {
     require_once '../vendor/composer/vendor/autoload.php';
-    \ilInitialisation::initILIAS();
+
+    require_once __DIR__ . '/../artifacts/bootstrap_default.php';
+    entry_point('ILIAS Legacy Initialisation Adapter');
 
     /** @var \ILIAS\DI\Container $DIC */
     global $DIC;

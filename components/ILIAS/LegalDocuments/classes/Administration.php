@@ -20,7 +20,11 @@ declare(strict_types=1);
 
 namespace ILIAS\LegalDocuments;
 
+use ILIAS\HTTP\Wrapper\WrapperFactory;
+use ILIAS\Refinery\Factory;
+use ILIAS\Refinery\Transformation;
 use ILIAS\UI\Component\Button\Standard as Button;
+use ILIAS\LegalDocuments\DocumentId;
 use ILIAS\LegalDocuments\Value\Criterion;
 use ILIAS\LegalDocuments\Value\Document;
 use ILIAS\LegalDocuments\Value\CriterionContent;
@@ -44,11 +48,15 @@ use ILIAS\LegalDocuments\Legacy\Confirmation;
 use ilObjUserFolderGUI;
 use ILIAS\LegalDocuments\Value\DocumentContent;
 use ILIAS\UI\Component\Input\Container\Form\Form;
+use ILIAS\User\Settings\Administration\SettingsGUI;
+use ilAdministrationGUI;
 
 class Administration
 {
     /** @var Closure(): Confirmation */
     private readonly Closure $confirmation;
+    private WrapperFactory $http_wrapper;
+    private Factory $refinery;
 
     /**
      * @param null|Closure(): Confirmation $confirmation
@@ -57,9 +65,13 @@ class Administration
         private readonly Config $config,
         private readonly Container $container,
         private readonly UI $ui,
-        ?Closure $confirmation = null
+        ?Closure $confirmation = null,
+        ?WrapperFactory $http_wrapper = null,
+        ?Factory $refinery = null
     ) {
         $this->confirmation = $confirmation ?? fn() => new Confirmation($this->container->language());
+        $this->http_wrapper = $http_wrapper ?? $this->container->http()->wrapper();
+        $this->refinery = $refinery ?? $this->container->refinery();
     }
 
     /**
@@ -131,11 +143,61 @@ class Administration
      */
     public function retrieveIds(): array
     {
-        $r = $this->container->refinery();
-        return $this->container->http()->wrapper()->post()->retrieve('ids', $this->container->refinery()->byTrying([
-            $r->in()->series([$r->null(), $r->always([])]),
-            $r->to()->listOf($r->kindlyTo()->int())
-        ]));
+        $ids = $this->retrieveValueOrDefaultFromPost(
+            'ids',
+            $this->container->refinery()->kindlyTo()->listOf(
+                $this->container->refinery()->kindlyTo()->int()
+            )
+        );
+
+        if (!$ids) {
+            //Try reading from UI-Table action
+            $ids = $this->retrieveValueOrDefaultFromQuery(
+                'legal_document_id',
+                $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int()),
+                []
+            );
+        }
+
+        if (!$ids) {
+            //Try reading from UI-Table "apply to all objects"
+            $ids = $this->retrieveValueOrDefaultFromQuery(
+                'legal_document_id',
+                $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->string()),
+                []
+            );
+
+            if (current($ids) === 'ALL_OBJECTS') {
+                $ids = [];
+                foreach ($this->config->legalDocuments()->document()->repository()->all() as $document) {
+                    $ids[] = $document->id();
+                }
+            }
+        }
+
+        return $ids ?: [];
+    }
+
+    private function retrieveValueOrDefaultFromPost(string $key, Transformation $transformation, mixed $default = null): mixed
+    {
+        return $this->container->http()->wrapper()->post()->retrieve(
+            $key,
+            $this->container->refinery()->byTrying([
+                $transformation,
+                $this->container->refinery()->always($default)
+            ])
+        );
+    }
+
+    private function retrieveValueOrDefaultFromQuery(string $key, Transformation $transformation, mixed $default = null): mixed
+    {
+        return $this->container->http()->wrapper()->query()->retrieve(
+            $key,
+            $this->container->refinery()->byTrying([
+                $transformation,
+                $this->container->refinery()->always($default)
+            ])
+        );
     }
 
     /**
@@ -234,9 +296,24 @@ class Administration
      */
     public function currentDocument(): Result
     {
+        $doc_id = $this->retrieveValueOrDefaultFromQuery(
+            'doc_id',
+            $this->refinery->kindlyTo()->int(),
+        );
+
+        if (!$doc_id) {
+            //Try reading from UI-Table action
+            $doc_id = $this->retrieveValueOrDefaultFromQuery(
+                'legal_document_id',
+                $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int()),
+                []
+            );
+            $doc_id = current($doc_id) ?: null;
+        }
+
         $repo = $this->config->legalDocuments()->document()->repository();
-        $doc_id = $this->container->http()->request()->getQueryParams()['doc_id'] ?? null;
-        return $this->container->refinery()->kindlyTo()->int()->applyTo(new Ok($doc_id))->then($repo->find(...));
+
+        return $this->refinery->kindlyTo()->int()->applyTo(new Ok($doc_id))->then($repo->find(...));
     }
 
     public function criterionForm(string $url, Document $document, ?CriterionContent $criterion = null): Form
@@ -247,6 +324,11 @@ class Administration
         if ($value) {
             $group = $group->withValue($value);
         }
+
+        $this->ui->mainTemplate()->setOnScreenMessage(
+            $this->ui->mainTemplate()::MESSAGE_TYPE_INFO,
+            $this->ui->txt('form_criterion_standard_fields_info_text')
+        );
 
         $title = $this->ui->create()->input()->field()->text($this->ui->txt('form_document'))->withValue($document->content()->title())->withDisabled(true);
 
@@ -354,12 +436,15 @@ class Administration
      */
     public function documentForm(Closure $link, string $title, Closure $document_content, bool $may_be_new): Form
     {
+        $field = $this->ui->create()->input()->field();
         $edit_link = $link('editDocument');
         $content_title = $may_be_new ? 'form_document' : 'form_document_new';
 
-        $section = $this->ui->create()->input()->field()->section([
-            'title' => $this->ui->create()->input()->field()->text($this->ui->txt('title'))->withRequired(true)->withValue($title),
-            'content' => $this->ui->create()->input()->field()->file(new UploadHandler($link, $document_content, $this->ui->txt(...)), $this->ui->txt($content_title))->withAcceptedMimeTypes([
+        $require = $this->container->refinery()->custom()->constraint(fn($x) => (bool) $x, $this->ui->txt('title_required'));
+
+        $section = $field->section([
+            'title' => $field->text($this->ui->txt('title'))->withRequired(true, $require)->withValue($title),
+            'content' => $field->file(new UploadHandler($link, $document_content, $this->ui->txt(...)), $this->ui->txt($content_title))->withAcceptedMimeTypes([
                 'text/html',
                 'text/plain',
             ])->withRequired($may_be_new),
@@ -403,7 +488,7 @@ class Administration
             ]),
         ]);
 
-        $order = $this->container->http()->request()->getParsedBody()['order'] ?? null;
+        $order = $this->container->http()->request()->getParsedBody();
         if (!is_array($order)) {
             throw new InvalidArgumentException('Invalid order given. List of numbers expected.');
         }
@@ -452,10 +537,13 @@ class Administration
             return $message_box;
         }
 
+        $this->container->language()->loadLanguageModule('administration');
+
+        $this->container->ctrl()->setParameterByClass(SettingsGUI::class, 'ref_id', (string) USER_FOLDER_ID);
         return $message_box->withLinks([
             $this->ui->create()->link()->standard(
                 $this->ui->txt('adm_external_setting_edit'),
-                $this->willLinkWith(ilObjUserFolderGUI::class, ['ref_id' => (string) USER_FOLDER_ID])('generalSettings')
+                $this->container->ctrl()->getLinkTargetByClass([ilAdministrationGUI::class, ilObjUserFolderGUI::class, SettingsGUI::class], 'show')
             )
         ]);
     }

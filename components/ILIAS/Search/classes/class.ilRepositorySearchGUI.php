@@ -194,7 +194,7 @@ class ilRepositorySearchGUI
      */
     public static function fillAutoCompleteToolbar(
         object $parent_object,
-        ilToolbarGUI $toolbar = null,
+        ?ilToolbarGUI $toolbar = null,
         array $a_options = [],
         bool $a_sticky = false
     ): ilToolbarGUI {
@@ -613,7 +613,10 @@ class ilRepositorySearchGUI
         $class = $this->callback['class'];
         $method = $this->callback['method'];
 
-        $post_user = (array) ($this->http->request()->getParsedBody()['user'] ?? []);
+        $post_user = $this->http->wrapper()->post()->retrieve(
+            'user',
+            $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())
+        );
         $post_selected_command = '';
         if (
             $this->http->wrapper()->post()->has('table_top_cmd') &&
@@ -693,7 +696,7 @@ class ilRepositorySearchGUI
         $this->showSearchUserTable([$selected], 'showSearchResults');
     }
 
-    public function initFormSearch(ilObjUser $user = null): void
+    public function initFormSearch(?ilObjUser $user = null): void
     {
         $this->form = new ilPropertyFormGUI();
         $this->form->setFormAction($this->ctrl->getFormAction($this, 'showSearch'));

@@ -23,7 +23,7 @@ require_once(__DIR__ . "/../../Base.php");
 
 use ILIAS\UI\Component as C;
 use ILIAS\UI\Implementation as I;
-use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
+use ILIAS\UI\Implementation\Component\Input\Field\Factory as FieldFactory;
 
 /**
  * @author Alexander Killing <killing@leifos.de>
@@ -33,24 +33,24 @@ class PlayerVideoTest extends ILIAS_UI_TestBase
     public function getUIFactory(): NoUIFactory
     {
         return new class (
-            $this->createMock(C\Modal\InterruptiveItem\Factory::class),
+            $this->createMock(I\Component\Modal\InterruptiveItem\Factory::class),
             $this->createMock(FieldFactory::class),
         ) extends NoUIFactory {
             public function __construct(
-                protected C\Modal\InterruptiveItem\Factory $item_factory,
+                protected I\Component\Modal\InterruptiveItem\Factory $interruptive_item_factory,
                 protected FieldFactory $field_factory,
             ) {
             }
 
-            public function modal(): C\Modal\Factory
+            public function modal(): I\Component\Modal\Factory
             {
                 return new I\Component\Modal\Factory(
                     new I\Component\SignalGenerator(),
-                    $this->item_factory,
+                    $this->interruptive_item_factory,
                     $this->field_factory,
                 );
             }
-            public function button(): C\Button\Factory
+            public function button(): I\Component\Button\Factory
             {
                 return new I\Component\Button\Factory();
             }
@@ -108,11 +108,11 @@ class PlayerVideoTest extends ILIAS_UI_TestBase
         $html = $r->render($video);
         $expected = <<<EOT
 <div class="il-video-container">
-    <video controls class="il-video-player" id="id_1" src="/foo" preload="metadata" >
+    <video controls="controls" class="il-video-player" id="id_1" src="/foo" preload="metadata" >
     </video>
 </div>
 EOT;
-        $this->assertEquals(
+        $this->assertHTMLEquals(
             $this->brutallyTrimHTML($expected),
             $this->brutallyTrimHTML($html)
         );
@@ -128,11 +128,11 @@ EOT;
         $html = $r->render($video);
         $expected = <<<EOT
 <div class="il-video-container">
-    <video controls class="il-video-player" id="id_1" src="/foo" preload="metadata" poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="background-image:url('bar.jpg')">
+    <video controls="controls" class="il-video-player" id="id_1" src="/foo" preload="metadata" poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="background-image:url('bar.jpg')">
     </video>
 </div>
 EOT;
-        $this->assertEquals(
+        $this->assertHTMLEquals(
             $this->brutallyTrimHTML($expected),
             $this->brutallyTrimHTML($html)
         );
@@ -148,12 +148,12 @@ EOT;
         $html = $r->render($video);
         $expected = <<<EOT
 <div class="il-video-container">
-    <video controls class="il-video-player" id="id_1" src="/foo" preload="metadata" >
+    <video controls="controls" class="il-video-player" id="id_1" src="/foo" preload="metadata" >
         <track kind="subtitles" src="subtitles.vtt" srclang="en" />
     </video>
 </div>
 EOT;
-        $this->assertEquals(
+        $this->assertHTMLEquals(
             $this->brutallyTrimHTML($expected),
             $this->brutallyTrimHTML($html)
         );

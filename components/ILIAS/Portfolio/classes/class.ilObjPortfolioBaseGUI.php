@@ -18,6 +18,7 @@
 
 use ILIAS\Portfolio\StandardGUIRequest;
 use ILIAS\Portfolio\PortfolioPrintViewProviderGUI;
+use ILIAS\User\Profile\PublicProfileGUI;
 
 /**
  * Portfolio view gui base class
@@ -38,7 +39,6 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
     protected int $requested_ppage;
     protected int $requested_user_page;
     protected \ILIAS\DI\UIServices $ui;
-    protected \ILIAS\HTTP\Services $http;
     protected \ILIAS\Style\Content\GUIService $content_style_gui;
     protected \ILIAS\Style\Content\Object\ObjectFacade $content_style_domain;
 
@@ -63,8 +63,6 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
             ->internal()
             ->gui()
             ->standardRequest();
-
-        $this->http = $DIC->http();
 
         parent::__construct($a_id, $a_id_type, $a_parent_node_id);
 
@@ -815,7 +813,7 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
      * Select target portfolio for page(s) copy
      */
     public function copyPageForm(
-        ilPropertyFormGUI $a_form = null
+        ?ilPropertyFormGUI $a_form = null
     ): void {
         $prtf_pages = $this->port_request->getPortfolioPageIds();
 
@@ -896,7 +894,7 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
     ////
 
     public function setContentStyleSheet(
-        ilGlobalTemplateInterface $a_tpl = null
+        ?ilGlobalTemplateInterface $a_tpl = null
     ): void {
         $tpl = $this->tpl;
 

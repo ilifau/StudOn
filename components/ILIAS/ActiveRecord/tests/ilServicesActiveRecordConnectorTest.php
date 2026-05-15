@@ -18,16 +18,17 @@
 
 declare(strict_types=1);
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ILIAS\DI\Container;
 
 class ilServicesActiveRecordConnectorTest extends TestCase
 {
-    private ?\ILIAS\DI\Container $dic_backup = null;
+    private ?Container $dic_backup = null;
     /**
-     * @var ilDBInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var ilDBInterface|MockObject
      */
-    protected $db_mock;
+    protected ?MockObject $db_mock = null;
 
     protected function setUp(): void
     {
@@ -53,7 +54,7 @@ class ilServicesActiveRecordConnectorTest extends TestCase
                       ->willReturn(1);
 
         $arConnectorDB = new arConnectorDB($this->db_mock);
-        $this->assertEquals(1, $arConnectorDB->nextID($ilBiblEntry));
+        $this->assertSame(1, $arConnectorDB->nextID($ilBiblEntry));
 
         $this->db_mock->expects($this->once())
                       ->method('tableExists')

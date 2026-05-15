@@ -1,11 +1,13 @@
 <?php
 
 use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * fau: syncWithOrg - new class for fau.org data update cron job.
  */
-class ilSyncWithOrgCron extends ilCronJob
+class ilSyncWithOrgCron extends CronJob
 {
     public function getId(): string
     {
@@ -26,9 +28,9 @@ class ilSyncWithOrgCron extends ilCronJob
         return $DIC->language()->txt("fau_org_data_update_info");
     }
     
-    public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
+    public function getDefaultScheduleType(): \ILIAS\Cron\Job\Schedule\JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
+        return \ILIAS\Cron\Job\Schedule\JobScheduleType::IN_MINUTES;
     }
     
     public function getDefaultScheduleValue(): ?int
@@ -46,20 +48,20 @@ class ilSyncWithOrgCron extends ilCronJob
         return true;
     }
     
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         global $DIC;
 
         $service = $DIC->fau()->sync()->org();
-        $result = new \ilCronJobResult();
+        $result = new JobResult();
 
         $service->synchronize();
 
         if ($service->hasErrors()) {
-            $result->setStatus(\ilCronJobResult::STATUS_FAIL);
+            $result->setStatus(JobResult::STATUS_FAIL);
             $result->setMessage(implode(', ', $service->getErrors()));
         } else {
-            $result->setStatus(\ilCronJobResult::STATUS_OK);
+            $result->setStatus(JobResult::STATUS_OK);
             $result->setMessage('Added Units: ' . $service->getItemsAdded() . ', '
                 . 'Updated Units: ' . $service->getItemsUpdated() . ', '
                 . 'Deleted Units: ' . $service->getItemsDeleted()

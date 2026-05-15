@@ -25,11 +25,11 @@ use ILIAS\UI\Component\Symbol\Icon\Icon;
 use ILIAS\UI\Component\Link\Link;
 use ILIAS\ResourceStorage\Services as IRSS;
 use ILIAS\UI\Component\Link\Relationship;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy\Content;
 
 class Renderer implements RendererInterface
 {
-    protected const FALLBACK_IMG = 'copyrights\all_rights_reserved.svg';
+    protected const string FALLBACK_IMG = 'copyrights\all_rights_reserved.svg';
 
     protected Factory $factory;
     protected IRSS $irss;
@@ -43,7 +43,7 @@ class Renderer implements RendererInterface
     }
 
     /**
-     * @return Icon[]|Link[]|Legacy[]
+     * @return Icon[]|Link[]|Content[]
      */
     public function toUIComponents(CopyrightDataInterface $copyright): array
     {
@@ -52,7 +52,7 @@ class Renderer implements RendererInterface
         if (!is_null($image = $this->buildIcon($copyright))) {
             $res[] = $image;
         }
-        if (!is_null($link = $this->buildLink($copyright))) {
+        if (!is_null($link = $this->buildLink($copyright, false))) {
             $res[] = $link;
             $has_link = true;
         }
@@ -60,6 +60,16 @@ class Renderer implements RendererInterface
             $res[] = $this->textInLegacy($copyright->fullName());
         }
         return $res;
+    }
+
+    public function toImageOnly(CopyrightDataInterface $copyright): ?Icon
+    {
+        return $this->buildIcon($copyright);
+    }
+
+    public function toLinkOnly(CopyrightDataInterface $copyright): ?Link
+    {
+        return $this->buildLink($copyright, true);
     }
 
     public function toString(CopyrightDataInterface $copyright): string
@@ -128,15 +138,20 @@ class Renderer implements RendererInterface
         return \ilUtil::getImagePath(self::FALLBACK_IMG);
     }
 
-    protected function buildLink(CopyrightDataInterface $copyright): ?Link
+    protected function buildLink(CopyrightDataInterface $copyright, bool $allow_empty_link): ?Link
     {
-        if (!$copyright->link()) {
+        if (
+            !$copyright->link() &&
+            (!$allow_empty_link || $copyright->fullName() === '')
+        ) {
             return null;
         }
         return $this->standardLink(
             $copyright->fullName() !== '' ? $copyright->fullName() : (string) $copyright->link(),
-            (string) $copyright->link()
-        )->withAdditionalRelationshipToReferencedResource(Relationship::LICENSE);
+            (string) $copyright->link(),
+            $copyright->link() !== null ? Relationship::LICENSE : null,
+            $copyright->link() === null
+        );
     }
 
     protected function customIcon(string $src, string $alt): Icon
@@ -144,14 +159,25 @@ class Renderer implements RendererInterface
         return $this->factory->symbol()->icon()->custom($src, $alt, Icon::MEDIUM);
     }
 
-    protected function standardLink(string $label, string $action): Link
-    {
-        return $this->factory->link()->standard($label, $action);
+    protected function standardLink(
+        string $label,
+        string $action,
+        ?Relationship $relationship,
+        bool $disabled
+    ): Link {
+        $link = $this->factory->link()->standard($label, $action);
+        if ($relationship !== null) {
+            $link = $link->withAdditionalRelationshipToReferencedResource($relationship);
+        }
+        if ($disabled) {
+            $link = $link->withDisabled();
+        }
+        return $link;
     }
 
-    protected function textInLegacy(string $text): Legacy
+    protected function textInLegacy(string $text): Content
     {
-        return $this->factory->legacy($text);
+        return $this->factory->legacy()->content($text);
     }
 
     protected function getSourceFromIRSS(string $string_id): string

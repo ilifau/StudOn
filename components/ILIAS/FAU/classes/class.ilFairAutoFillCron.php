@@ -3,11 +3,13 @@
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * Cron job for auto-filling course/group after fair period
  */
-class ilFairAutoFillCron extends ilCronJob
+class ilFairAutoFillCron extends CronJob
 {
     public function getId(): string
     {
@@ -28,9 +30,9 @@ class ilFairAutoFillCron extends ilCronJob
         return $DIC->language()->txt("fair_autofill_cron_info");
     }
     
-    public function getDefaultScheduleType(): ILIAS\Cron\Schedule\CronJobScheduleType
+    public function getDefaultScheduleType(): \ILIAS\Cron\Job\Schedule\JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES;
+        return \ILIAS\Cron\Job\Schedule\JobScheduleType::IN_MINUTES;
     }
     
     public function getDefaultScheduleValue(): ?int
@@ -48,11 +50,11 @@ class ilFairAutoFillCron extends ilCronJob
         return true;
     }
     
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         global $lng;
 
-        $status = ilCronJobResult::STATUS_NO_ACTION;
+        $status = JobResult::STATUS_NO_ACTION;
         $message = "";
 
         $filled = 0;
@@ -60,11 +62,11 @@ class ilFairAutoFillCron extends ilCronJob
         $filled += $this->fillGroups();
     
         if ($filled > 0) {
-            $status = ilCronJobResult::STATUS_OK;
+            $status = JobResult::STATUS_OK;
             $message = sprintf($lng->txt('fair_autofill_cron_result'), $filled) ;
         }
         
-        $result = new ilCronJobResult();
+        $result = new JobResult();
         $result->setStatus($status);
         $result->setMessage($message);
         

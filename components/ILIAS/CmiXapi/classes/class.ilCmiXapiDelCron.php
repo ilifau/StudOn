@@ -18,7 +18,9 @@
 
 declare(strict_types=1);
 
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * Class ilCmiXapiDelCron
@@ -27,7 +29,7 @@ use ILIAS\Cron\Schedule\CronJobScheduleType;
  * @author      Stefan Schneider
  */
 
-class ilCmiXapiDelCron extends ilCronJob
+class ilCmiXapiDelCron extends CronJob
 {
     public const JOB_ID = 'xapi_deletion_cron';
 
@@ -91,9 +93,9 @@ class ilCmiXapiDelCron extends ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
+        return JobScheduleType::DAILY;
     }
 
     public function getDefaultScheduleValue(): int
@@ -111,10 +113,10 @@ class ilCmiXapiDelCron extends ilCronJob
         return $this->lrsType;
     }
 
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         global $DIC;
-        $cronResult = new ilCronJobResult();
+        $cronResult = new JobResult();
         $this->log->debug('run');
 
         // LRS - Ist Client gelöscht?
@@ -223,12 +225,10 @@ class ilCmiXapiDelCron extends ilCronJob
             }
         }
 
-        // Fall 3 wird noch gebraucht? NEIN
-
         if ($allDone) {
-            $cronResult->setStatus(ilCronJobResult::STATUS_OK);
+            $cronResult->setStatus(JobResult::STATUS_OK);
         } else {
-            $cronResult->setStatus(ilCronJobResult::STATUS_FAIL);
+            $cronResult->setStatus(JobResult::STATUS_FAIL);
         }
         return $cronResult;
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -22,7 +23,7 @@
  */
 class shibServerData extends shibConfig
 {
-    protected static ?shibServerData $server_cache;
+    protected static ?shibServerData $server_cache = null;
 
     /**
      * @noinspection MagicMethodsValidityInspection
@@ -39,6 +40,7 @@ class shibServerData extends shibConfig
         }
     }
 
+    #[\Override]
     public static function getInstance(): shibServerData
     {
         if (!isset(self::$server_cache)) {

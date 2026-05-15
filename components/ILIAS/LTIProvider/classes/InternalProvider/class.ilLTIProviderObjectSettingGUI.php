@@ -145,14 +145,13 @@ class ilLTIProviderObjectSettingGUI
      * Show settings
      * @param ilPropertyFormGUI $form
      */
-    protected function settings(ilPropertyFormGUI $form = null): void
+    protected function settings(?ilPropertyFormGUI $form = null): void
     {
         if (!$form instanceof ilPropertyFormGUI) {
             $form = $this->initObjectSettingsForm();
         }
         $this->tpl->setContent($form->getHTML());
     }
-
 
     /**
      * Init object settings form
@@ -232,7 +231,12 @@ class ilLTIProviderObjectSettingGUI
             $urlJwks = new ilNonEditableValueGUI($this->lng->txt('lti_con_key_type_jwk'), $this->lng->txt('lti_con_key_type_jwk'));
             $urlJwks->setValue(ILIAS_HTTP_PATH . '/lticerts.php');
             $op1->addSubItem($urlJwks);
-
+            //                    $url = new ilNonEditableValueGUI($this->lng->txt('lti_13_initiate_url'), 'url');
+            //                    $url->setValue(ILIAS_HTTP_PATH . '/lti.php?client_id=' . CLIENT_ID);
+            //                    $version->addSubItem($url);
+            //                    $url = new ilNonEditableValueGUI($this->lng->txt('lti_13_redirection_url'), 'url');
+            //                    $url->setValue(ILIAS_HTTP_PATH . '/lti.php?client_id=' . CLIENT_ID);
+            //                    $active->addSubItem($url);
             $sh = new ilNonEditableValueGUI($this->lng->txt('lti_13_step2'), '');
             $sh->setValue($this->lng->txt("lti_13_step2_info"));
             $op1->addSubItem($sh);

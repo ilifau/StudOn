@@ -21,20 +21,19 @@ declare(strict_types=1);
 namespace ILIAS\Test\Settings\MainSettings;
 
 use ILIAS\Test\Settings\TestSettingsGUI;
+use ILIAS\Test\Settings\MainSettings\MainSettingsRepository;
 use ILIAS\Test\Logging\TestLogger;
 use ILIAS\Test\Logging\TestAdministrationInteractionTypes;
 use ILIAS\Test\Logging\AdditionalInformationGenerator;
 use ILIAS\TestQuestionPool\Questions\GeneralQuestionPropertiesRepository;
 use ILIAS\UI\Factory as UIFactory;
 use ILIAS\UI\Renderer as UIRenderer;
-use ILIAS\Test\Settings\MainSettings\MainSettingsRepository;
+use ILIAS\ILIASObject\Properties\Properties as ObjectProperties;
 use ILIAS\UI\Component\Modal\Interruptive as InterruptiveModal;
 use ILIAS\UI\Component\Input\Field\Section;
 use ILIAS\UI\Component\Input\Field\Checkbox;
-use ILIAS\UI\Component\Input\Field\OptionalGroup;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\Refinery\Factory as Refinery;
-use ILIAS\Refinery\Transformation as TransformationInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\Refinery\Constraint;
 
@@ -65,7 +64,7 @@ class SettingsMainGUI extends TestSettingsGUI
     private const ECS_FUNCTIONALITY_SETTINGS_LABEL = 'ecs_settings';
     private const ADDITIONAL_FUNCTIONALITY_SETTINGS_LABEL = 'additional_functionality_settings';
 
-    protected \ilObjectProperties $object_properties;
+    protected ObjectProperties $object_properties;
     protected MainSettings $main_settings;
     protected MainSettingsRepository $main_settings_repository;
 
@@ -73,7 +72,6 @@ class SettingsMainGUI extends TestSettingsGUI
 
     public function __construct(
         private readonly \ilGlobalTemplateInterface $tpl,
-        private readonly \ilToolbarGUI $toolbar,
         private readonly \ilCtrlInterface $ctrl,
         private readonly \ilAccessHandler $access,
         private readonly \ilLanguage $lng,
@@ -126,62 +124,10 @@ class SettingsMainGUI extends TestSettingsGUI
         $this->object_data_cache->deleteCachedEntry($this->test_object->getId());
     }
 
-    private function showOldIntroduction(): void
-    {
-        $this->toolbar->addComponent(
-            $this->ui_factory->link()->standard(
-                $this->lng->txt('back'),
-                $this->ctrl->getLinkTargetByClass(self::class, 'showForm')
-            )
-        );
-
-        $this->tpl->setContent(
-            \ilRTE::_replaceMediaObjectImageSrc(
-                $this->main_settings->getIntroductionSettings()->getIntroductionText(),
-                1
-            )
-        );
-    }
-
-    private function showOldConcludingRemarks(): void
-    {
-        $this->toolbar->addComponent(
-            $this->ui_factory->link()->standard(
-                $this->lng->txt('back'),
-                $this->ctrl->getLinkTargetByClass(self::class, 'showForm')
-            )
-        );
-
-        $this->tpl->setContent(
-            \ilRTE::_replaceMediaObjectImageSrc(
-                $this->main_settings->getFinishingSettings()->getConcludingRemarksText(),
-                1
-            )
-        );
-    }
-
-    private function showForm(StandardForm $form = null, InterruptiveModal $modal = null): void
+    private function showForm(?StandardForm $form = null, ?InterruptiveModal $modal = null): void
     {
         if ($form === null) {
             $form = $this->buildForm();
-        }
-
-        if ($this->main_settings->getIntroductionSettings()->getIntroductionText() !== '') {
-            $this->toolbar->addComponent(
-                $this->ui_factory->link()->standard(
-                    $this->lng->txt('show_old_introduction'),
-                    $this->ctrl->getLinkTargetByClass(self::class, 'showOldIntroduction')
-                )
-            );
-        }
-
-        if ($this->main_settings->getFinishingSettings()->getConcludingRemarksText() !== '') {
-            $this->toolbar->addComponent(
-                $this->ui_factory->link()->standard(
-                    $this->lng->txt('show_old_concluding_remarks'),
-                    $this->ctrl->getLinkTargetByClass(self::class, 'showOldConcludingRemarks')
-                )
-            );
         }
 
         $rendered_modal = '';
@@ -303,30 +249,6 @@ class SettingsMainGUI extends TestSettingsGUI
                 )
         ];
 
-        if (!$this->test_object->isActivationLimited()) {
-            $log_array[AdditionalInformationGenerator::KEY_TEST_VISIBILITY_PERIOD] = $this->logger
-                ->getAdditionalInformationGenerator()->getEnabledDisabledTagForBool(false);
-            return $log_array;
-        }
-
-        $none_tag = $this->logger->getAdditionalInformationGenerator()->getNoneTag();
-        $from = $this->test_object->getActivationStartingTime() === null
-            ? $none_tag
-            : \DateTimeImmutable::createFromFormat('U', (string) $this->test_object->getActivationStartingTime())
-                ->format(AdditionalInformationGenerator::DATE_STORAGE_FORMAT);
-        $until = $this->test_object->getActivationEndingTime() === null
-            ? $none_tag
-            : \DateTimeImmutable::createFromFormat('U', (string) $this->test_object->getActivationEndingTime())
-                ->format(AdditionalInformationGenerator::DATE_STORAGE_FORMAT);
-
-        $log_array[AdditionalInformationGenerator::KEY_TEST_VISIBILITY_PERIOD] = [
-            AdditionalInformationGenerator::KEY_TEST_VISIBILITY_PERIOD_FROM => $from,
-            AdditionalInformationGenerator::KEY_TEST_VISIBILITY_PERIOD_UNTIL => $until
-        ];
-        $log_array[AdditionalInformationGenerator::KEY_TEST_VISIBLE_OUTSIDE_PERIOD] = $this->logger
-            ->getAdditionalInformationGenerator()->getEnabledDisabledTagForBool(
-                $this->test_object->getActivationVisibility()
-            );
         return $log_array;
     }
 
@@ -459,8 +381,7 @@ class SettingsMainGUI extends TestSettingsGUI
         );
 
         $settings = new MainSettings(
-            $this->test_object->getTestId(),
-            $this->test_object->getId(),
+            $this->main_settings->getId(),
             $general_settings,
             $introduction_settings,
             $access_settings,
@@ -513,7 +434,6 @@ class SettingsMainGUI extends TestSettingsGUI
         $input_factory = $this->ui_factory->input();
 
         $inputs['is_online'] = $this->getIsOnlineSettingInput();
-        $inputs['timebased_availability'] = $this->getTimebasedAvailabilityInputs();
 
         return $input_factory->field()->section(
             $inputs,
@@ -547,98 +467,8 @@ class SettingsMainGUI extends TestSettingsGUI
         return $is_online;
     }
 
-    private function getTimebasedAvailabilityInputs(): OptionalGroup
-    {
-        $field_factory = $this->ui_factory->input()->field();
-        $inputs['time_limit_start'] = $field_factory->dateTime($this->lng->txt('rep_activation_limited_start'))
-            ->withTimezone($this->active_user->getTimeZone())
-            ->withFormat($this->active_user->getDateTimeFormat())
-            ->withUseTime(true);
-        $inputs['time_limit_end'] = $field_factory->dateTime($this->lng->txt('rep_activation_limited_end'))
-            ->withTimezone($this->active_user->getTimeZone())
-            ->withFormat($this->active_user->getDateTimeFormat())
-            ->withUseTime(true);
-        $inputs['activation_visibility'] = $field_factory->checkbox(
-            $this->lng->txt('rep_activation_limited_visibility'),
-            $this->lng->txt('tst_activation_limited_visibility_info')
-        );
-
-        return $field_factory->optionalGroup(
-            $inputs,
-            $this->lng->txt('rep_time_based_availability')
-        )->withAdditionalTransformation(
-            $this->getConstraintForActivationLimitedOptionalGroup()
-        )->withAdditionalTransformation(
-            $this->getTransformationForActivationLimitedOptionalGroup()
-        )->withValue(
-            $this->getValueForActivationLimitedOptionalGroup()
-        );
-    }
-
-    private function getConstraintForActivationLimitedOptionalGroup(): Constraint
-    {
-        return $this->refinery->custom()->constraint(
-            function (?array $vs): bool {
-                if ($vs === null
-                    || $vs['time_limit_start'] === null
-                    || $vs['time_limit_end'] === null) {
-                    return true;
-                }
-
-                if ($vs['time_limit_start'] > $vs['time_limit_end']) {
-                    return false;
-                }
-
-                return true;
-            },
-            $this->lng->txt('duration_end_must_not_be_earlier_than_start')
-        );
-    }
-
-    private function getTransformationForActivationLimitedOptionalGroup(): TransformationInterface
-    {
-        return $this->refinery->custom()->transformation(
-            static function (?array $vs): array {
-                if ($vs === null
-                    || $vs['time_limit_start'] === null && $vs['time_limit_end'] === null) {
-                    return [
-                        'is_activation_limited' => false,
-                        'activation_starting_time' => null,
-                        'activation_ending_time' => null,
-                        'activation_visibility' => false
-                    ];
-                }
-
-                return [
-                    'is_activation_limited' => true,
-                    'activation_starting_time' => $vs['time_limit_start']?->getTimestamp(),
-                    'activation_ending_time' => $vs['time_limit_end']?->getTimestamp(),
-                    'activation_visibility' => $vs['activation_visibility']
-                ];
-            }
-        );
-    }
-
-    private function getValueForActivationLimitedOptionalGroup(): ?array
-    {
-        $value = null;
-        if ($this->test_object->isActivationLimited()) {
-            $value = [
-                'time_limit_start' => $this->buildDateOrNullFromILIASValue(
-                    $this->test_object->getActivationStartingTime()
-                ),
-                'time_limit_end' => $this->buildDateOrNullFromILIASValue(
-                    $this->test_object->getActivationEndingTime()
-                ),
-                'activation_visibility' => $this->test_object->getActivationVisibility()
-            ];
-        }
-        return $value;
-    }
-
     private function saveAvailabilitySettingsSection(array $section): void
     {
-        $this->test_object->storeActivationSettings(...$section['timebased_availability']);
         $this->test_object->getObjectProperties()->storePropertyIsOnline($section['is_online']);
     }
 
@@ -729,7 +559,6 @@ class SettingsMainGUI extends TestSettingsGUI
         }
 
         return $question_behaviour_settings
-            ->withQuestionHintsEnabled($section['offer_hints'])
             ->withInstantFeedbackPointsEnabled($section['instant_feedback']['enabled_feedback_types']['instant_feedback_points'])
             ->withInstantFeedbackGenericEnabled($section['instant_feedback']['enabled_feedback_types']['instant_feedback_generic'])
             ->withInstantFeedbackSpecificEnabled($section['instant_feedback']['enabled_feedback_types']['instant_feedback_specific'])
@@ -754,14 +583,11 @@ class SettingsMainGUI extends TestSettingsGUI
     private function getFinishingSettingsForStorage(array $section): SettingsFinishing
     {
         $redirect_after_finish = $section['redirect_after_finish'];
-        $finish_notification = $section['finish_notification'];
         return $this->main_settings->getFinishingSettings()
             ->withShowAnswerOverview($section['show_answer_overview'])
             ->withConcludingRemarksEnabled($section['show_concluding_remarks'])
             ->withRedirectionMode($redirect_after_finish['redirect_mode'])
-            ->withRedirectionUrl($redirect_after_finish['redirect_url'])
-            ->withMailNotificationContentType($finish_notification['notification_content_type'])
-            ->withAlwaysSendMailNotification($finish_notification['always_notify']);
+            ->withRedirectionUrl($redirect_after_finish['redirect_url']);
     }
 
     protected function getAdditionalFunctionalitySettingsSections(array $environment): array

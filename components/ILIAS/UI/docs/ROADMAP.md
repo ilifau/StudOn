@@ -266,6 +266,32 @@ test. During the migration of the JavaScript unit tests to the Node.js environme
 needed to disable these unit tests for this reason. The issue can be resolved by implementing
 the component as an ES6 module, which can be imported using ES6 import specifiers.
 
+### Namespace for PHPUnit tests (~8h)
+
+The PHPUnit tests of the UI framework are currently not namespaced and are therefore
+globally declared. This (may) already led to naming collisions with unit tests from
+the UI framework itself, but possibly from other ILIAS components as well. The `tests/`
+directory should, like the `examples/` directory, obtain its own dedicated namespace
+like `ILIAS\UI\tests` or `ILIAS\UI\Test` to avoid such collisions in the future. One
+example for this would be the `FieldNodeTest` from the tree (multi) select field, which
+should be named `NodeTest`, but conflicts with the `NodeTest` from the tree component.
+
+### Remove `&times;` unicode from modals (~8h)
+
+There are several occurrences of the `&times;` HTML entity in our templates, which are used
+as "close" sign for modals. This character is not suitable for expressing this intent, since
+we are actually using a "multiplication" sign. We should search for a better alternative and
+streamline these usages in order to avoid any A11y implications.
+
+### Move Components into Navigation (beginner, 2h)
+The top sections "breadcrumbs" and "menu" should both be moved into navigation.
+
+### Trait for usage of ILIAS\UI\Storage in Table and Sequence Navigation
+Storage of paramters in DataTable and SequenceNavigation look very much alike;
+in favor of those and further/future components the implementation should be
+realized as a trait to be used by several components.
+
+
 ## Long Term
 
 ### Mark Some Components as Internal
@@ -494,6 +520,34 @@ To address this issue and streamline the examples, information like post-URLs sh
 functions in form of arguments. While at it, all other dependencies such as the `UI\Renderer` or `UI\Factory` should be
 injected this way too, ultimately getting rid of all the `$DIC` usages. To achieve this, we need to adjust every example
 function signature, as well as the Kitchensink where the examples are built.
+
+### Remove `LegacyInitialisation` class from unit tests (advanced, ~3d)
+
+As part of the component revision we have migrated the UI framework to the new bootstrap mechanism.
+This resulted in the removal of the `InitUIFramework` class inside the Init component, which was
+responsible for a full initialisation of the UI framework. Some unit tests however, mostly for example and
+T&A rendering tests, still rely on this.
+
+The problem is that we cannot properly inject the our components into unit tests using the bootstrap
+mechanism. This means, we either need a way to combine these two worlds, like we did with the "bridge" to the
+legacy initialisation of the Init component (see https://github.com/ILIAS-eLearning/ILIAS/pull/7969),
+or refactor our unit tests in a way where no fully initialised UI framework is required. For the time being
+we have moved a copy of the `InitUIFramework` into our `tests/` directory, so unit tests still pass.
+
+### Introduce redux pattern for Tree (Multi) Select and Drilldown components (advanced, ~5d)
+
+The JavaScript code of the `TreeSelect` and `TreeMultiSelect` relies on the `Drilldown` component intnernally,
+which hevaily relies on the DOM structure to operate. Furthermore, none of these components fully embrace a
+redux pattern style, where operations are decoupled from a components HTML and their state. Refactoring these
+components should most likely begin with the `Drilldown` component, while keeping its usage inside the other 
+components in mind. For all of these components it would make sense to adopt a redux pattern style for their
+implementation. They should e.g. use an actual tree data structure instead of the DOM and separate DOM manipulations
+from handling the tree. At the moment it is not so obvious whether a logical representation or the DOM is used
+for certain operations.
+
+For the `TreeSelect` and `TreeMultiSelect` components this lack of segregation is noticable for select/unselect
+operations, especially to account for their differences. For the `Drilldown` component this is noticable for its
+engage/disengage operations.
 
 ## Ideas and Food for Thought
 

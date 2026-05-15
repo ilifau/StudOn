@@ -38,7 +38,7 @@ class ilWikiUserHTMLExport
     protected ilDBInterface $db;
     protected \ilObjWiki $wiki;
     protected ilObjUser $user;
-    protected ilLogger$log;
+    protected ilLogger $log;
     protected bool $with_comments = false;
 
     public function __construct(

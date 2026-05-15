@@ -23,6 +23,7 @@ namespace ILIAS\Test\Results\Toplist;
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Data\Range;
 use ILIAS\Data\Order;
+use ILIAS\Test\Participants\ParticipantRepository;
 use ILIAS\UI\Component\Symbol\Icon\Standard as Icon;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\UI\Factory as UIFactory;
@@ -39,7 +40,8 @@ class DataRetrieval implements \ILIAS\UI\Component\Table\DataRetrieval
         protected readonly UIRenderer $ui_renderer,
         protected readonly DataFactory $data_factory,
         protected readonly TopListType $list_type,
-        protected readonly TopListOrder $order_by
+        protected readonly TopListOrder $order_by,
+        protected readonly ParticipantRepository $participant_repository
     ) {
     }
 
@@ -58,7 +60,6 @@ class DataRetrieval implements \ILIAS\UI\Component\Table\DataRetrieval
             ),
             'score' => $column_factory->text($this->lng->txt('toplist_col_score')),
             'percentage' => $column_factory->number($this->lng->txt('toplist_col_percentage'))->withUnit('%'),
-            'hints' => $column_factory->number($this->lng->txt('toplist_col_hints')),
             'workingtime' => $column_factory->text($this->lng->txt('toplist_col_wtime')),
         ];
 
@@ -66,7 +67,6 @@ class DataRetrieval implements \ILIAS\UI\Component\Table\DataRetrieval
             'achieved' => $this->test_obj->getHighscoreAchievedTS(),
             'score' => $this->test_obj->getHighscoreScore(),
             'percentage' => $this->test_obj->getHighscorePercentage(),
-            'hints' => $this->test_obj->getHighscoreHints(),
             'workingtime' => $this->test_obj->getHighscoreWTime()
         ];
 
@@ -85,8 +85,9 @@ class DataRetrieval implements \ILIAS\UI\Component\Table\DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         foreach ($this->loadToplistData() as $row) {
             $item = $this->buildBasicItemFromRowArray($row);
@@ -100,9 +101,6 @@ class DataRetrieval implements \ILIAS\UI\Component\Table\DataRetrieval
             if (isset($row['percentage']) && in_array('percentage', $visible_column_ids, true)) {
                 $item['percentage'] = $row['percentage'];
             }
-            if (isset($row['hint_count']) && in_array('hints', $visible_column_ids, true)) {
-                $item['hints'] = $row['hint_count'];
-            }
             if (isset($row['workingtime']) && in_array('workingtime', $visible_column_ids, true)) {
                 $item['workingtime'] = $this->formatTime($row['workingtime']);
             }
@@ -111,8 +109,11 @@ class DataRetrieval implements \ILIAS\UI\Component\Table\DataRetrieval
         }
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         // return 0 here to avoid pagination in the table. This is the same behavior as in Ilias 8/9
         return 0;
     }
@@ -152,7 +153,7 @@ class DataRetrieval implements \ILIAS\UI\Component\Table\DataRetrieval
             'rank' => "{$row['rank']}.",
             'participant' => $this->test_obj->isHighscoreAnon() && (int) $row['usr_id'] !== $this->user->getId()
                 ? '-, -'
-                : $row['lastname'] . ', ' . $row['firstname'],
+                : $this->participant_repository->getParticipantByActiveId($this->test_obj->getTestId(), $row['active_id'])->getDisplayName($this->lng),
             'is_actor' => isset($row['usr_id']) && ((int) $row['usr_id'] === $this->user->getId())
         ];
     }

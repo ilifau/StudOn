@@ -18,8 +18,8 @@
 
 declare(strict_types=1);
 
-use ILIAS\Object\Properties\ObjectTypeSpecificProperties\ilObjectTypeSpecificPropertyProviders;
-use ILIAS\Object\Properties\CoreProperties\TileImage\ilObjectTileImageFlavourDefinition;
+use ILIAS\ILIASObject\Properties\ObjectTypeSpecificProperties\ObjectTypeSpecificPropertyProviders;
+use ILIAS\ILIASObject\Properties\CoreProperties\TileImage\FlavourDefinition as TileImageFlavourDefinition;
 use ILIAS\UI\Component\Symbol\Icon\Custom as CustomIcon;
 use ILIAS\UI\Component\Symbol\Icon\Factory as IconFactory;
 use ILIAS\UI\Component\Image\Image;
@@ -30,9 +30,8 @@ use ILIAS\ResourceStorage\Flavour\Definition\FlavourDefinition;
 use ILIAS\components\File\Preview\Settings;
 use ILIAS\Modules\File\Preview\SettingsFactory;
 use ILIAS\File\Icon\IconDatabaseRepository;
-use ILIAS\File\Icon\IconRepositoryInterface;
 
-class FileObjectPropertyProviders implements ilObjectTypeSpecificPropertyProviders
+class FileObjectPropertyProviders implements ObjectTypeSpecificPropertyProviders
 {
     private FlavourDefinition $crop_definition;
     private FlavourDefinition $extract_definition;
@@ -42,7 +41,7 @@ class FileObjectPropertyProviders implements ilObjectTypeSpecificPropertyProvide
 
     public function __construct()
     {
-        $this->crop_definition = new ilObjectTileImageFlavourDefinition();
+        $this->crop_definition = new TileImageFlavourDefinition();
         $this->extract_definition = new FirstPageToTileImageFlavourDefinition();
         $this->settings = (new SettingsFactory())->getSettings();
         $this->info = new ilObjFileInfoRepository();
@@ -96,7 +95,7 @@ class FileObjectPropertyProviders implements ilObjectTypeSpecificPropertyProvide
         $image = $factory->responsive($urls[count($available_widths)], '');
         return array_reduce(
             $available_widths,
-            function ($carry, $size) use ($urls) {
+            function (array $carry, $size) use ($urls): array {
                 $image = $carry['image']->withAdditionalHighResSource($urls[$carry['counter']], $size / 2);
                 $counter = ++$carry['counter'];
                 return [
@@ -114,7 +113,8 @@ class FileObjectPropertyProviders implements ilObjectTypeSpecificPropertyProvide
         StorageService $irss
     ): ?CustomIcon {
         $info = $this->info->getByObjectId($obj_id);
-        if (($path = $this->icons->getIconFilePathBySuffix($info->getSuffix()))) {
+        $path = $this->icons->getIconFilePathBySuffix($info->getSuffix());
+        if (($path !== '' && $path !== '0')) {
             return $icon_factory->custom($path, $info->getSuffix());
         }
 

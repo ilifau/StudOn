@@ -21,20 +21,24 @@ use ILIAS\GlobalScreen\ScreenContext\ContextServices;
 use ILIAS\Wiki\WikiGUIRequest;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\Wiki\Settings\SettingsGUI;
+use ILIAS\ILIASObject\Properties\Translations\TranslationGUI;
+use ILIAS\User\Profile\PublicProfileGUI;
+use ILIAS\Wiki\Media\PageRetrieval;
 
 /**
  * @author Alexander Killing <killing@leifos.de>
  *
  * @ilCtrl_Calls ilObjWikiGUI: ilPermissionGUI, ilInfoScreenGUI, ilWikiPageGUI
  * @ilCtrl_IsCalledBy ilObjWikiGUI: ilRepositoryGUI, ilAdministrationGUI
- * @ilCtrl_Calls ilObjWikiGUI: ilPublicUserProfileGUI, ilObjectContentStyleSettingsGUI
+ * @ilCtrl_Calls ilObjWikiGUI: ILIAS\User\Profile\PublicProfileGUI, ilObjectContentStyleSettingsGUI
  * @ilCtrl_Calls ilObjWikiGUI: ilExportGUI, ilCommonActionDispatcherGUI
  * @ilCtrl_Calls ilObjWikiGUI: ilRatingGUI, ilWikiPageTemplateGUI, ilWikiStatGUI
  * @ilCtrl_Calls ilObjWikiGUI: ilObjectMetaDataGUI
  * @ilCtrl_Calls ilObjWikiGUI: ilSettingsPermissionGUI
  * @ilCtrl_Calls ilObjWikiGUI: ilRepositoryObjectSearchGUI, ilObjectCopyGUI, ilObjNotificationSettingsGUI
- * @ilCtrl_Calls ilObjWikiGUI: ilLTIProviderObjectSettingGUI, ilObjectTranslationGUI
+ * @ilCtrl_Calls ilObjWikiGUI: ilLTIProviderObjectSettingGUI, ILIAS\ILIASObject\Properties\Translations\TranslationGUI
  * @ilCtrl_Calls ilObjWikiGUI: ILIAS\Wiki\Settings\SettingsGUI
+ * @ilCtrl_Calls ilObjWikiGUI: ilMediaObjectOverviewGUI
  */
 class ilObjWikiGUI extends ilObjectGUI
 {
@@ -43,8 +47,6 @@ class ilObjWikiGUI extends ilObjectGUI
     protected \ILIAS\Wiki\Content\GUIService $content_gui;
     protected \ILIAS\Wiki\Navigation\ImportantPageManager $imp_pages;
     protected \ILIAS\Wiki\Page\PageManager $pm;
-    protected ilObjectTranslation $ot;
-    protected \ILIAS\HTTP\Services $http;
     protected string $requested_page;
     protected ilPropertyFormGUI $form_gui;
     protected ilTabsGUI $tabs;
@@ -75,8 +77,6 @@ class ilObjWikiGUI extends ilObjectGUI
         $this->tabs = $gui->tabs();
         $this->help = $gui->help();
         $this->locator = $gui->locator();
-        $this->http = $gui->http();
-        $this->ot = $gui->wiki()->translation();
 
         $this->type = "wiki";
 
@@ -156,13 +156,25 @@ class ilObjWikiGUI extends ilObjectGUI
                 $this->ctrl->forwardCommand($perm_gui);
                 break;
 
-            case 'ilobjecttranslationgui':
+            case strtolower(TranslationGUI::class):
                 $this->checkPermission("read");
                 $this->addHeaderAction();
                 $ilTabs->activateTab("settings");
                 $this->setSettingsSubTabs("obj_multilinguality");
-                $transgui = new ilObjectTranslationGUI($this);
-                $transgui->setTitleDescrOnlyMode(false);
+                $transgui = new TranslationGUI(
+                    $this->getObject(),
+                    $this->lng,
+                    $this->access,
+                    $this->user,
+                    $this->ctrl,
+                    $this->tpl,
+                    $this->ui_factory,
+                    $this->ui_renderer,
+                    $this->http,
+                    $this->refinery,
+                    $this->toolbar
+                );
+                $transgui->forceContentTranslation();
                 $this->ctrl->forwardCommand($transgui);
                 break;
 
@@ -187,6 +199,8 @@ class ilObjWikiGUI extends ilObjectGUI
                 }
 
                 // alter title and description
+                //				$tpl->setTitle($wpage_gui->getPageObject()->getTitle());
+                //				$tpl->setDescription($this->object->getTitle());
                 if ($ilAccess->checkAccess("write", "", $this->object->getRefId())) {
                     $wpage_gui->activateMetaDataEditor($this->object, "wpg", $wpage_gui->getId());
                 }
@@ -203,8 +217,8 @@ class ilObjWikiGUI extends ilObjectGUI
                 $this->ctrl->forwardCommand($cp);
                 break;
 
-            case 'ilpublicuserprofilegui':
-                $profile_gui = new ilPublicUserProfileGUI(
+            case strtolower(PublicProfileGUI::class):
+                $profile_gui = new PublicProfileGUI(
                     $this->edit_request->getUserId()
                 );
                 $ret = $this->ctrl->forwardCommand($profile_gui);
@@ -276,7 +290,6 @@ class ilObjWikiGUI extends ilObjectGUI
                 break;
 
             case 'ilrepositoryobjectsearchgui':
-                $this->checkPermission("read");
                 $this->addHeaderAction();
                 $this->setSideBlock();
                 $ilTabs->setTabActive("wiki_search_results");
@@ -292,7 +305,6 @@ class ilObjWikiGUI extends ilObjectGUI
                 break;
 
             case 'ilobjnotificationsettingsgui':
-                $this->checkPermission("write");
                 $this->addHeaderAction();
                 $ilTabs->activateTab("settings");
                 $this->setSettingsSubTabs("notifications");
@@ -301,7 +313,6 @@ class ilObjWikiGUI extends ilObjectGUI
                 break;
 
             case 'illtiproviderobjectsettinggui':
-                $this->checkPermission("write");
                 $this->addHeaderAction();
                 $ilTabs->activateTab("settings");
                 $this->setSettingsSubTabs("lti_provider");
@@ -312,7 +323,6 @@ class ilObjWikiGUI extends ilObjectGUI
                 break;
 
             case strtolower(SettingsGUI::class):
-                $this->checkPermission("write");
                 $this->addHeaderAction();
                 $ilTabs->activateTab("settings");
                 $this->setSettingsSubTabs("general_settings");
@@ -321,6 +331,17 @@ class ilObjWikiGUI extends ilObjectGUI
                     $this->object->getId(),
                     $this->object->getRefId()
                 );
+                $this->ctrl->forwardCommand($gui);
+                break;
+
+            case strtolower(ilMediaObjectOverviewGUI::class):
+                $this->checkPermission("write");
+                $this->addHeaderAction();
+                $ilTabs->activateTab("media");
+                $this->getTabs();
+
+                $retrieval = new PageRetrieval($this->pm, $this->ctrl);
+                $gui = new ilMediaObjectOverviewGUI($retrieval);
                 $this->ctrl->forwardCommand($gui);
                 break;
 
@@ -460,6 +481,8 @@ class ilObjWikiGUI extends ilObjectGUI
         $this->lng->loadLanguageModule("meta");
         $this->lng->loadLanguageModule("wiki");
 
+        $info->addMetaDataSections($this->getObject()->getId(), 0, 'wiki');
+
         // forward the command
         $this->ctrl->forwardCommand($info);
     }
@@ -550,16 +573,14 @@ class ilObjWikiGUI extends ilObjectGUI
 
         $ilHelp->setScreenIdComponent("wiki");
 
-
         // wiki tabs
-        if (in_array(strtolower($ilCtrl->getNextClass($this)), [strtolower(SettingsGUI::class)]) ||
+        if (in_array(strtolower($ilCtrl->getNextClass($this)), [strtolower(SettingsGUI::class), strtolower(ilMediaObjectOverviewGUI::class)]) ||
             in_array(
                 strtolower($ilCtrl->getCmdClass()),
                 array("", "ilobjectcontentstylesettingsgui", "ilobjwikigui",
             "ilinfoscreengui", "ilpermissiongui", "ilexportgui", "ilratingcategorygui", "ilobjnotificationsettingsgui", "iltaxmdgui",
-            "ilwikistatgui", "ilwikipagetemplategui", "iladvancedmdsettingsgui", "ilsettingspermissiongui", 'ilrepositoryobjectsearchgui',
-            'ilobjecttranslationgui')
-            ) || $ilCtrl->getNextClass() === "ilpermissiongui") {
+            "ilwikistatgui", "ilwikipagetemplategui", "iladvancedmdsettingsgui", "ilmdeditorgui", "ilsettingspermissiongui", 'ilrepositoryobjectsearchgui')
+            ) || in_array($ilCtrl->getNextClass(), ["ilpermissiongui", strtolower(TranslationGUI::class)])) {
             if ($this->requested_page !== "") {
                 $page_id = ($this->edit_request->getWikiPageId() > 0)
                     ? $this->edit_request->getWikiPageId()
@@ -590,6 +611,16 @@ class ilObjWikiGUI extends ilObjectGUI
                     "wiki_pages",
                     $lng->txt("wiki_pages"),
                     $this->ctrl->getLinkTarget($this, "allPages")
+                );
+            }
+
+            // media
+            if ($ilAccess->checkAccess('write', "", $this->object->getRefId())) {
+                $this->lng->loadLanguageModule('mob');
+                $this->tabs_gui->addTab(
+                    "media",
+                    $this->lng->txt("mob_media"),
+                    $this->ctrl->getLinkTargetByClass(ilMediaObjectOverviewGUI::class, "show")
                 );
             }
 
@@ -729,7 +760,7 @@ class ilObjWikiGUI extends ilObjectGUI
                 $ilTabs->addSubTab(
                     'obj_multilinguality',
                     $lng->txt("obj_multilinguality"),
-                    $this->ctrl->getLinkTargetByClass("ilobjecttranslationgui", "")
+                    $this->ctrl->getLinkTargetByClass(TranslationGUI::class, "")
                 );
             }
 
@@ -862,8 +893,7 @@ class ilObjWikiGUI extends ilObjectGUI
                 }
             }
         }
-
-        if ($ilAccess->checkAccess("read", "", $a_target)) {
+        if ($ilAccess->checkAccess("read", "", (int) $a_target)) {
             if ($wpg_id > 0) {
                 $ctrl->setParameterByClass(
                     "ilobjwikigui",
@@ -900,7 +930,7 @@ class ilObjWikiGUI extends ilObjectGUI
                     "view"
                 );
             }
-        } elseif ($ilAccess->checkAccess("visible", "", $a_target)) {
+        } elseif ($ilAccess->checkAccess("visible", "", (int) $a_target)) {
             ilObjectGUI::_gotoRepositoryNode($a_target, "infoScreen");
         } elseif ($ilAccess->checkAccess("read", "", ROOT_FOLDER_ID)) {
             $main_tpl->setOnScreenMessage('failure', sprintf(
@@ -1116,7 +1146,7 @@ class ilObjWikiGUI extends ilObjectGUI
         return false;
     }
 
-    protected function getRenderedTranslationInfo()
+    protected function getRenderedTranslationInfo(): string
     {
         $mess = $this->gui->ui()->factory()->messageBox()->info(
             $this->lng->txt("wiki_translate_page_master_info")
@@ -1133,7 +1163,7 @@ class ilObjWikiGUI extends ilObjectGUI
         }
         $append = " '" . $this->edit_request->getPage() . "'";
         $append .= " (" . $this->lng->txt("meta_l_" . $this->edit_request->getTranslation()) . ")";
-        $append2 = " (" . $this->lng->txt("meta_l_" . $this->ot->getMasterLanguage()) . ")";
+        $append2 = " (" . $this->lng->txt("meta_l_" . $this->object->getObjectProperties()->getPropertyTranslations()->getBaseLanguage()) . ")";
         $form = $this->gui->form([self::class], "createNewTranslatedPage")
             ->section("sec", $this->lng->txt("wiki_translation_page") . $append)
             ->switch("type", $this->lng->txt("wiki_page_in_master_language") . $append2, "", "existing")

@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\examples\MainControls\ModeInfo;
@@ -34,7 +50,7 @@ function modeinfo(): string
     return $renderer->render([
         $f->divider()->horizontal(),
         $f->link()->bulky($icon, 'See UI in fullscreen-mode', $target),
-        $f->legacy('<p><b>press the link above to init a page with Mode Info</b></p><p><br/></p>'),
+        $f->legacy()->content('<p><b>press the link above to init a page with Mode Info</b></p><p><br/></p>'),
         $f->divider()->horizontal()
     ]);
 }
@@ -60,21 +76,21 @@ function renderModeInfoFullscreenMode(\ILIAS\DI\Container $dic)
     $data_factory = new \ILIAS\Data\Factory();
     $renderer = $dic->ui()->renderer();
 
-    $panel_content = $f->legacy("Mode Info is Active");
+    $panel_content = $f->legacy()->content("Mode Info is Active");
     $slate = $f->mainControls()->slate()->legacy(
         "Mode Info Active",
         $f->symbol()->glyph()->notification(),
-        $f->legacy("Things todo when special Mode is active")
+        $f->legacy()->content("Things todo when special Mode is active")
     );
 
     $page = $f->layout()->page()->standard(
         [
-            $f->legacy("<div id='mainspacekeeper'><div style='padding: 15px;'>"),
+            $f->legacy()->content("<div id='mainspacekeeper'><div style='padding: 15px;'>"),
             $f->panel()->standard(
                 'Mode Info Example',
                 $panel_content
             ),
-            $f->legacy("</div></div>")
+            $f->legacy()->content("</div></div>")
         ],
         $f->mainControls()->metaBar()->withAdditionalEntry(
             'help',

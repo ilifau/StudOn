@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -39,6 +40,9 @@ class Renderer extends AbstractComponentRenderer
 
     public function render(Component $component, RendererInterface $default_renderer): string
     {
+        if ($component instanceof \ILIAS\UI\Component\Triggerer) {
+            $component = $this->addTriggererOnLoadCode($component);
+        }
         if ($component instanceof Bar) {
             return $this->renderProgressBar($component, $default_renderer);
         }

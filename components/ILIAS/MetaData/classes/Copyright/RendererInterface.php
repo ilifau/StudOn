@@ -20,17 +20,25 @@ declare(strict_types=1);
 
 namespace ILIAS\MetaData\Copyright;
 
-use ILIAS\UI\Component\Image\Image;
+use ILIAS\UI\Component\Symbol\Icon\Icon;
 use ILIAS\UI\Component\Link\Link;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy\Content;
 
 interface RendererInterface
 {
     /**
      * Returns a string in a legacy UI component if only a string can be returned.
-     * @return Image[]|Link[]|Legacy[]
+     * @return Icon[]|Link[]|Content[]
      */
     public function toUIComponents(CopyrightDataInterface $copyright): array;
+
+    public function toImageOnly(CopyrightDataInterface $copyright): ?Icon;
+
+    /**
+     * Returns a string as a disabled link, if only a string can be returned,
+     * or null if the copyright is image only.
+     */
+    public function toLinkOnly(CopyrightDataInterface $copyright): ?Link;
 
     public function toString(CopyrightDataInterface $copyright): string;
 }

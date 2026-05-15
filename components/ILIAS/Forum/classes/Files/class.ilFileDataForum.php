@@ -79,7 +79,7 @@ class ilFileDataForum implements ilFileDataForumInterface
         return $this->rc_implementation->ilClone($new_obj_id, $new_posting_id);
     }
 
-    public function delete(array $posting_ids_to_delete = null): bool
+    public function delete(?array $posting_ids_to_delete = null): bool
     {
         return $this->rc_implementation->delete($posting_ids_to_delete);
     }

@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 /**
  * @ilCtrl_Calls ilDclDetailedViewDefinitionGUI: ilPageEditorGUI, ilEditClipboardGUI, ilMediaPoolTargetSelector
- * @ilCtrl_Calls ilDclDetailedViewDefinitionGUI: ilPublicUserProfileGUI, ilPageObjectGUI
+ * @ilCtrl_Calls ilDclDetailedViewDefinitionGUI: ILIAS\User\Profile\PublicProfileGUI, ilPageObjectGUI
  */
 class ilDclDetailedViewDefinitionGUI extends ilPageObjectGUI
 {
@@ -28,6 +28,7 @@ class ilDclDetailedViewDefinitionGUI extends ilPageObjectGUI
     protected int $tableview_id;
     protected ILIAS\HTTP\Services $http;
     protected ILIAS\Refinery\Factory $refinery;
+    protected ?ilDclBaseRecordModel $record = null;
 
     public function __construct(int $tableview_id)
     {
@@ -41,13 +42,18 @@ class ilDclDetailedViewDefinitionGUI extends ilPageObjectGUI
         $ref_id = $this->http->wrapper()->query()->retrieve('ref_id', $this->refinery->kindlyTo()->int());
         $this->setStyleId($DIC->contentStyle()->domain()->styleForRefId($ref_id)->getEffectiveStyleId());
 
-        // we always need a page object - create on demand
-        if (!ilPageObject::_exists('dclf', $tableview_id)) {
+        if (!ilPageObject::_exists('dclf', $tableview_id, '-', true)) {
             $viewdef = new ilDclDetailedViewDefinition();
             $viewdef->setId($tableview_id);
             $viewdef->setParentId(ilObject2::_lookupObjectId($ref_id));
-            $viewdef->setActive(false);
             $viewdef->create();
+        } elseif (!ilPageObject::_lookupActive($tableview_id, 'dclf')) {
+            $page = new ilDclDetailedViewDefinition($tableview_id);
+            $page->setActive(true);
+            foreach ($page->getAllPCIds() as $id) {
+                $page->getContentObjectForPcId($id)->disable();
+            }
+            $page->update();
         }
 
         parent::__construct("dclf", $tableview_id);
@@ -62,141 +68,62 @@ class ilDclDetailedViewDefinitionGUI extends ilPageObjectGUI
         $this->tpl->parseCurrentBlock();
     }
 
+    public function setRecord(ilDclBaseRecordModel $record): void
+    {
+        $this->record = $record;
+    }
+
     /**
      * execute command
      */
     public function executeCommand(): string
     {
-        $next_class = $this->ctrl->getNextClass($this);
-
-        $viewdef = $this->getPageObject();
-        $this->ctrl->setParameter($this, "dclv", $viewdef->getId());
+        $this->ctrl->setParameter($this, "dclv", $this->getPageObject()->getId());
         $title = $this->lng->txt("dcl_view_viewdefinition");
-
-        switch ($next_class) {
-            case "ilpageobjectgui":
-                throw new ilCOPageException("Deprecated. ilDclDetailedViewDefinitionGUI gui forwarding to ilpageobject");
-            default:
-                $this->setPresentationTitle($title);
-                $this->locator->addItem($title, $this->ctrl->getLinkTarget($this, "preview"));
-
-                return parent::executeCommand();
-        }
+        $this->setPresentationTitle($title);
+        $this->locator->addItem($title, $this->ctrl->getLinkTarget($this, "preview"));
+        return parent::executeCommand();
     }
 
     public function showPage(): string
     {
         $this->tpl->addCss(ilObjStyleSheet::getContentStylePath($this->getStyleId()));
-        if ($this->getOutputMode() == ilPageObjectGUI::EDIT) {
-            $delete_button = $this->ui->factory()->button()->standard(
-                $this->lng->txt('dcl_empty_detailed_view'),
-                $this->ctrl->getLinkTarget($this, 'confirmDelete')
-            );
-            $this->toolbar->addComponent($delete_button);
-
-            if ($this->getPageObject()->getActive()) {
-                $activation_button = $this->ui->factory()->button()->standard(
-                    $this->lng->txt('dcl_deactivate_view'),
-                    $this->ctrl->getLinkTarget($this, 'deactivate')
-                );
-            } else {
-                $activation_button = $this->ui->factory()->button()->standard(
-                    $this->lng->txt('dcl_activate_view'),
-                    $this->ctrl->getLinkTarget($this, 'activate')
-                );
-            }
-
-            $this->toolbar->addComponent($activation_button);
-
-            $legend = $this->getPageObject()->getAvailablePlaceholders();
-            if (sizeof($legend)) {
-                $this->setPrependingHtml(
-                    "<span class=\"small\">" . $this->lng->txt("dcl_legend_placeholders") . ": " . implode(" ", $legend)
-                    . "</span>"
-                );
-            }
+        $replacements = [];
+        foreach ($this->getPageObject()->getAvailablePlaceholders() as $field) {
+            $replacements['[[' . $field->getId() . ']]'] = '[[' . $field->getTitle() . ']]';
+        }
+        if ($this->getOutputMode() === ilPageObjectGUI::EDIT) {
+            $this->tpl->setOnScreenMessage($this->tpl::MESSAGE_TYPE_INFO, $this->lng->txt('dcl_placeholder_info'));
+            $this->obj->setXMLContent(strtr($this->obj->getXMLContent(), $replacements));
+            $this->obj->update();
+        }
+        if ($this->getOutputMode() === ilPageObjectGUI::PREVIEW) {
+            return strtr(parent::showPage(), $replacements);
         }
 
         return parent::showPage();
     }
 
-    protected function activate(): void
+    public function finishEditing(): void
     {
-        $page = $this->getPageObject();
-        $page->setActive(true);
-        $page->update();
-        $this->ctrl->redirect($this, 'edit');
-    }
-
-    protected function deactivate(): void
-    {
-        $page = $this->getPageObject();
-        $page->setActive(false);
-        $page->update();
-        $this->ctrl->redirect($this, 'edit');
-    }
-
-    public function confirmDelete(): void
-    {
-        $conf = new ilConfirmationGUI();
-        $conf->setFormAction($this->ctrl->getFormAction($this));
-        $conf->setHeaderText($this->lng->txt('dcl_confirm_delete_detailed_view_title'));
-
-        $conf->addItem('tableview', (string) $this->tableview_id, $this->lng->txt('dcl_confirm_delete_detailed_view_text'));
-
-        $conf->setConfirm($this->lng->txt('delete'), 'deleteView');
-        $conf->setCancel($this->lng->txt('cancel'), 'cancelDelete');
-
-        $this->tpl->setContent($conf->getHTML());
-    }
-
-    public function cancelDelete(): void
-    {
-        $this->ctrl->redirect($this, "edit");
-    }
-
-    public function deleteView(): void
-    {
-        if ($this->tableview_id && ilDclDetailedViewDefinition::exists($this->tableview_id)) {
-            $pageObject = new ilDclDetailedViewDefinition($this->tableview_id);
-            $pageObject->delete();
+        $replacements = [];
+        foreach ($this->getPageObject()->getAvailablePlaceholders() as $field) {
+            $replacements['[[' . $field->getTitle() . ']]'] = '[[' . $field->getId() . ']]';
         }
-
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt("dcl_empty_detailed_view_success"), true);
-        $this->ctrl->redirectByClass(self::class, "edit");
+        $this->obj->setXMLContent(strtr($this->obj->getXMLContent(), $replacements));
+        $this->obj->update();
+        parent::finishEditing();
     }
 
-    /**
-     * Finalizing output processing
-     */
     public function postOutputProcessing(string $a_output): string
     {
-        // You can use this to parse placeholders and the like before outputting
-
-        if ($this->getOutputMode() == ilPageObjectGUI::PREVIEW) {
-            //page preview is not being used inside DataCollections - if you are here, something's probably wrong
-
-            //
-            //			// :TODO: find a suitable presentation for matched placeholders
-            //			$allp = ilDataCollectionRecordViewViewdefinition::getAvailablePlaceholders($this->table_id, true);
-            //			foreach ($allp as $id => $item) {
-            //				$parsed_item = new ilTextInputGUI("", "fields[" . $item->getId() . "]");
-            //				$parsed_item = $parsed_item->getToolbarHTML();
-            //
-            //				$a_output = str_replace($id, $item->getTitle() . ": " . $parsed_item, $a_output);
-            //			}
-        } // editor
-        else {
-            if ($this->getOutputMode() == ilPageObjectGUI::EDIT) {
-                $allp = $this->getPageObject()->getAvailablePlaceholders();
-
-                // :TODO: find a suitable markup for matched placeholders
-                foreach ($allp as $item) {
-                    $a_output = str_replace($item, "<span style=\"color:green\">" . $item . "</span>", $a_output);
-                }
+        $replacements = [];
+        foreach ($this->getPageObject()->getAvailablePlaceholders() as $field) {
+            if ($this->record !== null) {
+                $replacements['[[' . $field->getId() . ']]'] = $this->record->getRecordFieldSingleHTML($field->getId());
             }
         }
 
-        return $a_output;
+        return strtr($a_output, $replacements);
     }
 }

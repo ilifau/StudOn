@@ -18,6 +18,10 @@
 
 namespace ILIAS\BackgroundTasks\Implementation\Persistence;
 
+use PHPUnit\Framework\Attributes\BackupGlobals;
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use ILIAS\BackgroundTasks\Exceptions\SerializationException;
 use ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucket;
 use ILIAS\BackgroundTasks\Implementation\Bucket\State;
@@ -44,15 +48,15 @@ require_once("./components/ILIAS/ActiveRecord/Connector/class.arConnectorMap.php
 /**
  * Class BackgroundTaskTest
  *
- * @preserveGlobalState    disabled
- * @backupGlobals          disabled
- * @backupStaticAttributes disabled
  *
  * @author Oskar Truffer <ot@studer-raimann.ch>
  */
+#[BackupGlobals(false)]
+#[BackupStaticProperties(false)]
+#[PreserveGlobalState(false)]
 class BasicPersistenceTest extends TestCase
 {
-    use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+    use MockeryPHPUnitIntegration;
 
     /** @var  Bucket */
     protected $bucket;
@@ -63,9 +67,7 @@ class BasicPersistenceTest extends TestCase
     public function setUp(): void
     {
         $dic = new Container();
-        $dic[Bucket::class] = function ($c) {
-            return new BasicBucket();
-        };
+        $dic[Bucket::class] = (fn($c): BasicBucket => new BasicBucket());
 
         $factory = new Injector($dic, new BaseDependencyMap());
         $this->persistence = BasicPersistence::instance($this->createMock(\ilDBInterface::class));
@@ -97,7 +99,7 @@ class BasicPersistenceTest extends TestCase
     /**
      *
      */
-    public function testSave()
+    public function testSave(): void
     {
         /** @var \arConnector $bucketConnector */
         $bucketConnector = Mockery::namedMock("bucketConnectorMock", \arConnector::class);
@@ -147,7 +149,7 @@ class BasicPersistenceTest extends TestCase
         $this->persistence->saveBucketAndItsTasks($this->bucket);
     }
 
-    public function testCannotUpdateUnknownBucket()
+    public function testCannotUpdateUnknownBucket(): void
     {
         // We have an unknown observer, we can't update it.
         $this->expectException(SerializationException::class);
@@ -155,7 +157,7 @@ class BasicPersistenceTest extends TestCase
         $this->persistence->updateBucket($this->bucket);
     }
 
-    public function testUpdateObserver()
+    public function testUpdateObserver(): void
     {
         // We do the whole save part.
         $this->testSave();
@@ -172,7 +174,7 @@ class BasicPersistenceTest extends TestCase
         $this->persistence->updateBucket($this->bucket);
     }
 
-    public function testGetObserverIdsOfUser()
+    public function testGetObserverIdsOfUser(): void
     {
         /** @var \arConnector $observerConnector */
         $observerConnector = Mockery::namedMock("observerConnectorMock", \arConnector::class);
@@ -185,7 +187,7 @@ class BasicPersistenceTest extends TestCase
         $this->assertEquals($observer_ids, [0 => 2, 1 => 3]);
     }
 
-    public function testGetObserverIdsByState()
+    public function testGetObserverIdsByState(): void
     {
         /** @var \arConnector $observerConnector */
         $observerConnector = Mockery::namedMock("observerConnectorMock", \arConnector::class);
@@ -199,7 +201,7 @@ class BasicPersistenceTest extends TestCase
     }
 
 
-    public function testUserInteraction()
+    public function testUserInteraction(): void
     {
         $this->expectException(UserInteractionRequiredException::class);
         /** @var IntegerValue $finalValue */
@@ -208,20 +210,20 @@ class BasicPersistenceTest extends TestCase
         $taskManager->executeTask($this->bucket->getTask(), new MockObserver());
     }
 
-    public function testContinueUserInteraction()
+    public function testContinueUserInteraction(): void
     {
         /** @var IntegerValue $finalValue */
         $taskManager = new SyncTaskManager(Mockery::mock(Persistence::class));
         try {
             /** @var IntegerValue $finalValue */
             $taskManager->executeTask($this->bucket->getTask(), new NonPersistingObserver($this->bucket));
-        } catch (UserInteractionRequiredException $e) {
+        } catch (UserInteractionRequiredException) {
         }
 
         $download_integer = new DownloadInteger();
 
         // We worked on the task up to the user interaction. The current task should be the download integer interaction.
-        self::assertEquals($this->bucket->getCurrentTask()->getType(), $download_integer->getType());
+        $this->assertEquals($this->bucket->getCurrentTask()->getType(), $download_integer->getType());
 
         $options = $download_integer->getOptions([]); // Download, Dismiss (the input doesnt matter so we pass an empty array)
 
@@ -230,10 +232,10 @@ class BasicPersistenceTest extends TestCase
         $this->bucket->userInteraction($dismiss); // We "click" Dismiss.
 
         // As we dismissed the last user interaction the state is finished.
-        self::assertEquals($this->bucket->getState(), State::FINISHED);
+        $this->assertEquals(State::FINISHED, $this->bucket->getState());
     }
 
-    public function testContinueUserInteraction2()
+    public function testContinueUserInteraction2(): void
     {
         $dic = new Container();
 
@@ -253,13 +255,13 @@ class BasicPersistenceTest extends TestCase
         try {
             /** @var IntegerValue $finalValue */
             $taskManager->executeTask($this->bucket->getTask(), new NonPersistingObserver($this->bucket));
-        } catch (UserInteractionRequiredException $e) {
+        } catch (UserInteractionRequiredException) {
         }
 
         $download_integer = new DownloadInteger();
 
         // We worked on the task up to the user interaction. The current task should be the download integer interaction.
-        self::assertEquals($this->bucket->getCurrentTask()->getType(), $download_integer->getType());
+        $this->assertEquals($this->bucket->getCurrentTask()->getType(), $download_integer->getType());
 
         $options = $download_integer->getOptions([]); // Download, Dismiss (the input doesn't matter so we pass an empty array)
 
@@ -270,6 +272,6 @@ class BasicPersistenceTest extends TestCase
         // As we dismissed the last user interaction the state is finished.
         /** @var IntegerValue $result */
         $result = $taskManager->executeTask($this->bucket->getTask(), new NonPersistingObserver($this->bucket));
-        self::assertEquals(5, $result->getValue());
+        $this->assertEquals(5, $result->getValue());
     }
 }

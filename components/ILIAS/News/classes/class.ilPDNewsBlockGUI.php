@@ -175,13 +175,13 @@ class ilPDNewsBlockGUI extends ilNewsForContextBlockGUI
 
         $panel = $this->ui->factory()->panel()->standard(
             $lng->txt("news_internal_news"),
-            $this->ui->factory()->legacy($tpl->get())
+            $this->ui->factory()->legacy()->content($tpl->get())
         );
 
         return $this->ui->renderer()->render($panel);
     }
 
-    public function editSettings(ilPropertyFormGUI $a_private_form = null): string
+    public function editSettings(?ilPropertyFormGUI $a_private_form = null): string
     {
         $ilUser = $this->user;
         $lng = $this->lng;
@@ -313,7 +313,7 @@ class ilPDNewsBlockGUI extends ilNewsForContextBlockGUI
         if ($form->checkInput()) {
             // Deactivate private Feed - just delete the password
             if (!$form->getInput("enable_private_feed")) {
-                ilObjUser::_setFeedPass($ilUser->getId(), "");
+                $ilUser->setFeedPass("");
                 $this->main_tpl->setOnScreenMessage('success', $lng->txt("priv_feed_disabled"), true);
                 // $ilCtrl->returnToParent($this);
                 $ilCtrl->redirect($this, "showFeedUrl");
@@ -323,7 +323,7 @@ class ilPDNewsBlockGUI extends ilNewsForContextBlockGUI
                     $form->getItemByPostVar("desired_password")->setAlert($lng->txt("passwd_equals_ilpasswd"));
                     $this->main_tpl->setOnScreenMessage('failure', $lng->txt("form_input_not_valid"));
                 } else {
-                    ilObjUser::_setFeedPass($ilUser->getId(), $passwd);
+                    $ilUser->setFeedPass($passwd);
                     $this->main_tpl->setOnScreenMessage('success', $lng->txt("saved_successfully"), true);
                     $ilCtrl->redirect($this, "showFeedUrl");
                 }

@@ -17,6 +17,7 @@
  *********************************************************************/
 
 use ILIAS\MetaData\Services\ServicesInterface as LOMServices;
+use ILIAS\ILIASObject\Properties\Translations\Translations;
 
 /**
  * Class ilLMPresentationGUI
@@ -89,7 +90,7 @@ class ilLMPresentationGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInt
     protected int $requested_mob_id = 0;
     protected int $requested_notification_switch = 0;
     protected bool $abstract = false;
-    protected ilObjectTranslation $ot;
+    protected Translations $ot;
     protected \ILIAS\Style\Content\Object\ObjectFacade $content_style_domain;
     protected \ILIAS\Style\Content\GUIService $content_style_gui;
     protected ?\ILIAS\Style\Content\Service $cs = null;
@@ -99,7 +100,7 @@ class ilLMPresentationGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInt
         bool $a_all_languages = false,
         string $a_export_dir = "",
         bool $claim_repo_context = true,
-        array $query_params = null,
+        ?array $query_params = null,
         bool $embed_mode = false
     ) {
         global $DIC;
@@ -265,7 +266,7 @@ class ilLMPresentationGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInt
 
         $this->lm_tree = $this->service->getLMTree();
         $this->focus_id = $this->service->getPresentationStatus()->getFocusId();
-        $this->ot = ilObjectTranslation::getInstance($this->lm->getId());
+        $this->ot = $this->lm->getObjectProperties()->getPropertyTranslations();
         $this->content_style_gui = $this->cs->gui();
         $this->content_style_domain = $this->cs->domain()->styleForRefId($this->lm->getRefId());
     }
@@ -1140,6 +1141,7 @@ class ilLMPresentationGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInt
             $this->service,
             $this,
             $this->lng,
+            $this->ot,
             $this->ctrl,
             $this->access,
             $this->user,
@@ -1569,7 +1571,7 @@ class ilLMPresentationGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInt
 
         $modal = $this->ui->factory()->modal()->roundtrip(
             $this->lng->txt("cont_print_view"),
-            $this->ui->factory()->legacy($tpl->get())
+            $this->ui->factory()->legacy()->content($tpl->get())
         );
         echo $this->ui->renderer()->render($modal);
         exit();
@@ -2243,8 +2245,8 @@ class ilLMPresentationGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInt
         if ($this->lang != "-" && ilPageObject::_exists("lm", $a_id, $this->lang)) {
             return new ilLMPageGUI($a_id, 0, false, $this->lang, $concrete_lang);
         }
-        if ($this->lang != "-" && ilPageObject::_exists("lm", $a_id, $this->ot->getFallbackLanguage())) {
-            return new ilLMPageGUI($a_id, 0, false, $this->ot->getFallbackLanguage(), $concrete_lang);
+        if ($this->lang != "-" && ilPageObject::_exists("lm", $a_id, $this->ot->getDefaultLanguage())) {
+            return new ilLMPageGUI($a_id, 0, false, $this->ot->getDefaultLanguage(), $concrete_lang);
         }
         return new ilLMPageGUI($a_id, 0, false, "", $concrete_lang);
     }
@@ -2260,8 +2262,8 @@ class ilLMPresentationGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInt
         $lang = $this->lang;
         if (!ilPageObject::_exists($type, $a_id, $lang)) {
             $lang = "-";
-            if ($this->lang != "-" && ilPageObject::_exists($type, $a_id, $this->ot->getFallbackLanguage())) {
-                $lang = $this->ot->getFallbackLanguage();
+            if ($this->lang != "-" && ilPageObject::_exists($type, $a_id, $this->ot->getDefaultLanguage())) {
+                $lang = $this->ot->getDefaultLanguage();
             }
         }
 

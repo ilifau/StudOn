@@ -22,12 +22,10 @@ use ILIAS\Test\Settings\MainSettings\SettingsAdditional;
 
 class SettingsAdditionalTest extends ilTestBaseTestCase
 {
-    /**
-     * @dataProvider getSkillsServiceEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getSkillsServiceEnabledDataProvider')]
     public function testGetAndWithSkillsServiceEnabled(bool $io): void
     {
-        $settings_additional = (new SettingsAdditional(0))->withSkillsServiceEnabled($io);
+        $settings_additional = (new SettingsAdditional())->withSkillsServiceEnabled($io);
 
         $this->assertInstanceOf(SettingsAdditional::class, $settings_additional);
         $this->assertEquals($io, $settings_additional->getSkillsServiceEnabled());
@@ -41,12 +39,10 @@ class SettingsAdditionalTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getHideInfoTabDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getHideInfoTabDataProvider')]
     public function testGetAndWithHideInfoTab(bool $io): void
     {
-        $settings_additional = (new SettingsAdditional(0))->withHideInfoTab($io);
+        $settings_additional = (new SettingsAdditional())->withHideInfoTab($io);
 
         $this->assertInstanceOf(SettingsAdditional::class, $settings_additional);
         $this->assertEquals($io, $settings_additional->getHideInfoTab());

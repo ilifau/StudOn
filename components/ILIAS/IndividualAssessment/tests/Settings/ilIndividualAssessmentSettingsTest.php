@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,12 +16,12 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use PHPUnit\Framework\TestCase;
 use ILIAS\UI\Component\Input\Field\Section;
 
-/**
- * @backupGlobals disabled
- */
+#[\PHPUnit\Framework\Attributes\BackupGlobals(false)]
 class ilIndividualAssessmentSettingsTest extends TestCase
 {
     public function test_create_settings()
@@ -65,6 +63,7 @@ class ilIndividualAssessmentSettingsTest extends TestCase
         $df = new ILIAS\Data\Factory();
         $refinery = new ILIAS\Refinery\Factory($df, $lng);
         $f = new ILIAS\UI\Implementation\Component\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\Field\Node\Factory::class),
             $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             new ILIAS\UI\Implementation\Component\SignalGenerator(),
             $df,

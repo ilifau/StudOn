@@ -46,12 +46,12 @@ class Agent implements AgentInterface
         return $this->refinery->identity();
     }
 
-    public function getInstallObjective(Config $config = null): Objective
+    public function getInstallObjective(?Config $config = null): Objective
     {
         return new NullObjective();
     }
 
-    public function getUpdateObjective(Config $config = null): Objective
+    public function getUpdateObjective(?Config $config = null): Objective
     {
         return new ilDatabaseUpdateStepsExecutedObjective(new UpdateSteps());
     }

@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,9 +31,7 @@ class ilContextTest extends TestCase
         require_once("components/ILIAS/Context/tests/class.ilContextExtended.php");
     }
 
-    /**
-     * @dataProvider contextProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('contextProvider')]
     public function testInit(string $context, string $className): void
     {
         $context_obj = ilContextExtended::init($context);

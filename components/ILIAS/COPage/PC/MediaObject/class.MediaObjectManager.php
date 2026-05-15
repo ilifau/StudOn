@@ -87,8 +87,7 @@ class MediaObjectManager
     public function getMultimediaXML(
         \DOMDocument $dom,
         bool $offline = false
-    ): string
-    {
+    ): string {
         $mob_ids = $this->collectMediaObjects($dom);
 
         // get xml of corresponding media objects

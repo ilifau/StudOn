@@ -24,8 +24,8 @@ use ILIAS\LegalDocuments\test\ContainerMock;
 use ILIAS\LegalDocuments\ConsumerToolbox\UI;
 use ILIAS\LegalDocuments\Provide;
 use PHPUnit\Framework\TestCase;
-use ILIAS\UI\Component\Legacy\Legacy;
-use ILIAS\UI\Implementation\Factory as UIFactory;
+use ILIAS\UI\Implementation\Component\Legacy;
+use ILIAS\UI\Implementation\FactoryInternal as UIFactory;
 use ilTemplate;
 
 require_once __DIR__ . '/../../ContainerMock.php';
@@ -52,7 +52,14 @@ class ShowOnLoginPageTest extends TestCase
     {
         $translated = 'Translated<br/>';
         $url = 'Dummy URL';
-        $legacy = $this->mock(Legacy::class);
+
+        $legacy = $this->mock(Legacy\Content::class);
+        $legacy_factory = $this->mock(Legacy\Factory::class);
+        $legacy_factory
+            ->expects($this->once())
+            ->method('content')
+            ->willReturn($legacy);
+
 
         $template = $this->mock(ilTemplate::class);
         $expected = [
@@ -77,7 +84,7 @@ class ShowOnLoginPageTest extends TestCase
             'publicPage' => ['url' => $url],
         ]), $this->mockTree(UI::class, [
             'txt' => $translated,
-            'create' => $this->mockMethod(UIFactory::class, 'legacy', ['Rendered'], $legacy),
+            'create' => $this->mockMethod(UIFactory::class, 'legacy', [], $legacy_factory),
         ]), fn() => $template);
 
         $array = $instance();

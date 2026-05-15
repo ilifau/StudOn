@@ -34,7 +34,7 @@ use ILIAS\WOPI\Discovery\Action;
 /**
  * @author            Fabian Schmid <fabian@sr.solutions>
  *
- * @ilCtrl_isCalledBy ilWOPIAdministrationGUI: ilObjExternalToolsSettingsGUI
+ * @ilCtrl_isCalledBy ilWOPIAdministrationGUI: ilObjFileServicesGUI
  */
 class ilWOPIAdministrationGUI
 {
@@ -82,7 +82,7 @@ class ilWOPIAdministrationGUI
     {
         if (!$this->access->checkAccess("read", "", $this->ref_id)) {
             $this->maint_tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
-            $this->ctrl->redirectByClass(ilObjExternalToolsSettingsGUI::class);
+            $this->ctrl->redirectByClass(ilObjFileServicesGUI::class);
         }
 
         $cmd = $this->ctrl->getCmd(self::CMD_DEFAULT);
@@ -101,7 +101,7 @@ class ilWOPIAdministrationGUI
         if (!empty($supported_suffixes)) {
             $listing = $this->ui_factory->panel()->secondary()->legacy(
                 $this->lng->txt("currently_supported"),
-                $this->ui_factory->legacy(
+                $this->ui_factory->legacy()->content(
                     $this->ui_renderer->render(
                         $this->ui_factory->listing()->descriptive([
                             $this->lng->txt('action_edit') => implode(", ", $supported_suffixes[ActionTarget::EDIT->value]),

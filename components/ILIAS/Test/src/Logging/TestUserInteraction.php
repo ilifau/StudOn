@@ -19,10 +19,9 @@
 namespace ILIAS\Test\Logging;
 
 use ILIAS\Test\Utilities\TitleColumnsBuilder;
-
 use ILIAS\UI\Factory as UIFactory;
 use ILIAS\UI\Component\Listing\Descriptive as DescriptiveListing;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy\Content;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\UI\Component\Table\DataRow;
 
@@ -48,6 +47,6 @@ interface TestUserInteraction
         AdditionalInformationGenerator $additional_info,
         UIFactory $ui_factory,
         array $environment
-    ): DescriptiveListing|Legacy;
+    ): DescriptiveListing|Content;
     public function toStorage(): array;
 }

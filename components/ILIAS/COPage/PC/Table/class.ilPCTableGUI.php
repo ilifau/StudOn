@@ -19,7 +19,6 @@
 /**
  * User Interface for Table Editing
  * @author Alexander Killing <killing@leifos.de>
-
  * See https://mantis.ilias.de/view.php?id=32856
  * @ilCtrl_Calls ilPCTableGUI: ilAssGenFeedbackPageGUI
  */
@@ -67,7 +66,7 @@ class ilPCTableGUI extends ilPageContentGUI
     /**
      * @return mixed
      */
-    public function executeCommand()
+    public function executeCommand(): mixed
     {
         $this->getCharacteristicsOfCurrentStyle(["table"]);	// scorm-2004
 
@@ -464,9 +463,9 @@ class ilPCTableGUI extends ilPageContentGUI
         string $content,
         string $a_mode = "table_edit",
         string $a_submode = "",
-        ilPCTable $a_table_obj = null,
+        ?ilPCTable $a_table_obj = null,
         bool $unmask = true,
-        ilPageObject $page_object = null
+        ?ilPageObject $page_object = null
     ): string {
         global $DIC;
 

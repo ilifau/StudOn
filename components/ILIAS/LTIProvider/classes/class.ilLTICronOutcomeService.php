@@ -18,7 +18,10 @@
 
 declare(strict_types=1);
 
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Cron\Job\JobRepository;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * Description of class class
@@ -26,10 +29,10 @@ use ILIAS\Cron\Schedule\CronJobScheduleType;
  * @author Stefan Meyer <smeyer.ilias@gmx.de>
  *
  */
-class ilLTICronOutcomeService extends ilCronJob
+class ilLTICronOutcomeService extends CronJob
 {
     private ilLanguage $lng;
-    private ilCronJobRepository $cronRepo;
+    private JobRepository $cronRepo;
 
     public function __construct()
     {
@@ -39,9 +42,9 @@ class ilLTICronOutcomeService extends ilCronJob
         $this->cronRepo = $DIC->cron()->repository();
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
+        return JobScheduleType::DAILY;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -74,12 +77,9 @@ class ilLTICronOutcomeService extends ilCronJob
         return $this->lng->txt('lti_cron_title_desc');
     }
 
-    /**
-     * @throws ilDateTimeException
-     */
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
-        $status = \ilCronJobResult::STATUS_NO_ACTION;
+        $status = \ILIAS\Cron\Job\JobResult::STATUS_NO_ACTION;
 
         $info = $this->cronRepo->getCronJobData($this->getId());
         $last_ts = $info['job_status_ts'] ?? false;
@@ -89,10 +89,10 @@ class ilLTICronOutcomeService extends ilCronJob
         $since = new ilDateTime($last_ts, IL_CAL_UNIX);
 
 
-        $result = new \ilCronJobResult();
+        $result = new \ILIAS\Cron\Job\JobResult();
         $result->setStatus($status);
         ilLTIAppEventListener::handleCronUpdate($since);
-        $result->setStatus(ilCronJobResult::STATUS_OK);
+        $result->setStatus(JobResult::STATUS_OK);
 
         return $result;
     }

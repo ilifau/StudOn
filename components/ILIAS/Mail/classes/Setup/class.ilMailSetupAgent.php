@@ -20,6 +20,9 @@ declare(strict_types=1);
 
 use ILIAS\Setup;
 use ILIAS\Refinery;
+use ILIAS\Setup\ObjectiveCollection;
+use ILIAS\Mail\Setup\MailDBUpdateSteps11;
+use ILIAS\Mail\Setup\Migration\MailOutboxMigration;
 
 class ilMailSetupAgent implements Setup\Agent
 {
@@ -35,7 +38,7 @@ class ilMailSetupAgent implements Setup\Agent
         throw new LogicException('Agent has no config.');
     }
 
-    public function getInstallObjective(Setup\Config $config = null): Setup\Objective
+    public function getInstallObjective(?Setup\Config $config = null): Setup\Objective
     {
         return new ilFileSystemComponentDataDirectoryCreatedObjective(
             'mail',
@@ -43,10 +46,13 @@ class ilMailSetupAgent implements Setup\Agent
         );
     }
 
-    public function getUpdateObjective(Setup\Config $config = null): Setup\Objective
+    public function getUpdateObjective(?Setup\Config $config = null): Setup\Objective
     {
-        return new ilDatabaseUpdateStepsExecutedObjective(
-            new ilMailDatabaseUpdateSteps()
+        return new ObjectiveCollection(
+            'Database is updated for component/ILIAS/Mail',
+            true,
+            new ilDatabaseUpdateStepsExecutedObjective(new ilMailDatabaseUpdateSteps()),
+            new ilDatabaseUpdateStepsExecutedObjective(new MailDBUpdateSteps11()),
         );
     }
 
@@ -57,11 +63,18 @@ class ilMailSetupAgent implements Setup\Agent
 
     public function getStatusObjective(Setup\Metrics\Storage $storage): Setup\Objective
     {
-        return new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilMailDatabaseUpdateSteps());
+        return new ObjectiveCollection(
+            'Database is updated for component/ILIAS/Certificate',
+            true,
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilMailDatabaseUpdateSteps()),
+            new ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new MailDBUpdateSteps11()),
+        );
     }
 
     public function getMigrations(): array
     {
-        return [];
+        return [
+            new MailOutboxMigration()
+        ];
     }
 }

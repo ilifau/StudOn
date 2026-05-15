@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,7 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
 
 /**
  * This class represents an input GUI for recurring events/appointments (course events or calendar appointments)
@@ -27,8 +26,8 @@ declare(strict_types=1);
  */
 class ilRecurrenceInputGUI extends ilCustomInputGUI
 {
-    protected const REC_LIMITED = 2;
-    protected const REC_UNLIMITED = 1;
+    protected const int REC_LIMITED = 2;
+    protected const int REC_UNLIMITED = 1;
 
     protected ilCalendarRecurrence $recurrence;
     protected ilObjUser $user;

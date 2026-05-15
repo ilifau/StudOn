@@ -75,6 +75,7 @@ class ilPollImagesMigration implements Migration
         $thumbnail_path = $this->getThumbnailImagePath($image, $id);
         $org_path = $this->getOrgImagePath($image, $id);
         $stakeholder = (new ilPollImageRepositoryStakeholder())->withUserId(6);
+
         $irss_helper = new ilResourceStorageMigrationHelper($stakeholder, $environment);
         $rid = $irss_helper->movePathToStorage($file_path, 6, null, null, false);
         $rid_thumbnail = $irss_helper->movePathToStorage($thumbnail_path, 6, null, null, false);

@@ -48,9 +48,9 @@ final class TableContentWrapper
     ) {
     }
 
-    public function wrap(Data $c): \ILIAS\UI\Component\Legacy\Legacy
+    public function wrap(Data $c): \ILIAS\UI\Component\Legacy\Content
     {
-        return $this->f->legacy(
+        return $this->f->legacy()->content(
             '<div class="badge_table-wrapper">' . $this->r->render($c) . '</div>'
         );
     }

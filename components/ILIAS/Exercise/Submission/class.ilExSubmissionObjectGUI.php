@@ -29,7 +29,7 @@ use ILIAS\Portfolio\Export\PortfolioHtmlExport;
 class ilExSubmissionObjectGUI extends ilExSubmissionBaseGUI
 {
     protected int $user_id;
-    protected $selected_wsp_obj_id;
+    protected int $selected_wsp_obj_id;
 
     /**
      * @throws ilExcUnknownAssignmentTypeException
@@ -266,7 +266,7 @@ class ilExSubmissionObjectGUI extends ilExSubmissionBaseGUI
         string $a_info,
         string $a_cmd,
         string $a_explorer_cmd,
-        array $a_items = null
+        ?array $a_items = null
     ): void {
         if (!$this->submission->canSubmit()) {
             $this->tpl->setOnScreenMessage('info', $this->lng->txt("exercise_time_over"), true);
@@ -302,7 +302,7 @@ class ilExSubmissionObjectGUI extends ilExSubmissionBaseGUI
         $r = $this->gui->ui()->renderer();
         $p = $f->panel()->standard(
             $title,
-            $f->legacy($html)
+            $f->legacy()->content($html)
         );
 
         $this->tpl->setContent($r->render($p));
@@ -510,7 +510,7 @@ class ilExSubmissionObjectGUI extends ilExSubmissionBaseGUI
     }
 
     protected function createPortfolioTemplateObject(
-        ilPropertyFormGUI $a_form = null
+        ?ilPropertyFormGUI $a_form = null
     ): void {
         if (!$this->submission->canSubmit()) {
             $this->tpl->setOnScreenMessage('info', $this->lng->txt("exercise_time_over"), true);
@@ -858,7 +858,7 @@ class ilExSubmissionObjectGUI extends ilExSubmissionBaseGUI
      */
     public static function initGUIForSubmit(
         int $a_ass_id,
-        int $a_user_id = null
+        ?int $a_user_id = null
     ): ilExSubmissionObjectGUI {
         global $DIC;
 

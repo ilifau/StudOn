@@ -24,7 +24,7 @@ use ILIAS\UI\Implementation\Component\Button;
 use ILIAS\UI\Implementation\Component\Link;
 use ILIAS\UI\Implementation\Component\Image;
 use ILIAS\UI\Implementation\Component\Dropdown;
-use ILIAS\UI\Implementation\Component\Legacy\Legacy;
+use ILIAS\UI\Implementation\Component\Legacy\Content;
 use ILIAS\UI\Implementation\Component\SignalGenerator;
 use ILIAS\UI\Component as I;
 use ILIAS\UI\Factory as UIFactory;
@@ -36,9 +36,9 @@ class EntityTest extends ILIAS_UI_TestBase
         return new Entity\Factory();
     }
 
-    protected function legacy(string $string): Legacy
+    protected function legacy(string $string): Content
     {
-        return new Legacy($string, (new SignalGenerator()));
+        return new Content($string, (new SignalGenerator()));
     }
 
     public function testEntityFactory(): void
@@ -75,9 +75,7 @@ class EntityTest extends ILIAS_UI_TestBase
         ];
     }
 
-    /**
-     * @dataProvider getEntityAllowedIdentiferTypes
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getEntityAllowedIdentiferTypes')]
     public function testEntityIdentifiers($identifier): void
     {
         $entity = $this->getEntityFactory()->standard($identifier, $identifier);
@@ -119,7 +117,7 @@ class EntityTest extends ILIAS_UI_TestBase
     public function getUIFactory(): NoUIFactory
     {
         return new class () extends NoUIFactory {
-            public function dropdown(): I\Dropdown\Factory
+            public function dropdown(): Dropdown\Factory
             {
                 return new Dropdown\Factory();
             }
@@ -163,11 +161,11 @@ class EntityTest extends ILIAS_UI_TestBase
     <div class="c-entity __availability">a</div>
     <div class="c-entity __details">d</div>
     <div class="c-entity __reactions">
-        <a class="glyph" aria-label="some glyph"><span class="glyphicon il-glyphicon-laugh" aria-hidden="true"></span></a>
-        <a class="glyph" aria-label="some glyph"><span class="glyphicon il-glyphicon-laugh" aria-hidden="true"></span></a>
+        <span class="glyph" aria-label="some glyph" role="img"><span class="glyphicon il-glyphicon-laugh" aria-hidden="true"></span></span>
+        <span class="glyph" aria-label="some glyph" role="img"><span class="glyphicon il-glyphicon-laugh" aria-hidden="true"></span></span>
     </div>
     <div class="c-entity __featured-reactions">
-        <a class="glyph" aria-label="some glyph"><span class="glyphicon il-glyphicon-laugh" aria-hidden="true"></span></a>
+        <span class="glyph" aria-label="some glyph" role="img"><span class="glyphicon il-glyphicon-laugh" aria-hidden="true"></span></span>
         <button class="btn btn-tag btn-tag-relevance-veryhigh" data-action="#" id="id_10">tag</button>
     </div>
 </div>

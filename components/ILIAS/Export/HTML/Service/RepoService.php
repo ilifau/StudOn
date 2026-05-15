@@ -30,11 +30,10 @@ class RepoService
         protected DataService $data,
         protected \ilDBInterface $db,
         protected IRSSWrapper $irss
-    )
-    {
+    ) {
     }
 
-    public function exportFile() : ExportFileDBRepository
+    public function exportFile(): ExportFileDBRepository
     {
         return self::$instance['export_file'] ??= new ExportFileDBRepository(
             $this->db,

@@ -27,14 +27,14 @@ use ILIAS\UI\Implementation\Component as I;
 
 class FooterTest extends ILIAS_UI_TestBase
 {
-    protected C\Link\Standard $link_mock;
-    protected C\Symbol\Icon\Icon $icon_mock;
-    protected C\Button\Shy $shy_mock;
-    protected C\Button\Standard $button_mock;
-    protected C\Listing\Unordered $unordered_mock;
-    protected C\Button\Factory $button_factory;
-    protected C\Link\Factory $link_factory;
-    protected C\Listing\Factory $listing_factory;
+    protected I\Link\Standard $link_mock;
+    protected I\Symbol\Icon\Icon $icon_mock;
+    protected I\Button\Shy $shy_mock;
+    protected I\Button\Standard $button_mock;
+    protected I\Listing\Unordered $unordered_mock;
+    protected I\Button\Factory $button_factory;
+    protected I\Link\Factory $link_factory;
+    protected I\Listing\Factory $listing_factory;
     protected \ILIAS\Data\URI $uri_mock;
     protected string $link_html;
     protected string $icon_html;
@@ -50,29 +50,29 @@ class FooterTest extends ILIAS_UI_TestBase
         $this->button_html = sha1(C\Button\Standard::class);
         $this->unordered_html = sha1(C\Listing\Unordered::class);
 
-        $this->link_mock = $this->createMock(C\Link\Standard::class);
+        $this->link_mock = $this->createMock(I\Link\Standard::class);
         $this->link_mock->method('getCanonicalName')->willReturn($this->link_html);
 
-        $this->icon_mock = $this->createMock(C\Symbol\Icon\Icon::class);
+        $this->icon_mock = $this->createMock(I\Symbol\Icon\Icon::class);
         $this->icon_mock->method('getCanonicalName')->willReturn($this->icon_html);
 
-        $this->shy_mock = $this->createMock(C\Button\Shy::class);
+        $this->shy_mock = $this->createMock(I\Button\Shy::class);
         $this->shy_mock->method('getCanonicalName')->willReturn($this->shy_html);
 
-        $this->button_mock = $this->createMock(C\Button\Standard::class);
+        $this->button_mock = $this->createMock(I\Button\Standard::class);
         $this->button_mock->method('getCanonicalName')->willReturn($this->button_html);
 
-        $this->unordered_mock = $this->createMock(C\Listing\Unordered::class);
+        $this->unordered_mock = $this->createMock(I\Listing\Unordered::class);
         $this->unordered_mock->method('getCanonicalName')->willReturn($this->unordered_html);
 
-        $this->button_factory = $this->createMock(C\Button\Factory::class);
+        $this->button_factory = $this->createMock(I\Button\Factory::class);
         $this->button_factory->method('shy')->willReturn($this->shy_mock);
         $this->button_factory->method('standard')->willReturn($this->button_mock);
 
-        $this->link_factory = $this->createMock(C\Link\Factory::class);
+        $this->link_factory = $this->createMock(I\Link\Factory::class);
         $this->link_factory->method('standard')->willReturn($this->link_mock);
 
-        $this->listing_factory = $this->createMock(C\Listing\Factory::class);
+        $this->listing_factory = $this->createMock(I\Listing\Factory::class);
         $this->listing_factory->method('unordered')->willReturn($this->unordered_mock);
 
         $this->uri_mock = $this->createMock(\ILIAS\Data\URI::class);
@@ -282,22 +282,22 @@ EOT;
     {
         return new class (
             $this->createMock(I\SignalGeneratorInterface::class),
-            $this->createMock(C\Counter\Factory::class),
-            $this->createMock(C\Symbol\Factory::class),
+            $this->createMock(I\Counter\Factory::class),
+            $this->createMock(I\Symbol\Factory::class),
             $this->button_factory,
             $this->link_factory,
             $this->listing_factory,
         ) extends NoUIFactory {
             public function __construct(
                 protected I\SignalGeneratorInterface $signal_generator,
-                protected C\Counter\Factory $counter_factory,
-                protected C\Symbol\Factory $symbol_factory,
-                protected C\Button\Factory $button_factory,
-                protected C\Link\Factory $link_factory,
-                protected C\Listing\Factory $listing_factory,
+                protected I\Counter\Factory $counter_factory,
+                protected I\Symbol\Factory $symbol_factory,
+                protected I\Button\Factory $button_factory,
+                protected I\Link\Factory $link_factory,
+                protected I\Listing\Factory $listing_factory,
             ) {
             }
-            public function mainControls(): C\MainControls\Factory
+            public function mainControls(): I\MainControls\Factory
             {
                 return new I\MainControls\Factory(
                     $this->signal_generator,
@@ -308,15 +308,15 @@ EOT;
                     ),
                 );
             }
-            public function button(): C\Button\Factory
+            public function button(): I\Button\Factory
             {
                 return $this->button_factory;
             }
-            public function link(): C\Link\Factory
+            public function link(): I\Link\Factory
             {
                 return $this->link_factory;
             }
-            public function listing(): C\Listing\Factory
+            public function listing(): I\Listing\Factory
             {
                 return $this->listing_factory;
             }

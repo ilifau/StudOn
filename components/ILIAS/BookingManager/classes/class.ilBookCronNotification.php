@@ -16,13 +16,15 @@
  *
  *********************************************************************/
 
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * Cron for booking manager notification
  * @author Alexander Killing <killing@leifos.de>
  */
-class ilBookCronNotification extends ilCronJob
+class ilBookCronNotification extends CronJob
 {
     protected \ILIAS\BookingManager\InternalRepoService $repo;
     protected ilLanguage $lng;
@@ -61,9 +63,9 @@ class ilBookCronNotification extends ilCronJob
         return $lng->txt("book_notification_info");
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
+        return JobScheduleType::DAILY;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -81,17 +83,17 @@ class ilBookCronNotification extends ilCronJob
         return false;
     }
 
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
-        $status = ilCronJobResult::STATUS_NO_ACTION;
+        $status = JobResult::STATUS_NO_ACTION;
 
         $count = $this->sendNotifications();
 
         if ($count > 0) {
-            $status = ilCronJobResult::STATUS_OK;
+            $status = JobResult::STATUS_OK;
         }
 
-        $result = new ilCronJobResult();
+        $result = new JobResult();
         $result->setStatus($status);
 
         return $result;

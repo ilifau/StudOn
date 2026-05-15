@@ -40,7 +40,7 @@ class ilTestRandomQuestionSetStagingPoolBuilder
     public function rebuild(ilTestRandomQuestionSetSourcePoolDefinitionList $source_pool_definition_list): void
     {
         $this->reset();
-        $this->build($source_pool_definition_list);
+        $this->buildCheap($source_pool_definition_list);
     }
 
     public function reset()
@@ -51,16 +51,19 @@ class ilTestRandomQuestionSetStagingPoolBuilder
 
     private function removeMirroredTaxonomies()
     {
-        foreach (ilObjTaxonomy::getUsageOfObject($this->test_obj->getId()) as $tax_id) {
-            $taxonomy = new ilObjTaxonomy($tax_id);
+        $taxonomyIds = ilObjTaxonomy::getUsageOfObject($this->test_obj->getId());
+
+        foreach ($taxonomyIds as $taxId) {
+            $taxonomy = new ilObjTaxonomy($taxId);
             $taxonomy->delete();
         }
     }
 
     private function removeStagedQuestions()
     {
+        $query = 'SELECT * FROM tst_rnd_cpy WHERE tst_fi = %s';
         $res = $this->db->queryF(
-            'SELECT * FROM tst_rnd_cpy WHERE tst_fi = %s',
+            $query,
             ['integer'],
             [$this->test_obj->getTestId()]
         );
@@ -77,82 +80,135 @@ class ilTestRandomQuestionSetStagingPoolBuilder
             $question->delete($row['qst_fi']);
         }
 
-        $this->db->manipulateF(
-            'DELETE FROM tst_rnd_cpy WHERE tst_fi = %s',
-            ['integer'],
-            [$this->test_obj->getTestId()
-        ]
-        );
+        $query = "DELETE FROM tst_rnd_cpy WHERE tst_fi = %s";
+        $this->db->manipulateF($query, ['integer'], [$this->test_obj->getTestId()]);
     }
 
-    private function build(
-        ilTestRandomQuestionSetSourcePoolDefinitionList $source_pool_definition_list
-    ): void {
-        $question_id_mapping_per_pool = [];
-        foreach ($source_pool_definition_list as $definition) {
-            $tax_filter = $definition->getOriginalTaxonomyFilter();
-            $type_filter = $definition->getTypeFilter();
-            $lifecycle_filter = $definition->getLifecycleFilter();
+    private function build(ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList)
+    {
+        $involvedSourcePoolIds = $sourcePoolDefinitionList->getInvolvedSourcePoolIds();
 
-            $filter_items = null;
-            foreach ($tax_filter as $tax_id => $node_ids) {
-                $tax_items = [];
-                foreach ($node_ids as $node_id) {
-                    $node_items = ilObjTaxonomy::getSubTreeItems(
-                        'qpl',
-                        $definition->getPoolId(),
-                        'quest',
-                        $tax_id,
-                        $node_id
-                    );
+        foreach ($involvedSourcePoolIds as $sourcePoolId) {
+            $questionIdMapping = $this->stageQuestionsFromSourcePool($sourcePoolId);
 
-                    foreach ($node_items as $node_item) {
-                        $tax_items[] = $node_item['item_id'];
-                    }
-                }
+            $taxonomiesKeysMap = $this->mirrorSourcePoolTaxonomies($sourcePoolId, $questionIdMapping);
 
-                $filter_items = isset($filter_items) ? array_intersect($filter_items, array_unique($tax_items)) : array_unique($tax_items);
-            }
-
-            $question_id_mapping_per_pool = $this->stageQuestionsFromSourcePool(
-                $definition->getPoolId(),
-                $question_id_mapping_per_pool,
-                $filter_items !== null ? array_values($filter_items) : null,
-                $type_filter,
-                $lifecycle_filter
-            );
-        }
-
-        foreach ($question_id_mapping_per_pool as $source_pool_id => $question_id_mapping) {
-            $taxonomiesKeysMap = $this->mirrorSourcePoolTaxonomies($source_pool_id, $question_id_mapping);
-            $this->applyMappedTaxonomiesKeys($source_pool_definition_list, $taxonomiesKeysMap, $source_pool_id);
+            $this->applyMappedTaxonomiesKeys($sourcePoolDefinitionList, $taxonomiesKeysMap, $sourcePoolId);
         }
     }
 
-    private function stageQuestionsFromSourcePool(
-        int $source_pool_id,
-        array $question_id_mapping_per_pool,
-        array $filter_ids = null,
-        array $type_filter = null,
-        array $lifecycle_filter = null
-    ): array {
+    private function stageQuestionsFromSourcePool($sourcePoolId): array
+    {
+        $questionIdMapping = [];
+
         $query = 'SELECT question_id FROM qpl_questions WHERE obj_fi = %s AND complete = %s AND original_id IS NULL';
-        if (!empty($filter_ids)) {
-            $query .= ' AND ' . $this->db->in('question_id', $filter_ids, false, 'integer');
-        }
-        if (!empty($type_filter)) {
-            $query .= ' AND ' . $this->db->in('question_type_fi', $type_filter, false, 'integer');
-        }
-        if (!empty($lifecycle_filter)) {
-            $query .= ' AND ' . $this->db->in('lifecycle', $lifecycle_filter, false, 'text');
-        }
-        $res = $this->db->queryF($query, ['integer', 'text'], [$source_pool_id, 1]);
+        $res = $this->db->queryF($query, ['integer', 'text'], [$sourcePoolId, 1]);
 
         while ($row = $this->db->fetchAssoc($res)) {
-            if (!isset($question_id_mapping_per_pool[$source_pool_id])) {
-                $question_id_mapping_per_pool[$source_pool_id] = [];
+            $question = assQuestion::instantiateQuestion($row['question_id']);
+            $duplicateId = $question->duplicate(true, '', '', -1, $this->test_obj->getId());
+
+            $nextId = $this->db->nextId('tst_rnd_cpy');
+            $this->db->insert('tst_rnd_cpy', [
+                'copy_id' => ['integer', $nextId],
+                'tst_fi' => ['integer', $this->test_obj->getTestId()],
+                'qst_fi' => ['integer', $duplicateId],
+                'qpl_fi' => ['integer', $sourcePoolId]
+            ]);
+
+            $questionIdMapping[ $row['question_id'] ] = $duplicateId;
+        }
+
+        return $questionIdMapping;
+    }
+
+    // fau: taxFilter/typeFilter - select only the needed questions, and copy every question only once
+    private function buildCheap(ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList)
+    {
+        // TODO-RND2017: refactor using assQuestionList and wrap with assQuestionListCollection for unioning
+
+        $questionIdMappingPerPool = [];
+
+        // select questions to be copied by the definitions
+        // note: a question pool may appear many times in this list
+
+        /* @var ilTestRandomQuestionSetSourcePoolDefinition $definition */
+        foreach ($sourcePoolDefinitionList as $definition) {
+            $taxFilter = $definition->getOriginalTaxonomyFilter();
+            $typeFilter = $definition->getTypeFilter();
+            $lifecycleFilter = $definition->getLifecycleFilter();
+
+            if (!empty($taxFilter)) {
+                $filterItems = null;
+                foreach ($taxFilter as $taxId => $nodeIds) {
+                    $taxItems = [];
+                    foreach ($nodeIds as $nodeId) {
+                        $nodeItems = ilObjTaxonomy::getSubTreeItems(
+                            'qpl',
+                            $definition->getPoolId(),
+                            'quest',
+                            $taxId,
+                            $nodeId
+                        );
+
+                        foreach ($nodeItems as $nodeItem) {
+                            $taxItems[] = $nodeItem['item_id'];
+                        }
+                    }
+
+                    $filterItems = isset($filterItems) ? array_intersect($filterItems, array_unique($taxItems)) : array_unique($taxItems);
+                }
+
+                // stage only the questions applying to the tax/type filter
+                // and save the duplication map for later use
+
+                $questionIdMappingPerPool = $this->stageQuestionsFromSourcePoolCheap(
+                    $definition->getPoolId(),
+                    $questionIdMappingPerPool,
+                    array_values($filterItems),
+                    $typeFilter,
+                    $lifecycleFilter
+                );
+            } else {
+                // stage only the questions applying to the tax/type filter
+                // and save the duplication map for later use
+
+                $questionIdMappingPerPool = $this->stageQuestionsFromSourcePoolCheap(
+                    $definition->getPoolId(),
+                    $questionIdMappingPerPool,
+                    null,
+                    $typeFilter,
+                    $lifecycleFilter
+                );
             }
-            if (!isset($question_id_mapping_per_pool[$source_pool_id][ $row['question_id'] ])) {
+        }
+
+        // copy the taxonomies to the test and map them
+        foreach ($questionIdMappingPerPool as $sourcePoolId => $questionIdMapping) {
+            $taxonomiesKeysMap = $this->mirrorSourcePoolTaxonomies($sourcePoolId, $questionIdMapping);
+            $this->applyMappedTaxonomiesKeys($sourcePoolDefinitionList, $taxonomiesKeysMap, $sourcePoolId);
+        }
+    }
+
+    private function stageQuestionsFromSourcePoolCheap($sourcePoolId, $questionIdMappingPerPool, $filterIds = null, $typeFilter = null, $lifecycleFilter = null)
+    {
+        $query = 'SELECT question_id FROM qpl_questions WHERE obj_fi = %s AND complete = %s AND original_id IS NULL';
+        if (!empty($filterIds)) {
+            $query .= ' AND ' . $this->db->in('question_id', $filterIds, false, 'integer');
+        }
+        if (!empty($typeFilter)) {
+            $query .= ' AND ' . $this->db->in('question_type_fi', $typeFilter, false, 'integer');
+        }
+        if (!empty($lifecycleFilter)) {
+            $query .= ' AND ' . $this->db->in('lifecycle', $lifecycleFilter, false, 'text');
+        }
+        $res = $this->db->queryF($query, ['integer', 'text'], [$sourcePoolId, 1]);
+
+        while ($row = $this->db->fetchAssoc($res)) {
+            if (!isset($questionIdMappingPerPool[$sourcePoolId])) {
+                $questionIdMappingPerPool[$sourcePoolId] = [];
+            }
+            if (!isset($questionIdMappingPerPool[$sourcePoolId][ $row['question_id'] ])) {
                 $question = assQuestion::instantiateQuestion($row['question_id']);
                 $duplicateId = $question->duplicate(true, '', '', -1, $this->test_obj->getId());
 
@@ -161,26 +217,27 @@ class ilTestRandomQuestionSetStagingPoolBuilder
                     'copy_id' => ['integer', $nextId],
                     'tst_fi' => ['integer', $this->test_obj->getTestId()],
                     'qst_fi' => ['integer', $duplicateId],
-                    'qpl_fi' => ['integer', $source_pool_id]
+                    'qpl_fi' => ['integer', $sourcePoolId]
                 ]);
 
-                $question_id_mapping_per_pool[$source_pool_id][ $row['question_id'] ] = $duplicateId;
+                $questionIdMappingPerPool[$sourcePoolId][ $row['question_id'] ] = $duplicateId;
             }
         }
 
-        return $question_id_mapping_per_pool;
+        return $questionIdMappingPerPool;
     }
+    // fau.
 
-    private function mirrorSourcePoolTaxonomies(
-        int $source_pool_id,
-        array $questionId_mapping
-    ): ilQuestionPoolDuplicatedTaxonomiesKeysMap {
+    private function mirrorSourcePoolTaxonomies($sourcePoolId, $questionIdMapping): ilQuestionPoolDuplicatedTaxonomiesKeysMap
+    {
         $duplicator = new ilQuestionPoolTaxonomiesDuplicator();
-        $duplicator->setSourceObjId($source_pool_id);
+
+        $duplicator->setSourceObjId($sourcePoolId);
         $duplicator->setSourceObjType('qpl');
         $duplicator->setTargetObjId($this->test_obj->getId());
         $duplicator->setTargetObjType($this->test_obj->getType());
-        $duplicator->setQuestionIdMapping($questionId_mapping);
+        $duplicator->setQuestionIdMapping($questionIdMapping);
+
         $duplicator->duplicate($duplicator->getAllTaxonomiesForSourceObject());
 
         return $duplicator->getDuplicatedTaxonomiesKeysMap();

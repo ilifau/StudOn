@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -27,8 +28,7 @@ use ILIAS\UI\Implementation\Component\SignalGenerator;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\Language\Language;
 use Psr\Http\Message\ServerRequestInterface;
-use ILIAS\UI\Component\Button\Factory as ButtonFactory;
-use ILIAS\UI\Implementation\Component\Button\Factory as ButtonFactoryImplementation;
+use ILIAS\UI\Implementation\Component\Button\Factory as ButtonFactory;
 
 require_once(__DIR__ . "/../../../../Base.php");
 
@@ -74,7 +74,7 @@ class FormWithoutSubmitButtonsTest extends \ILIAS_UI_TestBase
             $this->language
         );
 
-        $this->button_factory = new ButtonFactoryImplementation();
+        $this->button_factory = new ButtonFactory();
 
         parent::setUp();
     }
@@ -193,6 +193,7 @@ EOT;
     {
         $df = new \ILIAS\Data\Factory();
         return new \ILIAS\UI\Implementation\Component\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\Field\Node\Factory::class),
             $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             $this->signal_generator,
             $df,

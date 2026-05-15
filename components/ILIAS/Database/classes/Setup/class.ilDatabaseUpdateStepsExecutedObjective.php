@@ -16,9 +16,9 @@
  *
  *********************************************************************/
 
+use ILIAS\Data\Factory;
 use ILIAS\Setup\Environment;
 use ILIAS\Setup\Objective;
-use ILIAS\Data;
 
 /**
  * This class attempt to achieve a set of database update steps. Look into the
@@ -27,14 +27,11 @@ use ILIAS\Data;
 class ilDatabaseUpdateStepsExecutedObjective implements Objective
 {
     public const STEP_METHOD_PREFIX = "step_";
-
-    protected ilDatabaseUpdateSteps $steps;
     protected string $steps_class;
 
-    public function __construct(ilDatabaseUpdateSteps $steps)
+    public function __construct(protected ilDatabaseUpdateSteps $steps)
     {
-        $this->steps = $steps;
-        $this->steps_class = get_class($this->steps);
+        $this->steps_class = $this->steps::class;
     }
 
     /**
@@ -68,7 +65,7 @@ class ilDatabaseUpdateStepsExecutedObjective implements Objective
     public function getPreconditions(Environment $environment): array
     {
         return [
-            new ilNoMajorVersionSkippedConditionObjective(new Data\Factory()),
+            new ilNoMajorVersionSkippedConditionObjective(new Factory()),
             new ilDBStepExecutionDBExistsObjective(),
             new ilDatabaseUpdatedObjective(),
             new ilDBStepReaderExistsObjective()

@@ -15,7 +15,7 @@
 	},
 	"scripts": {
 		"post-autoload-dump": [
-			"@php cli/build_bootstrap.php components/ILIAS/Setup/resources/dependency_resolution.php setup",
+			"@php cli/build_bootstrap.php components/ILIAS/Setup/resources/dependency_resolution.php setup components/ILIAS/Init/resources/dependency_resolution.php default",
 			"@php cli/setup.php build --yes"
 		],
 		"pre-install-cmd": [
@@ -39,7 +39,7 @@
 		]
 	},
 	"require": {
-		"php": ">=8.2 <8.4",
+		"php": ">=8.3 <8.5",
 		"ext-gd": "*",
 		"ext-dom": "*",
 		"ext-xsl": "*",
@@ -50,41 +50,36 @@
 		"ext-xml": "*",
 		"ext-zip": "*",
 		"ext-imagick": "*",
-		"ext-mbstring": "*",
-		"firebase/php-jwt": "*",
-		"apereo/phpcas": "^1.6.1",
-		"league/commonmark": "^2.4",
-		"ramsey/uuid": "^4.4.0",
-		"james-heinrich/getid3": "^1.9.23",
-		"mustache/mustache": "^2.14",
-		"ifsnop/mysqldump-php": "2.10",
-		"seld/jsonlint": "^1.10",
-		"pimple/pimple": "^3.0",
-		"filp/whoops": "^2.15.4",
-		"cweagans/composer-patches": "^1.7",
-		"ezyang/htmlpurifier": "^4.17",
-		"phpmailer/phpmailer": "^6.8",
-		"guzzlehttp/psr7": "^2.6.1",
-		"league/flysystem": "^3.0",
-		"sabre/dav": "^4.5",
-		"dflydev/fig-cookies": "^3.0",
-		"symfony/yaml": "^6.4",
-		"symfony/console": "^6.4",
-		"simplesamlphp/simplesamlphp": "^2.3.7",
-		"phpunit/phpunit": "^10.5",
-		"monolog/monolog": "^2.9.3",
-		"phpoffice/phpspreadsheet": "^2.2",
 		"celtic/lti": "^5.0.0",
-		"jumbojett/openid-connect-php": "^1.0",
-		"guzzlehttp/guzzle": "^7.9",
+		"dflydev/fig-cookies": "v3.1.0",
+		"ezyang/htmlpurifier": "^4.18",
+		"filp/whoops": "^2.16",
+		"firebase/php-jwt": "*",
+		"guzzlehttp/psr7": "2.7.0",
+		"ifsnop/mysqldump-php": "2.11",
+		"james-heinrich/getid3": "^1.9.23",
+		"league/commonmark": "2.7.0",
+		"league/flysystem": "3.28.0",
+		"monolog/monolog": "^3.9",
+		"mustache/mustache": "^3.0",
+		"phpmailer/phpmailer": "^6.9",
+		"phpoffice/phpspreadsheet": "^3.5",
+		"pimple/pimple" : "^3.0",
+		"ramsey/uuid": "^4.7",
+		"sabre/dav": "^4.7",
+		"seld/jsonlint": "^1.11",
+		"simplesamlphp/simplesamlphp": "^2.3.7",
+		"symfony/console" : "^6.4",
+		"psr/http-message": "^2.0",
+		"jumbojett/openid-connect-php": "dev-master#bc719cc9930990a4a9916cc127b839b4ed1c89ad",
+		"phpunit/phpunit": "^11.5",
 		"phiki/phiki": "^2.0"
 	},
 	"require-dev": {
-		"friendsofphp/php-cs-fixer": "^3.40",
-		"phpstan/phpstan": "^1.10",
+		"captainhook/captainhook": "^5.24",
+		"friendsofphp/php-cs-fixer": "^3.65",
 		"mikey179/vfsstream": "^1.6",
-		"captainhook/captainhook": "^5.28",
-		"captainhook/plugin-composer": "^5.3"
+		"phpstan/phpstan": "^2.0"
 	},
 	"autoload": {
 		"psr-4" : {
@@ -109,9 +104,6 @@
 	},
 	"extra": {
 		"patches": {
-			"phpmailer/phpmailer": {
-				"ILIAS PhpMailer Patches": "./vendor/composer/patches/phpmailer.patch"
-			},
 			"imsglobal/lti": {
 				"ILIAS LTI Patches": "./vendor/composer/patches/lti.patch"
 			}

@@ -33,7 +33,8 @@ require_once '../vendor/composer/vendor/autoload.php';
 global $DIC;
 
 try {
-    ilInitialisation::initILIAS();
+    require_once __DIR__ . '/../artifacts/bootstrap_default.php';
+    entry_point('ILIAS Legacy Initialisation Adapter');
 
     $DIC->ctrl()->callBaseClass();
 } catch (ilCtrlException $e) {

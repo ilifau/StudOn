@@ -78,124 +78,124 @@ class assFormulaQuestionGUI extends assQuestionGUI
     {
         $hasErrors = (!$always) ? $this->editQuestion(true) : false;
         $checked = true;
-        if ($hasErrors) {
-            return 1;
-        }
+        if (!$hasErrors) {
+            $this->object->setTitle($this->request_data_collector->string('title'));
+            $this->object->setAuthor($this->request_data_collector->string('author'));
+            $this->object->setComment($this->request_data_collector->string('comment'));
+            $this->object->setQuestion($this->request_data_collector->string('question'));
 
-        $this->object->setTitle($this->request_data_collector->string('title'));
-        $this->object->setAuthor($this->request_data_collector->string('author'));
-        $this->object->setComment($this->request_data_collector->string('comment'));
-        $this->object->setQuestion($this->request_data_collector->string('question'));
+            $this->object->parseQuestionText();
+            $found_vars = [];
+            $found_results = [];
 
-        $this->object->parseQuestionText();
-        $found_vars = [];
-        $found_results = [];
-
-        foreach ($this->request_data_collector->getParsedBody() as $key => $value) {
-            if (preg_match("/^unit_(\\\$v\d+)$/", $key, $matches)) {
-                array_push($found_vars, $matches[1]);
+            foreach ($this->request_data_collector->getParsedBody() as $key => $value) {
+                if (preg_match("/^unit_(\\\$v\d+)$/", $key, $matches)) {
+                    array_push($found_vars, $matches[1]);
+                }
+                if (preg_match("/^unit_(\\\$r\d+)$/", $key, $matches)) {
+                    array_push($found_results, $matches[1]);
+                }
             }
-            if (preg_match("/^unit_(\\\$r\d+)$/", $key, $matches)) {
-                array_push($found_results, $matches[1]);
+
+            try {
+                $lifecycle = ilAssQuestionLifecycle::getInstance($this->request_data_collector->string('lifecycle'));
+                $this->object->setLifecycle($lifecycle);
+            } catch (ilTestQuestionPoolInvalidArgumentException $e) {
             }
-        }
 
-        try {
-            $lifecycle = ilAssQuestionLifecycle::getInstance($this->request_data_collector->string('lifecycle'));
-            $this->object->setLifecycle($lifecycle);
-        } catch (ilTestQuestionPoolInvalidArgumentException $e) {
-        }
-
-        if (!$this->object->checkForDuplicateResults()) {
-            $this->addErrorMessage($this->lng->txt("err_duplicate_results"));
-            $checked = false;
-        }
-
-        foreach ($found_vars as $variable) {
-            if ($this->object->getVariable($variable) != null) {
-                $unit = $this->request_data_collector->int("unit_{$variable}");
-                $varObj = new assFormulaQuestionVariable(
-                    $variable,
-                    $this->request_data_collector->float("range_min_{$variable}") ?? 0.0,
-                    $this->request_data_collector->float("range_max_{$variable}") ?? 0.0,
-                    $unit !== null ? $this->object->getUnitrepository()->getUnit(
-                        $unit
-                    ) : null,
-                    $this->request_data_collector->float("precision_{$variable}"),
-                    $this->request_data_collector->float("intprecision_{$variable}")
-                );
-                $this->object->addVariable($varObj);
+            if (!$this->object->checkForDuplicateResults()) {
+                $this->addErrorMessage($this->lng->txt("err_duplicate_results"));
+                $checked = false;
             }
-        }
 
-        $tmp_form_vars = [];
-        $tmp_quest_vars = [];
-        foreach ($found_results as $result) {
-            $tmp_res_match = preg_match_all(
-                '/([$][v][0-9]*)/',
-                $this->request_data_collector->string("formula_{$result}"),
-                $form_vars
-            );
-            $tmp_form_vars = array_merge($tmp_form_vars, $form_vars[0]);
+            foreach ($found_vars as $variable) {
+                if ($this->object->getVariable($variable) != null) {
+                    $unit = $this->request_data_collector->int("unit_{$variable}");
+                    $varObj = new assFormulaQuestionVariable(
+                        $variable,
+                        $this->request_data_collector->float("range_min_{$variable}") ?? 0.0,
+                        $this->request_data_collector->float("range_max_{$variable}") ?? 0.0,
+                        $unit !== null ? $this->object->getUnitrepository()->getUnit(
+                            $unit
+                        ) : null,
+                        $this->request_data_collector->float("precision_{$variable}"),
+                        $this->request_data_collector->float("intprecision_{$variable}")
+                    );
+                    $this->object->addVariable($varObj);
+                }
+            }
 
-            $tmp_que_match = preg_match_all(
-                '/([$][v][0-9]*)/',
-                $this->request_data_collector->string('question'),
-                $quest_vars
-            );
-            $tmp_quest_vars = array_merge($tmp_quest_vars, $quest_vars[0]);
-        }
-        $result_has_undefined_vars = array_diff($tmp_form_vars, $found_vars);
-        $question_has_unused_vars = array_diff($tmp_quest_vars, $tmp_form_vars);
-
-        if ($result_has_undefined_vars !== [] || $question_has_unused_vars !== []) {
-            $error_message = '';
-            if (count($result_has_undefined_vars) > 0) {
-                $error_message .= $this->lng->txt("res_contains_undef_var") . '<br>';
-            }
-            if (count($question_has_unused_vars) > 0) {
-                $error_message .= $this->lng->txt("que_contains_unused_var");
-            }
-            $checked = false;
-            if ($this->isSaveCommand()) {
-                $this->tpl->setOnScreenMessage('failure', $error_message);
-            }
-        }
-        foreach ($found_results as $result) {
-            if ($this->object->getResult($result) != null) {
-                $unit = $this->request_data_collector->int("unit_{$result}");
-                $result_object = new assFormulaQuestionResult(
-                    $result,
-                    $this->request_data_collector->float("range_min_{$result}") ?? 0.0,
-                    $this->request_data_collector->float("range_max_{$result}") ?? 0.0,
-                    $this->request_data_collector->float("tolerance_{$result}") ?? 0.0,
-                    $unit !== null ? $this->object->getUnitrepository()->getUnit(
-                        $unit
-                    ) : null,
+            $tmp_form_vars = [];
+            $tmp_quest_vars = [];
+            foreach ($found_results as $result) {
+                $tmp_res_match = preg_match_all(
+                    '/([$][v][0-9]*)/',
                     $this->request_data_collector->string("formula_{$result}"),
-                    $this->request_data_collector->float("points_{$result}"),
-                    $this->request_data_collector->float("precision_{$result}"),
-                    $this->request_data_collector->int("rating_advanced_{$result}") !== 1,
-                    $this->request_data_collector->int("rating_advanced_{$result}") === 1 ? $this->request_data_collector->float("rating_sign_{$result}") : null,
-                    $this->request_data_collector->int("rating_advanced_{$result}") === 1 ? $this->request_data_collector->float("rating_value_{$result}") : null,
-                    $this->request_data_collector->int("rating_advanced_{$result}") === 1 ? $this->request_data_collector->float("rating_unit_{$result}") : null,
-                    $this->request_data_collector->int("result_type_{$result}")
+                    $form_vars
                 );
-                $this->object->addResult($result_object);
-                $this->object->addResultUnits(
-                    $result_object,
-                    $this->request_data_collector->intArray("units_{$result}")
+                $tmp_form_vars = array_merge($tmp_form_vars, $form_vars[0]);
+
+                $tmp_que_match = preg_match_all(
+                    '/([$][v][0-9]*)/',
+                    $this->request_data_collector->string('question'),
+                    $quest_vars
                 );
+                $tmp_quest_vars = array_merge($tmp_quest_vars, $quest_vars[0]);
             }
-        }
-        if ($checked === false) {
-            $this->editQuestion();
+            $result_has_undefined_vars = array_diff($tmp_form_vars, $found_vars);
+            $question_has_unused_vars = array_diff($tmp_quest_vars, $tmp_form_vars);
+
+            if ($result_has_undefined_vars !== [] || $question_has_unused_vars !== []) {
+                $error_message = '';
+                if (count($result_has_undefined_vars) > 0) {
+                    $error_message .= $this->lng->txt("res_contains_undef_var") . '<br>';
+                }
+                if (count($question_has_unused_vars) > 0) {
+                    $error_message .= $this->lng->txt("que_contains_unused_var");
+                }
+                $checked = false;
+                if ($this->isSaveCommand()) {
+                    $this->tpl->setOnScreenMessage('failure', $error_message);
+                }
+            }
+            foreach ($found_results as $result) {
+                if ($this->object->getResult($result) != null) {
+                    $unit = $this->request_data_collector->int("unit_{$result}");
+                    $resObj = new assFormulaQuestionResult(
+                        $result,
+                        $this->request_data_collector->float("range_min_{$result}") ?? 0.0,
+                        $this->request_data_collector->float("range_max_{$result}") ?? 0.0,
+                        $this->request_data_collector->float("tolerance_{$result}") ?? 0.0,
+                        $unit !== null ? $this->object->getUnitrepository()->getUnit(
+                            $unit
+                        ) : null,
+                        $this->request_data_collector->string("formula_{$result}"),
+                        $this->request_data_collector->float("points_{$result}"),
+                        $this->request_data_collector->float("precision_{$result}"),
+                        $this->request_data_collector->int("rating_advanced_{$result}") !== 1,
+                        $this->request_data_collector->int("rating_advanced_{$result}") === 1 ? $this->request_data_collector->float("rating_sign_{$result}") : null,
+                        $this->request_data_collector->int("rating_advanced_{$result}") === 1 ? $this->request_data_collector->float("rating_value_{$result}") : null,
+                        $this->request_data_collector->int("rating_advanced_{$result}") === 1 ? $this->request_data_collector->float("rating_unit_{$result}") : null,
+                        $this->request_data_collector->int("result_type_{$result}")
+                    );
+                    $this->object->addResult($resObj);
+                    $available_units = $this->request_data_collector->intArray("units_{$result}");
+                    if (!empty($available_units)) {
+                        $this->object->addResultUnits($resObj, $available_units);
+                    }
+                }
+            }
+            if ($checked === false) {
+                $this->editQuestion();
+                return 1;
+            } else {
+                $this->saveTaxonomyAssignments();
+                $this->resetSavedPreviewSession();
+                return 0;
+            }
+        } else {
             return 1;
         }
-
-        $this->saveTaxonomyAssignments();
-        $this->resetSavedPreviewSession();
-        return 0;
     }
 
     public function editQuestion(
@@ -871,7 +871,9 @@ class assFormulaQuestionGUI extends assQuestionGUI
             'not_correct' => $this->generateCorrectnessIconsForCorrectness(self::CORRECTNESS_NOT_OK)
         ];
         $questiontext = $this->object->substituteVariables($user_solutions, $graphical_output, true, $result_output, $correctness_icons);
-        $template->setVariable("QUESTIONTEXT", ilLegacyFormElementsUtil::prepareTextareaOutput($questiontext, true));
+        $template->setVariable("QUESTIONTEXT", $this->renderLatex(
+            ilLegacyFormElementsUtil::prepareTextareaOutput($questiontext, true)
+        ));
         $questionoutput = $template->get();
         $solutiontemplate = new ilTemplate("tpl.il_as_tst_solution_output.html", true, true, "components/ILIAS/TestQuestionPool");
         $feedback = ($show_feedback) ? $this->getGenericFeedbackOutput((int) $active_id, $pass) : "";
@@ -881,7 +883,9 @@ class assFormulaQuestionGUI extends assQuestionGUI
                 ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
             );
             $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
-            $solutiontemplate->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
+            $solutiontemplate->setVariable("FEEDBACK", $this->renderLatex(
+                ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true)
+            ));
         }
         $solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
 
@@ -934,7 +938,9 @@ class assFormulaQuestionGUI extends assQuestionGUI
         } else {
             $questiontext = $this->object->substituteVariables([]);
         }
-        $template->setVariable("QUESTIONTEXT", ilLegacyFormElementsUtil::prepareTextareaOutput($questiontext, true));
+        $template->setVariable("QUESTIONTEXT", $this->renderLatex(
+            ilLegacyFormElementsUtil::prepareTextareaOutput($questiontext, true)
+        ));
         $questionoutput = $template->get();
         if (!$show_question_only) {
             // get page object output
@@ -974,7 +980,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
                     if (!array_key_exists($matches[1], $user_solution)) {
                         $user_solution[$matches[1]] = [];
                     }
-                    $user_solution[$matches[1]][['unit']] = $solution_value['value2'];
+                    $user_solution[$matches[1]]['unit'] = $solution_value['value2'];
                 }
                 if (preg_match('/^(\$r\d+)/', $solution_value['value1'], $matches) && !isset($user_solution[$matches[1]]['result_type'])) {
                     $user_solution[$matches[1]]['result_type'] = assFormulaQuestionResult::getResultTypeByQstId($this->object->getId(), $solution_value['value1']);
@@ -999,7 +1005,9 @@ class assFormulaQuestionGUI extends assQuestionGUI
 
         $questiontext = $this->object->substituteVariables($user_solution);
 
-        $template->setVariable("QUESTIONTEXT", ilLegacyFormElementsUtil::prepareTextareaOutput($questiontext, true));
+        $template->setVariable("QUESTIONTEXT", $this->renderLatex(
+            ilLegacyFormElementsUtil::prepareTextareaOutput($questiontext, true)
+        ));
 
         $questionoutput = $template->get();
         $pageoutput = $this->outQuestionPage("", $is_question_postponed, $active_id, $questionoutput);

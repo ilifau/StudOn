@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
@@ -72,6 +72,46 @@ class ilWebResourceItemExternalTest extends TestCase
         $this->assertSame(
             'target',
             $item->getResolvedLink(false)
+        );
+    }
+
+    public function testGetTargetTrailingSpace(): void
+    {
+        $item = new ilWebLinkItemExternal(
+            0,
+            1,
+            'title',
+            null,
+            'target ',
+            true,
+            new DateTimeImmutable(),
+            new DateTimeImmutable(),
+            []
+        );
+
+        $this->assertSame(
+            'target',
+            $item->getTarget()
+        );
+    }
+
+    public function testGetResolvedLinkTrailingSpace(): void
+    {
+        $item = new ilWebLinkItemExternal(
+            0,
+            1,
+            'title',
+            null,
+            'target ',
+            true,
+            new DateTimeImmutable(),
+            new DateTimeImmutable(),
+            []
+        );
+
+        $this->assertSame(
+            'target',
+            $item->getResolvedLink()
         );
     }
 }

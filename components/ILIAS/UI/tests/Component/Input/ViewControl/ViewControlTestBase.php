@@ -59,6 +59,7 @@ abstract class ViewControlTestBase extends ILIAS_UI_TestBase
     protected function buildFieldFactory(): FieldFactory
     {
         return new FieldFactory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\Field\Node\Factory::class),
             $this->createMock(UploadLimitResolver::class),
             new SignalGenerator(),
             $this->buildDataFactory(),
@@ -88,11 +89,9 @@ abstract class ViewControlTestBase extends ILIAS_UI_TestBase
             }
             public function button(): I\Button\Factory
             {
-                return new I\Button\Factory(
-                    new SignalGenerator()
-                );
+                return new I\Button\Factory();
             }
-            public function symbol(): ILIAS\UI\Component\Symbol\Factory
+            public function symbol(): I\Symbol\Factory
             {
                 return new I\Symbol\Factory(
                     new I\Symbol\Icon\Factory(),

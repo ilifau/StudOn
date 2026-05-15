@@ -24,7 +24,6 @@ class ilAuthFrontendCredentialsApache extends ilAuthFrontendCredentials
     private readonly \ILIAS\Refinery\Factory $refinery;
     private readonly ilCtrlInterface $ctrl;
     private readonly ilSetting $settings;
-    private readonly ilLogger $logger;
 
     public function __construct(
         \ILIAS\HTTP\GlobalHttpState $http,
@@ -32,7 +31,6 @@ class ilAuthFrontendCredentialsApache extends ilAuthFrontendCredentials
         ilCtrlInterface $ctrl
     ) {
         global $DIC;
-        $this->logger = $DIC->logger()->auth();
         $this->http = $http;
         $this->refinery = $refinery;
         $this->ctrl = $ctrl;

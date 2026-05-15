@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -435,7 +436,7 @@ class ilECSMappingSettingsGUI
     /**
      * Show course allocation
      */
-    protected function cSettings(ilPropertyFormGUI $form = null): bool
+    protected function cSettings(?ilPropertyFormGUI $form = null): bool
     {
         $this->setSubTabs(self::TAB_COURSE);
         $this->tabs->activateTab('ecs_crs_allocation');
@@ -567,7 +568,7 @@ class ilECSMappingSettingsGUI
     /**
      * Show directory allocation
      */
-    protected function dSettings(ilPropertyFormGUI $form = null): bool
+    protected function dSettings(?ilPropertyFormGUI $form = null): bool
     {
         $this->setSubTabs(self::TAB_DIRECTORY);
         $this->tabs->activateTab('ecs_dir_allocation');
@@ -773,7 +774,7 @@ class ilECSMappingSettingsGUI
     /**
      * Edit directory tree assignments
      */
-    protected function dEditTree(ilPropertyFormGUI $form = null): void
+    protected function dEditTree(?ilPropertyFormGUI $form = null): void
     {
         $this->tpl->addBlockFile('ADM_CONTENT', 'adm_content', 'tpl.ecs_edit_tree.html', 'components/ILIAS/WebServices/ECS');
 
@@ -807,7 +808,7 @@ class ilECSMappingSettingsGUI
     /**
      * Init form settings
      */
-    protected function dInitFormTreeSettings(ilPropertyFormGUI $form = null): \ilPropertyFormGUI
+    protected function dInitFormTreeSettings(?ilPropertyFormGUI $form = null): \ilPropertyFormGUI
     {
         if ($form instanceof ilPropertyFormGUI) {
             return $form;
@@ -1000,7 +1001,7 @@ class ilECSMappingSettingsGUI
         $explorer->setPostVar('rnodes[]');
 
         // Read checked items from mapping of checked items in local explorer
-//         $active_node = $this->tree->getRootId();
+        // $active_node = $this->tree->getRootId();
         foreach ($localExplorer->getCheckedItems() as $ref_id) {
             $explorer->setCheckedItems(
                 ilECSNodeMappingAssignments::lookupMappedItemsForRefId(
@@ -1010,20 +1011,20 @@ class ilECSMappingSettingsGUI
                     $ref_id
                 )
             );
-//             $active_node = $ref_id;
+            // $active_node = $ref_id;
         }
 
-//         $cmsTree = new ilECSCmsTree((int) $_REQUEST['tid']);
-//         foreach (ilECSNodeMappingAssignments::lookupAssignmentsByRefId(
-//             $this->getServer()->getServerId(),
-//             $this->getMid(),
-//             (int) $_REQUEST['tid'],
-//             $active_node
-//         ) as $cs_id) {
-//             foreach ($cmsTree->getPathId($cs_id) as $path_id) {
-//                 #$explorer->setExpand($path_id);
-//             }
-//         }
+        // $cmsTree = new ilECSCmsTree((int) $_REQUEST['tid']);
+        // foreach (ilECSNodeMappingAssignments::lookupAssignmentsByRefId(
+        //     $this->getServer()->getServerId(),
+        //     $this->getMid(),
+        //     (int) $_REQUEST['tid'],
+        //     $active_node
+        // ) as $cs_id) {
+        //       foreach ($cmsTree->getPathId($cs_id) as $path_id) {
+        //           #$explorer->setExpand($path_id);
+        //       }
+        // }
 
         $explorer->setTargetGet('rref_id');
         $explorer->setSessionExpandVariable('rexpand');

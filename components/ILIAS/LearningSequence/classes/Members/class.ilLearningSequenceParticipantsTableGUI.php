@@ -15,9 +15,11 @@
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
-declare(strict_types=1);
 
 declare(strict_types=1);
+
+use ILIAS\User\Profile\Profile;
+use ILIAS\User\Profile\Data as ProfileData;
 
 class ilLearningSequenceParticipantsTableGUI extends ilParticipantTableGUI
 {
@@ -28,6 +30,7 @@ class ilLearningSequenceParticipantsTableGUI extends ilParticipantTableGUI
     protected ilAccess $access;
     protected ilRbacReview $rbac_review;
     protected ilSetting $settings;
+    protected Profile $profile;
 
     public function __construct(
         ilLearningSequenceMembershipGUI $parent_gui,
@@ -37,7 +40,8 @@ class ilLearningSequenceParticipantsTableGUI extends ilParticipantTableGUI
         ilLanguage $lng,
         ilAccess $access,
         ilRbacReview $rbac_review,
-        ilSetting $settings
+        ilSetting $settings,
+        Profile $profile
     ) {
         $this->parent_gui = $parent_gui;
         $this->rep_object = $ls_object;
@@ -48,6 +52,7 @@ class ilLearningSequenceParticipantsTableGUI extends ilParticipantTableGUI
         $this->access = $access;
         $this->rbac_review = $rbac_review;
         $this->settings = $settings;
+        $this->profile = $profile;
 
         $this->lng->loadLanguageModule('lso');
         $this->lng->loadLanguageModule('trac');
@@ -366,16 +371,19 @@ class ilLearningSequenceParticipantsTableGUI extends ilParticipantTableGUI
 
         // Custom user data fields
         if ($udf_ids !== []) {
-            $data = ilUserDefinedData::lookupData($ls_participants, $udf_ids);
-            foreach ($data as $usr_id => $fields) {
-                if (!$this->checkAcceptance((int) $usr_id)) {
-                    continue;
-                }
+            $user_data = array_reduce(
+                $this->profile->getDataForMultiple($filtered_user_ids),
+                function (array $c, ProfileData $v) use ($udf_ids): array {
+                    if (!$this->checkAcceptance($v->getId())) {
+                        return $c;
+                    }
 
-                foreach ($fields as $field_id => $value) {
-                    $user_data[$usr_id]['udf_' . $field_id] = $value;
-                }
-            }
+                    foreach ($udf_ids as $field_id) {
+                        $c[$v->getId()]['udf_' . $field_id] = $v->getAdditionalFieldByIdentifier($field_id);
+                    }
+                },
+                $user_data
+            );
         }
 
         $user_data = ilArrayUtil::sortArray(

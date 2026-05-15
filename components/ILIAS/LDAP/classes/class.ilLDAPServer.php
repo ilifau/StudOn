@@ -266,8 +266,7 @@ class ilLDAPServer
 
     /**
      * Get list of all configured servers
-     *
-     * @return int[] list of server
+     * @return list<array<string, string|int|float|null>> list of server
      */
     public static function _getAllServer(): array
     {
@@ -275,7 +274,7 @@ class ilLDAPServer
 
         $ilDB = $DIC['ilDB'];
 
-        $query = "SELECT * FROM ldap_server_settings ORDER BY name";
+        $query = 'SELECT * FROM ldap_server_settings ORDER BY name';
 
         $server = [];
 

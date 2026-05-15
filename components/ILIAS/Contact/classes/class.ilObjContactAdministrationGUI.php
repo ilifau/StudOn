@@ -19,19 +19,22 @@
 declare(strict_types=1);
 
 use ILIAS\Notifications\ilNotificationDatabaseHandler;
+use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 
 /**
- * Class ilObjContactAdministrationGUI
- * @author Michael Jansen <mjansen@databay.de>
  * @ilCtrl_Calls      ilObjContactAdministrationGUI: ilPermissionGUI
  * @ilCtrl_isCalledBy ilObjContactAdministrationGUI: ilAdministrationGUI
  */
 class ilObjContactAdministrationGUI extends ilObject2GUI
 {
+    private readonly bool $has_write_access;
+
     public function __construct(int $a_id = 0, int $a_id_type = self::REPOSITORY_NODE_ID, int $a_parent_node_id = 0)
     {
         parent::__construct($a_id, $a_id_type, $a_parent_node_id);
         $this->lng->loadLanguageModule('buddysystem');
+
+        $this->has_write_access = $this->checkPermissionBool('write');
     }
 
     public function getType(): string
@@ -81,66 +84,107 @@ class ilObjContactAdministrationGUI extends ilObject2GUI
         }
     }
 
-
-    protected function getConfigurationForm(): ilPropertyFormGUI
+    protected function getConfigurationForm(): StandardForm
     {
-        $form = new ilPropertyFormGUI();
-        $form->setTitle($this->lng->txt('settings'));
-        $form->setFormAction($this->ctrl->getFormAction($this, 'saveConfigurationForm'));
+        $notification = $this->ui_factory
+            ->input()
+            ->field()
+            ->checkbox(
+                $this->lng->txt('buddy_use_osd'),
+                $this->lng->txt('buddy_use_osd_info')
+            )
+            ->withDisabled(!$this->has_write_access);
 
-        $enabled = new ilCheckboxInputGUI($this->lng->txt('buddy_enable'), 'enable');
-        $enabled->setValue('1');
-        $enabled->setInfo($this->lng->txt('buddy_enable_info'));
-        $enabled->setDisabled(!$this->checkPermissionBool('write'));
+        $contact_request_default = $this->ui_factory
+            ->input()
+            ->field()
+            ->select(
+                $this->lng->txt('buddy_allow_to_contact_me'),
+                [
+                    'y' => $this->lng->txt('buddy_allow_to_contact_me_yes'),
+                    'n' => $this->lng->txt('buddy_allow_to_contact_me_no')
+                ],
+                $this->lng->txt('buddy_allow_to_contact_me_default_info')
+            )
+            ->withRequired(true)
+            ->withDisabled(!$this->has_write_access);
 
-        $notification = new ilCheckboxInputGUI($this->lng->txt('buddy_use_osd'), 'use_osd');
-        $notification->setValue('1');
-        $notification->setInfo($this->lng->txt('buddy_use_osd_info'));
-        $notification->setDisabled(!$this->checkPermissionBool('write'));
-        $enabled->addSubItem($notification);
+        $cfg = ilNotificationDatabaseHandler::loadUserConfig(-1);
+        $checkbox = $this->ui_factory
+            ->input()
+            ->field()
+            ->optionalGroup(
+                [
+                    'use_osd' => $notification,
+                    'allow_contact_request_default' => $contact_request_default
+                ],
+                $this->lng->txt('buddy_enable'),
+                $this->lng->txt('buddy_enable_info')
+            )
+            ->withValue(
+                [
+                    'use_osd' => isset($cfg['buddysystem_request']) &&
+                        in_array('osd', $cfg['buddysystem_request'], true),
+                    'allow_contact_request_default' => $this->settings->get(
+                        'bs_allow_to_contact_me',
+                        'n'
+                    )
+                ]
+            )
+            ->withDisabled(!$this->has_write_access);
 
-        $form->addItem($enabled);
-
-        if ($this->checkPermissionBool('write')) {
-            $form->addCommandButton('saveConfigurationForm', $this->lng->txt('save'));
+        if (ilBuddySystem::getInstance()->getSetting('enabled', '0') === '0') {
+            $checkbox = $checkbox->withValue(null);
         }
 
-        return $form;
+        return $this->ui_factory
+            ->input()
+            ->container()
+            ->form()
+            ->standard(
+                $this->ctrl->getFormAction(
+                    $this,
+                    $this->has_write_access ? 'saveConfigurationForm' : 'showConfigurationForm'
+                ),
+                [
+                    'enable' => $checkbox,
+                ]
+            )->withSubmitLabel(
+                $this->has_write_access ? $this->lng->txt('save') : $this->lng->txt('refresh')
+            );
     }
 
-
-    protected function showConfigurationForm(ilPropertyFormGUI $form = null): void
+    protected function showConfigurationForm(?StandardForm $form = null): void
     {
-        if (!$this->rbac_system->checkAccess('visible,read', $this->object->getRefId())) {
+        if (!$this->rbac_system->checkAccess('read', $this->object->getRefId())) {
             $this->error->raiseError($this->lng->txt('no_permission'), $this->error->WARNING);
         }
 
-        if (!($form instanceof ilPropertyFormGUI)) {
-            $cfg = ilNotificationDatabaseHandler::loadUserConfig(-1);
-
+        if (!$form instanceof StandardForm) {
             $form = $this->getConfigurationForm();
-            $form->setValuesByArray([
-                'enable' => (bool) ilBuddySystem::getInstance()->getSetting('enabled', '0'),
-                'use_osd' => isset($cfg['buddysystem_request']) && in_array('osd', $cfg['buddysystem_request'], true)
-            ]);
         }
 
-        $this->tpl->setContent($form->getHTML());
+        $this->tpl->setContent($this->ui_renderer->render($form));
     }
-
 
     protected function saveConfigurationForm(): void
     {
         $this->checkPermission('write');
 
         $form = $this->getConfigurationForm();
-        if (!$form->checkInput()) {
-            $form->setValuesByPost();
+        $form = $form->withRequest($this->request);
+        if ($form->getError()) {
             $this->showConfigurationForm($form);
+
             return;
         }
 
-        ilBuddySystem::getInstance()->setSetting('enabled', (string) ($form->getInput('enable') ? 1 : 0));
+        $data = $form->getData();
+
+        ilBuddySystem::getInstance()->setSetting(
+            'enabled',
+            (string) (isset($data['enable']) && $data['enable'] ? 1 : 0)
+        );
 
         $cfg = ilNotificationDatabaseHandler::loadUserConfig(-1);
 
@@ -156,15 +200,32 @@ class ilObjContactAdministrationGUI extends ilObject2GUI
             $new_cfg['buddysystem_request'] = [];
         }
 
-        if (!array_key_exists('osd', $new_cfg['buddysystem_request']) && $form->getInput('use_osd')) {
+        if (!array_key_exists('osd', $new_cfg['buddysystem_request']) &&
+            isset($data['enable']['use_osd']) && $data['enable']['use_osd'] === true) {
             $new_cfg['buddysystem_request']['osd'] = true;
-        } elseif (array_key_exists('osd', $new_cfg['buddysystem_request']) && !(bool) $form->getInput('use_osd')) {
+        } elseif (
+            array_key_exists('osd', $new_cfg['buddysystem_request']) &&
+            isset($data['enable']) &&
+            (!isset($data['enable']['use_osd']) || $data['enable']['use_osd'] === false)
+        ) {
             $new_cfg['buddysystem_request']['osd'] = false;
         }
 
         ilNotificationDatabaseHandler::setUserConfig(-1, $new_cfg);
 
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'), true);
+        if (isset($data['enable']['allow_contact_request_default'])
+            && in_array($data['enable']['allow_contact_request_default'], ['y', 'n'])) {
+            $this->settings->set(
+                'bs_allow_to_contact_me',
+                $data['enable']['allow_contact_request_default']
+            );
+        }
+
+        $this->tpl->setOnScreenMessage(
+            $this->tpl::MESSAGE_TYPE_SUCCESS,
+            $this->lng->txt('saved_successfully'),
+            true
+        );
         $this->ctrl->redirect($this);
     }
 }

@@ -53,7 +53,7 @@ class Agent implements Setup\Agent
         throw new LogicException("No Config");
     }
 
-    public function getInstallObjective(Config $config = null): Objective
+    public function getInstallObjective(?Config $config = null): Objective
     {
         return new ObjectiveCollection(
             'FileDelivery',
@@ -64,7 +64,7 @@ class Agent implements Setup\Agent
         );
     }
 
-    public function getUpdateObjective(Config $config = null): Objective
+    public function getUpdateObjective(?Config $config = null): Objective
     {
         return new ObjectiveCollection(
             'FileDelivery',

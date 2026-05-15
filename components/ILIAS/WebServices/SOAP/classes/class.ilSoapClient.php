@@ -17,7 +17,6 @@
  *********************************************************************/
 
 declare(strict_types=1);
-
 /**
  * Wrapper class for soap_client
  * Extends built-in soap client and offers time (connect, response) settings

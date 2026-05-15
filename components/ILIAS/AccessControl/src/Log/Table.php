@@ -93,6 +93,7 @@ class Table implements DataRetrieval
         $cf = $this->ui_factory->table()->column();
 
         return $this->ui_factory->table()->data(
+            $this,
             $this->lng->txt('rbac_log'),
             [
                 self::COLUMN_DATE => $cf->date(
@@ -105,7 +106,6 @@ class Table implements DataRetrieval
                 self::COLUMN_CHANGES => $cf->text($this->lng->txt('rbac_changes'))
                     ->withIsSortable(false)
             ],
-            $this
         )->withRequest($this->request);
     }
 
@@ -140,8 +140,9 @@ class Table implements DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         $log_data = $this->rbac_log->getLogItems(
             $this->getRefId(),
@@ -167,10 +168,11 @@ class Table implements DataRetrieval
     }
 
     public function getTotalRowCount(
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): ?int {
-        return $this->rbac_log->getLogItemsCount($this->getRefId(), $filter_data);
+        return $this->rbac_log->getLogItemsCount($this->getRefId(), $filter_data ?? []);
     }
 
     private function getRefId(): int

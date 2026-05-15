@@ -86,7 +86,7 @@ class ilObjLTIAdministrationGUI extends ilObjectGUI
 
     public function getAdminTabs(): void
     {
-        if ($this->rbac_system->checkAccess("visible,read", $this->object->getRefId())) {
+        if ($this->rbac_system->checkAccess("read", $this->object->getRefId())) {
             $this->tabs_gui->addTab(
                 'lti_providing',
                 $this->lng->txt("lti_providing_tab"),
@@ -115,7 +115,7 @@ class ilObjLTIAdministrationGUI extends ilObjectGUI
 
     protected function addProvidingSubtabs(): void
     {
-        if ($this->rbac_system->checkAccess("visible,read", $this->object->getRefId())) {
+        if ($this->rbac_system->checkAccess("read", $this->object->getRefId())) {
             // currently no general settings.
             //			$this->tabs_gui->addTab("settings",
             //				$this->lng->txt("settings"),
@@ -127,7 +127,7 @@ class ilObjLTIAdministrationGUI extends ilObjectGUI
                 $this->ctrl->getLinkTarget($this, "listConsumers")
             );
         }
-        if ($this->rbac_system->checkAccess("visible,read", $this->object->getRefId())) {
+        if ($this->rbac_system->checkAccess("read", $this->object->getRefId())) {
             $this->tabs_gui->addSubTab(
                 "releasedObjects",
                 $this->lng->txt("lti_released_objects"),
@@ -136,7 +136,7 @@ class ilObjLTIAdministrationGUI extends ilObjectGUI
         }
     }
 
-    protected function initSettingsForm(ilPropertyFormGUI $form = null): void
+    protected function initSettingsForm(?ilPropertyFormGUI $form = null): void
     {
         if (!($form instanceof ilPropertyFormGUI)) {
             $form = $this->getSettingsForm();
@@ -231,7 +231,7 @@ class ilObjLTIAdministrationGUI extends ilObjectGUI
 
     // consumers
 
-    protected function initConsumerForm(ilPropertyFormGUI $form = null): void
+    protected function initConsumerForm(?ilPropertyFormGUI $form = null): void
     {
         if (!($form instanceof ilPropertyFormGUI)) {
             $form = $this->getConsumerForm();
@@ -310,7 +310,7 @@ class ilObjLTIAdministrationGUI extends ilObjectGUI
      * Edit consumer
      * @param ilPropertyFormGUI $a_form
      */
-    protected function editConsumer(ilPropertyFormGUI $a_form = null): void
+    protected function editConsumer(?ilPropertyFormGUI $a_form = null): void
     {
         $this->ctrl->setParameter($this, "cid", $this->consumer_id);
 
@@ -436,10 +436,7 @@ class ilObjLTIAdministrationGUI extends ilObjectGUI
         }
 
         $this->tabs_gui->activateSubTab("consumers");
-        $tbl = new ilObjectConsumerTableGUI(
-            $this,
-            "listConsumers"
-        );
+        $tbl = new ilObjectConsumerTableGUI();
         $tbl->setEditable($this->checkPermissionBool('write'));
         $this->tpl->setContent($tbl->getHTML());
     }
@@ -474,9 +471,7 @@ class ilObjLTIAdministrationGUI extends ilObjectGUI
     {
         $this->tabs_gui->activateSubTab('releasedObjects');
 
-        $table = new ilLTIProviderReleasedObjectsTableGUI($this, 'releasedObjects', 'ltireleases');
-        $table->init();
-        $table->parse();
+        $table = new ilLTIProviderReleasedObjectsTableGUI();
 
         $this->tpl->setContent($table->getHTML());
     }

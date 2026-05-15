@@ -40,6 +40,7 @@ class LauncherInlineTest extends ILIAS_UI_TestBase
     {
         $this->language = $this->createMock(ILIAS\Language\Language::class);
         return new I\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\Field\Node\Factory::class),
             $this->createMock(I\Input\UploadLimitResolver::class),
             new I\SignalGenerator(),
             $this->df,
@@ -68,13 +69,11 @@ class LauncherInlineTest extends ILIAS_UI_TestBase
             public I\SignalGenerator $sig_gen;
             public I\Input\Field\Factory $input_factory;
 
-            public function button(): C\Button\Factory
+            public function button(): I\Button\Factory
             {
-                return new I\Button\Factory(
-                    $this->sig_gen
-                );
+                return new I\Button\Factory();
             }
-            public function symbol(): C\Symbol\Factory
+            public function symbol(): I\Symbol\Factory
             {
                 return new I\Symbol\Factory(
                     new I\Symbol\Icon\Factory(),
@@ -82,7 +81,7 @@ class LauncherInlineTest extends ILIAS_UI_TestBase
                     new I\Symbol\Avatar\Factory()
                 );
             }
-            public function modal(): C\Modal\Factory
+            public function modal(): I\Modal\Factory
             {
                 return new I\Modal\Factory(
                     $this->sig_gen,
@@ -219,7 +218,7 @@ class LauncherInlineTest extends ILIAS_UI_TestBase
     <div class="c-launcher__description">
         some description
     </div>
-    <button class="btn btn-bulky" id="id_5" disabled="disabled"><span class="glyph" role="img"><span class="glyphicon glyphicon-launch" aria-hidden="true"></span></span><span class="bulky-label">different label</span></button>
+    <button class="btn btn-bulky" id="id_5" disabled="disabled"><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-launch" aria-hidden="true"></span></span><span class="bulky-label">different label</span></button>
     <div class="c-launcher__form">
         <dialog class="c-modal il-modal-roundtrip" tabindex="-1" id="id_1">
             <div class="modal-dialog" role="document" data-replace-marker="component">

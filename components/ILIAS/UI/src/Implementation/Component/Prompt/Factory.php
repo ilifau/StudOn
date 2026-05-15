@@ -31,12 +31,12 @@ class Factory implements I\Factory
     ) {
     }
 
-    public function standard(URI $async_url): I\Prompt
+    public function standard(URI $async_url): Standard
     {
         return new Standard($this->signal_generator, $async_url);
     }
 
-    public function state(): I\State\Factory
+    public function state(): State\Factory
     {
         return new State\Factory();
     }

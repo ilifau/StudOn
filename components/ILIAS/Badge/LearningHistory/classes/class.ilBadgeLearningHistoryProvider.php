@@ -25,9 +25,9 @@ class ilBadgeLearningHistoryProvider extends ilAbstractLearningHistoryProvider i
         int $user_id,
         ilLearningHistoryFactory $factory,
         ilLanguage $lng,
-        ilTemplate $template = null,
-        ilObjUser $current_user = null,
-        \ILIAS\DI\UIServices $ui = null
+        ?ilTemplate $template = null,
+        ?ilObjUser $current_user = null,
+        ?\ILIAS\DI\UIServices $ui = null
     ) {
         global $DIC;
 

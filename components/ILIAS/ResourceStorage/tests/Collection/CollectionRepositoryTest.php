@@ -18,13 +18,14 @@
 
 namespace ILIAS\ResourceStorage\Resource;
 
+use PHPUnit\Framework\MockObject\MockObject;
+
 require_once(__DIR__ . '/../DummyIDGenerator.php');
 
 use PHPUnit\Framework\TestCase;
 use ILIAS\ResourceStorage\Resource\Repository\CollectionDBRepository;
 use ILIAS\ResourceStorage\DummyIDGenerator;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
-use ILIAS\ResourceStorage\Events\Subject;
 use ILIAS\ResourceStorage\Events\DataContainer;
 use ILIAS\ResourceStorage\Events\CollectionData;
 
@@ -34,8 +35,8 @@ use ILIAS\ResourceStorage\Events\CollectionData;
  */
 class CollectionRepositoryTest extends TestCase
 {
-    private const TEST_RCID = 'test_rcid';
-    private \ilDBInterface|\PHPUnit\Framework\MockObject\MockObject $db_mock;
+    private const string TEST_RCID = 'test_rcid';
+    private MockObject $db_mock;
     private CollectionDBRepository $repo;
     private DummyIDGenerator $rcid_generator;
 
@@ -49,7 +50,7 @@ class CollectionRepositoryTest extends TestCase
     public function testStore(): void
     {
         $collection = $this->repo->blank($this->rcid_generator->getUniqueResourceCollectionIdentification());
-        $this->assertEquals(0, $collection->count());
+        $this->assertSame(0, $collection->count());
 
         $rid_one = 'rid_one';
         $collection->add(new ResourceIdentification($rid_one));
@@ -70,34 +71,29 @@ class CollectionRepositoryTest extends TestCase
                       ->method('manipulateF')
                       ->with('DELETE FROM il_resource_rca WHERE rcid = %s AND rid NOT IN("rid_one", "rid_one")');
 
+        $called_table_names = [
+            'il_resource_rca',
+            'il_resource_rca',
+            'il_resource_rc',
+        ];
+
         $this->db_mock->expects($this->exactly(3))
                       ->method('insert')
-                      ->will(
-                          $this->onConsecutiveCalls(
-                              $this->returnCallback(function ($table, $fields) {
-                                  $this->assertEquals('il_resource_rca', $table);
-                                  return 1;
-                              }),
-                              $this->returnCallback(function ($table, $fields) {
-                                  $this->assertEquals('il_resource_rca', $table);
-                                  return 1;
-                              }),
-                              $this->returnCallback(function ($table, $fields) {
-                                  $this->assertEquals('il_resource_rc', $table);
-                                  return 1;
-                              })
-                          )
+                      ->willReturnCallback(
+                          function ($table_name) use (&$called_table_names): int {
+                              $expected_table_name = array_shift($called_table_names);
+                              TestCase::assertSame($expected_table_name, $table_name);
+                              return 1;
+                          }
                       );
 
         $event_data_container = new DataContainer();
         $this->repo->update($collection, $event_data_container);
-
-        $rids = [];
         $this->assertCount(2, $event_data_container->get());
         foreach ($event_data_container->get() as $event_data) {
             $this->assertInstanceOf(CollectionData::class, $event_data);
             $this->assertContains($event_data->getRid(), $rids_given);
-            $this->assertEquals(self::TEST_RCID, $event_data->getRcid());
+            $this->assertSame(self::TEST_RCID, $event_data->getRcid());
         }
     }
 

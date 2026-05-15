@@ -19,6 +19,7 @@
 declare(strict_types=1);
 
 use ILIAS\Test\Results\Presentation\TitlesBuilder as ResultsTitleBuilder;
+use ILIAS\Test\TestDIC;
 use ILIAS\Test\Logging\TestLogViewer;
 use ILIAS\UI\Factory as UIFactory;
 use ILIAS\UI\Renderer as UIRenderer;
@@ -26,6 +27,7 @@ use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\Data\Range;
 use ILIAS\Data\Order;
+use ILIAS\Test\Results\Data\Repository as TestResultRepository;
 use ILIAS\ResourceStorage\Services as IRSS;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use Psr\Http\Message\ServerRequestInterface;
@@ -63,6 +65,8 @@ class ilTestArchiver
 
     protected ?ilTestParticipantData $participant_data = null;
 
+    protected TestResultRepository $test_result_repository;
+
     public function __construct(
         private readonly ilLanguage $lng,
         private readonly ilDBInterface $db,
@@ -80,10 +84,12 @@ class ilTestArchiver
         /** @var ILIAS\DI\Container $DIC */
         global $DIC;
         $ilias = $DIC['ilias'];
+        $local_dic = TestDIC::dic();
 
         $this->html_generator = new ilTestHTMLGenerator();
         $this->external_directory_path = $ilias->ini_ilias->readVariable('clients', 'datadir');
         $this->archive_data_index = $this->readArchiveDataIndex();
+        $this->test_result_repository = $local_dic['results.data.repository'];
     }
 
     public function getParticipantData(): ?ilTestParticipantData
@@ -581,9 +587,9 @@ class ilTestArchiver
         );
 
         $table = $this->ui_factory->table()->data(
+            $this->getDataRetrievalForAttemptOverviewTable($result_array),
             $test_result_title_builder->getPassDetailsHeaderLabel($attempt + 1),
-            $this->getColumnsForAttemptOverviewTable($test_obj->isOfferingQuestionHintsEnabled()),
-            $this->getDataRetrievalForAttemptOverviewTable($result_array)
+            $this->getColumnsForAttemptOverviewTable(),
         )->withRequest($this->request);
         $template->setVariable(
             'PASS_DETAILS',
@@ -610,12 +616,13 @@ class ilTestArchiver
             $template->setVariable('USER_DATA', "{$this->lng->txt('matriculation')}: {$participant_data['matriculation']}");
         }
 
-        $results = $test_obj->getResultsForActiveId($active_id);
-        $status = $this->lng->txt($results['passed'] ? 'passed_official' : 'failed_official');
+        $results = $this->test_result_repository->getTestResult($active_id);
+
+        $status = $this->lng->txt($results->isPassed() ? 'passed_official' : 'failed_official');
         $template->setVariable(
             'GRADING_MESSAGE',
             "{$this->lng->txt('passed_status')}: {$status}<br>"
-            . "{$this->lng->txt('tst_mark')}: {$results['mark_official']}"
+            . "{$this->lng->txt('tst_mark')}: {$results->getMarkOfficial()}"
         );
 
         $template->setVariable('PASS_FINISH_DATE_LABEL', $this->lng->txt('tst_pass_finished_on'));
@@ -629,9 +636,8 @@ class ilTestArchiver
         return $template->get();
     }
 
-    private function getColumnsForAttemptOverviewTable(
-        bool $show_requested_hints_info
-    ): array {
+    private function getColumnsForAttemptOverviewTable(): array
+    {
         $cf = $this->ui_factory->table()->column();
         $columns = [
             'order' => $cf->number($this->lng->txt('order')),
@@ -640,9 +646,6 @@ class ilTestArchiver
             'reachable_points' => $cf->number($this->lng->txt('tst_maximum_points')),
             'reached_points' => $cf->number($this->lng->txt('tst_reached_points'))
         ];
-        if ($show_requested_hints_info) {
-            $columns['hints'] = $cf->number($this->lng->txt('tst_question_hints_requested_hint_count_header'));
-        }
         $columns['solved'] = $cf->text($this->lng->txt('tst_percent_solved'));
         return $columns;
     }
@@ -660,8 +663,9 @@ class ilTestArchiver
                 array $visible_column_ids,
                 Range $range,
                 Order $order,
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): \Generator {
                 $i = 1;
                 foreach ($this->result_data as $result) {
@@ -676,7 +680,6 @@ class ilTestArchiver
                             'title' => $result['title'],
                             'reachable_points' => $result['max'],
                             'reached_points' => $result['reached'],
-                            'hints' => $result['requested_hints'] ?? 0,
                             'solved' => $result['percent']
                         ]
                     );
@@ -684,8 +687,9 @@ class ilTestArchiver
             }
 
             public function getTotalRowCount(
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): ?int {
                 return count($this->result_data);
             }

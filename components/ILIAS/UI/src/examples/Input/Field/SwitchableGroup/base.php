@@ -1,10 +1,24 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\examples\Input\Field\SwitchableGroup;
-
-use ILIAS\UI\URLBuilder;
 
 /**
  * ---
@@ -59,23 +73,15 @@ function base()
     global $DIC;
     $ui = $DIC->ui()->factory();
     $renderer = $DIC->ui()->renderer();
-    $df = new \ILIAS\Data\Factory();
-    $refinery = $DIC['refinery'];
     $request = $DIC->http()->request();
-    $query = $DIC->http()->wrapper()->query();
-
-    $here_uri = $df->uri($request->getUri()->__toString());
-    $url_builder = new URLBuilder($here_uri);
-    $example_namespace = ['input', 'switchable_group'];
-    list($url_builder, $example_name) = $url_builder->acquireParameters($example_namespace, "example_name");
-    $url_builder = $url_builder->withParameter($example_name, "standard");
+    $data = new \ILIAS\Data\Factory();
 
     //Step 1: Define the groups (with their fields and a label each)
     $group1 = $ui->input()->field()->group(
         [
             "field_1_1" => $ui->input()->field()->text("Item 1.1", "Just some field"),
             "field_1_2" => $ui->input()->field()->text("Item 1.2", "Just some other field"),
-            "field_1_3" => $ui->input()->field()->datetime("Item 1.3", "a date")->withFormat($df->dateFormat()->germanShort())
+            "field_1_3" => $ui->input()->field()->datetime("Item 1.3", "a date")->withFormat($data->dateFormat()->germanShort())
         ],
         "Switchable Group number one (with numeric key)"
     );
@@ -100,9 +106,8 @@ function base()
         "...or the other"
     );
 
-    $form_action = $url_builder->buildURI()->__toString();
     $form = $ui->input()->container()->form()->standard(
-        $form_action,
+        '#',
         [
             'switchable_group' => $sg,
             'switchable_group_required' => $sg->withRequired(true),
@@ -114,9 +119,7 @@ function base()
     );
 
     //Step 3: implement some form data processing.
-    if ($query->has($example_name->getName())
-        && $query->retrieve($example_name->getName(), $refinery->custom()->transformation(fn($v) => $v === 'standard'))
-    ) {
+    if ($request->getMethod() == "POST") {
         $form = $form->withRequest($request);
         $result = $form->getData();
     } else {

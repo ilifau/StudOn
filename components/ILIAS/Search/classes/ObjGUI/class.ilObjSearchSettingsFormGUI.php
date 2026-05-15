@@ -23,6 +23,7 @@ use ILIAS\DI\UIServices;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
+use ILIAS\Search\ObjGUI\Readme\Helper as ServerReadmeHelper;
 
 /**
 * @author Tim Schmitz <schmitz@leifos.com>
@@ -37,13 +38,15 @@ class ilObjSearchSettingsFormGUI
     protected Renderer $renderer;
 
     protected ilObjSearchRpcClientCoordinator $coordinator;
+    protected ServerReadmeHelper $readme_helper;
 
     public function __construct(
         GlobalHttpState $http,
         ilCtrlInterface $ctrl,
         ilLanguage $lng,
         UIServices $ui,
-        ilObjSearchRpcClientCoordinator $coordinator
+        ilObjSearchRpcClientCoordinator $coordinator,
+        ServerReadmeHelper $readme_helper
     ) {
         $this->http = $http;
         $this->ctrl = $ctrl;
@@ -52,6 +55,7 @@ class ilObjSearchSettingsFormGUI
         $this->factory = $ui->factory();
         $this->renderer = $ui->renderer();
         $this->coordinator = $coordinator;
+        $this->readme_helper = $readme_helper;
     }
 
     public function executeCommand(): void
@@ -84,13 +88,21 @@ class ilObjSearchSettingsFormGUI
 
     protected function showForm(
         bool $read_only,
-        bool $get_from_post = false
+        bool $get_from_post = false,
+        string $error_message = ''
     ): void {
+        $content = [];
+        if ($error_message !== '') {
+            $content[] = $this->readme_helper->getServerErrorMessageBox($error_message);
+        }
+
         $form = $this->initForm($read_only);
         if ($get_from_post) {
             $form = $form->withRequest($this->http->request());
         }
-        $this->tpl->setContent($this->renderer->render($form));
+        $content[] = $form;
+
+        $this->tpl->setContent($this->renderer->render($content));
     }
 
     protected function update(): void
@@ -107,6 +119,7 @@ class ilObjSearchSettingsFormGUI
         $settings = $this->getSettings();
 
         $main_data = $form->getData()['section'];
+        $filter_data = $form->getData()['filter_section'];
         $user_data = $form->getData()['user_section'];
 
         $settings->setMaxHits((int) $main_data['max_hits']);
@@ -120,12 +133,11 @@ class ilObjSearchSettingsFormGUI
                 break;
         }
         $settings->setDefaultOperator((int) $main_data['operator']);
-        $settings->enableLuceneItemFilter(!is_null($main_data['filter']));
-        if (!is_null($main_data['filter'])) {
-            $settings->setLuceneItemFilter((array) $main_data['filter']);
+        $settings->enableLuceneItemFilter(!is_null($filter_data['filter']));
+        if (!is_null($filter_data['filter'])) {
+            $settings->setLuceneItemFilter((array) $filter_data['filter']);
         }
-        $settings->setHideAdvancedSearch((bool) $main_data['hide_adv_search']);
-        $settings->enableDateFilter((bool) $main_data['cdate']);
+        $settings->enableDateFilter((bool) $filter_data['cdate']);
         $settings->setAutoCompleteLength((int) $user_data['auto_complete_length']);
         $settings->showInactiveUser((bool) $user_data['inactive_user']);
         $settings->showLimitedUser((bool) $user_data['limited_user']);
@@ -139,8 +151,7 @@ class ilObjSearchSettingsFormGUI
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'), true);
             $this->ctrl->redirect($this, 'edit');
         } catch (Exception $exception) {
-            $this->tpl->setOnScreenMessage('failure', $exception->getMessage());
-            $this->showForm(false);
+            $this->showForm(false, false, $exception->getMessage());
         }
     }
 
@@ -169,7 +180,7 @@ class ilObjSearchSettingsFormGUI
 
         // Search type
         $type = $field_factory->radio(
-            $this->lng->txt('search_type')
+            $this->lng->txt('seas_search_type')
         )->withOption(
             (string) ilSearchSettings::LIKE_SEARCH,
             $this->lng->txt('search_direct'),
@@ -223,25 +234,19 @@ class ilObjSearchSettingsFormGUI
             $this->lng->txt('search_cdate_filter_info')
         )->withValue($settings->isDateFilterEnabled());
 
-        // hide advanced search
-        $hide_adv = $field_factory->checkbox(
-            $this->lng->txt('search_hide_adv_search')
-        )->withValue($settings->getHideAdvancedSearch());
-
         // number of auto complete entries
         $options = [
+            0 => 0,
             5 => 5,
             10 => 10,
             20 => 20,
             30 => 30
         ];
-        $val = in_array($settings->getAutoCompleteLength(), $options)
-            ? $settings->getAutoCompleteLength()
-            : null;
         $auto_complete = $field_factory->select(
             $this->lng->txt('search_auto_complete_length'),
-            $options
-        )->withValue($val);
+            $options,
+            $this->lng->txt('search_auto_complete_length_info'),
+        )->withRequired(true)->withValue($settings->getAutoCompleteLength());
 
         // Show inactive users
         $inactive_user = $field_factory->checkbox(
@@ -255,19 +260,21 @@ class ilObjSearchSettingsFormGUI
             $this->lng->txt('search_show_limited_user_info')
         )->withValue($settings->isLimitedUserVisible());
 
-        /**
-         * TODO: Split up the form into two or three sections.
-         */
         $section = $this->factory->input()->field()->section(
             [
-                'max_hits' => $hits,
                 'search_type' => $type,
-                'operator' => $operator,
-                'hide_adv_search' => $hide_adv,
+                'max_hits' => $hits,
+                'operator' => $operator
+            ],
+            $this->lng->txt('seas_settings')
+        )->withDisabled($read_only);
+
+        $filter_section = $this->factory->input()->field()->section(
+            [
                 'filter' => $item_filter,
                 'cdate' => $cdate
             ],
-            $this->lng->txt('seas_settings')
+            $this->lng->txt('search_filter_settings_section')
         )->withDisabled($read_only);
 
         $user_section = $this->factory->input()->field()->section(
@@ -289,7 +296,8 @@ class ilObjSearchSettingsFormGUI
             $action,
             [
                 'section' => $section,
-                'user_section' => $user_section,
+                'filter_section' => $filter_section,
+                'user_section' => $user_section
             ]
         );
     }

@@ -102,18 +102,15 @@
       let list = document.createElement('ul');
       matchingAnswers.forEach((answer) => {
         let listElement = document.createElement('li');
-        listElement.tabIndex = 0;
         listElement.textContent = answer;
         list.appendChild(listElement);
       });
-      list.addEventListener('keydown', keyHandler);
       list.addEventListener('click', onSelectHandler);
       e.target.parentNode.appendChild(list);
     };
 
     const onSelectHandler = (e) => {
       e.target.parentNode.previousElementSibling.value = e.target.textContent;
-      e.target.parentNode.previousElementSibling.focus();
       e.target.parentNode.remove();
     };
 

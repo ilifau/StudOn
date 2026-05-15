@@ -73,7 +73,7 @@ class ilDatabaseSetupAgent implements Agent
     /**
      * @inheritdocs
      */
-    public function getInstallObjective(Config $config = null): Objective
+    public function getInstallObjective(?Config $config = null): Objective
     {
         if (!$config instanceof \ilDatabaseSetupConfig) {
             return new NullObjective();
@@ -91,7 +91,7 @@ class ilDatabaseSetupAgent implements Agent
     /**
      * @inheritdocs
      */
-    public function getUpdateObjective(Config $config = null): Objective
+    public function getUpdateObjective(?Config $config = null): Objective
     {
         $p = [];
         $p[] = new CalledFromRootObjective();

@@ -14,8 +14,7 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -30,7 +29,7 @@ class ilOrgUnitUserAssignmentDBRepository implements OrgUnitUserAssignmentReposi
     protected ilAppEventHandler $ilAppEventHandler;
     protected ilOrgUnitPositionDBRepository $positionRepo;
 
-    public function __construct(ilDBInterface $db, ilAppEventHandler $handler = null)
+    public function __construct(ilDBInterface $db, ?ilAppEventHandler $handler = null)
     {
         $this->db = $db;
 
@@ -406,8 +405,8 @@ class ilOrgUnitUserAssignmentDBRepository implements OrgUnitUserAssignmentReposi
         array $orgu_ids,
         int $position_id,
         bool $count_only = false,
-        Range $range = null,
-        Order $order = null
+        ?Range $range = null,
+        ?Order $order = null
     ) {
         $sql_order_part = $order ? $order->join('ORDER BY', fn(...$o) => implode(' ', $o)) : '';
         $sql_range_part = $range ? sprintf('LIMIT %2$s OFFSET %1$s', ...$range->unpack()) : '';
@@ -439,8 +438,9 @@ class ilOrgUnitUserAssignmentDBRepository implements OrgUnitUserAssignmentReposi
     }
 
     public function getTotalRowCount(
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): ?int {
         $orgu_ids = $additional_parameters['orgu_ids'];
         $position_id = $additional_parameters['position_id'];
@@ -452,8 +452,9 @@ class ilOrgUnitUserAssignmentDBRepository implements OrgUnitUserAssignmentReposi
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         $orgu_ids = $additional_parameters['orgu_ids'];
         $position_id = $additional_parameters['position_id'];

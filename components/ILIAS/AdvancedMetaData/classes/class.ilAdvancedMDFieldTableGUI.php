@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * @author  Stefan Meyer <meyer@leifos.com>
@@ -139,7 +139,7 @@ class ilAdvancedMDFieldTableGUI extends ilTable2GUI
 
             $tmp_arr['perm'] = $this->permissions->hasPermissions(
                 ilAdvancedMDPermissionHelper::CONTEXT_FIELD,
-                (string) $definition->getFieldId(),
+                (int) $definition->getFieldId(),
                 array(
                     ilAdvancedMDPermissionHelper::ACTION_FIELD_EDIT
                     ,

@@ -36,6 +36,7 @@ class ilExAssignmentEditorGUI
     protected ?int $ref_id = null;
     protected ilAccessHandler $access;
     protected \ILIAS\Exercise\InternalGUIService $gui;
+    protected ilObjUser $user;
     protected ilCtrl $ctrl;
     protected ilTabsGUI $tabs;
     protected ilLanguage $lng;
@@ -66,11 +67,12 @@ class ilExAssignmentEditorGUI
     public function __construct(
         int $a_exercise_id,
         bool $a_enable_peer_review_completion_settings,
-        ilExAssignment $a_ass = null
+        ?ilExAssignment $a_ass = null
     ) {
         /** @var \ILIAS\DI\Container $DIC */
         global $DIC;
 
+        $this->user = $DIC->user();
         $this->ctrl = $DIC->ctrl();
         $this->tabs = $DIC->tabs();
         $this->lng = $DIC->language();
@@ -393,7 +395,7 @@ class ilExAssignmentEditorGUI
 
         $desc_input = new ilTextAreaInputGUI($lng->txt("exc_instruction"), "instruction");
         $desc_input->setRows(20);
-        if (ilObjAdvancedEditing::_getRichTextEditor() === "tinymce") {
+        if ((new ilRTESettings($this->lng, $this->user))->getRichTextEditor() === "tinymce") {
             $desc_input->setUseRte(true);
             $desc_input->setRteTagSet("mini");
         }
@@ -1486,7 +1488,7 @@ class ilExAssignmentEditorGUI
     /**
      * @throws ilDateTimeException
      */
-    public function editPeerReviewObject(ilPropertyFormGUI $a_form = null): void
+    public function editPeerReviewObject(?ilPropertyFormGUI $a_form = null): void
     {
         $ilTabs = $this->tabs;
         $tpl = $this->tpl;

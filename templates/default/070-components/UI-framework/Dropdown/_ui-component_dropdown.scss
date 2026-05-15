@@ -62,13 +62,14 @@ $cursor-disabled: not-allowed !default;
 
   // The dropdown menu (ul)
   .dropdown-menu {
+	  width: 320px;
 	position: absolute;
 	top: 100%;
 	z-index: $zindex-dropdown;
 	display: none; // none by default, but block on "open" of the menu
 	float: left;
 	overflow: auto;
-	min-width: 200px;
+	min-width: 160px;
 	max-height: 50vh;
 	padding: l.$il-padding-large-vertical 0;
 	margin: l.$il-margin-small-vertical 0 0; // override default ul
@@ -97,6 +98,7 @@ $cursor-disabled: not-allowed !default;
 	  right: 0;
 	  left: auto;
 	}
+	
 
 	// Dividers (basically an hr) within the dropdown
 	.divider {
@@ -108,10 +110,10 @@ $cursor-disabled: not-allowed !default;
 
 	// Use some dropdown menu styles for ul in the field selection element only
 	> .dropdown-menu-list {
-		padding: l.$il-padding-large-vertical 0;
-		margin: l.$il-margin-small-vertical 0 0; // override default ul
-		text-align: left; // Ensures proper alignment if parent has it changed (e.g., modal footer)
-		list-style-type: none;
+	  padding: l.$il-padding-large-vertical 0;
+	  margin: l.$il-margin-small-vertical 0 0; // override default ul
+	  text-align: left; // Ensures proper alignment if parent has it changed (e.g., modal footer)
+	  list-style-type: none;
 	}
   }
 

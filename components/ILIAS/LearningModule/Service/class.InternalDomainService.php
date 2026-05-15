@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,12 +16,14 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\LearningModule;
 
 use ILIAS\DI\Container;
 use ILIAS\Repository\GlobalDICDomainServices;
-use ilLMTree;
-use ILIAS\LearningModule\Table\SubObjectRetrieval;
+use ILIAS\ILIASObject\Properties\Translations\CachedRepository;
+use ILIAS\ILIASObject\Properties\Translations\Translations;
 
 class InternalDomainService
 {
@@ -49,14 +49,19 @@ class InternalDomainService
         string $type,
         int $current_node,
         string $lang
-    ): SubObjectRetrieval {
+    ): Editing\SubObjectRetrieval {
         return self::$instance["sub_obj_retrieval"][$lm_id][$type][$current_node] ??=
-            new SubObjectRetrieval(
+            new Editing\SubObjectRetrieval(
                 $this->lmTree($lm_id),
                 $type,
                 $current_node,
                 $lang
             );
+    }
+
+    public function translation(int $lm_id): Translations
+    {
+        return (new CachedRepository($this->database()))->getFor($lm_id);
     }
 
 }

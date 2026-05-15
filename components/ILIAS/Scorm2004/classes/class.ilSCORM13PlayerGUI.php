@@ -19,7 +19,6 @@
 declare(strict_types=1);
 
 /** @noinspection ForgottenDebugOutputInspection */
-
 use JetBrains\PhpStorm\NoReturn;
 
 /**

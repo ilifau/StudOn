@@ -46,7 +46,6 @@ class iljQueryUtil
         $a_tpl->addJavaScript(self::getLocaljQueryPath(), true, 0);
     }
 
-
     /**
      * @return string local path of jQuery file
      */

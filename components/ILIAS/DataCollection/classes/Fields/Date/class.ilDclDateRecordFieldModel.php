@@ -25,18 +25,10 @@ class ilDclDateRecordFieldModel extends ilDclBaseRecordFieldModel
         $value = parent::getValueFromExcel($excel, $row, $col);
 
         if ($value && strtotime($value) > strtotime('0000-00-00 00:00:00')) {
-            return date('Y-m-d', strtotime($value));
+            return date(ilDclDateFieldModel::FORMAT, strtotime($value));
         } else {
             return "";
         }
-    }
-
-    /**
-     * @param string $value
-     */
-    public function parseExportValue($value): ?string
-    {
-        return (new ilDate($value, IL_CAL_DATE))->get(IL_CAL_DATE);
     }
 
     /**

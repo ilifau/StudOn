@@ -103,11 +103,7 @@ class ilLPProgressTableGUI extends ilLPTableBaseGUI
                     $user->getFullName()
                 )
             );
-            $this->initBaseFilter(
-                false,
-                true,
-                $obj_ids || $this->details
-            );
+            $this->initBaseFilter();
 
             $this->setSelectAllCheckbox("item_id");
             $this->addMultiCommand(
@@ -181,20 +177,17 @@ class ilLPProgressTableGUI extends ilLPTableBaseGUI
         $data = [];
         $obj_ids = $this->obj_ids;
         if (!$obj_ids && !$this->details) {
-            $filter = $this->getCurrentFilter(true);
-            // only courses in Achievements > Learning Progress (ILIAS 10 only) #43289
-            $filter['type'] = 'crs';
             switch ($this->lp_context) {
                 case ilLearningProgressGUI::LP_CONTEXT_ORG_UNIT:
                     $obj_ids = $this->searchObjects(
-                        $filter,
+                        $this->getCurrentFilter(true),
                         ''
                     );
                     break;
 
                 default:
                     $obj_ids = $this->searchObjects(
-                        $filter,
+                        $this->getCurrentFilter(true),
                         "read"
                     );
 

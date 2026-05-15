@@ -20,12 +20,14 @@ declare(strict_types=1);
 
 namespace ILIAS\File\Icon;
 
+use ILIAS\Refinery\Factory;
+
 /**
  * @author Lukas Zehnder <lukas@sr.solutions>
  */
 abstract class IconAbstractRepository implements IconRepositoryInterface
 {
-    private \ILIAS\Refinery\Factory $refinery;
+    private Factory $refinery;
 
     public function __construct()
     {
@@ -44,7 +46,7 @@ abstract class IconAbstractRepository implements IconRepositoryInterface
     final public function turnSuffixesStringIntoArray(string $a_suffixes): array
     {
         $a_suffixes = preg_replace('/\s+/', '', $a_suffixes);
-        return explode(",", $a_suffixes);
+        return explode(",", (string) $a_suffixes);
     }
 
     final public function hasSuffixInputOnlyAllowedCharacters(array $a_suffixes): bool

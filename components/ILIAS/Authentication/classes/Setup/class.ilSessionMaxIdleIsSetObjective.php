@@ -39,7 +39,7 @@ class ilSessionMaxIdleIsSetObjective implements Setup\Objective
 
     public function isNotable(): bool
     {
-        return false;
+        return true;
     }
 
     public function getPreconditions(Setup\Environment $environment): array
@@ -87,17 +87,14 @@ class ilSessionMaxIdleIsSetObjective implements Setup\Objective
                 "An error occurred while trying to determine the values for 'session.cookie_lifetime' and" . PHP_EOL .
                 "'session.gc_maxlifetime' in your php.ini: {$e->getMessage()}" . PHP_EOL .
                 'You can IGNORE the the error if you are sure these settings comply with our expection to' . PHP_EOL .
-                'to ensure a proper session handling.' . PHP_EOL .
-                $e->getTraceAsString()
+                'ensure a proper session handling.'
             );
 
             $client_ini->setVariable('session', 'expire', (string) $session_max_idle);
 
             return $environment;
         } finally {
-            if (!is_null($curl)) {
-                $curl->close();
-            }
+            $curl?->close();
             unlink("public/$filename");
         }
 
@@ -154,22 +151,23 @@ class ilSessionMaxIdleIsSetObjective implements Setup\Objective
 
         if (ilCurlConnection::_isCurlExtensionLoaded()) {
             try {
+                $curl = null;
                 $curl = $this->getCurlConnection($settings, $url);
                 $curl->exec();
                 $result = $curl->getInfo(CURLINFO_HTTP_CODE);
                 if ($result !== 200) {
-                    throw new \Exception();
+                    throw new Exception();
                 }
-            } catch (\Exception $e) {
+            } catch (Exception) {
                 $this->infoNoConnection($io);
                 return false;
             } finally {
-                $curl->close();
+                $curl?->close();
             }
         } else {
             try {
                 $this->getPHPIniValuesByFileGetContents($url);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->infoNoConnection($io);
                 return false;
             }
@@ -204,8 +202,8 @@ TEXT;
      */
     private function getCurlConnection(ilSetting $settings, string $url, ?string $token = null): ilCurlConnection
     {
-        if (!is_null($token)) {
-            $url = $url . "?token=" . $token;
+        if ($token !== null) {
+            $url .= '?token=' . $token;
         }
 
         $curl = new ilCurlConnection(
@@ -231,8 +229,8 @@ TEXT;
             throw new ErrorException($message, $severity, $severity, $file, $line);
         });
 
-        if (!is_null($token)) {
-            $url = $url . "?token=" . $token;
+        if ($token !== null) {
+            $url .= '?token=' . $token;
         }
 
         try {
@@ -251,7 +249,7 @@ TEXT;
             "In the event of an installation the value for session expire\n" .
             "will be the default value.\n" .
             "In the event of an update, the current value for session expire\n" .
-            "is retained."
+            'is retained.'
         ;
 
         $io->inform($message);

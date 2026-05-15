@@ -26,11 +26,15 @@ const ILIAS_MODULE = 'components/ILIAS/soap';
 chdir('../..');
 
 require_once 'vendor/composer/vendor/autoload.php';
+require_once __DIR__ . '/../../artifacts/bootstrap_default.php';
+
+ilContext::init(ilContext::CONTEXT_SOAP);
+
+entry_point('ILIAS Legacy Initialisation Adapter');
 
 // Initialize the error_reporting level, until it will be overwritte when ILIAS gets initialized
 error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 
-ilContext::init(ilContext::CONTEXT_SOAP);
 
 $ilIliasIniFile = new ilIniFile('./ilias.ini.php');
 $ilIliasIniFile->read();

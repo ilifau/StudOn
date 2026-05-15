@@ -32,7 +32,7 @@ class Confirmation
     /**
      * @param Closure(): ilConfirmationGUI $create
      */
-    public function __construct(private readonly ilLanguage $language, Closure $create = null)
+    public function __construct(private readonly ilLanguage $language, ?Closure $create = null)
     {
         $this->create = $create ?? static fn() => new ilConfirmationGUI();
     }

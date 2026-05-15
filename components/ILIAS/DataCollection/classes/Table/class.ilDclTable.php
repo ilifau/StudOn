@@ -469,7 +469,8 @@ class ilDclTable
         $visible_views = [];
         foreach ($this->getTableViews() as $tableView) {
             if (ilObjDataCollectionAccess::hasAccessToTableView($tableView, $user_id)) {
-                if (!$with_active_detailedview || ilDclDetailedViewDefinition::isActive($tableView->getId())) {
+                $page = new ilDclDetailedViewDefinitionGUI($tableView->getId());
+                if (!$with_active_detailedview || $page->getPageObject()->isActive()) {
                     $visible_views[] = $tableView;
                 }
             }

@@ -44,8 +44,8 @@ use ILIAS\MetaData\XML\Writer\WriterInterface as XMLWriter;
  */
 class ilMDEditorGUI
 {
-    public const SET_FOR_TREE = 'md_set_for_tree';
-    public const PATH_FOR_TREE = 'md_path_for_tree';
+    public const string SET_FOR_TREE = 'md_set_for_tree';
+    public const string PATH_FOR_TREE = 'md_path_for_tree';
 
     protected FullEditorInitiator $full_editor_initiator;
     protected DigestInitiator $digest_initiator;
@@ -348,7 +348,7 @@ class ilMDEditorGUI
             switch ($type) {
                 case FullContentType::MAIN:
                     if ($entity instanceof Table) {
-                        $entity = $this->ui_factory->legacy(
+                        $entity = $this->ui_factory->legacy()->content(
                             $entity->getHTML()
                         );
                     }

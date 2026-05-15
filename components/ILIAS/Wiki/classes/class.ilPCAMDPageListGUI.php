@@ -36,7 +36,7 @@ class ilPCAMDPageListGUI extends ilPageContentGUI
     /**
      * @return mixed
      */
-    public function executeCommand()
+    public function executeCommand(): mixed
     {
         // get next class that processes or forwards current command
         $next_class = $this->ctrl->getNextClass($this);
@@ -53,7 +53,7 @@ class ilPCAMDPageListGUI extends ilPageContentGUI
         return $ret;
     }
 
-    public function insert(ilPropertyFormGUI $a_form = null): void
+    public function insert(?ilPropertyFormGUI $a_form = null): void
     {
         $tpl = $this->tpl;
 
@@ -65,7 +65,7 @@ class ilPCAMDPageListGUI extends ilPageContentGUI
         $tpl->setContent($a_form->getHTML());
     }
 
-    public function edit(ilPropertyFormGUI $a_form = null): void
+    public function edit(?ilPropertyFormGUI $a_form = null): void
     {
         $tpl = $this->tpl;
 

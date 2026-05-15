@@ -37,7 +37,7 @@ class ilDclTableViewEditFieldsTableGUI extends ilTable2GUI
 
         $ilCtrl->saveParameter($this, 'tableview_id');
         $this->setFormAction($ilCtrl->getFormActionByClass(ilDclTableViewEditGUI::class));
-        $this->addCommandButton('saveTable', $lng->txt('dcl_save'));
+        $this->addCommandButton('saveOverviewSettings', $lng->txt('save'));
 
         $this->setExternalSegmentation(true);
         $this->setExternalSorting(true);
@@ -46,7 +46,6 @@ class ilDclTableViewEditFieldsTableGUI extends ilTable2GUI
         $this->setTopCommands(true);
         $this->setEnableHeader(true);
         $this->setShowRowsSelector(false);
-        $this->setShowTemplates(false);
         $this->setEnableHeader(true);
         $this->setEnableTitle(true);
         $this->setDefaultOrderDirection('asc');

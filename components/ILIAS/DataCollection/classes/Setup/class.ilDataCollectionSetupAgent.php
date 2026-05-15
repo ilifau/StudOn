@@ -27,13 +27,14 @@ use ILIAS\Refinery\Transformation;
 
 class ilDataCollectionSetupAgent implements Setup\Agent
 {
-    public function getUpdateObjective(Config $config = null): Objective
+    public function getUpdateObjective(?Config $config = null): Objective
     {
         return new Setup\ObjectiveCollection(
             'DataCollection Update',
             true,
             new ilDataCollectionObjective(new ilDataCollectionDBUpdateSteps9()),
             new ilDataCollectionObjective(new ilDataCollectionDBUpdateSteps10()),
+            new ilDataCollectionObjective(new ilDataCollectionDBUpdateSteps11()),
         );
     }
 
@@ -55,7 +56,7 @@ class ilDataCollectionSetupAgent implements Setup\Agent
         throw new LogicException(self::class . " has no config.");
     }
 
-    public function getInstallObjective(Config $config = null): Objective
+    public function getInstallObjective(?Config $config = null): Objective
     {
         return new NullObjective();
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -25,7 +26,7 @@ use ILIAS\ResourceStorage\Flavour\Machine\DefaultMachines\MakeGreyScale as GreyS
  * @author       Thibeau Fuhrer <thibeau@sr.solutions>
  * @noinspection AutoloadingIssuesInspection
  */
-class ToGreyScale implements \ILIAS\ResourceStorage\Flavour\Definition\FlavourDefinition
+class ToGreyScale implements FlavourDefinition
 {
     public const FOREVER_ID = '0afbf77b53955882c43b6673251261583f3d52ed5e980b6ea6c869c065991406';
 

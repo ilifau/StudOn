@@ -25,17 +25,21 @@ use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Constraint;
 use Closure;
+use Generator;
 
 /**
  * This implements the textarea input.
  */
-class Textarea extends FormInput implements C\Input\Field\Textarea
+class Textarea extends FormInput implements C\Input\Field\Textarea, HasMustacheVariablesInternal
 {
     use JavaScriptBindable;
+    use HasMustacheVariables;
 
     protected ?int $max_limit = null;
 
     protected ?int $min_limit = null;
+
+    private bool $strip_tags_from_input = true;
 
     /**
      * @inheritdoc
@@ -47,9 +51,6 @@ class Textarea extends FormInput implements C\Input\Field\Textarea
         ?string $byline
     ) {
         parent::__construct($data_factory, $refinery, $label, $byline);
-        $this->setAdditionalTransformation(
-            $refinery->string()->stripTags()
-        );
     }
 
     /**
@@ -140,5 +141,26 @@ class Textarea extends FormInput implements C\Input\Field\Textarea
 				il.UI.input.onFieldUpdate(event, '$id', $('#$id').val());
 			});
 			il.UI.input.onFieldUpdate(event, '$id', $('#$id').val());";
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOperations(): Generator
+    {
+        if ($this->strip_tags_from_input) {
+            yield $this->refinery->custom()->transformation(fn($v) => strip_tags($v));
+        }
+        yield from parent::getOperations();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withoutStripTags(): C\Input\Field\Textarea
+    {
+        $clone = clone $this;
+        $clone->strip_tags_from_input = false;
+        return $clone;
     }
 }

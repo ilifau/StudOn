@@ -98,7 +98,7 @@ class ilWorkspaceContentGUI
             return "";
         }
 
-        $leg = $this->ui->factory()->legacy($html);
+        $leg = $this->ui->factory()->legacy()->content($html);
 
         $panel = $this->ui->factory()->panel()->standard($this->lng->txt("content"), [$leg]);
 

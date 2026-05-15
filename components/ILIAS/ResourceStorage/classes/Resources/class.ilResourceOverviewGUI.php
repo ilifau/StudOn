@@ -16,21 +16,21 @@
  *
  *********************************************************************/
 
-use ILIAS\components\ResourceStorage\Resources\DataSource\AllResourcesDataSource;
-use ILIAS\components\ResourceStorage\Resources\Listing\ViewDefinition;
-use ILIAS\components\ResourceStorage\Resources\UI\Actions\OverviewActionGenerator;
-use ILIAS\components\ResourceStorage\Resources\UI\ResourceListingUI;
-use ILIAS\components\ResourceStorage\Resources\UI\RevisionListingUI;
 use ILIAS\UI\Renderer;
 use ILIAS\ResourceStorage\Services;
 use ILIAS\FileUpload\FileUpload;
-use ILIAS\Refinery\Factory;
+use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\ResourceStorage\Collection\ResourceCollection;
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 use ILIAS\HTTP\Wrapper\WrapperFactory;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer\Hasher;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
+use ILIAS\components\ResourceStorage\Resources\DataSource\AllResourcesDataSource;
+use ILIAS\components\ResourceStorage\Resources\Listing\ViewDefinition;
+use ILIAS\components\ResourceStorage\Resources\UI\Actions\OverviewActionGenerator;
+use ILIAS\components\ResourceStorage\Resources\UI\ResourceListingUI;
+use ILIAS\components\ResourceStorage\Resources\UI\RevisionListingUI;
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
@@ -59,7 +59,7 @@ class ilResourceOverviewGUI
     protected Services $irss;
     protected FileUpload $upload;
     protected \ILIAS\HTTP\Services $http;
-    protected Factory $refinery;
+    protected Refinery $refinery;
     protected ResourceCollection $collection;
     protected ResourceStakeholder $stakeholder;
     protected ArrayBasedRequestWrapper $query;

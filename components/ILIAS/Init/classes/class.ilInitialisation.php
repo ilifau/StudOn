@@ -33,16 +33,13 @@ use ILIAS\Data\Result\Error;
 use ILIAS\Refinery\Transformation;
 use ILIAS\FileDelivery\Init;
 use ILIAS\LegalDocuments\Conductor;
+use ILIAS\ILIASObject\Properties\AdditionalProperties\Icon\Factory as CustomIconFactory;
+use ILIAS\User\PublicInterface as UserPublicInterface;
+use ILIAS\Mail\Service\MailService;
 
 // needed for slow queries, etc.
 if (!isset($GLOBALS['ilGlobalStartTime']) || !$GLOBALS['ilGlobalStartTime']) {
     $GLOBALS['ilGlobalStartTime'] = microtime();
-}
-
-global $DIC;
-if (null === $DIC) {
-    // Don't remove this, intellisense autocompletion does not work in PhpStorm without a top level assignment
-    $DIC = new Container();
 }
 
 /**
@@ -145,10 +142,8 @@ class ilInitialisation
         define("PATH_TO_UNZIP", $ilIliasIniFile->readVariable("tools", "unzip"));
         define("PATH_TO_GHOSTSCRIPT", $ilIliasIniFile->readVariable("tools", "ghostscript"));
         define("PATH_TO_JAVA", $ilIliasIniFile->readVariable("tools", "java"));
-        define("URL_TO_LATEX", $ilIliasIniFile->readVariable("tools", "latex"));
         define("PATH_TO_FOP", $ilIliasIniFile->readVariable("tools", "fop"));
         define("PATH_TO_SCSS", $ilIliasIniFile->readVariable("tools", "scss"));
-        define("PATH_TO_PHANTOMJS", $ilIliasIniFile->readVariable("tools", "phantomjs"));
 
         if ($ilIliasIniFile->groupExists('error')) {
             if ($ilIliasIniFile->variableExists('error', 'editor_url')) {
@@ -372,7 +367,7 @@ class ilInitialisation
         return define(
             'ILIAS_HTTP_PATH',
             (new \ILIAS\Init\Environment\HttpPathBuilder(
-                new \ILIAS\Data\Factory(),
+                $DIC[\ILIAS\Data\Factory::class],
                 $DIC->settings(),
                 $DIC['https'],
                 $DIC['ilIliasIniFile'],
@@ -391,7 +386,7 @@ class ilInitialisation
             return;
         }
         global $DIC;
-        $df = new \ILIAS\Data\Factory();
+        $df = $DIC[\ILIAS\Data\Factory::class];
 
         // check whether ini file object exists
         if (!$DIC->isDependencyAvailable('iliasIni')) {
@@ -628,7 +623,7 @@ class ilInitialisation
 
     /**
      * set session handler to db
-     * Used in Soap/CAS
+     * Used in Soap
      */
     public static function setSessionHandler(): void
     {
@@ -724,8 +719,8 @@ class ilInitialisation
 
     protected static function initCron(\ILIAS\DI\Container $c): void
     {
-        $c['cron.repository'] = static function (\ILIAS\DI\Container $c): ilCronJobRepository {
-            return new ilCronJobRepositoryImpl(
+        $c['cron.repository'] = static function (\ILIAS\DI\Container $c): ILIAS\Cron\Job\JobRepository {
+            return new ILIAS\Cron\Job\Repository\JobRepositoryImpl(
                 $c->database(),
                 $c->settings(),
                 $c->logger()->cron(),
@@ -734,13 +729,13 @@ class ilInitialisation
             );
         };
 
-        $c['cron.manager'] = static function (\ILIAS\DI\Container $c): ilCronManager {
-            return new ilCronManagerImpl(
+        $c['cron.manager'] = static function (\ILIAS\DI\Container $c): ILIAS\Cron\Job\JobManager {
+            return new ILIAS\Cron\Job\Manager\JobManagerImpl(
                 $c['cron.repository'],
                 $c->database(),
                 $c->settings(),
                 $c->logger()->cron(),
-                (new \ILIAS\Data\Factory())->clock()
+                $c[\ILIAS\Data\Factory::class]->clock(),
             );
         };
     }
@@ -751,7 +746,7 @@ class ilInitialisation
     protected static function initCustomObjectIcons(\ILIAS\DI\Container $c): void
     {
         $c["object.customicons.factory"] = function ($c) {
-            return new ilObjectCustomIconFactory(
+            return new CustomIconFactory(
                 $c->filesystem()->web(),
                 $c->upload(),
                 $c['ilObjDataCache']
@@ -769,6 +764,11 @@ class ilInitialisation
     protected static function initLegalDocuments(Container $c): void
     {
         $c['legalDocuments'] = static fn(Container $c) => new Conductor($c);
+    }
+
+    protected static function initMail(Container $c): void
+    {
+        MailService::init($c);
     }
 
     protected static function initAccessibilityControlConcept(\ILIAS\DI\Container $c): void
@@ -1032,9 +1032,6 @@ class ilInitialisation
                 $DIC->offsetUnset('lng');
             }
             self::initGlobal('lng', ilLanguage::getGlobalInstance());
-            //re-init refinery with the user's language
-            unset($DIC['refinery']);
-            self::initRefinery($DIC);
         } else {
             self::initGlobal('lng', ilLanguage::getFallbackInstance());
         }
@@ -1158,7 +1155,6 @@ class ilInitialisation
             return;
         }
 
-        $GLOBALS["DIC"] = new Container();
         $GLOBALS["DIC"]["ilLoggerFactory"] = function ($c) {
             return ilLoggerFactory::getInstance();
         };
@@ -1239,10 +1235,8 @@ class ilInitialisation
 
         self::handleErrorReporting();
 
-        // breaks CAS: must be included after CAS context isset in AuthUtils
-
         self::requireCommonIncludes();
-        $GLOBALS["DIC"]["ilias.version"] = (new ILIAS\Data\Factory())->version(ILIAS_VERSION_NUMERIC);
+        $GLOBALS["DIC"]["ilias.version"] = $GLOBALS["DIC"][\ILIAS\Data\Factory::class]->version(ILIAS_VERSION_NUMERIC);
 
         // error handler
         self::initGlobal(
@@ -1325,6 +1319,7 @@ class ilInitialisation
         self::initAvatar($GLOBALS['DIC']);
         self::initCustomObjectIcons($GLOBALS['DIC']);
         self::initLegalDocuments($GLOBALS['DIC']);
+        self::initMail($GLOBALS['DIC']);
         self::initAccessibilityControlConcept($GLOBALS['DIC']);
         self::initLearningObjectMetadata($GLOBALS['DIC']);
 
@@ -1363,8 +1358,6 @@ class ilInitialisation
         self::setSessionCookieParams();
         self::setClientIdCookie();
 
-        self::initRefinery($DIC);
-
         (new InitCtrlService())->init($DIC);
 
         // Init GlobalScreen
@@ -1385,6 +1378,14 @@ class ilInitialisation
             "./components/ILIAS/User/classes/class.ilObjUser.php",
             true
         );
+
+        self::initGlobal(
+            'user',
+            new UserPublicInterface($ilUser),
+            null,
+            true
+        );
+
         $ilias->account = $ilUser;
 
         self::initAccessHandling();
@@ -1510,13 +1511,11 @@ class ilInitialisation
     }
 
     /**
-     * init the ILIAS UI framework.
+     * @deprecated this mechanism will be removed as part of the component revision and
+     *             the refactoring to the new bootstrap mechanism.
      */
-    public static function initUIFramework(\ILIAS\DI\Container $c): void
+    public static function applyPluginManipulationsToUiFramework(\ILIAS\DI\Container $c): void
     {
-        $init_ui = new InitUIFramework();
-        $init_ui->init($c);
-
         $component_repository = $c["component.repository"];
         $component_factory = $c["component.factory"];
         foreach ($component_repository->getPlugins() as $pl) {
@@ -1524,7 +1523,9 @@ class ilInitialisation
                 continue;
             }
             $plugin = $component_factory->getPlugin($pl->getId());
-            $c['ui.renderer'] = $plugin->exchangeUIRendererAfterInitialization($c);
+            $closure = $plugin->exchangeUIRendererAfterInitialization($c);
+            $c->offsetUnset('ui.renderer');
+            $c['ui.renderer'] = $closure;
 
             foreach ($c->keys() as $key) {
                 if (strpos($key, "ui.factory") === 0) {
@@ -1532,19 +1533,6 @@ class ilInitialisation
                 }
             }
         }
-    }
-
-    /**
-     * @param \ILIAS\DI\Container $container
-     */
-    protected static function initRefinery(\ILIAS\DI\Container $container): void
-    {
-        $container['refinery'] = function ($container) {
-            $dataFactory = new \ILIAS\Data\Factory();
-            $language = $container['lng'];
-
-            return new \ILIAS\Refinery\Factory($dataFactory, $language);
-        };
     }
 
     /**
@@ -1595,7 +1583,7 @@ class ilInitialisation
             self::initUploadPolicies($DIC);
         }
 
-        self::initUIFramework($GLOBALS["DIC"]);
+        self::applyPluginManipulationsToUiFramework($GLOBALS["DIC"]);
         $tpl = new ilGlobalPageTemplate($DIC->globalScreen(), $DIC->ui(), $DIC->http());
         self::initGlobal("tpl", $tpl);
 
@@ -1786,7 +1774,7 @@ class ilInitialisation
     /**
      * Translate message if possible
      */
-    protected static function translateMessage(string $a_message_id, array $a_message_static = null): string
+    protected static function translateMessage(string $a_message_id, ?array $a_message_static = null): string
     {
         global $ilDB, $lng, $ilSetting, $ilClientIniFile, $ilUser;
 
@@ -1829,7 +1817,7 @@ class ilInitialisation
     protected static function redirect(
         string $a_target,
         string $a_message_id = '',
-        array $a_message_static = null
+        ?array $a_message_static = null
     ): void {
         // #12739
         if (defined("ILIAS_HTTP_PATH") &&

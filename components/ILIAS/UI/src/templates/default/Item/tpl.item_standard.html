@@ -30,19 +30,12 @@
 
 	<!-- BEGIN lead_start_icon -->
 	<div class="media">
-		<!-- fau: studySearch: add checkbox to template -->
-		<!-- BEGIN checkbox -->
-		<div class="media-left">
-			<input style="visibility:{VISIBILITY};" type="checkbox" name="{CHECKBOX_NAME}" value="{CHECKBOX_VALUE}" />
-		</div>
-		<!-- END checkbox -->
-		<!-- fau. -->		
 		<div class="media-left">
 			<!-- BEGIN lead_icon -->{LEAD_ICON}<!-- END lead_icon -->
 		</div>
 		<div class="media-body">
 			<!-- END lead_start_icon -->
-			<h4 class="il-item-title">{TITLE}</h4>
+			<h{HEADING_LEVEL} class="il-item-title">{TITLE}</h{HEADING_LEVEL}>
 			<!-- BEGIN action_bar -->
 			<div class="il-item-actions l-bar__space-keeper">
 				<!-- BEGIN main_action --><div class="l-bar__element">{MAIN_ACTION}</div><!-- END main_action -->

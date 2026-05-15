@@ -28,8 +28,8 @@ use ILIAS\Setup\Artifact\ArrayArtifact;
  */
 class KeyRotationObjective extends BuildStaticConfigStoredObjective
 {
-    private const KEY_LENGTH = 32;
-    private const NUMBER_OF_KEYS = 5;
+    private const int KEY_LENGTH = 32;
+    private const int NUMBER_OF_KEYS = 5;
 
     public function getArtifactName(): string
     {

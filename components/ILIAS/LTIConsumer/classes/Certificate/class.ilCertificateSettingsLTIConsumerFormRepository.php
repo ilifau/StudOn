@@ -35,7 +35,7 @@ class ilCertificateSettingsLTIConsumerFormRepository implements ilCertificateFor
     //    private \ilObjLTIConsumer $object;
 
     public function __construct(
-        ilObjLTIConsumer $object,
+        ilObject $object,
         string $certificatePath,
         bool $hasAdditionalElements,
         ilLanguage $language,
@@ -43,7 +43,7 @@ class ilCertificateSettingsLTIConsumerFormRepository implements ilCertificateFor
         ilAccess $access,
         ilToolbarGUI $toolbar,
         ilCertificatePlaceholderDescription $placeholderDescriptionObject,
-        ilCertificateSettingsFormRepository $settingsFormRepository = null
+        ?ilCertificateSettingsFormRepository $settingsFormRepository = null
     ) {
         //        $this->object = $object;
         //        $this->language = $language;

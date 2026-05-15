@@ -31,7 +31,7 @@ class ExternalDomainService
     ) {
     }
 
-    public function html() : HTML\ExternalDomainService
+    public function html(): HTML\ExternalDomainService
     {
         return self::$instance['html'] ??= new HTML\ExternalDomainService(
             $this->internal_domain

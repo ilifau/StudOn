@@ -26,7 +26,6 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
     {
         return new SettingsQuestionBehaviour(
             0,
-            0,
             true,
             0,
             true,
@@ -42,9 +41,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         );
     }
 
-    /**
-     * @dataProvider getAndWithQuestionTitleOutputModeDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithQuestionTitleOutputModeDataProvider')]
     public function testGetAndWithQuestionTitleOutputMode(int $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withQuestionTitleOutputMode($io);
@@ -62,9 +59,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithInstantFeedbackDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithInstantFeedbackDataProvider')]
     public function testGetAndWithAutosaveEnabled(bool $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withAutosaveEnabled($io);
@@ -81,9 +76,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithAutosaveIntervalDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithAutosaveIntervalDataProvider')]
     public function testGetAndWithAutosaveInterval(int $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withAutosaveInterval($io);
@@ -101,9 +94,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithShuffleQuestionsDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithShuffleQuestionsDataProvider')]
     public function testGetAndWithShuffleQuestions(bool $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withShuffleQuestions($io);
@@ -120,28 +111,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithQuestionHintsEnabledDataProvider
-     */
-    public function testGetAndWithQuestionHintsEnabled(bool $io): void
-    {
-        $Settings_question_behaviour = $this->getTestInstance()->withQuestionHintsEnabled($io);
-
-        $this->assertInstanceOf(SettingsQuestionBehaviour::class, $Settings_question_behaviour);
-        $this->assertEquals($io, $Settings_question_behaviour->getQuestionHintsEnabled());
-    }
-
-    public static function getAndWithQuestionHintsEnabledDataProvider(): array
-    {
-        return [
-            [false],
-            [true]
-        ];
-    }
-
-    /**
-     * @dataProvider getAndWithInstantFeedbackPointsEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithInstantFeedbackPointsEnabledDataProvider')]
     public function testGetAndWithInstantFeedbackPointsEnabled(bool $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withInstantFeedbackPointsEnabled($io);
@@ -158,9 +128,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithInstantFeedbackGenericEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithInstantFeedbackGenericEnabledDataProvider')]
     public function testGetAndWithInstantFeedbackGenericEnabled(bool $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withInstantFeedbackGenericEnabled($io);
@@ -177,9 +145,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithInstantFeedbackSpecificEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithInstantFeedbackSpecificEnabledDataProvider')]
     public function testGetAndWithInstantFeedbackSpecificEnabled(bool $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withInstantFeedbackSpecificEnabled($io);
@@ -196,9 +162,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithInstantFeedbackSolutionEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithInstantFeedbackSolutionEnabledDataProvider')]
     public function testGetAndWithInstantFeedbackSolutionEnabled(bool $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withInstantFeedbackSolutionEnabled($io);
@@ -215,9 +179,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithForceInstantFeedbackOnNextQuestionDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithForceInstantFeedbackOnNextQuestionDataProvider')]
     public function testGetAndWithForceInstantFeedbackOnNextQuestion(bool $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withForceInstantFeedbackOnNextQuestion($io);
@@ -234,9 +196,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithLockAnswerOnInstantFeedbackEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithLockAnswerOnInstantFeedbackEnabledDataProvider')]
     public function testGetAndWithLockAnswerOnInstantFeedbackEnabled(bool $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withLockAnswerOnInstantFeedbackEnabled($io);
@@ -253,9 +213,7 @@ class SettingsQuestionBehaviourTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithLockAnswerOnNextQuestionEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithLockAnswerOnNextQuestionEnabledDataProvider')]
     public function testGetAndWithLockAnswerOnNextQuestionEnabled(bool $io): void
     {
         $Settings_question_behaviour = $this->getTestInstance()->withLockAnswerOnNextQuestionEnabled($io);

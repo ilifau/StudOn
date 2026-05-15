@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 class ilCmiXapiDatabaseUpdateSteps implements ilDatabaseUpdateSteps
 {
@@ -253,6 +253,28 @@ class ilCmiXapiDatabaseUpdateSteps implements ilDatabaseUpdateSteps
             $this->db->manipulate('DELETE FROM cmix_del_user');
             $this->db->dropPrimaryKey('cmix_del_user');
             $this->db->addPrimaryKey('cmix_del_user', array('usr_id','obj_id'));
+        }
+    }
+    public function step_18(): void
+    {
+        if (!$this->db->tableColumnExists('cmix_settings', 'enrich_data')) {
+            $this->db->addTableColumn('cmix_settings', 'enrich_data', array(
+                'type' => 'integer',
+                'length' => 1,
+                'notnull' => true,
+                'default' => 0
+            ));
+        }
+    }
+    public function step_19(): void
+    {
+        if (!$this->db->tableColumnExists('cmix_lrs_types', 'enrich_data')) {
+            $this->db->addTableColumn('cmix_lrs_types', 'enrich_data', array(
+                'type' => 'integer',
+                'length' => 1,
+                'notnull' => true,
+                'default' => 0
+            ));
         }
     }
 }

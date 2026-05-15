@@ -1,6 +1,20 @@
 <?php
 
-/* Copyright (c) 2020 Nils Haagen <nils.haagen@concepts-and-training.de> Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use PHPUnit\Framework\TestCase;
 use ILIAS\KioskMode\State;
@@ -14,9 +28,7 @@ class StateTest extends TestCase
         return $state;
     }
 
-    /**
-     * @depends testGetNullValue
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testGetNullValue')]
     public function testValue(State $state): State
     {
         $key = 'key';
@@ -26,18 +38,14 @@ class StateTest extends TestCase
         return $state;
     }
 
-    /**
-     * @depends testValue
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testValue')]
     public function testSerialize(State $state): void
     {
         $expected = json_encode(['key' => 'value'], JSON_THROW_ON_ERROR);
         $this->assertEquals($expected, $state->serialize());
     }
 
-    /**
-     * @depends testValue
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testValue')]
     public function testRemoveValue(State $state): void
     {
         $state = $state->withValueFor('keep', 'this');

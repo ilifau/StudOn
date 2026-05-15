@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -308,9 +308,7 @@ class ilIndividualAssessmentMemberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider fileNamesDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('fileNamesDataProvider')]
     public function test_mayBeFinalized_file_required_filename_empty(?string $filename): void
     {
         $settings = $this->createMock(ilIndividualAssessmentSettings::class);
@@ -350,9 +348,7 @@ class ilIndividualAssessmentMemberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider positiveLPStatusDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('positiveLPStatusDataProvider')]
     public function test_mayBeFinalized_with_positive_lp_status(int $lp_status): void
     {
         $settings = $this->createMock(ilIndividualAssessmentSettings::class);
@@ -433,9 +429,7 @@ class ilIndividualAssessmentMemberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider negativeLPStatusDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('negativeLPStatusDataProvider')]
     public function test_mayBeFinalized_with_negative_lp_status(int $lp_status): void
     {
         $settings = $this->createMock(ilIndividualAssessmentSettings::class);

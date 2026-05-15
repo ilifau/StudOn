@@ -1,23 +1,8 @@
 <?php
 
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
- *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- *
- *********************************************************************/
-
 namespace ILIAS\components\File\Preview;
 
+use ILIAS\UI\Component\Input\Field\Factory;
 use ILIAS\UI\Component\Input\Field\Group;
 use ILIAS\UI\Component\Input\Field\Section;
 
@@ -27,11 +12,13 @@ use ILIAS\UI\Component\Input\Field\Section;
 class Form
 {
     private \ilLanguage $language;
-    private \ILIAS\UI\Component\Input\Field\Factory $field_factory;
+    private Factory $field_factory;
     private \ILIAS\Refinery\Factory $refinery;
 
-    public function __construct(private Settings $settings)
-    {
+    public function __construct(
+        private Settings $settings,
+        private bool $write_access
+    ) {
         global $DIC;
         $this->language = $DIC->language();
         $this->field_factory = $DIC->ui()->factory()->input()->field();
@@ -55,10 +42,10 @@ class Form
                 $this->language->txt('enable_preview'),
                 $this->language->txt('enable_preview_info')
             )
-            ->withDisabled(!$possible)
+            ->withDisabled(!$this->write_access || !$possible)
             ->withValue($this->settings->isPreviewEnabled())
             ->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(function ($v): void {
+                $this->refinery->custom()->transformation(function (bool $v): void {
                     $this->settings->setPreviewEnabled($v);
                 })
             );
@@ -68,11 +55,11 @@ class Form
                 $this->language->txt('preview_image_size'),
                 $this->language->txt('preview_image_size_info')
             )
-            ->withDisabled(!$possible)
+            ->withDisabled(!$this->write_access || !$possible)
             ->withRequired(true)
             ->withValue($this->settings->getImageSize())
             ->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(function ($v): void {
+                $this->refinery->custom()->transformation(function (int $v): void {
                     $this->settings->setImageSize($v);
                 })
             );
@@ -82,10 +69,10 @@ class Form
                 $this->language->txt('preview_persisting'),
                 $this->language->txt('preview_persisting_info')
             )
-            ->withDisabled(!$possible)
+            ->withDisabled(!$this->write_access || !$possible)
             ->withValue($this->settings->isPersisting())
             ->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(function ($v): void {
+                $this->refinery->custom()->transformation(function (bool $v): void {
                     $this->settings->setPersisting($v);
                 })
             );
@@ -95,10 +82,10 @@ class Form
                 $this->language->txt('max_previews_per_object'),
                 $this->language->txt('max_previews_per_object_info')
             )
-            ->withDisabled(!$possible)
+            ->withDisabled(!$this->write_access || !$possible)
             ->withValue($this->settings->getMaximumPreviews())
             ->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(function ($v): void {
+                $this->refinery->custom()->transformation(function (int $v): void {
                     $this->settings->setMaximumPreviews($v);
                 })
             );
@@ -108,10 +95,10 @@ class Form
                 $this->language->txt('previews_for_tiles'),
                 $this->language->txt('previews_for_tiles_info')
             )
-            ->withDisabled(!$possible)
+            ->withDisabled(!$this->write_access || !$possible)
             ->withValue($this->settings->hasTilePreviews())
             ->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(function ($v): void {
+                $this->refinery->custom()->transformation(function (bool $v): void {
                     $this->settings->setTilePreviews($v);
                 })
             );

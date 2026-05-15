@@ -13,25 +13,26 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
 namespace ILIAS\UI\Implementation\Component\Progress\State;
 
-use ILIAS\UI\Component\Progress\State;
+use ILIAS\UI\Component\Progress\State as C;
 
 /**
  * @author Thibeau Fuhrer <thibeau@sr.solutions>
  */
-class Factory implements State\Factory
+class Factory implements C\Factory
 {
     public function __construct(
-        protected State\Bar\Factory $bar_factory,
+        protected Bar\Factory $bar_factory,
     ) {
     }
 
-    public function bar(): State\Bar\Factory
+    public function bar(): Bar\Factory
     {
         return $this->bar_factory;
     }

@@ -22,7 +22,7 @@ use ILIAS\Repository;
 
 /**
  *
- * @deprecated 10
+ * @deprecated with ILIAS 12
  */
 class TableGUIRequest
 {
@@ -45,11 +45,6 @@ class TableGUIRequest
     public function getExportMode(string $prefix): int
     {
         return $this->int($prefix . "_xpt");
-    }
-
-    public function getTemplate(string $prefix): string
-    {
-        return $this->str($prefix . "_tpl");
     }
 
     public function getRows(string $prefix): ?int
@@ -92,16 +87,6 @@ class TableGUIRequest
     public function getFSF(string $id): bool
     {
         return (bool) $this->int("tblfsf" . $id);
-    }
-
-    public function getTemplCreate(): string
-    {
-        return $this->str("tbltplcrt");
-    }
-
-    public function getTemplDelete(): string
-    {
-        return $this->str("tbltpldel");
     }
 
     public function getTableId(): string

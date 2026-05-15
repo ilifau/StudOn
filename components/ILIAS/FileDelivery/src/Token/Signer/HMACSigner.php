@@ -61,10 +61,6 @@ class HMACSigner implements Signer
         if ($signature_check !== $signature) {
             return false;
         }
-        if ($validity > 0 && $validity < time()) {
-            return false;
-        }
-
-        return true;
+        return !($validity > 0 && $validity < time());
     }
 }

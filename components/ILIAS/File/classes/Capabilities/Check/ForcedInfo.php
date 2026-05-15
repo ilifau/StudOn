@@ -30,11 +30,13 @@ use ILIAS\File\Capabilities\Context;
  */
 class ForcedInfo extends Info implements Check
 {
+    #[\Override]
     public function canUnlock(): Capabilities
     {
         return Capabilities::FORCED_INFO_PAGE;
     }
 
+    #[\Override]
     public function maybeUnlock(
         Capability $capability,
         CheckHelpers $helpers,

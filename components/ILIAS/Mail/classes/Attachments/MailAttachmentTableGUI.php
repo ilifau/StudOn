@@ -69,9 +69,9 @@ class MailAttachmentTableGUI implements \ILIAS\UI\Component\Table\DataRetrieval,
         return $this->ui_factory
             ->table()
             ->data(
+                $this,
                 $this->lng->txt('attachment'),
                 $this->getColumnDefinition(),
-                $this
             )
             ->withId(str_replace('\\', '', self::class) . '_' . $this->mode->name)
             ->withOrder(new \ILIAS\Data\Order('filename', \ILIAS\Data\Order::ASC))
@@ -147,9 +147,7 @@ class MailAttachmentTableGUI implements \ILIAS\UI\Component\Table\DataRetrieval,
     {
         $records = $this->records;
 
-        [$order_field, $order_direction] = $order->join([], static function ($ret, $key, $value) {
-            return [$key, $value];
-        });
+        [$order_field, $order_direction] = $order->join([], static fn($ret, $key, $value) => [$key, $value]);
 
         usort($records, static function (array $left, array $right) use ($order_field): int {
             if ($order_field === 'filename') {
@@ -173,8 +171,9 @@ class MailAttachmentTableGUI implements \ILIAS\UI\Component\Table\DataRetrieval,
         array $visible_column_ids,
         \ILIAS\Data\Range $range,
         \ILIAS\Data\Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         foreach ($this->getRecords($range, $order) as $item) {
             $record = [
@@ -190,8 +189,11 @@ class MailAttachmentTableGUI implements \ILIAS\UI\Component\Table\DataRetrieval,
         }
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         return \count($this->records);
     }
 }

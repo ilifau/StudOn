@@ -79,7 +79,7 @@ class InternalDomainService
         return new MetadataManager($this->learningObjectMetadata());
     }
 
-    public function thumbs() : ThumbsManager
+    public function thumbs(): ThumbsManager
     {
         return new ThumbsManager(
             $this->data_service,

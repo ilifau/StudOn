@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +16,7 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
 /**
 * Class ilTestSearch
 *
@@ -31,14 +31,14 @@ class ilTestSearch extends ilAbstractSearch
 {
     public function __searchTestIntroduction(): ilSearchResult
     {
-        $this->setFields(array('introduction'));
+        $this->setFields(['tst_set.introduction']);
 
         $where = $this->__createWhereCondition();
         $locate = $this->__createLocateString();
 
-        $query = "SELECT obj_fi  " .
+        $query = "SELECT tst.obj_fi AS obj_fi " .
             $locate .
-            "FROM tst_tests " .
+            "FROM tst_tests AS tst INNER JOIN tst_test_settings AS tst_set ON tst_set.id = tst.settings_id " .
             $where;
 
         $res = $this->db->query($query);

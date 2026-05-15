@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,7 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
 
 /**
 * Class ilUserSearch
@@ -35,7 +34,7 @@ class ilUserDefinedFieldSearch extends ilAbstractSearch
 
         $query = "SELECT usr_id  " .
             $locate .
-            "FROM udf_text " .
+            "FROM usr_profile_data " .
             $where;
         $res = $this->db->query($query);
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {

@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\ResourceStorage\Collection;
 
+use ILIAS\ResourceStorage\Collection\Repository\CollectionRepository;
+use ILIAS\ResourceStorage\Lock\LockHandler;
 use ILIAS\ResourceStorage\Identification\CollectionIdentificationGenerator;
 use ILIAS\ResourceStorage\Identification\ResourceCollectionIdentification;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
@@ -39,20 +41,9 @@ class CollectionBuilder
 {
     use SecureString;
 
-    private Repository\CollectionRepository $collection_repository;
-    private ?CollectionIdentificationGenerator $id_generator = null;
-    private ?\ILIAS\ResourceStorage\Lock\LockHandler $lock_handler = null;
 
-
-    public function __construct(
-        Repository\CollectionRepository $collection_repository,
-        private Subject $events,
-        ?CollectionIdentificationGenerator $id_generator = null,
-        ?\ILIAS\ResourceStorage\Lock\LockHandler $lock_handler = null
-    ) {
-        $this->collection_repository = $collection_repository;
-        $this->lock_handler = $lock_handler;
-        $this->id_generator = $id_generator ?? new UniqueIDCollectionIdentificationGenerator();
+    public function __construct(private CollectionRepository $collection_repository, private Subject $events, private CollectionIdentificationGenerator $id_generator = new UniqueIDCollectionIdentificationGenerator(), private ?LockHandler $lock_handler = null)
+    {
     }
 
     public function has(ResourceCollectionIdentification $identification): bool

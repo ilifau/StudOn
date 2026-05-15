@@ -28,7 +28,7 @@ use ILIAS\MetaData\Vocabularies\Slots\HandlerInterface as SlotHandler;
 
 class Importer
 {
-    protected const PATH_TO_SCHEMA = __DIR__ . '/../../../../VocabValidation/controlled_vocabulary.xsd';
+    protected const string PATH_TO_SCHEMA = __DIR__ . '/../../../../VocabValidation/controlled_vocabulary.xsd';
 
     protected PathFactory $path_factory;
     protected ControlledVocabsRepository $vocab_repo;

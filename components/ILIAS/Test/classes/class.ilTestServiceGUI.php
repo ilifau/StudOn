@@ -96,7 +96,7 @@ class ilTestServiceGUI
     protected ?ilTestSessionFactory $test_session_factory = null;
     protected ?ilTestSequenceFactory $test_sequence_factory = null;
     protected ?ilTestParticipantData $participantData = null;
-    protected TestResultRepository $test_pass_result_repository;
+    protected TestResultRepository $test_result_repository;
 
     protected ilTestParticipantAccessFilterFactory $participant_access_filter;
 
@@ -160,7 +160,7 @@ class ilTestServiceGUI
         $this->results_presentation_factory = $local_dic['results.presentation.factory'];
         $this->questionrepository = $local_dic['question.general_properties.repository'];
         $this->testquestionsrepository = $local_dic['questions.properties.repository'];
-        $this->test_pass_result_repository = $local_dic['results.data.test_result_repository'];
+        $this->test_result_repository = $local_dic['results.data.repository'];
 
         $this->service = new ilTestService($this->object, $this->db, $this->questionrepository);
 
@@ -205,10 +205,6 @@ class ilTestServiceGUI
 
         $scored_pass = \ilObjTest::_getResultPass($test_session->getActiveId());
 
-        $question_hint_request_register = ilAssQuestionHintTracking::getRequestRequestStatisticDataRegisterByActiveId(
-            $test_session->getActiveId()
-        );
-
         foreach ($passes as $pass) {
             $row = [
                 'scored' => false,
@@ -248,24 +244,6 @@ class ilTestServiceGUI
                 $considerOptionalQuestions
             );
 
-            foreach ($result_array as $result_struct_key => $question) {
-                if ($result_struct_key === 'test'
-                    || $result_struct_key === 'pass'
-                    || $result_array[$result_struct_key]['requested_hints'] !== null) {
-                    continue;
-                }
-
-                $request_data = $question_hint_request_register->getRequestByTestPassIndexAndQuestionId($pass, $question['qid']);
-
-                if ($request_data === null) {
-                    continue;
-                }
-
-                $result_array['pass']['total_requested_hints'] += $request_data->getRequestsCount();
-                $result_array[$result_struct_key]['requested_hints'] = $request_data->getRequestsCount();
-                $result_array[$result_struct_key]['hint_points'] = $request_data->getRequestsPoints();
-            }
-
             if (!$result_array['pass']['total_max_points']) {
                 $row['percentage'] = 0;
             } else {
@@ -277,11 +255,6 @@ class ilTestServiceGUI
             $row['scored'] = ($pass == $scored_pass);
             $row['num_workedthrough_questions'] = $result_array['pass']['num_workedthrough'];
             $row['num_questions_total'] = $result_array['pass']['num_questions_total'];
-
-            if ($this->object->isOfferingQuestionHintsEnabled()) {
-                $row['hints'] = $result_array['pass']['total_requested_hints'];
-            }
-
             $data[] = $row;
         }
 
@@ -354,8 +327,8 @@ class ilTestServiceGUI
         $show_question_only = false,
         $show_reached_points = false,
         $anchorNav = false,
-        ilTestQuestionRelatedObjectivesList $objectives_list = null,
-        ResultsTitlesBuilder $testResultHeaderLabelBuilder = null
+        ?ilTestQuestionRelatedObjectivesList $objectives_list = null,
+        ?ResultsTitlesBuilder $testResultHeaderLabelBuilder = null
     ): string {
         $maintemplate = new ilTemplate('tpl.il_as_tst_list_of_answers.html', true, true, 'components/ILIAS/Test');
 
@@ -478,14 +451,13 @@ class ilTestServiceGUI
         int $pass,
         ilTestServiceGUI $target_gui,
         string $target_cmd,
-        ilTestQuestionRelatedObjectivesList $objectives_list = null,
+        ?ilTestQuestionRelatedObjectivesList $objectives_list = null,
         bool $multiple_objectives_involved = true
     ): ilTestPassDetailsOverviewTableGUI {
         $this->ctrl->setParameter($target_gui, 'active_id', $active_id);
         $this->ctrl->setParameter($target_gui, 'pass', $pass);
 
         $table_gui = $this->buildPassDetailsOverviewTableGUI($target_gui, $target_cmd);
-        $table_gui->setShowHintCount($this->object->isOfferingQuestionHintsEnabled());
 
         if ($objectives_list !== null) {
             $table_gui->setQuestionRelatedObjectivesList($objectives_list);
@@ -613,7 +585,7 @@ class ilTestServiceGUI
      * @return string HTML code of the correct solution comparison
      * @access public
      */
-    public function getCorrectSolutionOutput($question_id, $active_id, $pass, ilTestQuestionRelatedObjectivesList $objectives_list = null): string
+    public function getCorrectSolutionOutput($question_id, $active_id, $pass, ?ilTestQuestionRelatedObjectivesList $objectives_list = null): string
     {
         $ilUser = $this->user;
 
@@ -683,11 +655,12 @@ class ilTestServiceGUI
 
     protected function getGradingMessageBuilder(int $active_id): ilTestGradingMessageBuilder
     {
-        $gradingMessageBuilder = new ilTestGradingMessageBuilder($this->lng, $this->tpl, $this->object);
-
-        $gradingMessageBuilder->setActiveId($active_id);
-
-        return $gradingMessageBuilder;
+        return new ilTestGradingMessageBuilder(
+            $this->lng,
+            $this->tpl,
+            $this->object,
+            $this->test_result_repository->getTestResult($active_id)
+        );
     }
 
     protected function buildQuestionRelatedObjectivesList(

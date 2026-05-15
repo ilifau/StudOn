@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * @author Stefan Meyer <meyer@leifos.com>
@@ -222,7 +222,7 @@ class ilContainerReference extends ilObject
         $query = "INSERT INTO container_reference (obj_id, target_obj_id, title_type) " .
             "VALUES( " .
             $ilDB->quote($this->getId(), 'integer') . ", " .
-            $ilDB->quote($this->getTargetId(), 'integer') . ", " .
+            $ilDB->quote((int) $this->getTargetId(), 'integer') . ", " .
             $ilDB->quote($this->getTitleType(), 'integer') . ' ' .
             ")";
         $ilDB->manipulate($query);

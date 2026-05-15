@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,8 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Container\Skills;
 
@@ -36,8 +35,8 @@ class SkillInternalGUIService
     public function __construct(
         HTTP\Services $http,
         Refinery\Factory $refinery,
-        array $query_params = null,
-        array $post_data = null
+        ?array $query_params = null,
+        ?array $post_data = null
     ) {
         global $DIC;
 
@@ -60,5 +59,59 @@ class SkillInternalGUIService
     public function request(): SkillContainerGUIRequest
     {
         return $this->request;
+    }
+
+    public function contProfileTableBuilder(
+        SkillInternalManagerService $manager_service,
+        \ILIAS\Skill\Service\SkillProfileService $profile_service,
+        \ilSkillManagementSettings $skmg_settings,
+        int $cont_ref_id,
+        int $cont_member_role_id,
+        object $parent_gui,
+        string $parent_cmd
+    ): ContProfileTableBuilder {
+        return new ContProfileTableBuilder(
+            $manager_service,
+            $profile_service,
+            $skmg_settings,
+            $cont_ref_id,
+            $cont_member_role_id,
+            $parent_gui,
+            $parent_cmd
+        );
+    }
+
+    public function contSkillTableBuilder(
+        SkillInternalManagerService $manager_service,
+        ContainerSkillManager $cont_skill_manager,
+        int $container_obj_id,
+        int $container_ref_id,
+        object $parent_gui,
+        string $parent_cmd
+    ): ContSkillTableBuilder {
+        return new ContSkillTableBuilder(
+            $manager_service,
+            $cont_skill_manager,
+            $container_obj_id,
+            $container_ref_id,
+            $parent_gui,
+            $parent_cmd
+        );
+    }
+
+    public function contSkillMemberTableBuilder(
+        SkillInternalManagerService $manager_service,
+        ContainerSkillManager $cont_skill_manager,
+        \ilContainer $container,
+        object $parent_gui,
+        string $parent_cmd
+    ): ContSkillMemberTableBuilder {
+        return new ContSkillMemberTableBuilder(
+            $manager_service,
+            $cont_skill_manager,
+            $container,
+            $parent_gui,
+            $parent_cmd
+        );
     }
 }

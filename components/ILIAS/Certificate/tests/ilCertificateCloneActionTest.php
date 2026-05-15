@@ -18,9 +18,6 @@
 
 declare(strict_types=1);
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
 {
     public function testCloneCertificate(): void
@@ -57,8 +54,6 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
                         'v5.3.0',
                         123_456_789,
                         true,
-                        '/some/where/background.jpg',
-                        '/some/where/card_thumb.jpg',
                         '-',
                         '-',
                         null
@@ -73,8 +68,6 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
                         'v5.3.0',
                         123_456_789,
                         true,
-                        '/some/where/background.jpg',
-                        '/some/where/card_thumb.jpg',
                         '-',
                         '-',
                         null
@@ -89,8 +82,6 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
                         'v5.3.0',
                         123_456_789,
                         true,
-                        '/certificates/default/background.jpg',
-                        '/some/where/card_thumb.jpg',
                         '-',
                         '-',
                         null
@@ -107,6 +98,8 @@ class ilCertificateCloneActionTest extends ilCertificateBaseTestCase
 
         $objectHelper->method('lookupObjId')
             ->willReturn(1000);
+        $objectHelper->method('lookupType')
+            ->willReturn('crs');
 
         $global_certificate_settings = $this->getMockBuilder(ilObjCertificateSettings::class)
             ->disableOriginalConstructor()

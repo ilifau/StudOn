@@ -65,6 +65,17 @@ class ilLTIConsumerContentGUI
         $this->{$command}();
     }
 
+    public function getJwtForContentSelection(string $redirectUri, string $clientId, int $deploymentId, string $nonce, ?array $additionalArguments = null): string
+    {
+        $jwt = "";
+        $this->initCmixUser();
+        $jwtArray = $this->getLaunchParametersLTI13($redirectUri, $clientId, $deploymentId, $nonce, $additionalArguments);
+        if (isset($jwtArray['id_token'])) {
+            $jwt = $jwtArray['id_token'];
+        }
+        return $jwt;
+    }
+
     /**
      * @throws ilCtrlException
      * @throws ilTemplateException
@@ -83,7 +94,6 @@ class ilLTIConsumerContentGUI
                 $this->dic->toolbar()->addText($this->getStartButtonTxt11());
             }
         } else {
-
             if ($this->object->isLaunchMethodEmbedded() && (ilSession::get('lti13_login_data') == null)) {
                 $tpl = new ilTemplate('tpl.lti_content.html', true, true, 'components/ILIAS/LTIConsumer');
                 $tpl->setVariable("EMBEDDED_IFRAME_SRC", $this->dic->ctrl()->getLinkTarget(
@@ -258,7 +268,6 @@ class ilLTIConsumerContentGUI
             document.getElementById("lti_launch_form").style.display = "none";
             document.getElementById("lti_launched").style.display = "inline";
         }</script>';
-        //dump($output);exit();
         return($output);
     }
 

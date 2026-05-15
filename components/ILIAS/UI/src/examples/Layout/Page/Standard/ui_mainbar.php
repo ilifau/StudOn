@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\examples\Layout\Page\Standard;
@@ -136,7 +152,7 @@ function getUIMainbar(\ILIAS\UI\Factory $f, \ILIAS\Data\URI $uri, bool $condense
 EOT;
 
     $symbol = $f->symbol()->icon()->standard('cat', 'Takatuka Land');
-    $slate02 = $f->mainControls()->slate()->legacy('Takatuka Land', $symbol, $f->legacy($contents));
+    $slate02 = $f->mainControls()->slate()->legacy('Takatuka Land', $symbol, $f->legacy()->content($contents));
 
     $symbol = $f->symbol()->icon()->standard('cat', 'Schweiz');
     $slate03 = $f->mainControls()->slate()->combined('Schweiz', $symbol)
@@ -169,7 +185,7 @@ EOT;
         $mainbar = $mainbar->withToolsButton($tools_btn);
 
         $symbol = $f->symbol()->icon()->custom('./components/ILIAS/UI/src/examples/Layout/Page/Standard/question.svg', '')->withSize('small');
-        $slate = $f->mainControls()->slate()->legacy('Help', $symbol, $f->legacy('<h2>tool 1</h2><p>Some Text for Tool 1 entry</p>'));
+        $slate = $f->mainControls()->slate()->legacy('Help', $symbol, $f->legacy()->content('<h2>tool 1</h2><p>Some Text for Tool 1 entry</p>'));
         $tools = ['tool1' => $slate];
         foreach ($tools as $id => $entry) {
             $mainbar = $mainbar->withAdditionalToolEntry($id, $entry);
@@ -198,41 +214,41 @@ function getUIContent(\ILIAS\UI\Factory $f, RequestInterface $request): array
         case 1:
             $t = 'Tier des Jahres: Fischotter3';
             $c = [
-                $f->legacy('<h1>Fischotter</h1><p>Der Fischotter (Lutra lutra) ist ein an das Wasserleben angepasster Marder, der zu den besten Schwimmern unter den Landraubtieren zählt.</p>')
+                $f->legacy()->content('<h1>Fischotter</h1><p>Der Fischotter (Lutra lutra) ist ein an das Wasserleben angepasster Marder, der zu den besten Schwimmern unter den Landraubtieren zählt.</p>')
                 ,$f->link()->standard("Quelle: Wikipedia", "https://de.wikipedia.org/wiki/Tier_des_Jahres")
             ];
             break;
         case 2:
             $t = 'Tier des Jahres: Maulwurf';
             $c = [
-                $f->legacy('<h1>Maulwurf</h1><p>Der Europäische Maulwurf ist ein mittelgroßer Vertreter der Eurasischen Maulwürfe (Talpa). Er erreicht eine Kopf-Rumpf-Länge von 11,3 bis 15,9 cm, der Schwanz wird 2,5 bis 4,0 cm lang.</p>')
+                $f->legacy()->content('<h1>Maulwurf</h1><p>Der Europäische Maulwurf ist ein mittelgroßer Vertreter der Eurasischen Maulwürfe (Talpa). Er erreicht eine Kopf-Rumpf-Länge von 11,3 bis 15,9 cm, der Schwanz wird 2,5 bis 4,0 cm lang.</p>')
                 ,$f->link()->standard("Quelle: Wikipedia", "https://de.wikipedia.org/wiki/Tier_des_Jahres")
             ];
             break;
         case 3:
             $t = 'Tier des Jahres: Reh';
             $c = [
-                $f->legacy('<h1>Reh</h1><p>Das Reh springt hoch,<br> das Reh springt weit.<br> Warum auch nicht? <br>Es hat ja Zeit.</p>')
+                $f->legacy()->content('<h1>Reh</h1><p>Das Reh springt hoch,<br> das Reh springt weit.<br> Warum auch nicht? <br>Es hat ja Zeit.</p>')
             ];
             break;
         case 4:
             $t = 'Tier des Jahres: Bachflohkrebs';
             $c = [
-                $f->legacy('<h1>Bachflohkrebs</h1><p>Der Bachflohkrebs (Gammarus fossarum) ist ein Flohkrebs aus der Familie der Gammaridae und ein typischer Bachbewohner. <br> Er reagiert als sogenanntes Zeigertier äußerst empfindlich auf Gewässerverschmutzungen.</p>')
+                $f->legacy()->content('<h1>Bachflohkrebs</h1><p>Der Bachflohkrebs (Gammarus fossarum) ist ein Flohkrebs aus der Familie der Gammaridae und ein typischer Bachbewohner. <br> Er reagiert als sogenanntes Zeigertier äußerst empfindlich auf Gewässerverschmutzungen.</p>')
                 ,$f->link()->standard("Quelle: Wikipedia", "https://de.wikipedia.org/wiki/Tier_des_Jahres")
             ];
             break;
         case 5:
             $t = 'Tier des Jahres: Wildkatze';
             $c = [
-                $f->legacy('<h1>Wildkatze</h1><p>Die Europäische Wildkatze oder Waldkatze (Felis silvestris) ist eine Kleinkatze, die in Europa von der Iberischen Halbinsel bis Osteuropa (westliche Ukraine), in Italien, auf dem Balkan, in Anatolien, im Kaukasus und in den schottischen Highlands vorkommt.</p>')
+                $f->legacy()->content('<h1>Wildkatze</h1><p>Die Europäische Wildkatze oder Waldkatze (Felis silvestris) ist eine Kleinkatze, die in Europa von der Iberischen Halbinsel bis Osteuropa (westliche Ukraine), in Italien, auf dem Balkan, in Anatolien, im Kaukasus und in den schottischen Highlands vorkommt.</p>')
                 ,$f->link()->standard("Quelle: Wikipedia", "https://de.wikipedia.org/wiki/Tier_des_Jahres")
             ];
             break;
         case 6:
             $t = 'Frühbarock';
             $c = [
-                $f->legacy('<h1>Glühwürmchen</h1><p>Der Große Leuchtkäfer bzw. das Große Glühwürmchen oder Große Johannisglühwürmchen (Lampyris noctiluca) ist ein Käfer aus der Familie Leuchtkäfer (Lampyridae).</p>')
+                $f->legacy()->content('<h1>Glühwürmchen</h1><p>Der Große Leuchtkäfer bzw. das Große Glühwürmchen oder Große Johannisglühwürmchen (Lampyris noctiluca) ist ein Käfer aus der Familie Leuchtkäfer (Lampyridae).</p>')
                 ,$f->link()->standard("Quelle: Wikipedia", "https://de.wikipedia.org/wiki/Tier_des_Jahres")
             ];
             break;
@@ -240,22 +256,22 @@ function getUIContent(\ILIAS\UI\Factory $f, RequestInterface $request): array
         case 7:
             $t = 'Frühbarock';
             $c = [
-                $f->legacy('<h1>Frühbarock</h1><p><b>etwa 1600 bis 1650</b><br>unter italienischer Dominanz, mit etwa Monteverdi, Gabrieli.</p>')
+                $f->legacy()->content('<h1>Frühbarock</h1><p><b>etwa 1600 bis 1650</b><br>unter italienischer Dominanz, mit etwa Monteverdi, Gabrieli.</p>')
                 ,$f->link()->standard("Quelle: Wikipedia", "https://de.wikipedia.org/wiki/Tier_des_Jahres")
             ];
             break;
         case 8:
             $t = 'Hochbarock';
-            $c = [$f->legacy('<h1>Hochbarock</h1><p><b>etwa 1650 bis 1710</b><br>Das französische Musikleben des späten 17. Jahrhunderts wurde maßgeblich von Jean-Baptiste Lully (1632–1687) am Hofe Ludwigs XIV. geprägt.</p>')];
+            $c = [$f->legacy()->content('<h1>Hochbarock</h1><p><b>etwa 1650 bis 1710</b><br>Das französische Musikleben des späten 17. Jahrhunderts wurde maßgeblich von Jean-Baptiste Lully (1632–1687) am Hofe Ludwigs XIV. geprägt.</p>')];
             break;
         case 9:
             $t = 'Spätbarock';
-            $c = [$f->legacy('<h1>Spätbarock</h1><p><b>etwa 1710 bis 1750</b><br>Entwickelte sich im Hochbarock die Musik noch unabhängig in verschiedenen Regionen Europas, so zeichnete sich der Spätbarock durch eine grenzübergreifende Verbreitung der Stile aus. Im deutschen Raum trieb Georg Philipp Telemann (1681–1767) diese Entwicklung voran und wurde schließlich zur „Ikone“ unter den Tonkünstlern.</p>')];
+            $c = [$f->legacy()->content('<h1>Spätbarock</h1><p><b>etwa 1710 bis 1750</b><br>Entwickelte sich im Hochbarock die Musik noch unabhängig in verschiedenen Regionen Europas, so zeichnete sich der Spätbarock durch eine grenzübergreifende Verbreitung der Stile aus. Im deutschen Raum trieb Georg Philipp Telemann (1681–1767) diese Entwicklung voran und wurde schließlich zur „Ikone“ unter den Tonkünstlern.</p>')];
             break;
 
         default:
             $t = 'Mainbar-Demo';
-            $c = [$f->legacy('Dies ist ein reduziertes Beispiel für die Mainbar des UI-Frameworks.')];
+            $c = [$f->legacy()->content('Dies ist ein reduziertes Beispiel für die Mainbar des UI-Frameworks.')];
     }
 
     return[$t, $c];

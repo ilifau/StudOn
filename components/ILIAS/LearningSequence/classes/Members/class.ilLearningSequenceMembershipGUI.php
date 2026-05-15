@@ -223,7 +223,8 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
             $this->lng,
             $this->access,
             $this->rbac_review,
-            $this->settings
+            $this->settings,
+            $this->profile
         );
     }
 
@@ -272,7 +273,7 @@ class ilLearningSequenceMembershipGUI extends ilMembershipGUI
      * @param string[] $columns
      * @return array<int|string, array>
      */
-    public function readMemberData(array $usr_ids, array $columns = null): array
+    public function readMemberData(array $usr_ids, ?array $columns = null): array
     {
         return $this->getParentObject()->readMemberData($usr_ids, $columns);
     }

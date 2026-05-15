@@ -21,22 +21,19 @@ declare(strict_types=1);
 use ILIAS\DI\Container;
 use PHPUnit\Framework\TestCase;
 use ILIAS\LegalDocuments\Conductor;
+use ILIAS\Mail\Service\MailService;
 
-/**
- * Class ilMailBaseTest
- * @author Michael Jansen <mjansen@databay.de>
- */
 abstract class ilMailBaseTestCase extends TestCase
 {
     private ?Container $dic = null;
 
     protected function brutallyTrimHTML(string $html): string
     {
-        $html = str_replace(["\n", "\r", "\t"], "", $html);
-        $html = preg_replace('# {2,}#', " ", $html);
+        $html = str_replace(["\n", "\r", "\t"], '', $html);
+        $html = preg_replace('# {2,}#', ' ', $html);
         $html = preg_replace('/<!--(.|\s)*?-->/', '', $html);
-        $html = preg_replace("/>(\s+)</", "><", $html);
-        $html = str_replace([" >", " <"], [">", "<"], $html);
+        $html = preg_replace("/>(\s+)</", '><', $html);
+        $html = str_replace([' >', ' <'], ['>', '<'], $html);
 
         return trim($html);
     }
@@ -53,6 +50,8 @@ abstract class ilMailBaseTestCase extends TestCase
 
         $DIC = new Container();
         $DIC['legalDocuments'] = fn() => $this->getMockBuilder(Conductor::class)->disableOriginalConstructor()->getMock();
+
+        MailService::init($DIC);
 
         parent::setUp();
     }
@@ -74,8 +73,6 @@ abstract class ilMailBaseTestCase extends TestCase
 
 
         unset($DIC[$name]);
-        $DIC[$name] = static function (Container $c) use ($name) {
-            return $GLOBALS[$name];
-        };
+        $DIC[$name] = static fn(Container $c) => $GLOBALS[$name];
     }
 }

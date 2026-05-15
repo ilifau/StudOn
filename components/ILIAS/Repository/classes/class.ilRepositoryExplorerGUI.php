@@ -93,7 +93,7 @@ class ilRepositoryExplorerGUI extends ilTreeExplorerGUI
         $this->setChildLimit((int) $ilSetting->get("rep_tree_limit_number"));
     }
 
-    public function getRootNode()
+    public function getRootNode(): array|null|object
     {
         if ($this->top_node_id > 0) {
             $root_node = $this->getTree()->getNodeData($this->top_node_id);
@@ -441,6 +441,10 @@ class ilRepositoryExplorerGUI extends ilTreeExplorerGUI
 
     public function isNodeClickable($a_node): bool
     {
+        if (in_array($a_node['type'], ['grpr', 'crsr', 'catr'], true)) {
+            return ilContainerReferenceAccess::_isAccessible($a_node['child']);
+        }
+
         return
             $this->access->checkAccess("read", "", (int) $a_node["child"]) ||
             $this->access->checkAccess("join", "", (int) $a_node["child"]);

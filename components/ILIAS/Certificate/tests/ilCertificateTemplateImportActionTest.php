@@ -23,9 +23,6 @@ use ILIAS\ResourceStorage\Manager\Manager;
 use ILIAS\ResourceStorage\Services as IRSS;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
-/**
- * @author  Niels Theen <ntheen@databay.de>
- */
 class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
 {
     public function testCertificateCanBeImportedWithBackgroundImage(): void
@@ -37,9 +34,10 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $web_fs = $this->createMock(ILIAS\Filesystem\Filesystem::class);
-        $tmp_fs = $this->createMock(ILIAS\Filesystem\Filesystem::class);
-        $tmp_fs
+        $filesystem = $this->getMockBuilder(ILIAS\Filesystem\Filesystem::class)
+            ->getMock();
+
+        $filesystem
             ->expects($this->once())
             ->method('listContents')
             ->willReturn([
@@ -92,8 +90,7 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             'some/path/certificate.xml',
             $placeholderDescriptionObject,
             $logger,
-            $web_fs,
-            $tmp_fs,
+            $filesystem,
             $irss,
             $templateRepository,
             $objectHelper,
@@ -104,8 +101,7 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
         $result = $action->import(
             'someZipFile.zip',
             'some/path/',
-            'some/web/path',
-            'some/storage/path',
+            'some/root/path',
             'v5.4.0',
             'someInstallationId'
         );
@@ -122,9 +118,10 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $web_fs = $this->createMock(ILIAS\Filesystem\Filesystem::class);
-        $tmp_fs = $this->createMock(ILIAS\Filesystem\Filesystem::class);
-        $tmp_fs
+        $filesystem = $this->getMockBuilder(ILIAS\Filesystem\Filesystem::class)
+            ->getMock();
+
+        $filesystem
             ->expects($this->once())
             ->method('listContents')
             ->willReturn([
@@ -169,8 +166,7 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             'some/path/certificate.xml',
             $placeholderDescriptionObject,
             $logger,
-            $web_fs,
-            $tmp_fs,
+            $filesystem,
             $irss,
             $templateRepository,
             $objectHelper,
@@ -181,8 +177,7 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
         $result = $action->import(
             'someZipFile.zip',
             'some/path/',
-            'some/web/path',
-            'some/storage/path',
+            'some/root/path',
             'v5.4.0',
             'someInstallationId'
         );
@@ -199,8 +194,8 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $web_fs = $this->createMock(ILIAS\Filesystem\Filesystem::class);
-        $tmp_fs = $this->createMock(ILIAS\Filesystem\Filesystem::class);
+        $filesystem = $this->getMockBuilder(ILIAS\Filesystem\Filesystem::class)
+            ->getMock();
 
         $templateRepository = $this->getMockBuilder(ilCertificateTemplateRepository::class)->getMock();
 
@@ -224,7 +219,7 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             ->method('unzip')
             ->willReturn($unzip);
 
-        $tmp_fs
+        $filesystem
             ->expects($this->once())
             ->method('listContents')
             ->willReturn([]);
@@ -242,8 +237,7 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             'some/path/certificate.xml',
             $placeholderDescriptionObject,
             $logger,
-            $web_fs,
-            $tmp_fs,
+            $filesystem,
             $irss,
             $templateRepository,
             $objectHelper,
@@ -254,8 +248,7 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
         $result = $action->import(
             'someZipFile.zip',
             'some/path/',
-            'some/web/path',
-            'some/storage/path',
+            'some/root/path',
             'v5.4.0',
             'someInstallationId'
         );
@@ -273,8 +266,8 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $web_fs = $this->createMock(ILIAS\Filesystem\Filesystem::class);
-        $tmp_fs = $this->createMock(ILIAS\Filesystem\Filesystem::class);
+        $filesystem = $this->getMockBuilder(ILIAS\Filesystem\Filesystem::class)
+            ->getMock();
 
         $templateRepository = $this->getMockBuilder(ilCertificateTemplateRepository::class)->getMock();
 
@@ -302,8 +295,7 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
             'some/path/certificate.xml',
             $placeholderDescriptionObject,
             $logger,
-            $web_fs,
-            $tmp_fs,
+            $filesystem,
             $irss,
             $templateRepository,
             $objectHelper,
@@ -314,8 +306,7 @@ class ilCertificateTemplateImportActionTest extends ilCertificateBaseTestCase
         $result = $action->import(
             'someZipFile.zip',
             'some/path/',
-            'some/web/path',
-            'some/storage/path',
+            'some/root/path',
             'v5.4.0',
             'someInstallationId'
         );

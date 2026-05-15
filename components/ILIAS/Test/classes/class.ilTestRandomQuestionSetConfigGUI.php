@@ -280,7 +280,7 @@ class ilTestRandomQuestionSetConfigGUI
         return $this->testrequest->raw(self::HTTP_PARAM_AFTER_REBUILD_QUESTION_STAGE_CMD);
     }
 
-    private function showGeneralConfigFormCmd(ilTestRandomQuestionSetGeneralConfigFormGUI $form = null): void
+    private function showGeneralConfigFormCmd(?ilTestRandomQuestionSetGeneralConfigFormGUI $form = null): void
     {
         $disabled_form = $this->preventFormBecauseOfSync();
 
@@ -498,7 +498,7 @@ class ilTestRandomQuestionSetConfigGUI
         $this->tpl->setContent($selector->getHTML(true));
     }
 
-    private function showCreateSourcePoolDefinitionFormCmd(ilTestRandomQuestionSetPoolDefinitionFormGUI $form = null): void
+    private function showCreateSourcePoolDefinitionFormCmd(?ilTestRandomQuestionSetPoolDefinitionFormGUI $form = null): void
     {
         $this->question_set_config->loadFromDb();
 
@@ -594,7 +594,7 @@ class ilTestRandomQuestionSetConfigGUI
         return $form;
     }
 
-    private function showEditSourcePoolDefinitionFormCmd(ilTestRandomQuestionSetPoolDefinitionFormGUI $form = null): void
+    private function showEditSourcePoolDefinitionFormCmd(?ilTestRandomQuestionSetPoolDefinitionFormGUI $form = null): void
     {
         $this->question_set_config->loadFromDb();
 
@@ -614,9 +614,8 @@ class ilTestRandomQuestionSetConfigGUI
     {
         $this->question_set_config->loadFromDb();
 
-        $source_pool_definition = $this->source_pool_definition_factory->getSourcePoolDefinitionByDefinitionId(
-            $this->fetchSingleSourcePoolDefinitionIdParameter()
-        );
+        $defId = $this->fetchSingleSourcePoolDefinitionIdParameter();
+        $source_pool_definition = $this->source_pool_definition_factory->getSourcePoolDefinitionByDefinitionId($defId);
         $available_taxonomy_ids = ilObjTaxonomy::getUsageOfObject($source_pool_definition->getPoolId());
 
         $form = $this->buildEditSourcePoolDefinitionFormGUI();
@@ -831,7 +830,9 @@ class ilTestRandomQuestionSetConfigGUI
 
     protected function preventFormBecauseOfSync(): bool
     {
+        $return = false;
         $last_sync = $this->question_set_config->getLastQuestionSyncTimestamp();
+
         if ($last_sync !== null && $last_sync !== 0 &&
             !$this->isFrozenConfigRequired() && $this->question_set_config->isQuestionSetBuildable()) {
             return true;

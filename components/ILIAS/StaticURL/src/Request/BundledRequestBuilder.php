@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\StaticURL\Request;
 
+use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory;
 
 /**
@@ -29,20 +30,30 @@ class BundledRequestBuilder implements RequestBuilder
 {
     private LegacyRequestBuilder $legacy;
     private StaticURLRequestBuilder $static;
+    private ShortlinkRequestBuilder $shortlink;
 
     public function __construct()
     {
         $this->legacy = new LegacyRequestBuilder();
         $this->static = new StaticURLRequestBuilder();
+        $this->shortlink = new ShortlinkRequestBuilder();
     }
 
-    public function buildRequest(\ILIAS\HTTP\Services $http, Factory $refinery, array $handlers): ?Request
+    public function buildRequest(Services $http, Factory $refinery, array $handlers): ?Request
     {
+        if (($request = $this->shortlink->buildRequest(
+            $http,
+            $refinery,
+            $handlers
+        )) instanceof Request) {
+            return $request;
+        }
+
         if (($request = $this->legacy->buildRequest(
             $http,
             $refinery,
             $handlers
-        )) instanceof \ILIAS\StaticURL\Request\Request) {
+        )) instanceof Request) {
             // we have now the situation that a new static URL is requested, but the handler is not yet registered or implemented
             // we built a legacy request using the LegacyRequestBuilder for this to let the old system handle it.
             return $request;

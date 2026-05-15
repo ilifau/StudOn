@@ -56,7 +56,7 @@ abstract class AbstractMap implements Filterable, Walkable
     public function add(isGlobalScreenItem $item): void
     {
         $serialize = $item->getProviderIdentification()->serialize();
-        if ((string) $serialize !== '') {
+        if (0 < strlen($serialize)) {
             $this->raw[$serialize] = $item;
         }
     }
@@ -142,7 +142,7 @@ abstract class AbstractMap implements Filterable, Walkable
     public function walk(Closure $c): void
     {
         $this->applyFilters();
-        $to_walk = $this->filtered->getArrayCopy();
+        $to_walk = (array) $this->filtered->getArrayCopy();
         array_walk($to_walk, $c);
         $this->filtered = new ArrayObject($to_walk);
     }

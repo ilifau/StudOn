@@ -39,7 +39,7 @@ use ILIAS\ResourceStorage\Identification\ResourceIdentification;
  */
 class ilCertificateGUI
 {
-    private const EDITOR_COMMAND = 'certificateEditor';
+    public const string EDITOR_COMMAND = 'certificateEditor';
 
     protected ilCtrlInterface $ctrl;
     protected ilTree $tree;
@@ -61,7 +61,6 @@ class ilCertificateGUI
     private readonly ilCertificateTemplateExportAction $exportAction;
     private readonly ilCertificateTemplatePreviewAction $previewAction;
     private readonly FileUpload $fileUpload;
-    private readonly Filesystem $file_system;
     private readonly string $certificatePath;
     private readonly ilPageFormats $pageFormats;
     private readonly ilLogger $logger;
@@ -73,17 +72,16 @@ class ilCertificateGUI
         ilCertificatePlaceholderValues $placeholderValuesObject,
         private readonly int $objectId,
         string $certificatePath,
-        ilCertificateFormRepository $settingsFormFactory = null,
-        ilCertificateDeleteAction $deleteAction = null,
-        ilCertificateTemplateRepository $templateRepository = null,
-        ilPageFormats $pageFormats = null,
-        ilXlsFoParser $xlsFoParser = null,
-        ilCertificateTemplateExportAction $exportAction = null,
-        ilCertificateTemplatePreviewAction $previewAction = null,
-        FileUpload $fileUpload = null,
+        ?ilCertificateFormRepository $settingsFormFactory = null,
+        ?ilCertificateDeleteAction $deleteAction = null,
+        ?ilCertificateTemplateRepository $templateRepository = null,
+        ?ilPageFormats $pageFormats = null,
+        ?ilXlsFoParser $xlsFoParser = null,
+        ?ilCertificateTemplateExportAction $exportAction = null,
+        ?ilCertificateTemplatePreviewAction $previewAction = null,
+        ?FileUpload $fileUpload = null,
         private readonly ilSetting $settings = new ilSetting('certificate'),
-        Filesystem $file_system = null,
-        Filesystem $tmp_file_system = null
+        ?Filesystem $tmp_file_system = null
     ) {
         global $DIC;
 
@@ -141,7 +139,6 @@ class ilCertificateGUI
             $this->irss
         );
         $this->fileUpload = $fileUpload ?? $DIC->upload();
-        $this->file_system = $file_system ?? $DIC->filesystem()->web();
         $this->database = $DIC->database();
     }
 
@@ -357,15 +354,9 @@ class ilCertificateGUI
         $current_background_rid = $this->irss->manageContainer()->find(
             $current_template->getBackgroundImageIdentification()
         );
-        $current_thumbnail_rid = $this->irss->manageContainer()->find(
-            $current_template->getThumbnailImageIdentification()
+        $current_tile_image_rid = $this->irss->manageContainer()->find(
+            $current_template->getTileImageIdentification()
         );
-        $old_background_image = $current_background_rid === null
-            ? $current_template->getBackgroundImagePath() :
-            '';
-        $old_thumbnail_image = $current_thumbnail_rid === null
-            ? $current_template->getThumbnailImagePath() :
-            '';
 
         $should_delete_background =
             $this->httpWrapper->post()->retrieve(
@@ -375,9 +366,9 @@ class ilCertificateGUI
                     $this->refinery->always(false)
                 ])
             );
-        $should_delete_thumbnail =
+        $should_delete_tile_image =
             $this->httpWrapper->post()->retrieve(
-                'certificate_card_thumbnail_image_delete',
+                'certificate_card_tile_image_delete',
                 $this->refinery->byTrying([
                     $this->refinery->kindlyTo()->bool(),
                     $this->refinery->always(false)
@@ -386,23 +377,8 @@ class ilCertificateGUI
 
         $new_background_rid = $current_background_rid && !$should_delete_background ? $current_background_rid :
             $this->global_certificate_settings->getBackgroundImageIdentification();
-        if (
-            is_string($new_background_rid) &&
-            is_string($this->global_certificate_settings->getBackgroundImageIdentification()) &&
-            $new_background_rid === $this->global_certificate_settings->getBackgroundImageIdentification()
-        ) {
-            if ($this->file_system->has($new_background_rid)) {
-                $new_background_rid = $this->irss->manage()->stream(
-                    $this->file_system->readStream($new_background_rid),
-                    $this->stakeholder
-                );
-            } else {
-                $old_background_image = $new_background_rid;
-                $new_background_rid = null;
-            }
-        }
 
-        $new_thumbnail_rid = !$should_delete_thumbnail ? $current_thumbnail_rid : null;
+        $new_tile_rid = !$should_delete_tile_image ? $current_tile_image_rid : null;
         if ($form->checkInput()) {
             try {
                 $this->settingsFormFactory->save($form_fields);
@@ -414,7 +390,7 @@ class ilCertificateGUI
                         $this->fileUpload->process();
                     }
                     $new_background = $form->getInput('background')['tmp_name'] ?? '';
-                    $new_thumbnail_image = $form->getInput('certificate_card_thumbnail_image')['tmp_name'] ?? '';
+                    $new_tile_image = $form->getInput('certificate_card_tile_image')['tmp_name'] ?? '';
                     $results = $this->fileUpload->getResults();
 
                     if ($new_background !== '') {
@@ -424,22 +400,15 @@ class ilCertificateGUI
                         );
                     }
 
-                    if ($new_thumbnail_image !== '') {
-                        $new_thumbnail_rid = $this->irss->manage()->upload(
-                            $results[$new_thumbnail_image],
+                    if ($new_tile_image !== '') {
+                        $new_tile_rid = $this->irss->manage()->upload(
+                            $results[$new_tile_image],
                             $this->stakeholder
                         );
                     }
                 }
 
                 $jsonEncodedTemplateValues = json_encode($templateValues, JSON_THROW_ON_ERROR);
-
-                if (isset($new_background_rid)) {
-                    $old_background_image = '';
-                }
-                if (isset($new_thumbnail_rid)) {
-                    $old_thumbnail_image = '';
-                }
 
                 $xslfo = $this->xlsFoParser->parse($form_fields);
                 $newHashValue = hash(
@@ -448,8 +417,7 @@ class ilCertificateGUI
                         $xslfo,
                         isset($new_background_rid) ? $new_background_rid->serialize() : '',
                         $jsonEncodedTemplateValues,
-                        isset($new_thumbnail_rid) ? $new_background_rid->serialize() : '',
-                        $old_background_image, $old_thumbnail_image
+                        isset($new_tile_rid) ? $new_background_rid->serialize() : ''
                     ])
                 );
 
@@ -466,18 +434,16 @@ class ilCertificateGUI
                         ILIAS_VERSION_NUMERIC,
                         time(),
                         $active,
-                        $old_background_image,
-                        $old_thumbnail_image,
                         isset($new_background_rid) ? $new_background_rid->serialize() : '',
-                        isset($new_thumbnail_rid) ? $new_thumbnail_rid->serialize() : '',
+                        isset($new_tile_rid) ? $new_tile_rid->serialize() : '',
                     );
                     $this->templateRepository->save($certificateTemplate);
 
                     if ($current_background_rid instanceof ResourceIdentification) {
                         $certificate_handler->handleResourceChange($current_background_rid);
                     }
-                    if ($current_thumbnail_rid instanceof ResourceIdentification) {
-                        $certificate_handler->handleResourceChange($current_thumbnail_rid);
+                    if ($current_tile_image_rid instanceof ResourceIdentification) {
+                        $certificate_handler->handleResourceChange($current_tile_image_rid);
                     }
 
                     $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'), true);

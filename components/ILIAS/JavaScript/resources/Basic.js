@@ -260,29 +260,19 @@ il.Util = {
    */
   renderMathJax(elements, reprocess = false) {
     if (typeof MathJax !== 'undefined') {
-      if (typeof MathJax.Hub !== 'undefined') {
-        // MathJax 2
-        if (reprocess) {
-          MathJax.Hub.Queue(['Reprocess', MathJax.Hub, elements]);
-        } else {
-          MathJax.Hub.Queue(['Typeset', MathJax.Hub, elements]);
+      const interval_id = setInterval((resolve, reject) => {
+        if (typeof MathJax.startup.promise !== 'undefined') {
+          clearInterval(interval_id);
+          MathJax.startup.promise = MathJax.startup.promise
+            .then(() => {
+              if (reprocess) {
+                MathJax.typesetClear(elements);
+              }
+              MathJax.typesetPromise()
+                .catch((err) => console.log(`MathJax typesetting failed: ${err.message}`));
+            });
         }
-      } else {
-        // MathJax 3
-        const interval_id = setInterval((resolve, reject) => {
-          if (typeof MathJax.startup.promise !== 'undefined') {
-            clearInterval(interval_id);
-            MathJax.startup.promise = MathJax.startup.promise
-              .then(() => {
-                if (reprocess) {
-                  MathJax.typesetClear(elements);
-                }
-                MathJax.typesetPromise()
-                  .catch((err) => console.log(`MathJax typesetting failed: ${err.message}`));
-              });
-          }
-        });
-      }
+      });
     }
   },
 
@@ -292,24 +282,16 @@ il.Util = {
   print() {
     if (typeof (window.print) !== 'undefined') {
       if (typeof MathJax !== 'undefined') {
-        if (typeof MathJax.Hub !== 'undefined') {
-          // MathJax 2
-          MathJax.Hub.Queue(
-            ['Delay', MathJax.Callback, 700],
-            window.print,
-          );
-        } else {
-          // MathJax 3
-          const interval_id = setInterval((resolve, reject) => {
-            if (typeof MathJax.startup.promise !== 'undefined') {
-              clearInterval(interval_id);
-              MathJax.startup.promise = MathJax.startup.promise
-                .then(() => MathJax.typesetPromise()
-                  .then(window.print)
-                  .catch((err) => console.log(`MathJax typesetting failed: ${err.message}`)));
-            }
-          });
-        }
+        // MathJax 3
+        const interval_id = setInterval((resolve, reject) => {
+          if (typeof MathJax.startup.promise !== 'undefined') {
+            clearInterval(interval_id);
+            MathJax.startup.promise = MathJax.startup.promise
+              .then(() => MathJax.typesetPromise()
+                .then(window.print)
+                .catch((err) => console.log(`MathJax typesetting failed: ${err.message}`)));
+          }
+        });
       } else {
         window.print();
       }
@@ -1065,3 +1047,7 @@ function numericInputCheck() {
 $(document).ready(() => {
   numericInputCheck();
 });
+
+if (typeof navigator.serviceWorker !== 'undefined') {
+  navigator.serviceWorker.register('/service-worker.js');
+}

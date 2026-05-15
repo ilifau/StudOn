@@ -573,6 +573,9 @@ class ilPCTabsGUI extends ilPageContentGUI
                 if ($cnt === count($captions) && in_array($act, ["moveDown", "moveBottom"])) {
                     continue;
                 }
+                if ($act === "deletePanel" && count($captions) === 1) {
+                    continue;
+                }
                 $dd_items[] = $ui->factory()->link()->standard(
                     $lng,
                     $this->ctrl->getLinkTarget($this, $act)
@@ -582,7 +585,7 @@ class ilPCTabsGUI extends ilPageContentGUI
             $content = $this->getTabContent($cap["pc_id"]);
             $items[] = $ui->factory()->panel()->standard(
                 $cap["caption"],
-                $ui->factory()->legacy($content)
+                $ui->factory()->legacy()->content($content)
             )
                 ->withActions($dd);
             $cnt++;

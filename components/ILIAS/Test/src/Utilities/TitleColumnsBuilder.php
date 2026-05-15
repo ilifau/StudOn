@@ -129,7 +129,7 @@ class TitleColumnsBuilder
 
     public function buildAccessCheckedQuestionpoolTitleAsLink(
         ?int $qpl_id,
-        string $title = null,
+        ?string $title = null,
         bool $reference = false
     ): StandardLink {
         if ($qpl_id === null) {
@@ -186,7 +186,7 @@ class TitleColumnsBuilder
         $linked_title = $this->ui_factory->link()->standard(
             $title,
             $this->ctrl->getLinkTargetByClass(
-                [\ilRepositoryGUI::class, $target_class_type]
+                [$target_class_type]
             )
         );
         $this->ctrl->clearParametersByClass($target_class_type);

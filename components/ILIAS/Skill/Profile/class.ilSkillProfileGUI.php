@@ -686,7 +686,7 @@ class ilSkillProfileGUI
         $this->assignLevelSelectSkill(true);
     }
 
-    public function assignLevelToProfile(Profile\SkillProfileLevel $level = null): void
+    public function assignLevelToProfile(?Profile\SkillProfileLevel $level = null): void
     {
         $ilCtrl = $this->ctrl;
         $lng = $this->lng;

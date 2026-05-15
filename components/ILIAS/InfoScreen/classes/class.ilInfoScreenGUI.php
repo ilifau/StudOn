@@ -22,6 +22,7 @@ use ILIAS\InfoScreen\StandardGUIRequest;
 use ILIAS\MetaData\Services\ServicesInterface as Metadata;
 use ILIAS\Export\ExportHandler\Factory as ExportServices;
 use ILIAS\Data\Factory as DataFactory;
+use ILIAS\User\Profile\PublicProfileGUI;
 // fau: fauService
 use FAU\Tools\Cust;
 // fau.
@@ -30,7 +31,7 @@ use FAU\Tools\Cust;
  * Class ilInfoScreenGUI
  *
  * @author Alexander Killing <killing@leifos.de>
- * @ilCtrl_Calls ilInfoScreenGUI: ilCommentGUI, ilColumnGUI, ilPublicUserProfileGUI
+ * @ilCtrl_Calls ilInfoScreenGUI: ilCommentGUI, ilColumnGUI, ILIAS\User\Profile\PublicProfileGUI
  * @ilCtrl_Calls ilInfoScreenGUI: ilCommonActionDispatcherGUI
  */
 class ilInfoScreenGUI
@@ -133,8 +134,8 @@ class ilInfoScreenGUI
                 $this->showSummary();
                 break;
 
-            case "ilpublicuserprofilegui":
-                $user_profile = new ilPublicUserProfileGUI($this->request->getUserId());
+            case strtolower(PublicProfileGUI::class):
+                $user_profile = new PublicProfileGUI($this->request->getUserId());
                 $user_profile->setBackUrl($this->ctrl->getLinkTarget($this, "showSummary"));
                 $html = $this->ctrl->forwardCommand($user_profile);
                 $tpl->setContent($html);
@@ -401,12 +402,12 @@ class ilInfoScreenGUI
             }
             $this->addSection($lng->txt('meta_info_licence_section'));
 
-            if ($public_access_export !== '') {		// public access export
-                $this->addProperty(
-                    $lng->txt('export_info_public_access'),
-                    $public_access_export
-                );
-            }
+        if ($public_access_export !== '') {		// public access export
+            $this->addProperty(
+                $lng->txt('export_info_public_access'),
+                $public_access_export
+            );
+        }
 
             if ($copyright !== '') {		// copyright
                 $this->addProperty(
@@ -551,11 +552,11 @@ class ilInfoScreenGUI
                 if (!is_object($ownerObj) || $ownerObj->getType() != "usr") {        // root user deleted
                     $this->addProperty($lng->txt("owner"), $lng->txt("no_owner"));
                 } elseif ($ownerObj->hasPublicProfile()) {
-                    $ilCtrl->setParameterByClass("ilpublicuserprofilegui", "user_id", $ownerObj->getId());
+                    $ilCtrl->setParameterByClass(PublicProfileGUI::class, "user_id", $ownerObj->getId());
                     $this->addProperty(
                         $lng->txt("owner"),
                         $ownerObj->getPublicName(),
-                        $ilCtrl->getLinkTargetByClass("ilpublicuserprofilegui", "getHTML")
+                        $ilCtrl->getLinkTargetByClass([ilPublicProfileBaseClassGUI::class, PublicProfileGUI::class], "getHTML")
                     );
                 } else {
                     $this->addProperty($lng->txt("owner"), $ownerObj->getPublicName());
@@ -592,27 +593,6 @@ class ilInfoScreenGUI
                     }
                     if ($count_users > 0) {
                         $this->addProperty($this->lng->txt("accesscount_registered_users"), (string) $count_users);
-                    }
-                }
-            }
-        }
-
-        // WebDAV: Display locking information
-        if (ilDAVActivationChecker::_isActive()) {
-            if ($ilUser->getId() != ANONYMOUS_USER_ID) {
-                $webdav_dic = new ilWebDAVDIC();
-                $webdav_dic->initWithoutDIC();
-                $webdav_lock_backend = $webdav_dic->locksbackend();
-                // Show lock info
-                if ($ilUser->getId() != ANONYMOUS_USER_ID) {
-                    if ($lock = $webdav_lock_backend->getLocksOnObjectId($this->gui_object->getObject()->getId())) {
-                        /** @var ilWebDAVLockObject $lock */
-                        $lock_user = new ilObjUser($lock->getIliasOwner());
-                        $this->addProperty(
-                            $this->lng->txt("in_use_by"),
-                            $lock_user->getPublicName(),
-                            "./ilias.php?user=" . $lock_user->getId() . '&cmd=showUserProfile&cmdClass=ildashboardgui&cmdNode=1&baseClass=ilDashboardGUI'
-                        );
                     }
                 }
             }

@@ -65,7 +65,7 @@ class ilGlossaryExport
     /**
      * build html export file
      */
-    public function buildExportFileHTML() : void
+    public function buildExportFileHTML(): void
     {
         // create directories
         $this->glo_obj->createExportDirectory("html");

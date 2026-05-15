@@ -25,7 +25,7 @@ require_once(__DIR__ . "/CommonFieldRendering.php");
 
 use ILIAS\UI\Implementation\Component as I;
 use ILIAS\UI\Implementation\Component\SignalGenerator;
-use ILIAS\UI\Implementation\Component\Input\InputData;
+use ILIAS\UI\Component\Input\InputData;
 use ILIAS\Data\Password as PWD;
 use ILIAS\UI\Component\Input\Field;
 use ILIAS\Data;
@@ -95,7 +95,7 @@ class PasswordInputTest extends ILIAS_UI_TestBase
             $byline,
             'id_1'
         );
-        $this->assertEquals($expected, $this->render($pwd));
+        $this->assertEquals($expected, $this->renderInsideContainer($pwd));
     }
 
     public function testCommonRendering(): void
@@ -129,7 +129,7 @@ class PasswordInputTest extends ILIAS_UI_TestBase
             null,
             'id_1'
         );
-        $this->assertEquals($expected, $this->render($pwd));
+        $this->assertEquals($expected, $this->renderInsideContainer($pwd));
     }
 
     public function testValueRequired(): void

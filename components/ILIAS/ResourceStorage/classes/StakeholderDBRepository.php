@@ -38,11 +38,9 @@ class StakeholderDBRepository implements StakeholderRepository
      * @var mixed[]
      */
     protected array $cache = [];
-    protected \ilDBInterface $db;
 
-    public function __construct(\ilDBInterface $db)
+    public function __construct(protected \ilDBInterface $db)
     {
-        $this->db = $db;
     }
 
     /**

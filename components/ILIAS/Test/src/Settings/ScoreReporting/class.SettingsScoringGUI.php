@@ -131,7 +131,7 @@ class SettingsScoringGUI extends TestSettingsGUI
         }
     }
 
-    private function showForm(Form $form = null): void
+    private function showForm(?Form $form = null): void
     {
         if ($form === null) {
             $form = $this->buildForm();

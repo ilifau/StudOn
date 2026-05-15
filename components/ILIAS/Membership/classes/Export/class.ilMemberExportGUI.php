@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,8 +16,12 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+use ILIAS\User\Profile\Profile;
+use ILIAS\User\Context;
 
 /**
  * @author  Stefan Meyer <meyer@leifos.com>
@@ -38,6 +40,7 @@ class ilMemberExportGUI
     protected ilGlobalTemplateInterface $tpl;
     protected ilLanguage $lng;
     protected ilToolbarGUI $toolbar;
+    protected Profile $profile;
 
     protected ?ilMemberExport $export = null;
     protected ?ilExportFieldsInfo $fields_info = null;
@@ -75,6 +78,7 @@ class ilMemberExportGUI
         $this->ctrl = $DIC->ctrl();
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->toolbar = $DIC->toolbar();
+        $this->profile = $DIC['user']->getProfile();
         $this->lng = $DIC->language();
         $this->lng->loadLanguageModule('ps');
         // fau: memberExport - get language vars of course and tracking
@@ -85,7 +89,7 @@ class ilMemberExportGUI
         $this->obj_id = ilObject::_lookupObjId($this->ref_id);
         $this->type = ilObject::_lookupType($this->obj_id);
 
-        $this->fields_info = ilExportFieldsInfo::_getInstanceByType(ilObject::_lookupType($this->obj_id));
+        $this->fields_info = ilExportFieldsInfo::_getInstanceByType($this->type);
         $this->initFileSystemStorage();
     }
 
@@ -170,11 +174,11 @@ class ilMemberExportGUI
         }
 
         // udf
-        foreach (ilUserDefinedFields::_getInstance()->getExportableFields($this->obj_id) as $field_id => $udf_data) {
-            $field = 'udf_' . $field_id;
-            $udata->addOption(new ilCheckboxOption($udf_data['field_name'], $field));
-            if ($this->exportSettings->enabled($field)) {
-                $current_udata[] = $field;
+        foreach ($this->profile->getVisibleUserDefinedFields(Context::buildFromObjectType($this->type)) as $field) {
+            $field_id = 'udf_' . $field->getIdentifier();
+            $udata->addOption(new ilCheckboxOption($field->getLabel($this->lng), $field_id));
+            if ($this->exportSettings->enabled($field_id)) {
+                $current_udata[] = $field_id;
             }
         }
 
@@ -266,7 +270,7 @@ class ilMemberExportGUI
         return $form;
     }
 
-    public function initCSV(ilPropertyFormGUI $a_form = null): void
+    public function initCSV(?ilPropertyFormGUI $a_form = null): void
     {
         if (!$a_form) {
             $a_form = $this->initSettingsForm();
@@ -274,7 +278,7 @@ class ilMemberExportGUI
         $this->tpl->setContent($a_form->getHTML());
     }
 
-    public function initExcel(ilPropertyFormGUI $a_form = null): void
+    public function initExcel(?ilPropertyFormGUI $a_form = null): void
     {
         if (!$a_form) {
             $a_form = $this->initSettingsForm(true);
@@ -415,7 +419,7 @@ class ilMemberExportGUI
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                         );
 
-                    // no break
+                        // no break
                     case 'xls':
                         ilUtil::deliverData(
                             $contents,
@@ -423,7 +427,7 @@ class ilMemberExportGUI
                             'application/vnd.ms-excel'
                         );
 
-                    // no break
+                        // no break
                     default:
                     case 'csv':
                         ilUtil::deliverData(

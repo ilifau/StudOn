@@ -28,11 +28,13 @@ use ILIAS\Filesystem\Stream\Stream;
  */
 class PDF extends General implements Extractor
 {
+    #[\Override]
     public function getResolution(): int
     {
         return 96;
     }
 
+    #[\Override]
     public function readImage(\Imagick $img, Stream $stream, PagesToExtract $definition): \Imagick
     {
         // Using ghostscript to extract pages from PDFs is faster and more reliable. If ghostscript is available, use it.

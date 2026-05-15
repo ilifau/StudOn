@@ -21,7 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\LegalDocuments\test;
 
 use ILIAS\LegalDocuments\Value\DocumentContent;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy;
 use ILIAS\UI\Factory as UIFactory;
 use ILIAS\LegalDocuments\Condition\Definition\UserCountryDefinition;
 use ILIAS\LegalDocuments\Condition\Definition\UserLanguageDefinition;
@@ -71,10 +71,15 @@ class DefaultMappingsTest extends TestCase
 
     public function testContentAsComponent(): void
     {
-        $legacy = $this->mock(Legacy::class);
+        $legacy = $this->mock(Legacy\Content::class);
+        $legacy_factory = $this->mock(Legacy\Factory::class);
+        $legacy_factory
+            ->expects($this->once())
+            ->method('content')
+            ->willReturn($legacy);
 
         $container = $this->mockTree(Container::class, [
-            'ui' => ['factory' => $this->mockMethod(UIFactory::class, 'legacy', ['bar'], $legacy)],
+            'ui' => ['factory' => $this->mockMethod(UIFactory::class, 'legacy', [], $legacy_factory)],
         ]);
 
         $instance = new DefaultMappings('foo', $container);

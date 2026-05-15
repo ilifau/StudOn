@@ -19,8 +19,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use ILIAS\UI\Component\Input\Field\UploadHandler;
-use ILIAS\UI\Implementation\Component\Input\UploadLimitResolver;
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
@@ -68,7 +66,7 @@ class UploadPolicyResolverTest extends TestCase
             [$general_policy, $specifiy_policy]
         );
 
-        $this->assertEquals(1000, $resolver->getUserUploadSizeLimitInBytes() / 1000 / 1000);
+        $this->assertSame(1000, $resolver->getUserUploadSizeLimitInBytes() / 1000 / 1000);
 
         $specifiy_policy_expired = new \UploadPolicy(
             1,
@@ -91,6 +89,6 @@ class UploadPolicyResolverTest extends TestCase
             [$general_policy, $specifiy_policy_expired]
         );
 
-        $this->assertEquals(10, $resolver->getUserUploadSizeLimitInBytes() / 1000 / 1000);
+        $this->assertSame(10, $resolver->getUserUploadSizeLimitInBytes() / 1000 / 1000);
     }
 }

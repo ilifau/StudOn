@@ -30,10 +30,11 @@ use ILIAS\UI\Component\Input\Field\Password as PasswordInput;
 
 class ilLocalUserPasswordSettingsGUI
 {
-    private const NEW_PASSWORD = 'new_password';
-    private const CURRENT_PASSWORD = 'current_password';
-    public const CMD_SHOW_PASSWORD = 'showPassword';
-    public const CMD_SAVE_PASSWORD = 'savePassword';
+    private const string NEW_PASSWORD = 'new_password';
+    private const string CURRENT_PASSWORD = 'current_password';
+    public const string CMD_SHOW_PASSWORD = 'showPassword';
+    public const string CMD_SAVE_PASSWORD = 'savePassword';
+
     private readonly ServerRequestInterface $request;
     private readonly ilErrorHandling $error;
     private readonly Refinery $refinery;
@@ -63,6 +64,7 @@ class ilLocalUserPasswordSettingsGUI
 
     public function executeCommand(): void
     {
+        $this->tpl->setTitle($this->lng->txt('chg_password'));
         $cmd = $this->ctrl->getCmd();
         switch ($cmd) {
             default:
@@ -76,9 +78,9 @@ class ilLocalUserPasswordSettingsGUI
     }
 
     public function showPasswordCmd(
-        Form $form = null,
+        ?Form $form = null,
         bool $hide_form = false,
-        MessageBox $message_box = null
+        ?MessageBox $message_box = null
     ): void {
         // check whether password of user have to be changed
         // due to first login or password of user is expired
@@ -89,13 +91,14 @@ class ilLocalUserPasswordSettingsGUI
             );
         } elseif ($this->user->isPasswordExpired()) {
             $msg = $this->lng->txt('password_expired');
-            $password_age = $this->user->getPasswordAge();
+            $password_age = $this->user->getPasswordAgeInDays();
             $this->tpl->setOnScreenMessage($this->tpl::MESSAGE_TYPE_INFO, sprintf($msg, $password_age));
         }
 
         if (!$form && !$hide_form) {
             $form = $this->getPasswordForm();
         }
+
         $this->tpl->setContent(
             !$hide_form ? $this->ui_renderer->render($form) : $this->ui_renderer->render($message_box)
         );
@@ -225,14 +228,6 @@ class ilLocalUserPasswordSettingsGUI
 
                     break;
                 case ilAuthUtils::AUTH_SHIBBOLETH:
-                case ilAuthUtils::AUTH_CAS:
-                    if (ilDAVActivationChecker::_isActive()) {
-                        $title = $this->lng->txt('chg_ilias_and_webfolder_password');
-                    } else {
-                        $title = $this->lng->txt('chg_ilias_password');
-                    }
-
-                    break;
                 default:
                     $title = $this->lng->txt('chg_ilias_password');
 

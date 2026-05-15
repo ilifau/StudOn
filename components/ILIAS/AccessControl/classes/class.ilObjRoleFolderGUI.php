@@ -18,7 +18,6 @@
 
 declare(strict_types=1);
 
-use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
 use ILIAS\UI\Factory as UIFactory;
 
@@ -38,8 +37,6 @@ class ilObjRoleFolderGUI extends ilObjectGUI
 
     private ilLogger $logger;
     protected ilRbacAdmin $rbacadmin;
-
-    protected GlobalHttpState $http;
     protected Factory $refinery;
     protected UIFactory $ui_factory;
 
@@ -53,7 +50,6 @@ class ilObjRoleFolderGUI extends ilObjectGUI
 
         $this->logger = $DIC->logger()->ac();
         $this->rbacadmin = $DIC['rbacadmin'];
-        $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
         $this->ui_factory = $DIC['ui.factory'];
 
@@ -157,7 +153,7 @@ class ilObjRoleFolderGUI extends ilObjectGUI
     {
         $this->tabs_gui->activateTab('view');
 
-        if (!$this->rbac_system->checkAccess('visible,read', $this->object->getRefId())) {
+        if (!$this->rbac_system->checkAccess('read', $this->object->getRefId())) {
             $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
         }
 
@@ -211,7 +207,7 @@ class ilObjRoleFolderGUI extends ilObjectGUI
             $this->ctrl->getLinkTarget($this, 'view')
         );
 
-        if (!$this->rbac_system->checkAccess('visible,read', $this->object->getRefId())) {
+        if (!$this->rbac_system->checkAccess('read', $this->object->getRefId())) {
             $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
         }
 
@@ -718,7 +714,7 @@ class ilObjRoleFolderGUI extends ilObjectGUI
      */
     public function getAdminTabs(): void
     {
-        if ($this->checkPermissionBool("visible,read")) {
+        if ($this->checkPermissionBool("read")) {
             $this->tabs_gui->addTarget(
                 "view",
                 $this->ctrl->getLinkTarget($this, "view"),
@@ -747,7 +743,7 @@ class ilObjRoleFolderGUI extends ilObjectGUI
         }
     }
 
-    public function editSettingsObject(ilPropertyFormGUI $a_form = null): void
+    public function editSettingsObject(?ilPropertyFormGUI $a_form = null): void
     {
         if ($a_form === null) {
             $a_form = $this->initSettingsForm();

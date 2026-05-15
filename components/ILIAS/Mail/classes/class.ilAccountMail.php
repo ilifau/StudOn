@@ -20,36 +20,35 @@ declare(strict_types=1);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory as Refinery;
+use ILIAS\User\Settings\NewAccountMail\Repository as NewAccountMailRepository;
+use ILIAS\User\Settings\NewAccountMail\Mail as NewAccountMail;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
 
-/**
- * Class ilAccountMail
- *
- * Sends e-mail to newly created accounts.
- *
- * @author Stefan Schneider <stefan.schneider@hrz.uni-giessen.de>
- * @author Alex Killing <alex.killing@hrz.uni-giessen.de>
- *
- */
 class ilAccountMail
 {
+    private readonly GlobalHttpState $http;
     private readonly ilSetting $settings;
-    private readonly ilTree $repositoryTree;
-    private readonly ilMailMimeSenderFactory $senderFactory;
+    private readonly Refinery $refinery;
+    private readonly ilTree $repository_tree;
+    private readonly ilMailMimeSenderFactory $sender_factory;
     public string $u_password = '';
     public ?ilObjUser $user = null;
     private bool $lang_variables_as_fallback = false;
-    /** @var string[] */
-    private array $attachments = [];
-    private bool $attachConfiguredFiles = false;
+    private readonly ResourceStorage $irss;
+    private readonly NewAccountMailRepository $account_mail_repo;
     private array $amail = [];
     private ?string $permanent_link_target = null;
 
     public function __construct()
     {
         global $DIC;
+        $this->http = $DIC->http();
+        $this->refinery = $DIC->refinery();
         $this->settings = $DIC->settings();
-        $this->repositoryTree = $DIC->repositoryTree();
-        $this->senderFactory = $DIC->mail()->mime()->senderFactory();
+        $this->repository_tree = $DIC->repositoryTree();
+        $this->sender_factory = $DIC->mail()->mime()->senderFactory();
+        $this->irss = $DIC->resourceStorage();
+        $this->account_mail_repo = new NewAccountMailRepository($DIC->database());
     }
 
     public function useLangVariablesAsFallback(bool $a_status): void
@@ -60,16 +59,6 @@ class ilAccountMail
     public function areLangVariablesUsedAsFallback(): bool
     {
         return $this->lang_variables_as_fallback;
-    }
-
-    public function shouldAttachConfiguredFiles(): bool
-    {
-        return $this->attachConfiguredFiles;
-    }
-
-    public function setAttachConfiguredFiles(bool $attachConfiguredFiles): void
-    {
-        $this->attachConfiguredFiles = $attachConfiguredFiles;
     }
 
     public function setUserPassword(string $a_pwd): void
@@ -84,13 +73,6 @@ class ilAccountMail
 
     public function setUser(ilObjUser $a_user): void
     {
-        if (
-            $this->user instanceof ilObjUser &&
-            $a_user->getId() !== $this->user->getId()
-        ) {
-            $this->attachments = [];
-        }
-
         $this->user = $a_user;
     }
 
@@ -118,56 +100,15 @@ class ilAccountMail
     }
 
     /**
-     * @param array{lang?: string, subject?: string, body?: string, sal_f?: string, sal_g?: string, sal_m?: string, type?: string, att_file?: string} $mailData
-     * @return array{lang?: string, subject?: string, body?: string, sal_f?: string, sal_g?: string, sal_m?: string, type?: string, att_file?: string}
-     */
-    private function ensureValidMailDataShape(array $mailData): array
-    {
-        foreach (['lang', 'subject', 'body', 'sal_f', 'sal_g', 'sal_m', 'type'] as $key) {
-            if (!isset($mailData[$key])) {
-                $mailData[$key] = '';
-            }
-        }
-
-        $mailData['subject'] = trim($mailData['subject']);
-        $mailData['body'] = trim($mailData['body']);
-
-        return $mailData;
-    }
-
-    /**
      * @return array{lang?: string, subject?: string, body?: string, sal_f?: string, sal_g?: string, sal_m?: string, type?: string}
      */
-    private function readAccountMail(string $a_lang): array
+    private function readAccountMail(string $a_lang): NewAccountMail
     {
-        if (!isset($this->amail[$a_lang]) || !is_array($this->amail[$a_lang])) {
-            $this->amail[$a_lang] = $this->ensureValidMailDataShape(
-                ilObjUserFolder::_lookupNewAccountMail($a_lang)
-            );
+        if (!isset($this->amail[$a_lang]) || !($this->amail[$a_lang] instanceof NewAccountMail)) {
+            $this->amail[$a_lang] = $this->account_mail_repo->getFor($a_lang);
         }
 
         return $this->amail[$a_lang];
-    }
-
-    /**
-     * @param array{lang?: string, subject?: string, body?: string, sal_f?: string, sal_g?: string, sal_m?: string, type?: string, att_file?: string} $mailData
-     * @throws \ILIAS\Filesystem\Exception\IOException
-     */
-    private function addAttachments(array $mailData): void
-    {
-        if (isset($mailData['att_file']) && $this->shouldAttachConfiguredFiles()) {
-            $fs = new ilFSStorageUserFolder(USER_FOLDER_ID);
-            $fs->create();
-
-            $pathToFile = '/' . implode('/', array_map(static function (string $pathPart): string {
-                return trim($pathPart, '/');
-            }, [
-                $fs->getAbsolutePath(),
-                $mailData['lang'],
-            ]));
-
-            $this->addAttachment($pathToFile, $mailData['att_file']);
-        }
     }
 
     /**
@@ -175,7 +116,6 @@ class ilAccountMail
      * It first tries to read the mail body, subject and sender address from posted named formular fields.
      * If no field values found the defaults are used.
      * Placehoders will be replaced by the appropriate data.
-     * @throws RuntimeException
      */
     public function send(): bool
     {
@@ -184,7 +124,7 @@ class ilAccountMail
             throw new RuntimeException('A user instance must be passed when sending emails');
         }
 
-        if ($user->getEmail() === '') {
+        if (!$user->getEmail() === '') {
             return false;
         }
 
@@ -192,14 +132,16 @@ class ilAccountMail
         // fall back to default language if acccount mail data is not given for user language.
         $amail = $this->readAccountMail($user->getLanguage());
         $lang = $user->getLanguage();
-        if ($amail['body'] === '' || $amail['subject'] === '') {
+        if ($amail->getBody() === '' || $amail->getSubject() === '') {
             $fallback_language = 'en';
             $amail = $this->readAccountMail($this->settings->get('language', $fallback_language));
             $lang = $this->settings->get('language', $fallback_language);
         }
 
+        $mmail = new ilMimeMail();
+
         // fallback if mail data is still not given
-        if (($amail['body'] === '' || $amail['subject'] === '') && $this->areLangVariablesUsedAsFallback()) {
+        if (($amail->getBody() === '' || $amail->getSubject() === '') && $this->areLangVariablesUsedAsFallback()) {
             $lang = $user->getLanguage();
             $tmp_lang = new ilLanguage($lang);
 
@@ -227,43 +169,40 @@ class ilAccountMail
             $mail_body .= $tmp_lang->txt('reg_mail_body_text3') . "\n\r";
             $mail_body .= $user->getProfileAsString($tmp_lang);
         } else {
-            $this->addAttachments($amail);
+            $attachment = $amail->getAttachment($this->irss);
+            if ($attachment !== null) {
+                $mmail->Attach($attachment[0], '', 'attachment', $attachment[1]);
+            }
 
             // replace placeholders
-            $mail_subject = $this->replacePlaceholders($amail['subject'], $user, $amail, $lang);
-            $mail_body = $this->replacePlaceholders($amail['body'], $user, $amail, $lang);
+            $mail_subject = $this->replacePlaceholders($amail->getSubject(), $user, $amail, $lang);
+            $mail_body = $this->replacePlaceholders($amail->getBody(), $user, $amail, $lang);
         }
 
-        $mmail = new ilMimeMail();
-        $mmail->From($this->senderFactory->system());
+        $mmail->From($this->sender_factory->system());
         $mmail->Subject($mail_subject, true);
         $mmail->To($user->getEmail());
         $mmail->Body($mail_body);
-
-        foreach ($this->attachments as $filename => $display_name) {
-            $mmail->Attach($filename, '', 'attachment', $display_name);
-        }
 
         $mmail->Send();
 
         return true;
     }
 
-    public function replacePlaceholders(string $a_string, ilObjUser $a_user, array $a_amail, string $a_lang): string
+    public function replacePlaceholders(string $a_string, ilObjUser $a_user, NewAccountMail $a_amail, string $a_lang): string
     {
         global $DIC;
-        $tree = $DIC->repositoryTree();
-        $ilSetting = $DIC->settings();
-        $mustache_factory = $DIC->mail()->mustacheFactory();
+        $settings = $DIC->settings();
+        $template_engine_factory = $DIC->mail()->templateEngineFactory();
 
         $replacements = [];
 
         // determine salutation
-        $replacements['MAIL_SALUTATION'] = $mustache_factory->getBasicEngine()->render(
+        $replacements['MAIL_SALUTATION'] = $template_engine_factory->getBasicEngine()->render(
             match ($a_user->getGender()) {
-                'f' => trim((string) $a_amail['sal_f']),
-                'm' => trim((string) $a_amail['sal_m']),
-                default => trim((string) $a_amail['sal_g']),
+                'f' => trim($a_amail->getSalutationFemale()),
+                'm' => trim($a_amail->getSalutationMale()),
+                default => trim($a_amail->getSalutationNoneSpecific()),
             },
             [
                 'FIRST_NAME' => $a_user->getFirstname(),
@@ -280,9 +219,9 @@ class ilAccountMail
         $replacements['PASSWORD'] = $this->getUserPassword();
         $replacements['ILIAS_URL'] = ILIAS_HTTP_PATH . '/login.php?client_id=' . CLIENT_ID;
         $replacements['CLIENT_NAME'] = CLIENT_NAME;
-        $replacements['ADMIN_MAIL'] = $ilSetting->get('admin_email');
-        $replacements['IF_PASSWORD'] = $this->getUserPassword() != '';
-        $replacements['IF_NO_PASSWORD'] = $this->getUserPassword() == '';
+        $replacements['ADMIN_MAIL'] = $this->settings->get('admin_email');
+        $replacements['IF_PASSWORD'] = $this->getUserPassword() !== '';
+        $replacements['IF_NO_PASSWORD'] = $this->getUserPassword() === '';
 
         // #13346
         if (!$a_user->getTimeLimitUnlimited()) {
@@ -298,7 +237,7 @@ class ilAccountMail
         $replacements['IF_TARGET'] = false;
         if ($this->permanent_link_target !== null) {
             $tarr = explode('_', $this->permanent_link_target);
-            if ($this->repositoryTree->isInTree((int) $tarr[1])) {
+            if ($this->repository_tree->isInTree((int) $tarr[1])) {
                 $obj_id = ilObject::_lookupObjId((int) $tarr[1]);
                 $type = ilObject::_lookupType($obj_id);
                 if ($type === $tarr[0]) {
@@ -313,11 +252,6 @@ class ilAccountMail
             }
         }
 
-        return $mustache_factory->getBasicEngine()->render($a_string, $replacements);
-    }
-
-    public function addAttachment(string $a_filename, string $a_display_name): void
-    {
-        $this->attachments[$a_filename] = $a_display_name;
+        return $template_engine_factory->getBasicEngine()->render($a_string, $replacements);
     }
 }

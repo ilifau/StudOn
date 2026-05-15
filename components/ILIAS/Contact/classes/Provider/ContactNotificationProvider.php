@@ -41,8 +41,8 @@ use ILIAS\Notifications\ilNotificationOSDHandler;
  */
 class ContactNotificationProvider extends AbstractNotificationProvider
 {
-    final public const MUTED_UNTIL_PREFERENCE_KEY = 'bs_nc_muted_until';
-    final public const NOTIFICATION_TYPE = 'buddysystem_request';
+    final public const string MUTED_UNTIL_PREFERENCE_KEY = 'bs_nc_muted_until';
+    final public const string NOTIFICATION_TYPE = 'buddysystem_request';
 
     private function getIdentifier(string $id): IdentificationInterface
     {
@@ -105,7 +105,7 @@ class ContactNotificationProvider extends AbstractNotificationProvider
             ->link()
             ->standard(
                 $this->dic->language()->txt('nc_contact_requests_headline'),
-                $this->dic->ctrl()->getLinkTargetByClass([ilDashboardGUI::class, ilContactGUI::class], 'showContactRequests')
+                $this->dic->ctrl()->getLinkTargetByClass([ilDashboardGUI::class, ilContactGUI::class], 'showContacts')
             );
         $description = sprintf(
             $this->dic->language()->txt(

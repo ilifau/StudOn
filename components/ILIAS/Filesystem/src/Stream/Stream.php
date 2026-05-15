@@ -74,9 +74,9 @@ class Stream implements FileStream, \Stringable
      * Stream constructor.
      *
      * @param resource                                    $stream  The resource which should be wrapped by the Stream.
-     * @param \ILIAS\Filesystem\Stream\StreamOptions|null $options The additional options which are accessible via getMetadata
+     * @param StreamOptions|null $options The additional options which are accessible via getMetadata
      */
-    public function __construct($stream, StreamOptions $options = null)
+    public function __construct($stream, ?StreamOptions $options = null)
     {
         if (!is_resource($stream)) {
             throw new \InvalidArgumentException(

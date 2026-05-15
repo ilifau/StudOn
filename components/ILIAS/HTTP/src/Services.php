@@ -22,7 +22,6 @@ namespace ILIAS\HTTP;
 
 use ILIAS\HTTP\Cookies\CookieJar;
 use ILIAS\HTTP\Wrapper\WrapperFactory;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\DI\Container;

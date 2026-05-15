@@ -20,7 +20,7 @@
  * Tabs GUI
  * @author Alexander Killing <killing@leifos.de>
  *
- * @deprecated 10
+ * @deprecated with ILIAS 12
  */
 class ilTabsGUI
 {
@@ -477,6 +477,7 @@ class ilTabsGUI
                 }
 
                 $ttext = $ilHelp->getTabTooltipText($target["id"]);
+                $link = $ilHelp->registerTabLink($target["id"], $link);
                 if ($ttext !== "") {
                     $link = $link->withHelpTopics(
                         ...$f->helpTopics($ttext)

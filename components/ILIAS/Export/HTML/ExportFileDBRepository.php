@@ -32,16 +32,14 @@ class ExportFileDBRepository
         protected IRSSWrapper $irss,
         protected DataService $data,
         protected \ilExportHTMLStakeholder $stakeholder
-    )
-    {
+    ) {
     }
 
     public function create(
         int $object_id,
         string $type,
         string $title
-    ): string
-    {
+    ): string {
         $rid = $this->irss->createContainer(
             $this->stakeholder,
             $title
@@ -83,8 +81,7 @@ class ExportFileDBRepository
         string $rid,
         string $source_dir,
         string $target_path = ""
-    ): void
-    {
+    ): void {
         $this->irss->addDirectoryToContainer(
             $rid,
             $source_dir,
@@ -120,8 +117,7 @@ class ExportFileDBRepository
     public function delete(
         int $object_id,
         string $rid
-    ): void
-    {
+    ): void {
         $this->irss->deleteResource(
             $rid,
             $this->stakeholder
@@ -135,8 +131,7 @@ class ExportFileDBRepository
 
     public function getFilePath(
         string $rid
-    ): string
-    {
+    ): string {
         return $this->irss->getResourcePath($rid);
     }
 
@@ -157,7 +152,8 @@ class ExportFileDBRepository
      */
     public function getAllOfObjectId(int $object_id): \Generator
     {
-        $set = $this->db->queryF("SELECT * FROM export_files_html " .
+        $set = $this->db->queryF(
+            "SELECT * FROM export_files_html " .
             " WHERE object_id = %s ORDER BY timestamp DESC",
             ["integer"],
             [$object_id]
@@ -169,7 +165,8 @@ class ExportFileDBRepository
 
     public function getLatestOfObjectIdAndType(int $object_id, string $type = ""): ?ExportFile
     {
-        $set = $this->db->queryF("SELECT * FROM export_files_html " .
+        $set = $this->db->queryF(
+            "SELECT * FROM export_files_html " .
             " WHERE object_id = %s AND type = %s ORDER BY timestamp DESC",
             ["integer", "text"],
             [$object_id, $type]
@@ -204,8 +201,7 @@ class ExportFileDBRepository
     public function rename(
         string $rid,
         string $title
-    ): void
-    {
+    ): void {
         $this->irss->renameContainer($rid, $title);
     }
 

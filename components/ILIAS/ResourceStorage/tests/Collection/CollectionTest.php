@@ -37,21 +37,22 @@ use ILIAS\ResourceStorage\Events\Subject;
 class CollectionTest extends AbstractBaseResourceBuilderTestCase
 {
     /**
-     * @var \ILIAS\ResourceStorage\Collection\CollectionBuilder|mixed
+     * @var CollectionBuilder|mixed
      */
     public $collection_builder;
     /**
      * @var \ILIAS\ResourceStorage\Preloader\RepositoryPreloader&\PHPUnit\Framework\MockObject\MockObject|mixed
      */
-    public $preloader;
+    public MockObject $preloader;
     /**
-     * @var \ILIAS\ResourceStorage\Collection\Collections|mixed
+     * @var Collections|mixed
      */
     public $collections;
     public const DUMMY_RCID = 'dummy-rcid';
 
     protected CollectionIdentificationGenerator $rcid_generator;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -93,7 +94,7 @@ class CollectionTest extends AbstractBaseResourceBuilderTestCase
 
         $this->assertInstanceOf(ResourceCollectionIdentification::class, $id);
         $this->assertNotInstanceOf(MockObject::class, $id);
-        $this->assertEquals(self::DUMMY_RCID, $id->serialize());
+        $this->assertSame(self::DUMMY_RCID, $id->serialize());
     }
 
     public function testGetCollectionOfUser(): void
@@ -113,48 +114,48 @@ class CollectionTest extends AbstractBaseResourceBuilderTestCase
 
         $this->assertInstanceOf(ResourceCollection::class, $collection);
         $this->assertNotInstanceOf(MockObject::class, $collection);
-        $this->assertEquals(self::DUMMY_RCID, $collection->getIdentification()->serialize());
-        $this->assertEquals([], $collection->getResourceIdentifications());
+        $this->assertSame(self::DUMMY_RCID, $collection->getIdentification()->serialize());
+        $this->assertSame([], $collection->getResourceIdentifications());
     }
 
     public function testIsIn(): void
     {
         $collection = new ResourceCollection(new ResourceCollectionIdentification(self::DUMMY_RCID), 42, '');
 
-        $this->assertEquals(self::DUMMY_RCID, $collection->getIdentification()->serialize());
-        $this->assertEquals(42, $collection->getOwner());
+        $this->assertSame(self::DUMMY_RCID, $collection->getIdentification()->serialize());
+        $this->assertSame(42, $collection->getOwner());
         $this->assertTrue($collection->hasSpecificOwner());
-        $this->assertEquals('default', $collection->getTitle());
+        $this->assertSame('default', $collection->getTitle());
 
         $rid_one = new ResourceIdentification('rid_one');
         $rid_two = new ResourceIdentification('rid_two');
         $rid_three = new ResourceIdentification('rid_three');
 
-        $this->assertEquals(0, $collection->count());
+        $this->assertSame(0, $collection->count());
 
         $collection->add($rid_one);
         $this->assertTrue($collection->isIn($rid_one));
         $this->assertFalse($collection->isIn($rid_two));
         $this->assertFalse($collection->isIn($rid_three));
-        $this->assertEquals(1, $collection->count());
+        $this->assertSame(1, $collection->count());
 
         $collection->add($rid_two);
         $this->assertTrue($collection->isIn($rid_one));
         $this->assertTrue($collection->isIn($rid_two));
         $this->assertFalse($collection->isIn($rid_three));
-        $this->assertEquals(2, $collection->count());
+        $this->assertSame(2, $collection->count());
 
         $collection->add($rid_three);
         $this->assertTrue($collection->isIn($rid_one));
         $this->assertTrue($collection->isIn($rid_two));
         $this->assertTrue($collection->isIn($rid_three));
-        $this->assertEquals(3, $collection->count());
+        $this->assertSame(3, $collection->count());
 
         $collection->clear();
         $this->assertFalse($collection->isIn($rid_one));
         $this->assertFalse($collection->isIn($rid_two));
         $this->assertFalse($collection->isIn($rid_three));
-        $this->assertEquals(0, $collection->count());
+        $this->assertSame(0, $collection->count());
     }
 
     public function testAddAndRemove(): void
@@ -165,39 +166,39 @@ class CollectionTest extends AbstractBaseResourceBuilderTestCase
             ''
         );
 
-        $this->assertEquals(self::DUMMY_RCID, $collection->getIdentification()->serialize());
-        $this->assertEquals(ResourceCollection::NO_SPECIFIC_OWNER, $collection->getOwner());
+        $this->assertSame(self::DUMMY_RCID, $collection->getIdentification()->serialize());
+        $this->assertSame(ResourceCollection::NO_SPECIFIC_OWNER, $collection->getOwner());
         $this->assertFalse($collection->hasSpecificOwner());
-        $this->assertEquals('default', $collection->getTitle());
+        $this->assertSame('default', $collection->getTitle());
 
         $rid_one = new ResourceIdentification('rid_one');
         $rid_two = new ResourceIdentification('rid_two');
 
-        $this->assertEquals(0, $collection->count());
+        $this->assertSame(0, $collection->count());
 
         $collection->add($rid_one);
         $this->assertTrue($collection->isIn($rid_one));
-        $this->assertEquals(1, $collection->count());
+        $this->assertSame(1, $collection->count());
 
         $collection->add($rid_two);
         $this->assertTrue($collection->isIn($rid_one));
         $this->assertTrue($collection->isIn($rid_two));
-        $this->assertEquals(2, $collection->count());
+        $this->assertSame(2, $collection->count());
 
         $collection->remove($rid_one);
         $this->assertFalse($collection->isIn($rid_one));
         $this->assertTrue($collection->isIn($rid_two));
-        $this->assertEquals(1, $collection->count());
+        $this->assertSame(1, $collection->count());
 
         $collection->remove($rid_two);
         $this->assertFalse($collection->isIn($rid_one));
         $this->assertFalse($collection->isIn($rid_two));
-        $this->assertEquals(0, $collection->count());
+        $this->assertSame(0, $collection->count());
 
         $collection->clear();
         $this->assertFalse($collection->isIn($rid_one));
         $this->assertFalse($collection->isIn($rid_two));
-        $this->assertEquals(0, $collection->count());
+        $this->assertSame(0, $collection->count());
     }
 
     public function testDuplicates(): void
@@ -213,7 +214,7 @@ class CollectionTest extends AbstractBaseResourceBuilderTestCase
         $collection->add($rid);
         $collection->add($same_rid);
 
-        $this->assertEquals(1, count($collection->getResourceIdentifications()));
+        $this->assertCount(1, $collection->getResourceIdentifications());
     }
 
 
@@ -260,7 +261,7 @@ class CollectionTest extends AbstractBaseResourceBuilderTestCase
             ->expects($this->exactly(3))
             ->method('has')
             ->willReturnCallback(
-                function ($rid) use (&$consecutive) {
+                function ($rid) use (&$consecutive): true {
                     $expected = array_shift($consecutive);
                     $this->assertEquals($expected, $rid);
                     return true;

@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\FileDelivery;
 
+use ILIAS\FileDelivery\Delivery\StreamDelivery;
 use ILIAS\FileDelivery\Token\DataSigner;
 use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\FileDelivery\Delivery\Disposition;
@@ -36,14 +37,14 @@ class Services
     private ?string $base_uri = null;
 
     public function __construct(
-        private \ILIAS\FileDelivery\Delivery\StreamDelivery $delivery,
+        private StreamDelivery $delivery,
         private LegacyDelivery $legacy_delivery,
         private DataSigner $data_signer,
         private \ILIAS\HTTP\Services $http
     ) {
     }
 
-    public function delivery(): \ILIAS\FileDelivery\Delivery\StreamDelivery
+    public function delivery(): StreamDelivery
     {
         return $this->delivery;
     }
@@ -73,8 +74,17 @@ class Services
             $user_id,
             $until
         );
+
+        // maybe add suffix
+        $suffix = '';
+        // try to determine suffix from filename
+        $pathinfo = pathinfo($filename);
+        if (isset($pathinfo['extension']) && $pathinfo['extension'] !== '') {
+            $suffix = '.' . $pathinfo['extension'];
+        }
+
         return new URI(
-            $this->getBaseURI() . self::DELIVERY_ENDPOINT . $token
+            $this->getBaseURI() . self::DELIVERY_ENDPOINT . $token . $suffix
         );
     }
 

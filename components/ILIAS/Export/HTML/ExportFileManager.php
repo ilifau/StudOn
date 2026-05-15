@@ -26,12 +26,10 @@ use ILIAS\Export\HTML\ExportFile;
 
 class ExportFileManager
 {
-
     public function __construct(
         protected DataService $data,
         protected ExportFileDBRepository $repo
-    )
-    {
+    ) {
     }
 
     public function getLatestOfObjectIdAndType(int $object_id, string $type = ""): ?ExportFile
@@ -39,7 +37,7 @@ class ExportFileManager
         return $this->repo->getLatestOfObjectIdAndType($object_id, $type);
     }
 
-    public function deliver(ExportFile $file) : void
+    public function deliver(ExportFile $file): void
     {
         $this->repo->deliverFile($file->getRid());
     }

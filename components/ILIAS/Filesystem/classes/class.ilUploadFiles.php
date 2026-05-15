@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -36,7 +37,7 @@ class ilUploadFiles
         $import_file_factory = new ilImportDirectoryFactory();
         try {
             $scorm_import_directory = $import_file_factory->getInstanceForComponent(ilImportDirectoryFactory::TYPE_SAHS);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             return '';
         }
         return $scorm_import_directory->getAbsolutePath();
@@ -47,16 +48,17 @@ class ilUploadFiles
      */
     public static function _getUploadFiles(): array
     {
-        if (!$upload_dir = self::_getUploadDirectory()) {
-            return array();
+        $upload_dir = self::_getUploadDirectory();
+        if ($upload_dir === '' || $upload_dir === '0') {
+            return [];
         }
 
         // get the sorted content of the upload directory
         $handle = opendir($upload_dir);
-        $files = array();
+        $files = [];
         while (false !== ($file = readdir($handle))) {
             $full_path = $upload_dir . "/" . $file;
-            if (is_file($full_path) and is_readable($full_path)) {
+            if (is_file($full_path) && is_readable($full_path)) {
                 $files[] = $file;
             }
         }
@@ -106,11 +108,10 @@ class ilUploadFiles
                     $vir[1], true);
             }
             return false;
-        } else {
-            if ($vir[1] != "") {
-                $main_tpl->setOnScreenMessage('info', $vir[1], true);
-            }
-            return copy($file, $a_target);
         }
+        if ($vir[1] != "") {
+            $main_tpl->setOnScreenMessage('info', $vir[1], true);
+        }
+        return copy($file, $a_target);
     }
 }

@@ -20,10 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Cache\Container;
 
-use ILIAS\Cache\Adaptor\Adaptor;
-use ILIAS\Cache\Config;
 use ILIAS\Refinery\Transformation;
-use ILIAS\Refinery\ByTrying;
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>

@@ -37,7 +37,13 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class RequestFactoryImpl implements RequestFactory
 {
+    /**
+     * @var string
+     */
     private const DEFAULT_FORWARDED_HEADER = 'X-Forwarded-Proto';
+    /**
+     * @var string
+     */
     private const DEFAULT_FORWARDED_PROTO = 'https';
 
     public function __construct(

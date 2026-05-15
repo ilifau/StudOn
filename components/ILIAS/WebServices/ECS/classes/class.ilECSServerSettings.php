@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -88,10 +89,10 @@ class ilECSServerSettings
                 return $this->servers;
                 break;
             case static::ACTIVE_SERVER:
-                return array_filter($this->servers, static fn (ilECSSetting $server) => $server->isEnabled());
+                return array_filter($this->servers, static fn(ilECSSetting $server) => $server->isEnabled());
                 break;
             case static::INACTIVE_SERVER:
-                return array_filter($this->servers, static fn (ilECSSetting $server) => !$server->isEnabled());
+                return array_filter($this->servers, static fn(ilECSSetting $server) => !$server->isEnabled());
                 break;
             default:
                 throw new InvalidArgumentException();

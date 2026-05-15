@@ -23,7 +23,7 @@ use ILIAS\DI\UIServices;
  *
  * @author Alexander Killing <killing@leifos.de>
  *
- * @deprecated 10
+ * @deprecated with ILIAS 12
  */
 abstract class ilExplorerSelectInputGUI extends ilFormPropertyGUI implements ilTableFilterItem
 {
@@ -273,7 +273,7 @@ abstract class ilExplorerSelectInputGUI extends ilFormPropertyGUI implements ilT
 
         $modal = $this->ui->factory()->modal()->roundtrip(
             'placeholder',
-            $this->ui->factory()->legacy('<div id="' . $this->getFieldId() . '_expl_marker"></div>')
+            $this->ui->factory()->legacy()->content('<div id="' . $this->getFieldId() . '_expl_marker"></div>')
         );
         $rendered_modal = str_replace(
             ["\r\n", "\n", "\r"],

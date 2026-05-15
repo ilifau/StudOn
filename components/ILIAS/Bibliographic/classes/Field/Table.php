@@ -66,12 +66,12 @@ class Table
         );
 
         $this->components[] = $this->table = $this->ui_factory->table()->ordering(
-            $this->lng->txt('filter'),
-            $columns,
             $data_retrieval,
             new URI(
                 ILIAS_HTTP_PATH . "/" . $this->ctrl->getLinkTarget($this->calling_gui, \ilBiblAdminFieldGUI::CMD_SAVE_ORDERING)
-            )
+            ),
+            $this->lng->txt('filter'),
+            $columns,
         )->withActions($actions)->withRequest(
             $DIC->http()->request()
         );

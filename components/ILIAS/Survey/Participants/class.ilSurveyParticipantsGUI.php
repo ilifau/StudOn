@@ -16,6 +16,7 @@
  *
  *********************************************************************/
 
+use ILIAS\Survey\CSVReader;
 use ILIAS\Survey\Participants;
 
 /**
@@ -194,7 +195,7 @@ class ilSurveyParticipantsGUI
     }
 
     protected function filterSurveyParticipantsByAccess(
-        array $a_finished_ids = null
+        ?array $a_finished_ids = null
     ): array {
         $all_participants = $this->object->getSurveyParticipants($a_finished_ids, false, true);
         $participant_ids = [];
@@ -737,7 +738,7 @@ class ilSurveyParticipantsGUI
                 $existing[$item["code"]] = $item["id"];
             }
 
-            $reader = new ilCSVReader();
+            $reader = new CSVReader();
             $reader->open($_FILES['codes']['tmp_name']);
             foreach ($reader->getCsvAsArray() as $row) {
                 // numeric check of used column due to #26176
@@ -1011,7 +1012,7 @@ class ilSurveyParticipantsGUI
         }
 
         if (trim($_FILES['externalmails']['tmp_name'])) {
-            $reader = new ilCSVReader();
+            $reader = new CSVReader();
             $reader->open($_FILES['externalmails']['tmp_name']);
             $data = $reader->getCsvAsArray();
             $fields = array_shift($data);
@@ -1349,7 +1350,7 @@ class ilSurveyParticipantsGUI
     }
 
     public function addExternalRaterFormObject(
-        ilPropertyFormGUI $a_form = null
+        ?ilPropertyFormGUI $a_form = null
     ): void {
         $ilTabs = $this->tabs;
         $ilAccess = $this->access;
@@ -1649,7 +1650,7 @@ class ilSurveyParticipantsGUI
     }
 
     public function mailRatersObjectOld(
-        ilPropertyFormGUI $a_form = null
+        ?ilPropertyFormGUI $a_form = null
     ): void {
         $ilTabs = $this->tabs;
         $rater_ids = $this->edit_request->getRaterIds();

@@ -20,7 +20,6 @@
 require_once __DIR__ . "/../../../../vendor/composer/vendor/autoload.php";
 
 use ILIAS\BackgroundTasks\Implementation\TaskManager\AsyncTaskManager;
-use ILIAS\BackgroundTasks\Persistence;
 
 class ilSoapBackgroundTasksAdministration extends ilSoapAdministration
 {

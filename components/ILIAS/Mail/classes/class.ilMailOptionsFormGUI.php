@@ -22,29 +22,30 @@ use ILIAS\Mail\Autoresponder\AutoresponderDatabaseRepository;
 use ILIAS\Mail\Autoresponder\AutoresponderRepository;
 use ILIAS\Mail\Autoresponder\AutoresponderService;
 
-/**
- * Class ilMailOptionsFormGUI
- */
 class ilMailOptionsFormGUI extends ilPropertyFormGUI
 {
     private readonly int $default_auto_responder_absence_end_ts;
-    protected object $parentGui;
-    protected AutoResponderRepository $autoResponderRepository;
+    protected object $parent_gui;
+    protected AutoResponderRepository $auto_responder_repository;
 
-    public function __construct(protected ilMailOptions $options, object $parentGui, protected string $positiveCmd, AutoresponderRepository $autoResponderRepository = null)
-    {
-        if (!method_exists($parentGui, 'executeCommand')) {
+    public function __construct(
+        protected ilMailOptions $options,
+        object $parent_gui,
+        protected string $positive_command,
+        ?AutoresponderRepository $auto_responder_repository = null
+    ) {
+        if (!method_exists($parent_gui, 'executeCommand')) {
             throw new InvalidArgumentException(sprintf(
-                'Parameter $parentGui must be ilCtrlInterface enabled by implementing executeCommand(), %s given.',
-                $parentGui::class
+                'Parameter $parent_gui must be ilCtrlInterface enabled by implementing executeCommand(), %s given.',
+                $parent_gui::class
             ));
         }
 
         parent::__construct();
         global $DIC;
-        $this->parentGui = $parentGui;
-        $this->positiveCmd = $positiveCmd;
-        $this->autoResponderRepository = $autoResponderRepository ?? new AutoresponderDatabaseRepository($DIC->database());
+        $this->parent_gui = $parent_gui;
+        $this->positive_command = $positive_command;
+        $this->auto_responder_repository = $auto_responder_repository ?? new AutoresponderDatabaseRepository($DIC->database());
         $this->default_auto_responder_absence_end_ts = time() + 8640;
 
         $this->init();
@@ -53,9 +54,9 @@ class ilMailOptionsFormGUI extends ilPropertyFormGUI
     protected function init(): void
     {
         $this->setTitle($this->lng->txt('mail_settings'));
-        $this->setFormAction($this->ctrl->getFormAction($this->parentGui, $this->positiveCmd));
+        $this->setFormAction($this->ctrl->getFormAction($this->parent_gui, $this->positive_command));
 
-        if ($this->options->maySeeIndividualTransportSettings()) {
+        if ($this->options->mayModifyIndividualTransportSetting()) {
             $incoming_mail_gui = new ilIncomingMailInputGUI(
                 $this->lng->txt('mail_incoming'),
                 'incoming_type',
@@ -96,7 +97,8 @@ class ilMailOptionsFormGUI extends ilPropertyFormGUI
         $ta->setCols(60);
         $this->addItem($ta);
 
-        if ($this->settings->get('mail_notification', '0')) {
+        if ($this->settings->get('mail_notification', '0')
+            && $this->options->mayModifyNewMailNotificationSetting()) {
             $cb = new ilCheckboxInputGUI(
                 $this->lng->txt('cron_mail_notification'),
                 'cronjob_notification'
@@ -106,7 +108,7 @@ class ilMailOptionsFormGUI extends ilPropertyFormGUI
             $this->addItem($cb);
         }
 
-        $this->addCommandButton($this->positiveCmd, $this->lng->txt('save'));
+        $this->addCommandButton($this->positive_command, $this->lng->txt('save'));
     }
 
     public function save(): bool
@@ -115,7 +117,7 @@ class ilMailOptionsFormGUI extends ilPropertyFormGUI
             return false;
         }
 
-        if ($this->options->mayModifyIndividualTransportSettings()) {
+        if ($this->options->mayModifyIndividualTransportSetting()) {
             $incoming_type = (int) $this->getInput('incoming_type');
 
             $mail_address_option = $this->options->getEmailAddressMode();
@@ -133,11 +135,17 @@ class ilMailOptionsFormGUI extends ilPropertyFormGUI
             $mail_address_option = $this->options->getEmailAddressMode();
         }
 
+        if ($this->options->mayModifyNewMailNotificationSetting()) {
+            $cronjob_notification_status = (bool) $this->getInput('cronjob_notification');
+        } else {
+            $cronjob_notification_status = $this->options->isCronJobNotificationEnabled();
+        }
+
         $absence_duration = $this->getItemByPostVar('absence_duration');
         $absence_status = (bool) $this->getInput('absence_status');
         $old_absence_status = $this->options->getAbsenceStatus();
         if (!$absence_status && $old_absence_status) {
-            $this->autoResponderRepository->deleteBySenderId($this->user->getId());
+            $this->auto_responder_repository->deleteBySenderId($this->user->getId());
         }
         $this->options->setAbsenceStatus((bool) $this->getInput('absence_status'));
         if ($absence_duration && $absence_duration->getStart() && $absence_duration->getEnd()) {
@@ -148,9 +156,9 @@ class ilMailOptionsFormGUI extends ilPropertyFormGUI
         $this->options->setAbsenceAutoresponderBody($this->getInput('absence_auto_responder_body'));
 
         $this->options->setSignature($this->getInput('signature'));
-        $this->options->setIsCronJobNotificationStatus((bool) $this->getInput('cronjob_notification'));
+        $this->options->setIsCronJobNotificationStatus($cronjob_notification_status);
         $this->options->setIncomingType($incoming_type);
-        $this->options->setEmailAddressMode($mail_address_option);
+        $this->options->setEmailAddressmode($mail_address_option);
 
         $this->options->updateOptions();
 
@@ -161,7 +169,6 @@ class ilMailOptionsFormGUI extends ilPropertyFormGUI
     {
         $data = [
             'signature' => $this->options->getSignature(),
-            'cronjob_notification' => $this->options->isCronJobNotificationEnabled(),
             'absence_status' => $this->options->getAbsenceStatus(),
             'absence_duration' => [
                 'start' => (new ilDateTime(($this->options->getAbsentFrom() ?: time()), IL_CAL_UNIX))->get(IL_CAL_DATETIME),
@@ -171,13 +178,17 @@ class ilMailOptionsFormGUI extends ilPropertyFormGUI
             'absence_auto_responder_body' => $this->options->getAbsenceAutoresponderBody(),
         ];
 
-        if ($this->options->maySeeIndividualTransportSettings()) {
+        if ($this->options->mayModifyIndividualTransportSetting()) {
             $data['incoming_type'] = $this->options->getIncomingType();
 
             $mail_address_option = $this->options->getEmailAddressMode();
 
             $data['mail_address_option'] = $mail_address_option;
             $data['mail_address_option_both'] = $mail_address_option;
+        }
+
+        if ($this->options->mayModifyNewMailNotificationSetting()) {
+            $data['cronjob_notification'] = $this->options->isCronJobNotificationEnabled();
         }
 
         $this->setValuesByArray($data);

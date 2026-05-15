@@ -25,10 +25,10 @@ use ILIAS\Forum\Notification\NotificationType;
  */
 class ilForumModeratorsGUI implements ilCtrlSecurityInterface
 {
-    private const CMD_SHOW_MODERATORS = 'showModerators';
-    private const CMD_ADD_MODERATOR = 'addModerator';
-    private const CMD_HANDLE_TABLE_ACTIONS = 'handleModeratorActions';
-    private const DEFAULT_CMD = self::CMD_SHOW_MODERATORS;
+    private const string CMD_SHOW_MODERATORS = 'showModerators';
+    private const string CMD_ADD_MODERATOR = 'addModerator';
+    private const string CMD_HANDLE_TABLE_ACTIONS = 'handleModeratorActions';
+    private const string DEFAULT_CMD = self::CMD_SHOW_MODERATORS;
 
     private readonly ilCtrlInterface $ctrl;
     private readonly ilGlobalTemplateInterface $tpl;

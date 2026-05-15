@@ -26,6 +26,8 @@ use ILIAS\UI\Component\JavaScriptBindable;
 use ILIAS\UI\Component\Symbol\Symbol;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer\Hasher;
 use ILIAS\GlobalScreen\Scope\isDecorateable;
+use ILIAS\GlobalScreen\Scope\Layout\Factory\MetaBarModification;
+use ILIAS\UI\Component\Component;
 
 /**
  * HTML export view layout provider, hides main and meta bar
@@ -49,22 +51,26 @@ class ilHelpViewLayoutProvider extends AbstractModificationProvider
     ): ?MainBarModification {
         global $DIC;
 
-        if (!$this->showHelpTool()) {
+        $f = $DIC->ui()->factory();
+        $ttm = $DIC->help()->internal()->domain()->tooltips();
+        if (!$ttm->areTooltipsVisible()) {
             return null;
         }
 
-        $f = $DIC->ui()->factory();
-        $ttm = $DIC->help()->internal()->domain()->tooltips();
 
         $this->globalScreen()->collector()->mainmenu()->collectOnce();
         foreach ($this->globalScreen()->collector()->mainmenu()->getRawItems() as $item) {
+            if (!($item instanceof ILIAS\GlobalScreen\Scope\MainMenu\Factory\TopItem\TopParentItem)
+                && !($item instanceof ILIAS\GlobalScreen\Scope\MainMenu\Factory\TopItem\TopLinkItem)
+                && !$ttm->areSubMenuTooltipsVisible()
+            ){
+                continue;
+            }
             if ($item instanceof isDecorateable) {
                 $p = $item->getProviderIdentification();
 
                 $tt_text = $ttm->getMainMenuTooltip($p->getInternalIdentifier());
-                $tt_text = addslashes(str_replace(array("\n", "\r"), '', $tt_text));
                 if ($tt_text !== "") {
-                    //$item->withTopics($DIC->ui()->factory()->helpTopics($p->getInternalIdentifier()));
                     $item->withTopics(...$DIC->ui()->factory()->helpTopics($tt_text));
                 }
             }
@@ -72,4 +78,30 @@ class ilHelpViewLayoutProvider extends AbstractModificationProvider
 
         return null;
     }
+
+    public function getMetaBarModification(CalledContexts $screen_context_stack): ?MetaBarModification
+    {
+        global $DIC;
+
+        $ttm = $DIC->help()->internal()->domain()->tooltips();
+
+        if (!$this->showHelpTool() && !$ttm->isTooltipIdentifierVisible()) {
+            return null;
+        }
+
+        // add id mapping of all main menu items to gui
+        $this->globalScreen()->collector()->metaBar()->collectOnce();
+        foreach ($this->globalScreen()->collector()->metaBar()->getRawItems() as $item) {
+            if ($item instanceof isDecorateable) {
+                $p = $item->getProviderIdentification();
+
+                $tt_text = $ttm->getMainMenuTooltip($p->getInternalIdentifier());
+                if ($tt_text !== "") {
+                    $item->withTopics(...$DIC->ui()->factory()->helpTopics($tt_text));
+                }
+            }
+        }
+        return null;
+    }
+
 }

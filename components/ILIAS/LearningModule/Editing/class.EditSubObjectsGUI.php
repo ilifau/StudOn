@@ -24,8 +24,9 @@ use ILIAS\LearningModule\InternalDomainService;
 use ILIAS\LearningModule\InternalGUIService;
 use ILIAS\Repository\Form\FormAdapterGUI;
 use ilLMObject;
-use ILIAS\LearningModule\Table\TableAdapterGUI;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
+use ILIAS\ILIASObject\Properties\Translations\CachedRepository as TranslationsRepository;
+use ILIAS\Repository\Table\TableAdapterGUI;
 
 class EditSubObjectsGUI
 {
@@ -90,17 +91,13 @@ class EditSubObjectsGUI
 
     protected function getTable(): TableAdapterGUI
     {
-        return $this->gui->editing()->subObjectTableGUI(
+        return $this->gui->editing()->subObjectTableBuilder(
             $this->table_title,
             $this->lm_id,
             $this->sub_type,
-            $this
-        );
-    }
-
-    public function tableCommand(): void
-    {
-        $this->getTable()->handleCommand();
+            $this,
+            "list"
+        )->getTable();
     }
 
     public function switchToLanguage(): void
@@ -124,6 +121,10 @@ class EditSubObjectsGUI
         $ctrl = $this->gui->ctrl();
         $main_tpl = $this->gui->mainTemplate();
         $user = $this->domain->user();
+
+        if ($this->getTable()->handleCommand()) {
+            return;
+        }
 
         $retrieval = $this->domain->subObjectRetrieval(
             $this->lm_id,
@@ -398,11 +399,11 @@ class EditSubObjectsGUI
         if (count($titles) > 0) {
             \ilLMObject::saveTitle($page->getId(), $titles["-"]);
 
-            $ot = \ilObjectTranslation::getInstance($this->lm->getId());
-            if ($ot->getContentActivated()) {
+            $ot = $this->domain->translation($this->lm->getId());
+            if ($ot->getContentTranslationActivated()) {
                 foreach ($ot->getLanguages() as $lang) {
                     $code = $lang->getLanguageCode();
-                    if ($code === $ot->getMasterLanguage()) {
+                    if ($code === $ot->getBaseLanguage()) {
                         continue;
                     }
                     \ilLMObject::saveTitle($page->getId(), $titles[$code], $code);
@@ -492,11 +493,11 @@ class EditSubObjectsGUI
         if (count($titles) > 0) {
             \ilLMObject::saveTitle($chap->getId(), $titles["-"]);
 
-            $ot = \ilObjectTranslation::getInstance($this->lm->getId());
-            if ($ot->getContentActivated()) {
+            $ot = $this->domain->translation($this->lm->getId());
+            if ($ot->getContentTranslationActivated()) {
                 foreach ($ot->getLanguages() as $lang) {
                     $code = $lang->getLanguageCode();
-                    if ($code === $ot->getMasterLanguage()) {
+                    if ($code === $ot->getBaseLanguage()) {
                         continue;
                     }
                     \ilLMObject::saveTitle($chap->getId(), $titles[$code], $code);
@@ -524,20 +525,20 @@ class EditSubObjectsGUI
     {
         $lng = $this->domain->lng();
         $this->gui->ctrl()->setParameterByClass(self::class, "edit_id", $id);
-        $ot = \ilObjectTranslation::getInstance($this->lm->getId());
+        $ot = $this->domain->translation($this->lm->getId());
         $ml = "";
-        if ($ot->getContentActivated()) {
-            $ml = " (" . $lng->txt("meta_l_" . $ot->getMasterLanguage()) . ")";
+        if ($ot->getContentTranslationActivated()) {
+            $ml = " (" . $lng->txt("meta_l_" . $ot->getBaseLanguage()) . ")";
         }
 
         $form = $this
             ->gui
-            ->form(self::class, $cmd)
+            ->form([self::class], $cmd)
             ->text("title", $lng->txt('title') . $ml, "", ilLMObject::_lookupTitle($id), 200);
-        if ($ot->getContentActivated()) {
+        if ($ot->getContentTranslationActivated()) {
             foreach ($ot->getLanguages() as $lang) {
                 $code = $lang->getLanguageCode();
-                if ($code === $ot->getMasterLanguage()) {
+                if ($code === $ot->getBaseLanguage()) {
                     continue;
                 }
                 $lmobjtrans = new \ilLMObjTranslation($id, $code);
@@ -569,11 +570,11 @@ class EditSubObjectsGUI
         if ($form->isValid()) {
             $titles["-"] = $form->getData("title");
 
-            $ot = \ilObjectTranslation::getInstance($this->lm->getId());
-            if ($ot->getContentActivated()) {
+            $ot = $this->domain->translation($this->lm->getId());
+            if ($ot->getContentTranslationActivated()) {
                 foreach ($ot->getLanguages() as $lang) {
                     $code = $lang->getLanguageCode();
-                    if ($code === $ot->getMasterLanguage()) {
+                    if ($code === $ot->getBaseLanguage()) {
                         continue;
                     }
                     $titles[$code] = $form->getData("title_" . $code);
@@ -602,11 +603,11 @@ class EditSubObjectsGUI
         if ($form->isValid()) {
             \ilLMObject::saveTitle($this->request->getEditId(), $form->getData("title"));
 
-            $ot = \ilObjectTranslation::getInstance($this->lm->getId());
-            if ($ot->getContentActivated()) {
+            $ot = $this->lm->getObjectProperties()->getPropertyTranslations();
+            if ($ot->getContentTranslationActivated()) {
                 foreach ($ot->getLanguages() as $lang) {
                     $code = $lang->getLanguageCode();
-                    if ($code === $ot->getMasterLanguage()) {
+                    if ($code === $ot->getBaseLanguage()) {
                         continue;
                     }
                     \ilLMObject::saveTitle($this->request->getEditId(), $form->getData("title_" . $code), $code);

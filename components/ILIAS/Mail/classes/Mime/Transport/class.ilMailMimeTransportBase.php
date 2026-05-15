@@ -20,14 +20,11 @@ declare(strict_types=1);
 
 use PHPMailer\PHPMailer\PHPMailer;
 
-/**
- * Class ilMailMimeTransportBase
- */
 abstract class ilMailMimeTransportBase implements ilMailMimeTransport
 {
     protected PHPMailer $mailer;
 
-    public function __construct(protected ilSetting $settings, private readonly ilAppEventHandler $eventHandler)
+    public function __construct(protected ilSetting $settings, private readonly ilAppEventHandler $event_handler)
     {
         $mail = new PHPMailer();
         $this->setMailer($mail);
@@ -65,7 +62,7 @@ abstract class ilMailMimeTransportBase implements ilMailMimeTransport
             $recipient_pieces = array_filter(array_map('trim', explode(',', $recipients)));
             foreach ($recipient_pieces as $recipient) {
                 if (!$this->getMailer()->addAddress($recipient)) {
-                    ilLoggerFactory::getLogger('mail')->warning($this->getMailer()->ErrorInfo);
+                    ilLoggerFactory::getLogger('mail')->warning('{error}', ['error' => $this->getMailer()->ErrorInfo]);
                 }
             }
         }
@@ -74,7 +71,7 @@ abstract class ilMailMimeTransportBase implements ilMailMimeTransport
             $cc_pieces = array_filter(array_map('trim', explode(',', $carbon_copies)));
             foreach ($cc_pieces as $carbon_copy) {
                 if (!$this->getMailer()->addCC($carbon_copy)) {
-                    ilLoggerFactory::getLogger('mail')->warning($this->getMailer()->ErrorInfo);
+                    ilLoggerFactory::getLogger('mail')->warning('{error}', ['error' => $this->getMailer()->ErrorInfo]);
                 }
             }
         }
@@ -83,7 +80,7 @@ abstract class ilMailMimeTransportBase implements ilMailMimeTransport
             $bcc_pieces = array_filter(array_map('trim', explode(',', $blind_carbon_copies)));
             foreach ($bcc_pieces as $blind_carbon_copy) {
                 if (!$this->getMailer()->addBCC($blind_carbon_copy)) {
-                    ilLoggerFactory::getLogger('mail')->warning($this->getMailer()->ErrorInfo);
+                    ilLoggerFactory::getLogger('mail')->warning('{error}', ['error' => $this->getMailer()->ErrorInfo]);
                 }
             }
         }
@@ -94,31 +91,31 @@ abstract class ilMailMimeTransportBase implements ilMailMimeTransport
             $mail->getFrom()->getReplyToAddress(),
             $mail->getFrom()->getReplyToName()
         )) {
-            ilLoggerFactory::getLogger('mail')->warning($this->getMailer()->ErrorInfo);
+            ilLoggerFactory::getLogger('mail')->warning('{error}', ['error' => $this->getMailer()->ErrorInfo]);
         }
         if ($mail->getFrom()->hasEnvelopFromAddress()) {
             $this->getMailer()->Sender = $mail->getFrom()->getEnvelopFromAddress();
         }
 
         if (!$this->getMailer()->setFrom($mail->getFrom()->getFromAddress(), $mail->getFrom()->getFromName(), false)) {
-            ilLoggerFactory::getLogger('mail')->warning($this->getMailer()->ErrorInfo);
+            ilLoggerFactory::getLogger('mail')->warning('{error}', ['error' => $this->getMailer()->ErrorInfo]);
         }
 
         foreach ($mail->getAttachments() as $attachment) {
             if (!$this->getMailer()->addAttachment($attachment['path'], $attachment['name'])) {
-                ilLoggerFactory::getLogger('mail')->warning($this->getMailer()->ErrorInfo);
+                ilLoggerFactory::getLogger('mail')->warning('{error}', ['error' => $this->getMailer()->ErrorInfo]);
             }
         }
 
         foreach ($mail->getImages() as $image) {
             if (!$this->getMailer()->addEmbeddedImage($image['path'], $image['cid'], $image['name'])) {
-                ilLoggerFactory::getLogger('mail')->warning($this->getMailer()->ErrorInfo);
+                ilLoggerFactory::getLogger('mail')->warning('{error}', ['error' => $this->getMailer()->ErrorInfo]);
             }
         }
 
-        if ($mail->getFinalBodyAlt() !== '') {
+        if ($mail->getFinalBodyalt() !== '') {
             $this->getMailer()->isHTML(true);
-            $this->getMailer()->AltBody = $mail->getFinalBodyAlt();
+            $this->getMailer()->AltBody = $mail->getFinalBodyalt();
         } else {
             $this->getMailer()->isHTML(false);
             $this->getMailer()->AltBody = '';
@@ -126,41 +123,41 @@ abstract class ilMailMimeTransportBase implements ilMailMimeTransport
         $this->getMailer()->Body = $mail->getFinalBody();
         $this->getMailer()->AllowEmpty = true;
 
-        ilLoggerFactory::getLogger('mail')->info(sprintf(
-            "Trying to delegate external email delivery:" .
-            " Initiated by: %s (%s) " .
-            "| To: %s | CC: %s | BCC: %s | Subject: %s " .
-            "| From: %s / %s " .
-            "| ReplyTo: %s / %s " .
-            "| EnvelopeFrom: %s",
-            $GLOBALS['DIC']->user()->getLogin(),
-            $GLOBALS['DIC']->user()->getId(),
-            implode(', ', $mail->getTo()),
-            implode(', ', $mail->getCc()),
-            implode(', ', $mail->getBcc()),
-            $mail->getSubject(),
-            $mail->getFrom()->getFromAddress(),
-            $mail->getFrom()->getFromName(),
-            $mail->getFrom()->getReplyToAddress(),
-            $mail->getFrom()->getReplyToName(),
-            $mail->getFrom()->getEnvelopFromAddress()
-        ));
+        ilLoggerFactory::getLogger('mail')->info(
+            'Trying to delegate external email delivery:' .
+            ' Initiated by: {login} ({id}) ' .
+            '| To: {to} | CC: {cc} | BCC: {bcc} | Subject: {subject} ' .
+            '| From: {from_address} / {from_name} ' .
+            '| ReplyTo: {reply_to_address} / {reply_to_name} ' .
+            '| EnvelopeFrom: {envelope_from}',
+            [
+                'login' => $GLOBALS['DIC']->user()->getLogin(),
+                'id' => $GLOBALS['DIC']->user()->getId(),
+                'to' => implode(', ', $mail->getTo()),
+                'cc' => implode(', ', $mail->getCc()),
+                'bcc' => implode(', ', $mail->getBcc()),
+                'subject' => $mail->getSubject(),
+                'from_address' => $mail->getFrom()->getFromAddress(),
+                'from_name' => $mail->getFrom()->getFromName(),
+                'reply_to_address' => $mail->getFrom()->getReplyToAddress(),
+                'reply_to_name' => $mail->getFrom()->getReplyToName(),
+                'envelope_from' => $mail->getFrom()->getEnvelopFromAddress(),
+            ]
+        );
 
         ilLoggerFactory::getLogger('mail')
-                       ->debug(sprintf("Mail Alternative Body: %s", $this->getMailer()->AltBody));
+                       ->debug('Mail Alternative Body: {body}', ['body' => $this->getMailer()->AltBody]);
         ilLoggerFactory::getLogger('mail')
-                       ->debug(sprintf("Mail Body: %s", $this->getMailer()->Body));
+                       ->debug('Mail Body: {body}', ['body' => $this->getMailer()->Body]);
 
         $this->getMailer()->CharSet = 'utf-8';
 
         $this->mailer->Debugoutput = static function (string $message, $level): void {
-            if (
-                strpos($message, 'Invalid address') ||
-                strpos($message, 'Message body empty')
-            ) {
-                ilLoggerFactory::getLogger('mail')->warning($message);
+            if (str_contains($message, 'Invalid address') ||
+                str_contains($message, 'Message body empty')) {
+                ilLoggerFactory::getLogger('mail')->warning('{message}', ['message' => $message]);
             } else {
-                ilLoggerFactory::getLogger('mail')->debug($message);
+                ilLoggerFactory::getLogger('mail')->debug('{message}', ['message' => $message]);
             }
         };
 
@@ -171,19 +168,19 @@ abstract class ilMailMimeTransportBase implements ilMailMimeTransport
                            ->info('Successfully delegated external mail delivery');
 
             if ($this->getMailer()->ErrorInfo !== '') {
-                ilLoggerFactory::getLogger('mail')->warning(sprintf(
-                    '... with most recent errors: %s',
-                    $this->getMailer()->ErrorInfo
-                ));
+                ilLoggerFactory::getLogger('mail')->warning(
+                    '... with most recent errors: {error}',
+                    ['error' => $this->getMailer()->ErrorInfo]
+                );
             }
         } else {
-            ilLoggerFactory::getLogger('mail')->warning(sprintf(
-                'Could not deliver external email: %s',
-                $this->getMailer()->ErrorInfo
-            ));
+            ilLoggerFactory::getLogger('mail')->warning(
+                'Could not deliver external email: {error}',
+                ['error' => $this->getMailer()->ErrorInfo]
+            );
         }
 
-        $this->eventHandler->raise('components/ILIAS/Mail', 'externalEmailDelegated', [
+        $this->event_handler->raise('components/ILIAS/Mail', 'externalEmailDelegated', [
             'mail' => $mail,
             'result' => $result,
         ]);

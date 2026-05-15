@@ -38,7 +38,7 @@ final class Streams
      *
      * @return FileStream The newly created in memory stream.
      */
-    public static function ofString(string $string): \ILIAS\Filesystem\Stream\Stream
+    public static function ofString(string $string): Stream
     {
         if (!is_string($string)) {
             throw new \InvalidArgumentException(
@@ -61,7 +61,7 @@ final class Streams
      *
      * @see fopen()
      */
-    public static function ofResource($resource): \ILIAS\Filesystem\Stream\Stream
+    public static function ofResource($resource): Stream
     {
         if (!is_resource($resource)) {
             throw new \InvalidArgumentException(
@@ -71,7 +71,7 @@ final class Streams
         return new Stream($resource);
     }
 
-    public static function ofReattachableResource($resource): \ILIAS\Filesystem\Stream\ReattachableStream
+    public static function ofReattachableResource($resource): ReattachableStream
     {
         if (!is_resource($resource)) {
             throw new \InvalidArgumentException(
@@ -81,7 +81,7 @@ final class Streams
         return new ReattachableStream($resource);
     }
 
-    public static function ofFileInsideZIP(string $path_to_zip, string $path_inside_zip): \ILIAS\Filesystem\Stream\ZIPStream
+    public static function ofFileInsideZIP(string $path_to_zip, string $path_inside_zip): ZIPStream
     {
         // we try to open the zip file with the path inside the zip file, once with a leading slash and once without
         try {
@@ -110,7 +110,7 @@ final class Streams
      * @param StreamInterface $stream The stream which should be parsed into a FileStream.
      * @return FileStream               The newly created stream.
      */
-    public static function ofPsr7Stream(StreamInterface $stream): \ILIAS\Filesystem\Stream\Stream
+    public static function ofPsr7Stream(StreamInterface $stream): Stream
     {
         $resource = $stream->detach();
         return self::ofResource($resource);

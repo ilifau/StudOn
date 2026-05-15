@@ -35,7 +35,7 @@ class Capability
 
     public function __construct(
         private Capabilities $capability,
-         Permissions ... $permissions
+        Permissions ... $permissions
     ) {
         $this->permissions = $permissions;
     }

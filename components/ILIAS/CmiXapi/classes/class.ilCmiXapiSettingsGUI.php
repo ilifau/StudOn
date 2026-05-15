@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
  * Class ilCmiXapiSettingsGUI
@@ -119,7 +119,7 @@ class ilCmiXapiSettingsGUI
         $this->showCmd($form);
     }
 
-    protected function showCmd(ilPropertyFormGUI $form = null): void
+    protected function showCmd(?ilPropertyFormGUI $form = null): void
     {
         if ($this->dic->access()->checkAccess("write", "", $this->object->getRefId())) {
             $this->dic->tabs()->activateSubTab(self::SUBTAB_ID_SETTINGS);
@@ -275,7 +275,6 @@ class ilCmiXapiSettingsGUI
         }
 
         if (!$this->object->isSourceTypeExternal()) {
-            //            if ($this->object->getContentType() != ilObjCmiXapi::CONT_TYPE_CMI5) {
             $sectionHeader = new ilFormSectionHeaderGUI();
             $sectionHeader->setTitle($this->language->txt('privacy_options'));
             $form->addItem($sectionHeader);
@@ -285,9 +284,6 @@ class ilCmiXapiSettingsGUI
             if ($this->object->isBypassProxyEnabled() == false) {
                 $useProxy->setChecked(true);
             }
-            //                if ($this->object->getLrsType()->getForcePrivacySettings()) {
-            //                    $useProxy->setDisabled(true);
-            //                }
             if ($this->object->getContentType() == ilObjCmiXapi::CONT_TYPE_CMI5) {
                 $useProxy->setChecked(true);
                 $useProxy->setDisabled(true);
@@ -398,7 +394,6 @@ class ilCmiXapiSettingsGUI
             if ($this->object->getLrsType()->getForcePrivacySettings()) {
                 $item->setDisabled(true);
             }
-            //$form->addItem($item);
             $useProxy->addSubItem($item);
 
             $item = new ilCheckboxInputGUI($this->language->txt('no_substatements_label'), 'no_substatements');
@@ -494,6 +489,16 @@ class ilCmiXapiSettingsGUI
                 $userName->setDisabled(true);
             }
 
+            if ($this->object->getContentType() == ilObjCmiXapi::CONT_TYPE_CMI5) {
+                $item = new ilCheckboxInputGUI($this->language->txt('enrich_data_label'), 'enrich_data');
+                $item->setInfo($this->language->txt('enrich_data_info'));
+                $item->setChecked($this->object->getEnrichData());
+                if ($this->object->getLrsType()->getForcePrivacySettings()) {
+                    $item->setDisabled(true);
+                }
+                $form->addItem($item);
+            }
+
         }
 
         $item = new ilRadioGroupInputGUI($this->language->txt('conf_delete_data'), 'delete_data');
@@ -504,6 +509,9 @@ class ilCmiXapiSettingsGUI
         }
         $item->setValue((string) $this->object->getDeleteData());
         $item->setInfo($this->language->txt('conf_delete_data_info'));
+        if ($this->object->getLrsType()->getForcePrivacySettings()) {
+            $item->setDisabled(true);
+        }
         $form->addItem($item);
 
 
@@ -647,6 +655,7 @@ class ilCmiXapiSettingsGUI
                 $this->object->setDuration((bool) $form->getInput("duration"));
                 $this->object->setNoSubstatements((bool) $form->getInput("no_substatements"));
                 $this->object->setDeleteData((int) $form->getInput("delete_data"));
+                $this->object->setEnrichData((bool) $form->getInput("enrich_data"));
             }
         } else { //SourceTypeExternal
             $this->object->setBypassProxyEnabled(true);

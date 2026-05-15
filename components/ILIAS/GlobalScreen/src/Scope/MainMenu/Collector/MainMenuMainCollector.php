@@ -191,7 +191,7 @@ class MainMenuMainCollector extends AbstractBaseCollector implements ItemCollect
 
         $this->map->walk(static function (isItem &$i): void {
             if ($i instanceof isParent && $i->getChildren() === []) {
-                $i = $i->withVisibilityCallable(static fn(): bool => false);
+                $i = $i->withAvailableCallable(static fn(): bool => false)->withVisibilityCallable(static fn(): bool => false);
             }
         });
     }

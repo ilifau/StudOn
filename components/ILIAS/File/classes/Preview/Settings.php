@@ -35,17 +35,44 @@ class Settings extends ilSetting implements Setting
     public const V_IMAGE_SIZE_MIN = 50;
     public const V_IMAGE_SIZE_MAX = 1000;
 
+    /**
+     * @var int
+     */
     private const V_IMAGE_QUALITY_DEFAULT = 85;
+    /**
+     * @var int
+     */
     private const V_IMAGE_QUALITY_MIN = 1;
+    /**
+     * @var int
+     */
     private const V_IMAGE_QUALITY_MAX = 100;
 
     public const MODULE_NAME = 'preview';
 
+    /**
+     * @var string
+     */
     private const F_PREVIEW_ENABLED = 'preview_enabled';
+    /**
+     * @var string
+     */
     private const F_MAX_PREVIEWS_PER_OBJECT = 'max_previews_per_object';
+    /**
+     * @var string
+     */
     private const F_PREVIEW_IMAGE_SIZE = 'preview_image_size';
+    /**
+     * @var string
+     */
     private const F_PREVIEW_PERSISTING = 'preview_persisting';
+    /**
+     * @var string
+     */
     private const F_PREVIEW_IMAGE_QUALITY = 'preview_image_quality';
+    /**
+     * @var string
+     */
     private const F_TILE_PREVIEWS = 'tile_previews';
     /**
      * @readonly

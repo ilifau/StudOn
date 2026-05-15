@@ -27,18 +27,26 @@ use ILIAS\UI\Implementation\Component as I;
 
 class FilterInputsTestNoUIFactories extends NoUIFactory
 {
+    protected I\Button\Factory $button_factory;
     protected I\Symbol\Factory $symbol_factory;
     protected I\Popover\Factory $popover_factory;
     protected I\Legacy\Factory $legacy_factory;
 
     public function __construct(
+        I\Button\Factory $button_factory,
         I\Symbol\Factory $symbol_factory,
         I\Popover\Factory $popover_factory,
         I\Legacy\Factory $legacy_factory,
     ) {
+        $this->button_factory = $button_factory;
         $this->symbol_factory = $symbol_factory;
         $this->popover_factory = $popover_factory;
         $this->legacy_factory = $legacy_factory;
+    }
+
+    public function button(): I\Button\Factory
+    {
+        return $this->button_factory;
     }
 
     public function symbol(): I\Symbol\Factory
@@ -51,9 +59,9 @@ class FilterInputsTestNoUIFactories extends NoUIFactory
         return $this->popover_factory;
     }
 
-    public function legacy($content): I\Legacy\Legacy
+    public function legacy(): I\Legacy\Factory
     {
-        return $this->legacy_factory->legacy("");
+        return $this->legacy_factory;
     }
 }
 
@@ -76,6 +84,7 @@ class FilterInputTest extends ILIAS_UI_TestBase
         $df = new Data\Factory();
         $language = $this->createMock(ILIAS\Language\Language::class);
         return new I\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\Field\Node\Factory::class),
             $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             new I\SignalGenerator(),
             $df,
@@ -93,6 +102,11 @@ class FilterInputTest extends ILIAS_UI_TestBase
         );
     }
 
+    protected function buildButtonFactory(): I\Button\Factory
+    {
+        return new I\Button\Factory();
+    }
+
     protected function buildPopoverFactory(): I\Popover\Factory
     {
         return new I\Popover\Factory(new I\SignalGenerator());
@@ -100,12 +114,17 @@ class FilterInputTest extends ILIAS_UI_TestBase
 
     protected function buildLegacyFactory(): I\Legacy\Factory
     {
-        return new I\Legacy\Factory(new I\SignalGenerator());
+        $mock = $this->createMock(I\Legacy\Factory::class);
+        $mock->method('content')->willReturn(
+            new I\Legacy\Content('', new I\SignalGenerator())
+        );
+        return $mock;
     }
 
     public function getUIFactory(): FilterInputsTestNoUIFactories
     {
         return new FilterInputsTestNoUIFactories(
+            $this->buildButtonFactory(),
             $this->buildSymbolFactory(),
             $this->buildPopoverFactory(),
             $this->buildLegacyFactory(),
@@ -127,9 +146,7 @@ class FilterInputTest extends ILIAS_UI_TestBase
                 <label for="id_1" class="input-group-addon leftaddon">label</label>
                 <input id="id_1" type="text" class="c-field-text" />
                 <span class="input-group-addon rightaddon">
-                    <a class="glyph" href="" aria-label="remove" id="id_2">
-                        <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
-                    </a>
+                    <button type="button" class="btn btn-link" aria-label="remove" data-action="" id="id_2"><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span></span></button>
                 </span>
             </div>
         </div>
@@ -149,11 +166,9 @@ class FilterInputTest extends ILIAS_UI_TestBase
         $expected = $this->brutallyTrimHTML('
         <div class="col-md-6 col-lg-4 il-popover-container"><div data-il-ui-component="numeric-field-input" data-il-ui-input-name="" class="input-group">
                 <label for="id_1" class="input-group-addon leftaddon">label</label>
-                <input id="id_1" type="number" class="c-field-number" />
+                <input id="id_1" type="number" step="1" class="c-field-number" />
                 <span class="input-group-addon rightaddon">
-                    <a class="glyph" href="" aria-label="remove" id="id_2">
-                        <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
-                    </a>
+                    <button type="button" class="btn btn-link" aria-label="remove" data-action="" id="id_2"><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span></span></button>
                 </span>
             </div>
         </div>
@@ -181,7 +196,7 @@ class FilterInputTest extends ILIAS_UI_TestBase
                     <option value="three">Three</option>
                 </select>
                 <span class="input-group-addon rightaddon">
-                    <a class="glyph" href="" aria-label="remove" id="id_2"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span></a>
+                    <button type="button" class="btn btn-link" aria-label="remove" data-action="" id="id_2"><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span></span></button>
                 </span>
             </div>
         </div>
@@ -189,7 +204,7 @@ class FilterInputTest extends ILIAS_UI_TestBase
         $this->assertHTMLEquals($expected, $html);
     }
 
-    public function testRenderMultiSelectWithFilterContext(): void
+    public function testRenderMultiSelectWithHasOptionFilter(): void
     {
         $f = $this->buildFactory();
         $if = $this->buildInputFactory();
@@ -205,9 +220,7 @@ class FilterInputTest extends ILIAS_UI_TestBase
                 <span role="button" tabindex="0" class="form-control il-filter-field" id="id_3" data-placement="bottom"></span>
                 <div class="il-standard-popover-content" style="display:none;" id="id_1"></div>
                 <span class="input-group-addon rightaddon">
-                    <a class="glyph" href="" aria-label="remove" id="id_4">
-                        <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
-                    </a>
+                    <button type="button" class="btn btn-link" aria-label="remove" data-action="" id="id_4"><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span></span></button>
                 </span>
             </div>
         </div>
@@ -231,9 +244,7 @@ class FilterInputTest extends ILIAS_UI_TestBase
                     <input id="id_1" type="date" class="c-field-datetime" />
                 </div>
                 <span class="input-group-addon rightaddon">
-                    <a class="glyph" href="" aria-label="remove" id="id_2">
-                        <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
-                    </a>
+                    <button type="button" class="btn btn-link" aria-label="remove" data-action="" id="id_2"><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span></span></button>
                 </span>
             </div>
         </div>
@@ -283,9 +294,7 @@ class FilterInputTest extends ILIAS_UI_TestBase
                 <span role="button" tabindex="0" class="form-control il-filter-field" id="id_6" data-placement="bottom"></span>
                 <div class="il-standard-popover-content" style="display:none;" id="id_4"></div>
                 <span class="input-group-addon rightaddon">
-                    <a class="glyph" href="" aria-label="remove" id="id_7">
-                        <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
-                    </a>
+                    <button type="button" class="btn btn-link" aria-label="remove" data-action="" id="id_7"><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span></span></button>
                 </span>
             </div>
         </div>

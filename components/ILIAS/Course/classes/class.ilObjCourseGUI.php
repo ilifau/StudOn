@@ -26,6 +26,9 @@ use FAU\Tools\Cust;
 use FAU\Ilias\Helper\CourseConstantsHelper;
 // fau.
 use ILIAS\News\Service as News;
+use ILIAS\ILIASObject\Properties\Translations\TranslationGUI;
+use ILIAS\Data\Factory as ilDataFactory;
+use ILIAS\User\Profile\PublicProfileGUI;
 
 /**
  * Class ilObjCourseGUI
@@ -34,7 +37,7 @@ use ILIAS\News\Service as News;
  * @ilCtrl_Calls ilObjCourseGUI: ilCourseRegistrationGUI, ilCourseObjectivesGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilObjCourseGroupingGUI, ilInfoScreenGUI, ilLearningProgressGUI, ilPermissionGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilRepositorySearchGUI, ilConditionHandlerGUI
- * @ilCtrl_Calls ilObjCourseGUI: ilCourseContentGUI, ilPublicUserProfileGUI, ilMemberExportGUI
+ * @ilCtrl_Calls ilObjCourseGUI: ilCourseContentGUI, ILIAS\User\Profile\PublicProfileGUI, ilMemberExportGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilObjectCustomUserFieldsGUI, ilMemberAgreementGUI, ilSessionOverviewGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilColumnGUI, ilContainerPageGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilObjectCopyGUI, ilObjectContentStyleSettingsGUI
@@ -45,7 +48,7 @@ use ILIAS\News\Service as News;
  * @ilCtrl_Calls ilObjCourseGUI: ilLOPageGUI, ilObjectMetaDataGUI, ilNewsTimelineGUI, ilContainerNewsSettingsGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilCourseMembershipGUI, ilPropertyFormGUI, ilContainerSkillGUI, ilCalendarPresentationGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilMemberExportSettingsGUI
- * @ilCtrl_Calls ilObjCourseGUI: ilLTIProviderObjectSettingGUI, ilObjectTranslationGUI, ilBookingGatewayGUI, ilRepositoryTrashGUI
+ * @ilCtrl_Calls ilObjCourseGUI: ilLTIProviderObjectSettingGUI, ILIAS\ILIASObject\Properties\Translations\TranslationGUI, ilBookingGatewayGUI, ilRepositoryTrashGUI
  *
  * fau: studyCond - added ilStudyCondGUI to call structure
  * @ilCtrl_Calls ilObjCourseGUI: ilStudyCondGUI
@@ -74,6 +77,7 @@ class ilObjCourseGUI extends ilContainerGUI
     protected Factory $refinery;
     protected ilHelpGUI $help;
     protected ilNavigationHistory $navigation_history;
+    protected ilDataFactory $data_factory;
 
     public function __construct($a_data, int $a_id, bool $a_call_by_reference = true, bool $a_prepare_output = true)
     {
@@ -89,7 +93,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->lng->loadLanguageModule('crs');
         $this->lng->loadLanguageModule('cert');
         $this->lng->loadLanguageModule('obj');
-
+        $this->data_factory = new ilDataFactory();
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
         $this->news = $DIC->news();
@@ -396,7 +400,7 @@ class ilObjCourseGUI extends ilContainerGUI
         if ($conts !== []) {
             $info->addSection($this->lng->txt("crs_mem_contacts"));
             foreach ($conts as $c) {
-                $pgui = new ilPublicUserProfileGUI($c);
+                $pgui = new PublicProfileGUI($c);
                 $pgui->setBackUrl($this->ctrl->getLinkTargetByClass("ilinfoscreengui"));
                 $pgui->setEmbedded(true);
                 $info->addProperty("", $pgui->getHTML());
@@ -586,7 +590,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->ctrl->redirect($this, "");
     }
 
-    public function editInfoObject(ilPropertyFormGUI $a_form = null): void
+    public function editInfoObject(?ilPropertyFormGUI $a_form = null): void
     {
         $this->checkPermission('write');
         $this->setSubTabs('properties');
@@ -599,90 +603,21 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->tpl->addBlockFile('ADM_CONTENT', 'adm_content', 'tpl.edit_info.html', 'components/ILIAS/Course');
         $this->tpl->setVariable('INFO_TABLE', $a_form->getHTML());
 
-        if (!count($files = ilCourseFile::_readFilesByCourse($this->object->getId()))) {
-            return;
-        }
-        $rows = array();
-        foreach ($files as $file) {
-            $table_data['id'] = $file->getFileId();
-            $table_data['filename'] = $file->getFileName();
-            $table_data['filetype'] = $file->getFileType();
-            $table_data['filesize'] = $file->getFileSize();
-
-            $rows[] = $table_data;
-        }
-        $table_gui = new ilCourseInfoFileTableGUI($this, 'editInfo');
-        $table_gui->setTitle($this->lng->txt("crs_info_download"));
-        $table_gui->setData($rows);
-        $table_gui->addCommandButton("cancel", $this->lng->txt("cancel"));
-        $table_gui->addMultiCommand("confirmDeleteInfoFiles", $this->lng->txt("delete"));
-        $table_gui->setSelectAllCheckbox("file_id");
-        $this->tpl->setVariable('INFO_FILE_TABLE', $table_gui->getHTML());
-    }
-
-    public function confirmDeleteInfoFilesObject(): void
-    {
-        $file_ids = [];
-        if ($this->http->wrapper()->post()->has('file_id')) {
-            $file_ids = $this->http->wrapper()->post()->retrieve(
-                'file_id',
-                $this->refinery->kindlyTo()->listOf(
-                    $this->refinery->kindlyTo()->int()
-                )
-            );
-        }
-        if (count($file_ids) === 0) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'));
-            $this->editInfoObject();
-            return;
-        }
-
-        $this->setSubTabs('properties');
-        $this->tabs_gui->setTabActive('settings');
-        $this->tabs_gui->setSubTabActive('crs_info_settings');
-
-        $c_gui = new ilConfirmationGUI();
-
-        // set confirm/cancel commands
-        $c_gui->setFormAction($this->ctrl->getFormAction($this, "deleteInfoFiles"));
-        $c_gui->setHeaderText($this->lng->txt("info_delete_sure"));
-        $c_gui->setCancel($this->lng->txt("cancel"), "editInfo");
-        $c_gui->setConfirm($this->lng->txt("confirm"), "deleteInfoFiles");
-
-        // add items to delete
-        foreach ($file_ids as $file_id) {
-            $file = new ilCourseFile($file_id);
-            $c_gui->addItem("file_id[]", $file_id, $file->getFileName());
-        }
-        $this->tpl->setContent($c_gui->getHTML());
-    }
-
-    public function deleteInfoFilesObject(): void
-    {
-        $file_ids = [];
-        if ($this->http->wrapper()->post()->has('file_id')) {
-            $file_ids = $this->http->wrapper()->post()->retrieve(
-                'file_id',
-                $this->refinery->kindlyTo()->listOf(
-                    $this->refinery->kindlyTo()->int()
-                )
-            );
-        }
-
-        if (count($file_ids) === 0) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'));
-            $this->editInfoObject();
-            return;
-        }
-
-        foreach ($file_ids as $file_id) {
-            $file = new ilCourseFile($file_id);
-            if ($this->object->getId() == $file->getCourseId()) {
-                $file->delete();
-            }
-        }
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'));
-        $this->editInfoObject();
+        /** @var ilObjCourse $course */
+        $course = $this->object;
+        $data_retrieval = new ilCourseInfoFileTableDataRetrieval($course);
+        $data_retrieval->init();
+        $table = new ilCourseInfoFileTableGUI(
+            $data_retrieval,
+            $this->lng,
+            $this->ui,
+            $this->http,
+            $this->refinery,
+            $this->ctrl,
+            $this->data_factory
+        );
+        $table->handleCommands();
+        $this->tpl->setVariable('INFO_FILE_TABLE', $table->getHTML());
     }
 
     public function initInfoEditor(): ilPropertyFormGUI
@@ -1255,7 +1190,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->ctrl->redirect($this, "edit");
     }
 
-    public function editObject(ilPropertyFormGUI $form = null): void
+    public function editObject(?ilPropertyFormGUI $form = null): void
     {
         $this->setSubTabs('properties');
         $this->tabs_gui->setSubTabActive('general');
@@ -1919,9 +1854,9 @@ class ilObjCourseGUI extends ilContainerGUI
                 }
                 $this->tabs_gui->addSubTabTarget(
                     "obj_multilinguality",
-                    $this->ctrl->getLinkTargetByClass("ilobjecttranslationgui", ""),
+                    $this->ctrl->getLinkTargetByClass(TranslationGUI::class, ""),
                     "",
-                    "ilobjecttranslationgui"
+                    TranslationGUI::class
                 );
                 break;
         }
@@ -1979,7 +1914,7 @@ class ilObjCourseGUI extends ilContainerGUI
         ));
     }
 
-    public function readMemberData(array $ids, array $selected_columns = null, bool $skip_names = false): array
+    public function readMemberData(array $ids, ?array $selected_columns = null, bool $skip_names = false): array
     {
         $show_tracking =
             (
@@ -2596,8 +2531,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($course_content_obj);
                 break;
 
-            case 'ilpublicuserprofilegui':
-                $this->tpl->enableDragDropFileUpload(null);
+            case strtolower(PublicProfileGUI::class):
                 $this->setSubTabs('members');
                 $this->tabs_gui->setTabActive('members');
 
@@ -2608,7 +2542,7 @@ class ilObjCourseGUI extends ilContainerGUI
                         $this->refinery->kindlyTo()->int()
                     );
                 }
-                $profile_gui = new ilPublicUserProfileGUI($user_id);
+                $profile_gui = new PublicProfileGUI($user_id);
                 $profile_gui->setBackUrl($this->ctrl->getLinkTargetByClass(["ilCourseMembershipGUI",
                                                                             "ilUsersGalleryGUI"
                 ], 'view'));
@@ -2824,12 +2758,24 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($gui);
                 break;
 
-            case 'ilobjecttranslationgui':
+            case strtolower(TranslationGUI::class):
                 $this->checkPermissionBool("write");
                 $this->setSubTabs("properties");
                 $this->tabs_gui->activateTab("settings");
                 $this->tabs_gui->activateSubTab("obj_multilinguality");
-                $transgui = new ilObjectTranslationGUI($this);
+                $transgui = new TranslationGUI(
+                    $this->getObject(),
+                    $this->lng,
+                    $this->access,
+                    $this->user,
+                    $this->ctrl,
+                    $this->tpl,
+                    $this->ui_factory,
+                    $this->ui_renderer,
+                    $this->http,
+                    $this->refinery,
+                    $this->toolbar
+                );
                 $this->ctrl->forwardCommand($transgui);
                 break;
 

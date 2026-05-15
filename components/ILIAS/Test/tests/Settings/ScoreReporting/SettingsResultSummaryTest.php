@@ -27,18 +27,16 @@ class SettingsResultSummaryTest extends ilTestBaseTestCase
 {
     public function testConstruct(): void
     {
-        $settingsResultSummary = new SettingsResultSummary(0);
+        $settingsResultSummary = new SettingsResultSummary();
         $this->assertInstanceOf(SettingsResultSummary::class, $settingsResultSummary);
     }
 
-    /**
-     * @dataProvider getAndWithScoreReportingDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithScoreReportingDataProvider')]
     public function testGetAndWithScoreReporting(ScoreReportingTypes $IO): void
     {
         $this->assertEquals(
             $IO,
-            (new SettingsResultSummary(0))->withScoreReporting($IO)->getScoreReporting()
+            (new SettingsResultSummary())->withScoreReporting($IO)->getScoreReporting()
         );
     }
 
@@ -51,12 +49,10 @@ class SettingsResultSummaryTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithReportingDateDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithReportingDateDataProvider')]
     public function testGetAndWithReportingDate(?\DateTimeImmutable $IO): void
     {
-        $settingsResultSummary = new SettingsResultSummary(0);
+        $settingsResultSummary = new SettingsResultSummary();
         $settingsResultSummary = $settingsResultSummary->withReportingDate($IO);
         $this->assertEquals($IO, $settingsResultSummary->getReportingDate());
     }
@@ -69,12 +65,10 @@ class SettingsResultSummaryTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithShowGradingStatusEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithShowGradingStatusEnabledDataProvider')]
     public function testGetAndWithShowGradingStatusEnabled(bool $IO): void
     {
-        $settingsResultSummary = new SettingsResultSummary(0);
+        $settingsResultSummary = new SettingsResultSummary();
         $settingsResultSummary = $settingsResultSummary->withShowGradingStatusEnabled($IO);
         $this->assertEquals($IO, $settingsResultSummary->getShowGradingStatusEnabled());
     }
@@ -87,12 +81,10 @@ class SettingsResultSummaryTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithShowGradingMarkEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithShowGradingMarkEnabledDataProvider')]
     public function testGetAndWithShowGradingMarkEnabled(bool $IO): void
     {
-        $settingsResultSummary = new SettingsResultSummary(0);
+        $settingsResultSummary = new SettingsResultSummary();
         $settingsResultSummary = $settingsResultSummary->withShowGradingMarkEnabled($IO);
         $this->assertEquals($IO, $settingsResultSummary->getShowGradingMarkEnabled());
     }
@@ -105,12 +97,10 @@ class SettingsResultSummaryTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithPassDeletionAllowedDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithPassDeletionAllowedDataProvider')]
     public function testGetAndWithPassDeletionAllowed(bool $IO): void
     {
-        $settingsResultSummary = new SettingsResultSummary(0);
+        $settingsResultSummary = new SettingsResultSummary();
         $settingsResultSummary = $settingsResultSummary->withPassDeletionAllowed($IO);
         $this->assertEquals($IO, $settingsResultSummary->getPassDeletionAllowed());
     }
@@ -123,12 +113,10 @@ class SettingsResultSummaryTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithShowPassDetailsDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithShowPassDetailsDataProvider')]
     public function testGetAndWithShowPassDetails(bool $IO): void
     {
-        $settingsResultSummary = new SettingsResultSummary(0);
+        $settingsResultSummary = new SettingsResultSummary();
         $settingsResultSummary = $settingsResultSummary->withShowPassDetails($IO);
         $this->assertEquals($IO, $settingsResultSummary->getShowPassDetails());
     }

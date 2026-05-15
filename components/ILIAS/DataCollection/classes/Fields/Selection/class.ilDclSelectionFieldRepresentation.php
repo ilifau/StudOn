@@ -20,6 +20,11 @@ declare(strict_types=1);
 
 abstract class ilDclSelectionFieldRepresentation extends ilDclBaseFieldRepresentation
 {
+    /**
+     * @var ilDclSelectionFieldModel
+     */
+    protected ilDclBaseFieldModel $field;
+
     protected function buildFieldCreationInput(ilObjDataCollection $dcl, string $mode = 'create'): ilRadioOption
     {
         $opt = parent::buildFieldCreationInput($dcl, $mode);
@@ -45,6 +50,13 @@ abstract class ilDclSelectionFieldRepresentation extends ilDclBaseFieldRepresent
 
         $opt->addSubItem($selection_type);
 
+        $prop_unique = new ilDclCheckboxInputGUI(
+            $this->lng->txt('dcl_unique'),
+            $this->getPropertyInputFieldId(ilDclBaseFieldModel::PROP_UNIQUE)
+        );
+        $prop_unique->setInfo($this->lng->txt('dcl_unique_desc'));
+        $opt->addSubItem($prop_unique);
+
         return $opt;
     }
 
@@ -52,7 +64,7 @@ abstract class ilDclSelectionFieldRepresentation extends ilDclBaseFieldRepresent
     {
         $options = [];
         foreach (ilDclSelectionOption::getAllForField((int) $this->getField()->getId()) as $opt) {
-            $options[$opt->getOptId()] = $opt->getValue();
+            $options[$opt->getOptId()] = $this->getField()->personalizeOptionValue($opt->getValue(), $this->user);
         }
         switch ($this->getField()->getProperty($this->field::PROP_SELECTION_TYPE)) {
             case ilDclSelectionFieldModel::SELECTION_TYPE_MULTI:
@@ -106,6 +118,11 @@ abstract class ilDclSelectionFieldRepresentation extends ilDclBaseFieldRepresent
         $this->setupFilterInputField($input);
 
         return $this->getFilterInputFieldValue($input);
+    }
+
+    public function getField(): ilDclSelectionFieldModel
+    {
+        return $this->field;
     }
 
     abstract protected function buildOptionsInput(): ilDclGenericMultiInputGUI;

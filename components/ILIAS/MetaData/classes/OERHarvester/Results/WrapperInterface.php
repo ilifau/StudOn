@@ -22,7 +22,7 @@ namespace ILIAS\MetaData\OERHarvester\Results;
 
 interface WrapperInterface
 {
-    public function get(): \ilCronJobResult;
+    public function get(): \ILIAS\Cron\Job\JobResult;
 
     public function withStatus(int $status): WrapperInterface;
 

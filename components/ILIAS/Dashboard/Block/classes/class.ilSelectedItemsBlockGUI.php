@@ -55,7 +55,7 @@ class ilSelectedItemsBlockGUI extends ilDashboardBlockGUI
         return $this->renderer->render(
             $this->factory->panel()->standard(
                 $this->getTitle(),
-                $this->factory->legacy($this->renderer->render($mbox))
+                $this->factory->legacy()->content($this->renderer->render($mbox))
             )
         );
     }

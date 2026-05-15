@@ -47,7 +47,7 @@ class ilTaxonomySettingsGUI
         int $rep_obj_id,
         string $list_info = "",
         bool $multiple = true,
-        \ILIAS\Taxonomy\Settings\ModifierGUIInterface $modifier = null
+        ?\ILIAS\Taxonomy\Settings\ModifierGUIInterface $modifier = null
     ) {
         $this->domain = $domain;
         $this->gui = $gui;
@@ -128,7 +128,7 @@ class ilTaxonomySettingsGUI
             $this->tpl->setOnScreenMessage('info', $this->lng->txt("tax_max_one_tax"));
         }
         $items = [];
-        foreach($tax_ids as $t) {
+        foreach ($tax_ids as $t) {
             $this->ctrl->setParameterByClass(ilObjTaxonomyGUI::class, "tax_id", $t["tax_id"]);
             $action = [];
             $action[] = $f->button()->shy(

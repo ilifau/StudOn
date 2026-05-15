@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -47,8 +48,8 @@ class ilECSParticipantSettingsRepository
         $counter = 0;
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             if (in_array($a_type, (array) unserialize($row->export_types, ['allowed_classes' => true]), true)) {
-                $mids[$counter]['sid'] = (int)$row->sid;
-                $mids[$counter]['mid'] = (int)$row->mid;
+                $mids[$counter]['sid'] = (int) $row->sid;
+                $mids[$counter]['mid'] = (int) $row->mid;
                 $counter++;
             }
         }

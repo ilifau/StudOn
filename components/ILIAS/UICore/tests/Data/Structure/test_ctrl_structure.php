@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -15,7 +13,10 @@ declare(strict_types=1);
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 require_once __DIR__ . '/../../../interfaces/interface.ilCtrlStructureInterface.php';
 
@@ -50,10 +51,12 @@ return [
         ilCtrlStructureInterface::KEY_CLASS_PARENTS => [
             'ilctrlbaseclass1testgui',
             'ilctrlbaseclass2testgui',
+            'ilctrlbaseclass3testgui',
         ],
         ilCtrlStructureInterface::KEY_CLASS_CHILDREN => [
             'ilctrlbaseclass2testgui',
             'ilctrlcommandclass2testgui',
+            'ilctrlbaseclass3testgui',
         ],
     ],
 
@@ -75,5 +78,17 @@ return [
             'ilctrlbaseclass1testgui',
         ],
         ilCtrlStructureInterface::KEY_CLASS_CHILDREN => [],
+    ],
+
+    'ilctrlbaseclass3testgui' => [
+        ilCtrlStructureInterface::KEY_CLASS_CID => '5',
+        ilCtrlStructureInterface::KEY_CLASS_NAME => 'ilCtrlBaseClass3TestGUI',
+        ilCtrlStructureInterface::KEY_CLASS_PATH => './components/ILIAS/UICore/tests/Data/GUI/ilCtrlBaseClass3TestGUI.php',
+        ilCtrlStructureInterface::KEY_CLASS_CHILDREN => [
+            'ilctrlcommandclass1testgui'
+        ],
+        ilCtrlStructureInterface::KEY_CLASS_PARENTS => [
+            'ilctrlcommandclass1testgui'
+        ],
     ]
 ];

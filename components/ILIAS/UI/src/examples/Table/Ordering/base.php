@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\examples\Table\Ordering;
@@ -78,7 +94,7 @@ function base()
     /**
      * This is the data binding: retrieve rows and write back the order of records.
      */
-    $data_retrieval = new class ($f, $r) implements I\OrderingBinding {
+    $data_retrieval = new class ($f, $r) implements I\OrderingRetrieval {
         protected array $records;
 
         public function __construct(
@@ -142,7 +158,7 @@ function base()
     };
 
     $target = (new URI((string) $request->getUri()))->withParameter('ordering_example', 1);
-    $table = $f->table()->ordering('ordering table', $columns, $data_retrieval, $target)
+    $table = $f->table()->ordering($data_retrieval, $target, 'ordering table', $columns)
         ->withActions($actions)
         ->withRequest($request);
 
@@ -152,7 +168,7 @@ function base()
         && $request_wrapper->retrieve('ordering_example', $refinery->kindlyTo()->int()) === 1
     ) {
         if ($data = $table->getData()) {
-            $out[] = $f->legacy('<pre>' . print_r($data, true) . '</pre>');
+            $out[] = $f->legacy()->content('<pre>' . print_r($data, true) . '</pre>');
         }
         $data_retrieval->setOrder($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +18,8 @@
 
 declare(strict_types=1);
 
+use ILIAS\GlobalScreen\Identification\IdentificationInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ILIAS\GlobalScreen\Scope\Toast\Factory\StandardToastItem;
 use ILIAS\GlobalScreen\Scope\Toast\Factory\ToastAction;
 
@@ -24,9 +27,9 @@ require_once(__DIR__ . "/BaseToastSetUp.php");
 
 class StandardToastTest extends BaseToastSetUp
 {
-    public function testStandardToast()
+    public function testStandardToast(): void
     {
-        $id = $this->createMock(\ILIAS\GlobalScreen\Identification\IdentificationInterface::class);
+        $id = $this->createMock(IdentificationInterface::class);
 
         $standard_toast = $this->factory->standard(
             $id,
@@ -34,14 +37,12 @@ class StandardToastTest extends BaseToastSetUp
         );
 
         $this->assertInstanceOf(StandardToastItem::class, $standard_toast);
-        $this->assertEquals('Toast Title', $standard_toast->getTitle());
-        $this->assertEquals([], $standard_toast->getAllToastActions());
+        $this->assertSame('Toast Title', $standard_toast->getTitle());
+        $this->assertSame([], $standard_toast->getAllToastActions());
         $this->assertCount(0, $standard_toast->getAllToastActions());
         $this->assertCount(0, $standard_toast->getAdditionalToastActions());
 
-        $handle = function () {
-            return true;
-        };
+        $handle = (fn(): true => true);
 
         $standard_toast = $standard_toast->withShownCallable($handle);
         $this->assertCount(1, $standard_toast->getAllToastActions());
@@ -68,25 +69,18 @@ class StandardToastTest extends BaseToastSetUp
         $standard_toast = $standard_toast->withAdditionToastAction($this->factory->action('two', 'Two', $handle));
     }
 
-    public static function reservedActionsProvider(): array
+    public static function reservedActionsProvider(): \Iterator
     {
-        $action = function () {
-            return true;
-        };
-
-        return [
-            [new ToastAction('shown', 'shown', $action)],
-            [new ToastAction('closed', 'closed', $action)],
-            [new ToastAction('vanished', 'vanished', $action)],
-        ];
+        $action = (fn(): true => true);
+        yield [new ToastAction('shown', 'shown', $action)];
+        yield [new ToastAction('closed', 'closed', $action)];
+        yield [new ToastAction('vanished', 'vanished', $action)];
     }
 
-    /**
-     * @dataProvider reservedActionsProvider
-     */
+    #[DataProvider('reservedActionsProvider')]
     public function testReservedActions(ToastAction $action): void
     {
-        $id = $this->createMock(\ILIAS\GlobalScreen\Identification\IdentificationInterface::class);
+        $id = $this->createMock(IdentificationInterface::class);
 
         $standard_toast = $this->factory->standard(
             $id,

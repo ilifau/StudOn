@@ -90,7 +90,7 @@ class ilChatroomSettingsGUI extends ilChatroomGUIHandler
         $this->ilCtrl->redirect($this->gui, 'settings-general');
     }
 
-    public function general(\ILIAS\UI\Component\Input\Container\Form\Form $settingsForm = null): void
+    public function general(?\ILIAS\UI\Component\Input\Container\Form\Form $settingsForm = null): void
     {
         if (!ilChatroom::checkUserPermissions(['visible', 'read'], $this->gui->getRefId())) {
             $this->ilCtrl->setParameterByClass(ilRepositoryGUI::class, 'ref_id', ROOT_FOLDER_ID);

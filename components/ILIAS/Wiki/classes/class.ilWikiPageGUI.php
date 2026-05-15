@@ -17,6 +17,7 @@
  *********************************************************************/
 
 use ILIAS\UICore\PageContentProvider;
+use ILIAS\ILIASObject\Properties\Translations\Translations;
 
 /**
  * Class ilWikiPage GUI class
@@ -24,7 +25,7 @@ use ILIAS\UICore\PageContentProvider;
  * @author Alexander Killing <killing@leifos.de>
  *
  * @ilCtrl_Calls ilWikiPageGUI: ilPageEditorGUI, ilEditClipboardGUI, ilMediaPoolTargetSelector
- * @ilCtrl_Calls ilWikiPageGUI: ilPublicUserProfileGUI, ilPageObjectGUI, ilNoteGUI, ilCommentGUI
+ * @ilCtrl_Calls ilWikiPageGUI: ILIAS\User\Profile\PublicProfileGUI, ilPageObjectGUI, ilNoteGUI, ilCommentGUI
  * @ilCtrl_Calls ilWikiPageGUI: ilCommonActionDispatcherGUI, ilRatingGUI, ilWikiStatGUI
  * @ilCtrl_Calls ilWikiPageGUI: ilObjectMetaDataGUI, ilPropertyFormGUI
  */
@@ -33,7 +34,7 @@ class ilWikiPageGUI extends ilPageObjectGUI
     protected \ILIAS\Exercise\InternalDomainService $exc_domain;
     protected \ILIAS\Wiki\InternalDomainService $domain;
     protected \ILIAS\Wiki\Page\PageManager $wiki_pm;
-    protected ilObjectTranslation $ot;
+    protected Translations $ot;
     protected \ILIAS\Wiki\InternalGUIService $wiki_gui;
     protected \ILIAS\Notes\Service $notes;
     protected \ILIAS\HTTP\Services $http;
@@ -50,6 +51,7 @@ class ilWikiPageGUI extends ilPageObjectGUI
         int $a_wiki_ref_id = 0,
         string $lang = "-"
     ) {
+        /** @var ILIAS\DI\Container $DIC */
         global $DIC;
 
         $service = $DIC->wiki()->internal();
@@ -71,7 +73,7 @@ class ilWikiPageGUI extends ilPageObjectGUI
         $this->wiki_request = $gui->request();
         $this->notes = $DIC->notes();
         $this->wiki_gui = $gui;
-        $this->ot = $gui->wiki()->translation($a_wiki_ref_id);
+        $this->ot = $gui->wiki()->translation($this->getWikiRefId());
         $this->wiki_pm = $this->domain->page()->page($this->getWikiRefId());
         $this->exc_domain = $DIC->exercise()->internal()->domain();
     }
@@ -486,10 +488,10 @@ class ilWikiPageGUI extends ilPageObjectGUI
 
         $this->ctrl->setParameterByClass(self::class, "wpg_id", $this->getId());
         $this->ctrl->setParameterByClass(self::class, "page", null);
-        if ($this->ot->getContentActivated()) {
+        if ($this->ot->getContentTranslationActivated()) {
             $actions = [];
             foreach ($this->ot->getLanguages() as $language) {
-                $lang_code = ($language->getLanguageCode() === $this->ot->getMasterLanguage())
+                $lang_code = ($language->getLanguageCode() === $this->ot->getBaseLanguage())
                     ? "-"
                     : $language->getLanguageCode();
                 $exists = $this->wiki_pm->exists($this->getId(), $lang_code);
@@ -525,7 +527,7 @@ class ilWikiPageGUI extends ilPageObjectGUI
     protected function getLanguageLabelForCode(string $code): string
     {
         if ($code === "-") {
-            $code = $this->ot->getMasterLanguage();
+            $code = $this->ot->getBaseLanguage();
         }
         return $this->lng->txt("language") . ": " . $this->lng->txt("meta_l_" . $code);
     }
@@ -1031,7 +1033,7 @@ class ilWikiPageGUI extends ilPageObjectGUI
     }
 
     public function editAdvancedMetaData(
-        ilPropertyFormGUI $a_form = null
+        ?ilPropertyFormGUI $a_form = null
     ): void {
         $ilTabs = $this->tabs_gui;
         $lng = $this->lng;
@@ -1350,7 +1352,7 @@ class ilWikiPageGUI extends ilPageObjectGUI
 
     protected function getTranslatePageFormAdapter(): \ILIAS\Repository\Form\FormAdapterGUI
     {
-        $f = $this->wiki_gui->form(self::class, "createPageTranslation")
+        $f = $this->wiki_gui->form([self::class], "createPageTranslation")
             ->text("title", $this->lng->txt("title"));
         //->required();
         return $f;
@@ -1372,6 +1374,7 @@ class ilWikiPageGUI extends ilPageObjectGUI
 
         $p->copyPageToTranslation($l);
 
+        /** @var ilWikiPage $p2 */
         $p2 = ilPageObjectFactory::getInstance(
             $this->getPageObject()->getParentType(),
             $this->getPageObject()->getId(),

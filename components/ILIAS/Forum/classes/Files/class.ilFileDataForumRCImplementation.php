@@ -136,7 +136,7 @@ class ilFileDataForumRCImplementation implements ilFileDataForumInterface
         return true;
     }
 
-    public function delete(array $posting_ids_to_delete = null): bool
+    public function delete(?array $posting_ids_to_delete = null): bool
     {
         if ($posting_ids_to_delete === null) {
             return true;

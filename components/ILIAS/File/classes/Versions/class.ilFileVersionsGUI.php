@@ -19,6 +19,8 @@
 use ILIAS\DI\UIServices;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
+use ILIAS\FileUpload\Collection\Exception\NoSuchElementException;
+use ILIAS\FileUpload\Exception\IllegalStateException;
 use ILIAS\HTTP\Services;
 use ILIAS\Filesystem\Exception\FileNotFoundException;
 use ILIAS\ResourceStorage\Revision\Revision;
@@ -123,8 +125,8 @@ class ilFileVersionsGUI
 
 
     /**
-     * @throws \ILIAS\FileUpload\Collection\Exception\NoSuchElementException
-     * @throws \ILIAS\FileUpload\Exception\IllegalStateException
+     * @throws NoSuchElementException
+     * @throws IllegalStateException
      */
     protected function performCommand(): void
     {
@@ -348,8 +350,8 @@ class ilFileVersionsGUI
     }
 
     /**
-     * @throws \ILIAS\FileUpload\Collection\Exception\NoSuchElementException
-     * @throws \ILIAS\FileUpload\Exception\IllegalStateException
+     * @throws NoSuchElementException
+     * @throws IllegalStateException
      */
     private function saveVersion(int $mode = ilFileVersionFormGUI::MODE_ADD): void
     {

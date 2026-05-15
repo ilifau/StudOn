@@ -101,17 +101,13 @@ class ilDclTableEditGUI
         );
     }
 
-    public function cancel(): void
-    {
-        $this->ctrl->redirectByClass(ilDclTableListGUI::class, 'listTables');
-    }
-
     public function initForm(bool $create = true): Form
     {
         $f = $this->ui_factory->input()->field();
         $inputs = [];
 
         $edit = [];
+
         $edit['title'] = $f->text($this->lng->txt('title'))->withRequired(true);
         $edit['description'] = $f->markdown(new ilUIMarkdownPreviewGUI(), $this->lng->txt('additional_info'));
         $edit['visible'] = $this->checkbox('visible');

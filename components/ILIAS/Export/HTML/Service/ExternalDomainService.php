@@ -39,8 +39,7 @@ class ExternalDomainService
     public function collector(
         int $obj_id,
         string $type = ""
-    ) : ExportCollector
-    {
+    ): ExportCollector {
         return $this->internal_domain->html()->collector(
             $obj_id,
             $type
@@ -48,8 +47,7 @@ class ExternalDomainService
     }
 
     public function fileManager(
-    ) : ExportFileManager
-    {
+    ): ExportFileManager {
         return $this->internal_domain->html()->fileManager();
     }
 

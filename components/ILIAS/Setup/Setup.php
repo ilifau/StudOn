@@ -50,6 +50,13 @@ class Setup implements Component\Component
                 $pull[\ILIAS\Data\Factory::class]
             );
 
+        $define[] = \ILIAS\Setup\AgentFinder::class;
+        $implement[\ILIAS\Setup\AgentFinder::class] = static fn(): \ILIAS\Setup\ImplementationOfAgentFinder =>
+                $internal["agent_finder"];
+
+        $contribute[\ILIAS\Component\Activities\Activity::class] = static fn() =>
+            new \ILIAS\Setup\Activities\GetStatus();
+
         $internal["command.install"] = static fn() =>
             new \ILIAS\Setup\CLI\InstallCommand(
                 $internal["agent_finder"],
@@ -108,14 +115,5 @@ class Setup implements Component\Component
 
         $internal["json.parser"] = static fn() =>
             new \Seld\JsonLint\JsonParser();
-
-        /**
-         * Using the AgentFinder as EntryPoint is an exception/abomination for 10 only.
-         * Do not copy or use as example!
-         * The Finder is needed in ilObjSystemFolderGUI to get the installation's status.
-         * There is a better bridge in 11.
-         */
-        $contribute[EntryPoint::class] = static fn() => $internal["agent_finder"];
-
     }
 }

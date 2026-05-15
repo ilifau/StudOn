@@ -14,20 +14,26 @@
  */
 
 import terser from '@rollup/plugin-terser';
+import nodeResolve from '@rollup/plugin-node-resolve';
 import copyright from '../../../../../../../scripts/Copyright-Checker/copyright.js';
 import preserveCopyright from '../../../../../../../scripts/Copyright-Checker/preserveCopyright.js';
 
 export default {
   input: './src/input.factory.js',
   external: [
+    'jquery',
     'ilias',
+    'document',
   ],
   output: {
+    // file: '../../../../../../../public/assets/js/input.factory.min.js',
     file: './dist/input.factory.min.js',
     format: 'iife',
     banner: copyright,
     globals: {
+      jquery: '$',
       ilias: 'il',
+      document: 'document',
     },
     plugins: [
       terser({
@@ -37,4 +43,7 @@ export default {
       }),
     ],
   },
+  plugins: [
+    nodeResolve(),
+  ]
 };

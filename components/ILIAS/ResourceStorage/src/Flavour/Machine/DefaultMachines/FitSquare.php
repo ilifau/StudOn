@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -59,7 +60,7 @@ class FitSquare extends AbstractMachine implements FlavourMachine
         FileStream $stream,
         FlavourDefinition $for_definition
     ): \Generator {
-        if (!$for_definition instanceof \ILIAS\ResourceStorage\Flavour\Definition\FitToSquare) {
+        if (!$for_definition instanceof FitToSquare) {
             throw new \InvalidArgumentException('Invalid definition');
         }
         $image = $this->from($stream);
@@ -80,8 +81,8 @@ class FitSquare extends AbstractMachine implements FlavourMachine
         $height_ratio = $size / $cur_height;
         $ratio = min($width_ratio, $height_ratio);
 
-        $new_height = (int)floor($cur_height * $ratio);
-        $new_width = (int)floor($cur_width * $ratio);
+        $new_height = (int) floor($cur_height * $ratio);
+        $new_width = (int) floor($cur_width * $ratio);
         $resized = imagescale(
             $image,
             $new_width,

@@ -93,7 +93,7 @@ class ilBulkEditQuestionsGUI
                     break;
 
                 case self::CMD_EDITTAXONOMIES:
-                    $out[] = $this->ui_factory->legacy($this->getFormTaxonomies()->getHTML());
+                    $out[] = $this->ui_factory->legacy()->content($this->getFormTaxonomies()->getHTML());
                     break;
                 case self::CMD_SAVETAXONOMIES:
                 case self::CMD_SAVETAXONOMIESADD:

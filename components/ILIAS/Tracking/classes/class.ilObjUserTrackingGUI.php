@@ -1,8 +1,22 @@
 <?php
 
-declare(strict_types=0);
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
+declare(strict_types=0);
 /**
  * Class ilObjUserTrackingGUI
  * @author       Alex Killing <alex.killing@gmx.de>
@@ -85,7 +99,7 @@ class ilObjUserTrackingGUI extends ilObjectGUI
             get_class($this)
         );
 
-        if ($this->rbac_system->checkAccess("visible,read", $this->ref_id)) {
+        if ($this->rbac_system->checkAccess("read", $this->ref_id)) {
             if (ilObjUserTracking::_enabledObjectStatistics()) {
                 $this->tabs_gui->addTarget(
                     "statistics",
@@ -128,7 +142,7 @@ class ilObjUserTrackingGUI extends ilObjectGUI
     public function settingsObject(?ilPropertyFormGUI $a_form = null): void
     {
         if (!$this->rbac_system->checkAccess(
-            "visible,read",
+            "read",
             $this->object->getRefId()
         )) {
             $this->error->raiseError(

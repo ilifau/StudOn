@@ -14,8 +14,7 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -182,7 +181,7 @@ class ilOrgUnitPathStorage extends ActiveRecord
     }
 
     /** @return string[] */
-    public static function getAllOrguNames(array $lng_key = null): array
+    public static function getAllOrguNames(?array $lng_key = null): array
     {
         if (count(self::$orgu_names) == 0) {
             global $DIC;

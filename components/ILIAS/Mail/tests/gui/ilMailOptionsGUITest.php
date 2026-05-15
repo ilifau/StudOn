@@ -22,18 +22,14 @@ use ILIAS\HTTP\Wrapper\WrapperFactory;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use ILIAS\User\Settings\Settings as UserSettings;
+use ILIAS\User\Settings\PersonalSettingsGUI;
 
-/**
- * Class ilMailOptionsGUITest
- * @author Michael Jansen <mjansen@databay.de>
- */
 class ilMailOptionsGUITest extends ilMailBaseTestCase
 {
-    /**
-     * @throws ReflectionException
-     */
     protected function getMailOptionsGUI(
-        GlobalHttpState $httpState,
+        GlobalHttpState $http_state,
         ilCtrlInterface $ctrl,
         ilMailOptions $mail_options
     ): ilMailOptionsGUI {
@@ -46,16 +42,13 @@ class ilMailOptionsGUITest extends ilMailBaseTestCase
             $ctrl,
             $lng,
             $user,
-            $httpState,
+            $http_state,
             new Factory(new \ILIAS\Data\Factory(), $lng),
             $mail_options
         );
     }
 
-    /**
-     * @doesNotPerformAssertions
-     * @throws ReflectionException
-     */
+    #[DoesNotPerformAssertions]
     public function testMailOptionsAreAccessibleIfGlobalAccessIsNotDenied(): void
     {
         $ctrl = $this->getMockBuilder(ilCtrl::class)->disableOriginalConstructor()->getMock();
@@ -84,7 +77,8 @@ class ilMailOptionsGUITest extends ilMailBaseTestCase
             null,
             $this->createMock(\ILIAS\Data\Clock\ClockInterface::class),
             $settings,
-            $this->createMock(ilDBInterface::class)
+            $this->createMock(ilDBInterface::class),
+            $this->createMock(UserSettings::class)
         );
 
         $gui = $this->getMailOptionsGUI($http, $ctrl, $options);
@@ -92,9 +86,6 @@ class ilMailOptionsGUITest extends ilMailBaseTestCase
         $gui->executeCommand();
     }
 
-    /**
-     * @throws ReflectionException
-     */
     public function testMailOptionsAreNotAccessibleIfGlobalAccessIsDeniedAndUserWillBeRedirectedToMailSystem(): void
     {
         $ctrl = $this->getMockBuilder(ilCtrl::class)->disableOriginalConstructor()->getMock();
@@ -125,55 +116,8 @@ class ilMailOptionsGUITest extends ilMailBaseTestCase
             null,
             $this->createMock(\ILIAS\Data\Clock\ClockInterface::class),
             $settings,
-            $this->createMock(ilDBInterface::class)
-        );
-
-        $gui = $this->getMailOptionsGUI($http, $ctrl, $options);
-        $gui->setForm($form);
-        $gui->executeCommand();
-    }
-
-    /**
-     * @throws ReflectionException
-     */
-    public function testMailOptionsAreNotAccessibleIfGlobalAccessIsDeniedAndUserWillBeRedirectedToPersonalSettings(): void
-    {
-        $this->expectException(ilCtrlException::class);
-
-        $request = $this->getMockBuilder(ServerRequestInterface::class)->disableOriginalConstructor()->getMock();
-        $ctrl = $this->createMock(ilCtrlInterface::class);
-        $form = $this->getMockBuilder(ilMailOptionsFormGUI::class)->disableOriginalConstructor()->getMock();
-
-        $ctrl->method('getCmd')->willReturn('showOptions');
-
-        $ctrl->expects($this->once())->method('redirectByClass')->with(ilPersonalSettingsGUI::class)->willThrowException(
-            new ilCtrlException('Script terminated')
-        );
-
-        $settings = $this->getMockBuilder(ilSetting::class)->disableOriginalConstructor()->onlyMethods(['get'])->getMock();
-        $settings->method('get')->willReturnCallback(static function (string $key, ?string $default = null) {
-            if ($key === 'show_mail_settings') {
-                return '0';
-            }
-
-            return $default;
-        });
-
-        $request = $this->getMockBuilder(ServerRequestInterface::class)->disableOriginalConstructor()->getMock();
-        $request->method('getQueryParams')->willReturn([
-            'referrer' => ilPersonalSettingsGUI::class,
-        ]);
-        $wrapper = new WrapperFactory($request);
-
-        $http = $this->getMockBuilder(GlobalHttpState::class)->getMock();
-        $http->method('wrapper')->willReturn($wrapper);
-
-        $options = new ilMailOptions(
-            0,
-            null,
-            $this->createMock(\ILIAS\Data\Clock\ClockInterface::class),
-            $settings,
-            $this->createMock(ilDBInterface::class)
+            $this->createMock(ilDBInterface::class),
+            $this->createMock(UserSettings::class)
         );
 
         $gui = $this->getMailOptionsGUI($http, $ctrl, $options);

@@ -30,8 +30,8 @@ interface ilObjFileProcessorInterface
      */
     public function process(
         ResourceIdentification $rid,
-        string $title = null,
-        string $description = null,
-        string $copyright_id = null
+        ?string $title = null,
+        ?string $description = null,
+        ?string $copyright_id = null
     ): void;
 }

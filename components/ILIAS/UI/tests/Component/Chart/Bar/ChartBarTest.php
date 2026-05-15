@@ -41,7 +41,11 @@ class ChartBarTest extends ILIAS_UI_TestBase
         return new class () extends NoUIFactory {
             public function listing(): I\Component\Listing\Factory
             {
-                return new I\Component\Listing\Factory();
+                return new I\Component\Listing\Factory(
+                    new I\Component\Listing\Workflow\Factory(),
+                    new I\Component\Listing\CharacteristicValue\Factory(),
+                    new I\Component\Listing\Entity\Factory(),
+                );
             }
         };
     }

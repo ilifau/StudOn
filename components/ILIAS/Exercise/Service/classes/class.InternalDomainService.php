@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Exercise;
 
 use ILIAS\Repository\GlobalDICDomainServices;
@@ -30,6 +30,7 @@ use ILIAS\Exercise\Submission\SubmissionManager;
 use ILIAS\Exercise\PeerReview\DomainService;
 use ILIAS\Exercise\Settings\SettingsManager;
 use ILIAS\Exercise\User\UserEvent;
+use ILIAS\Exercise\Permission\PermissionManager;
 
 class InternalDomainService
 {
@@ -132,6 +133,12 @@ class InternalDomainService
     {
         return new UserEvent(
             $this->repo,
+            $this
+        );
+    }
+
+    public function permission(): PermissionManager {
+        return $this->instance["perm"] ??= new PermissionManager(
             $this
         );
     }

@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Tests\UI\Component\Dropzone\File;
 
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy\Content;
 use ILIAS\UI\Implementation\Component\Input\Field\Text;
 
 require_once("./components/ILIAS/UI/tests/Component/Dropzone/File/FileTestBase.php");
@@ -54,7 +54,7 @@ class WrapperTest extends FileTestBase
         '
         );
 
-        $legacy_mock = $this->createMock(Legacy::class);
+        $legacy_mock = $this->createMock(Content::class);
         $legacy_mock->method('getCanonicalName')->willReturn($expected_legacy_html);
 
         $dropzone = $this->factory->wrapper($expected_title, $expected_url, $legacy_mock, $this->input);

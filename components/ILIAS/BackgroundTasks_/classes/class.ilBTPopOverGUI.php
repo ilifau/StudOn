@@ -16,6 +16,9 @@
  *
  *********************************************************************/
 
+use ILIAS\DI\Container;
+use ILIAS\UI\Component\Item\Notification;
+use ILIAS\BackgroundTasks\Task\UserInteraction\Option;
 use ILIAS\BackgroundTasks\Bucket;
 use ILIAS\BackgroundTasks\Implementation\Bucket\State;
 use ILIAS\BackgroundTasks\Implementation\Tasks\AbstractTask;
@@ -23,7 +26,7 @@ use ILIAS\BackgroundTasks\Implementation\UI\StateTranslator;
 use ILIAS\BackgroundTasks\Task\UserInteraction;
 use ILIAS\UI\Component\Button\Button;
 use ILIAS\UI\Component\Button\Shy;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy\Content;
 use ILIAS\BackgroundTasks\Task\Job;
 
 /**
@@ -35,19 +38,17 @@ use ILIAS\BackgroundTasks\Task\Job;
 class ilBTPopOverGUI
 {
     use StateTranslator;
-    protected \ILIAS\DI\Container $dic;
 
 
-    public function __construct(\ILIAS\DI\Container $dic)
+    public function __construct(protected Container $dic)
     {
-        $this->dic = $dic;
     }
 
 
     /**
      * Get the Notification Items. DOES NOT DO ANY PERMISSION CHECKS.
      */
-    public function getNotificationItem(int $nr_buckets): ILIAS\UI\Component\Item\Notification
+    public function getNotificationItem(int $nr_buckets): Notification
     {
         $ui_factory = $this->dic->ui()->factory();
 
@@ -63,7 +64,7 @@ class ilBTPopOverGUI
 
 
     /**
-     * @return ILIAS\UI\Component\Item\Notification[]
+     * @return Notification[]
      */
     protected function getAggregateItems(): array
     {
@@ -78,7 +79,7 @@ class ilBTPopOverGUI
     }
 
 
-    public function getItemForObserver(Bucket $observer): ILIAS\UI\Component\Item\Notification
+    public function getItemForObserver(Bucket $observer): Notification
     {
         $redirect_uri = "//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 
@@ -98,11 +99,11 @@ class ilBTPopOverGUI
             }
             $item = $f->item()->notification($title, $icon);
 
-//            $item = $item->withProperties([
-//                $this->dic->language()->txt('nc_mail_prop_time') => \ilDatePresentation::formatDate(
-//                    new \ilDateTime(time(), IL_CAL_UNIX)
-//                )
-//            ]);
+            //            $item = $item->withProperties([
+            //                $this->dic->language()->txt('nc_mail_prop_time') => \ilDatePresentation::formatDate(
+            //                    new \ilDateTime(time(), IL_CAL_UNIX)
+            //                )
+            //            ]);
 
             $item = $item->withActions($f->dropdown()->standard($actions));
             $input = $current_task->getInput();
@@ -124,7 +125,7 @@ class ilBTPopOverGUI
         if ($state === State::RUNNING) {
             $url = $this->getRefreshUrl($observer);
             //Running Items probably need to refresh themselves, right?
-            $item = $item->withAdditionalOnLoadCode(fn ($id) => "var notification_item = il.UI.item.notification.getNotificationItemObject($('#$id'));
+            $item = $item->withAdditionalOnLoadCode(fn($id): string => "var notification_item = il.UI.item.notification.getNotificationItemObject($('#$id'));
                     il.BGTask.refreshItem(notification_item,'$url');");
 
             $expected = $current_task instanceof Job ? $current_task->getExpectedTimeOfTaskInSeconds() : 0;
@@ -141,14 +142,14 @@ class ilBTPopOverGUI
     }
 
 
-    private function getDefaultCardContent(Bucket $observer): Legacy
+    private function getDefaultCardContent(Bucket $observer): Content
     {
         return $this->getProgressbar($observer);
     }
 
 
     /**
-     * @return \ILIAS\UI\Component\Legacy\Legacy[]|\ILIAS\UI\Component\Button\Shy[]
+     * @return Content[]|Shy[]
      */
     public function getUserInteractionContent(Bucket $observer, string $redirect_uri): array
     {
@@ -158,14 +159,14 @@ class ilBTPopOverGUI
         $ctrl = $this->dic->ctrl();
 
         if (!$observer->getCurrentTask() instanceof UserInteraction) {
-            return [$factory->legacy('')];
+            return [$factory->legacy()->content('')];
         }
         /** @var UserInteraction $userInteraction */
         $userInteraction = $observer->getCurrentTask();
         $options = $userInteraction->getOptions($userInteraction->getInput());
 
         return array_map(
-            function (UserInteraction\Option $option) use ($ctrl, $factory, $observer, $persistence, $redirect_uri, $language): \ILIAS\UI\Component\Button\Shy {
+            function (Option $option) use ($ctrl, $factory, $observer, $persistence, $redirect_uri, $language): Shy {
                 $ctrl->setParameterByClass(
                     ilBTControllerGUI::class,
                     ilBTControllerGUI::FROM_URL,
@@ -194,7 +195,7 @@ class ilBTPopOverGUI
     }
 
 
-    private function getProgressbar(Bucket $observer): Legacy
+    private function getProgressbar(Bucket $observer): Content
     {
         $percentage = $observer->getOverallPercentage();
 
@@ -213,7 +214,7 @@ class ilBTPopOverGUI
                 break;
         }
 
-        return $this->dic->ui()->factory()->legacy(" <div class='progress'>
+        return $this->dic->ui()->factory()->legacy()->content(" <div class='progress'>
                     <div class='progress-bar progress-bar-striped {$running}' role='progressbar' aria-valuenow='{$percentage}'
                         aria-valuemin='0' aria-valuemax='100' style='width:{$percentage}%'>
                         {$content}
@@ -222,7 +223,7 @@ class ilBTPopOverGUI
     }
 
 
-    private function getCloseButtonAction(UserInteraction\Option $option, string $redirect_uri, Bucket $observer): string
+    private function getCloseButtonAction(Option $option, string $redirect_uri, Bucket $observer): string
     {
         $ctrl = $this->dic->ctrl();
         $persistence = $this->dic->backgroundTasks()->persistence();

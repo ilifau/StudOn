@@ -417,16 +417,13 @@ class ilPCMediaObject extends ilPageContent
                             $srt_content = $file_path;
                         } else {
                             $srt_content = $this->mob_manager->getLocationContent(
-                                $mob->getId(),
-                                $srt["full_path"]
+                               $mob->getId(),
+                               $srt["full_path"]
                             );
                         }
                         if ($srt_content !== "") {
-                            $a_output = str_replace(
-                                "[[[[[mobsubtitle;il__mob_" . $mob->getId() . "_Standard]]]]]",
-                                $srt_content,
-                                $a_output
-                            );
+                            $a_output = str_replace("[[[[[mobsubtitle;il__mob_" . $mob->getId() . "_Standard]]]]]",
+                                $srt_content, $a_output);
                         }
                     }
                 }
@@ -474,7 +471,7 @@ class ilPCMediaObject extends ilPageContent
         $suffix = "-" . $page->getParentType() . "-" . $page->getId();
         $modal = $this->ui->factory()->modal()->roundtrip(
             $this->lng->txt("cont_fullscreen"),
-            $this->ui->factory()->legacy("<iframe class='il-copg-mob-fullscreen' id='il-copg-mob-fullscreen" . $suffix . "'></iframe>")
+            $this->ui->factory()->legacy()->content("<iframe class='il-copg-mob-fullscreen' id='il-copg-mob-fullscreen" . $suffix . "'></iframe>")
         );
         $show_signal = $modal->getShowSignal();
 

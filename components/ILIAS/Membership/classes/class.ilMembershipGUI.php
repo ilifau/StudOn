@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
+use ILIAS\User\Profile\Profile;
 // fau: fairSub#95 - use MembershipGUIHelper
 use FAU\Ilias\Helper\MembershipGUIHelper;
 // fau.
@@ -51,6 +52,7 @@ class ilMembershipGUI
     protected ilRbacSystem $rbacsystem;
     protected ilRbacReview $rbacreview;
     protected ilTree $tree;
+    protected Profile $profile;
     protected array $member_data = [];
 
     public function __construct(ilObjectGUI $repository_gui, ilObject $repository_obj)
@@ -78,6 +80,7 @@ class ilMembershipGUI
         $this->tree = $DIC->repositoryTree();
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
+        $this->profile = $DIC['user']->getProfile();
     }
 
     /**

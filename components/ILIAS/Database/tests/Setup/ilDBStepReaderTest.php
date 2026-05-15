@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,10 +16,16 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use PHPUnit\Framework\TestCase;
 
 class ilDBStepReaderTestObject extends ilDBStepReader
 {
+    /**
+     * @var mixed[]
+     */
+    public $step_numbers;
     public function setStepNumbers(array $arr): void
     {
         $this->step_numbers = $arr;
@@ -65,7 +69,7 @@ class ilDBStepReaderTest extends TestCase
     public function test_getLatestStepNumber(): void
     {
         $obj = new ilDBStepReaderTestObject();
-        $this->assertEquals(4, $obj->getLatestStepNumber(Test_ilDBStepReader::class, "step_"));
+        $this->assertSame(4, $obj->getLatestStepNumber(Test_ilDBStepReader::class, "step_"));
     }
 
     public function test_readSteps(): void

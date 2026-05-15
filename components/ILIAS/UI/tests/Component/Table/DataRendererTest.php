@@ -174,14 +174,16 @@ class DataRendererTest extends TableRendererTestBase
                 array $visible_column_ids,
                 Data\Range $range,
                 Data\Order $order,
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): \Generator {
                 yield $row_builder->buldDataRow('', []);
             }
             public function getTotalRowCount(
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): ?int {
                 return null;
             }
@@ -193,7 +195,7 @@ class DataRendererTest extends TableRendererTestBase
         ];
         $sortation_signal = new I\Signal('sort_header_signal_id');
         $sortation_signal->addOption('value', 'f1:ASC');
-        $table = $this->getUIFactory()->table()->data('', $columns, $data)
+        $table = $this->getUIFactory()->table()->data($data, '', $columns)
             ->withRequest($this->getDummyRequest());
         $renderer->p_renderTableHeader($this->getDefaultRenderer(), $table, $tpl, $sortation_signal);
 
@@ -207,7 +209,7 @@ class DataRendererTest extends TableRendererTestBase
             <tr class="c-table-data__header c-table-data__row">
                 <th class="c-table-data__header c-table-data__cell c-table-data__cell--text" tabindex="-1" aria-colindex="1" aria-sort="ascending">
                     <div class="c-table-data__header__resize-wrapper">
-                        <a tabindex="0" class="glyph" href="#" aria-label="sort_ascending" id="id_2"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></a>
+                        <button class="btn btn-link" aria-label="sort_ascending" id="id_2"><span class="glyph" aria-hidden="true"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></span></button>
                         <button class="btn btn-link" id="id_1">Field 1</button>
                     </div>
                 </th>
@@ -257,14 +259,16 @@ EOT;
                 array $visible_column_ids,
                 Data\Range $range,
                 Data\Order $order,
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): \Generator {
                 yield $row_builder->buldDataRow('', []);
             }
             public function getTotalRowCount(
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): ?int {
                 return null;
             }
@@ -276,7 +280,7 @@ EOT;
 
         $sortation_signal = null;
 
-        $table = $this->getUIFactory()->table()->data('', $columns, $data)
+        $table = $this->getUIFactory()->table()->data($data, '', $columns)
             ->withRequest($this->getDummyRequest());
         $renderer->p_renderTableHeader($this->getDefaultRenderer(), $table, $tpl, $sortation_signal);
         $actual = $this->brutallyTrimHTML($tpl->get());
@@ -338,14 +342,16 @@ EOT;
                 array $visible_column_ids,
                 Data\Range $range,
                 Data\Order $order,
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): \Generator {
                 yield $row_builder->buldDataRow('', []);
             }
             public function getTotalRowCount(
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): ?int {
                 return null;
             }
@@ -356,7 +362,7 @@ EOT;
 
         $sortation_signal = null;
 
-        $table = $this->getUIFactory()->table()->data('', $columns, $data)
+        $table = $this->getUIFactory()->table()->data($data, '', $columns)
             ->withActions($actions)
             ->withRequest($this->getDummyRequest());
         $renderer->p_renderActionsHeader($this->getDefaultRenderer(), $table, $tpl);
@@ -394,9 +400,7 @@ EOT;
         return [$rb, $columns, $actions];
     }
 
-    /**
-     * @depends testDataTableRowBuilder
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testDataTableRowBuilder')]
     public function testDataTableDataRowFromBuilder(array $params): I\Table\DataRow
     {
         list($rb, $columns, $actions) = $params;
@@ -423,9 +427,7 @@ EOT;
         return $row;
     }
 
-    /**
-     * @depends testDataTableDataRowFromBuilder
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testDataTableDataRowFromBuilder')]
     public function testDataTableRenderStandardRow(I\Table\DataRow $row)
     {
         $actual = $this->brutallyTrimHTML($this->getDefaultRenderer()->render($row));
@@ -466,14 +468,18 @@ EOT;
                 array $visible_column_ids,
                 Data\Range $range,
                 Data\Order $order,
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): Generator {
                 yield from [];
             }
 
-            public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-            {
+            public function getTotalRowCount(
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
+            ): ?int {
                 return 0;
             }
         };
@@ -486,7 +492,7 @@ EOT;
             'f5' => $this->getUIFactory()->table()->column()->text('f5'),
         ];
 
-        $table = $this->getTableFactory()->data('', $columns, $data)
+        $table = $this->getTableFactory()->data($data, '', $columns)
             ->withRequest($this->getDummyRequest());
 
         $html = $this->getDefaultRenderer()->render($table);

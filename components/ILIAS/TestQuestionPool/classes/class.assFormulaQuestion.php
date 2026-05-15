@@ -451,7 +451,7 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition, Ques
                     $user_value = '';
                     if (is_array($userdata) && is_array($userdata[$result])) {
                         if (isset($userdata[$result]["unit"]) && $userdata[$result]["unit"] > 0) {
-                            $resunit = $this->getUnitrepository()->getUnit($userdata[$result]["unit"]);
+                            $resunit = $this->getUnitrepository()->getUnit((int) $userdata[$result]["unit"]);
                         }
 
                         if (isset($userdata[$result]["value"])) {
@@ -848,19 +848,20 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition, Ques
 
         $points = 0;
         foreach ($this->getResults() as $result) {
-            $unit_id = $user_solution["{$result->getResult()}_unit"] ?? null;
+            $result_unit = "{$result->getResult()}_unit";
+            $unit_id = isset($user_solution[$result_unit]) && is_numeric($user_solution[$result_unit])
+                ? (int) $user_solution[$result_unit]
+                : null;
+
             $points += $result->getReachedPoints(
                 $this->getVariables(),
                 $this->getResults(),
                 $user_solution[$result->getResult()] ?? '',
-                $unit_id !== null ? $this->unitrepository->getUnit((int) $unit_id) : null,
+                $unit_id !== null ? $this->unitrepository->getUnit($unit_id) : null,
                 $this->unitrepository->getUnits()
             );
         }
-
-        $reachedPoints = $this->deductHintPointsFromReachedPoints($previewSession, $points);
-
-        return $this->ensureNonNegativePoints($reachedPoints);
+        return $this->ensureNonNegativePoints($points);
     }
 
     protected function isValidSolutionResultValue(string $submittedValue): bool
@@ -892,7 +893,7 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition, Ques
             function () use ($answer, $active_id, $pass, $authorized) {
                 foreach ($answer as $key => $value) {
                     $matches = null;
-                    if (preg_match('/^result_(\$r\d+)$/', $key, $matches) !== false) {
+                    if (preg_match('/^result_(\$r\d+)$/', $key, $matches) !== false && $matches !== []) {
                         $queryResult = "SELECT solution_id FROM tst_solutions WHERE active_fi = %s AND pass = %s AND question_fi = %s AND authorized = %s  AND " . $this->db->like('value1', 'clob', $matches[1]);
 
                         if ($this->getStep() !== null) {
@@ -1396,17 +1397,23 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition, Ques
 
     public function getCorrectSolutionForTextOutput(int $active_id, int $pass): array
     {
-        $best_solution = $this->getBestSolution($this->getSolutionValues($active_id, $pass));
-        return array_map(
-            function (string $v) use ($best_solution): string {
-                $solution = "{$v} = {$best_solution[$v]['value']}";
-                if (isset($best_solution['unit'])) {
-                    $solution .= "{$this->unitrepository->getUnit($best_solution['unit'])->getUnit()}";
+        $output = [];
+
+        $best_solutions = $this->getBestSolution($this->getSolutionValues($active_id, $pass));
+        foreach ($best_solutions as $key => $best_solution) {
+            $solution = "{$key} = " . ($best_solution['value'] ?? $best_solution);
+
+            if (isset($best_solution['unit'])) {
+                $unit = $this->unitrepository->getUnit($best_solution['unit']);
+                if ($unit instanceof assFormulaQuestionUnit) {
+                    $solution .= $unit->getUnit();
                 }
-                return $solution;
-            },
-            array_keys($best_solution)
-        );
+            }
+
+            $output[$key] = $solution;
+        }
+
+        return $output;
     }
 
     public function getVariablesAsTextArray(int $active_id, int $pass): array

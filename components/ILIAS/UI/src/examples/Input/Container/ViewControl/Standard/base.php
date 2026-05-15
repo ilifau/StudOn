@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\UI\examples\Input\Container\ViewControl\Standard;
@@ -57,6 +73,16 @@ function base()
                 )
             )
             ->withValue(['field1','field2']),
+        $f->input()->viewControl()->mode([
+                'mode1' => 'a mode',
+                'mode2' => 'another mode'
+            ])
+            ->withAdditionalTransformation(
+                $refinery->custom()->transformation(
+                    fn($v) => ['vc_mode' => $v]
+                )
+            )
+            ->withValue('mode2'),
     ];
 
     $vc_container = $f->input()->container()->viewControl()->standard($vcs)
@@ -68,7 +94,7 @@ function base()
         ->withRequest($request);
 
     return $r->render([
-        $f->legacy('<pre>' . print_r($vc_container->getData(), true) . '</pre>'),
+        $f->legacy()->content('<pre>' . print_r($vc_container->getData(), true) . '</pre>'),
         $f->divider()->horizontal(),
         $vc_container
     ]);

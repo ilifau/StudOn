@@ -247,7 +247,6 @@ class SimpleDC implements SimpleDCInterface
             ->withNextStep('contribute')
             ->withNextStep('date')
             ->withAdditionalFilterAtCurrentStep(FilterType::INDEX, '0')
-            ->withNextStep('dateTime')
             ->get();
 
         foreach ($this->getDataValuesFromPath($set, $date_path) as $value) {

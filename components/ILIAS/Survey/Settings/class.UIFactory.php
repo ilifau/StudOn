@@ -48,8 +48,7 @@ class UIFactory
             $this->domain_service,
             $object_service,
             $survey,
-            $mode_ui_modifier,
-            new \ilSvyStandardPurifier()
+            $mode_ui_modifier
         );
     }
 

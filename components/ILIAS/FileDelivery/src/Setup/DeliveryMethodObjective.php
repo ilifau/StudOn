@@ -119,6 +119,7 @@ class DeliveryMethodObjective extends BuildStaticConfigStoredObjective
         return \in_array('xsendfile_module', $loaded_modules, true);
     }
 
+    #[\Override]
     public function isApplicable(Environment $environment): bool
     {
         return true;

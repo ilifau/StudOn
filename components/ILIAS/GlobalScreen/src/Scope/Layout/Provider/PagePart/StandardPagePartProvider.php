@@ -21,16 +21,14 @@ declare(strict_types=1);
 namespace ILIAS\GlobalScreen\Scope\Layout\Provider\PagePart;
 
 use ILIAS\GlobalScreen\Collector\Renderer\isSupportedTrait;
-use ILIAS\GlobalScreen\isGlobalScreenItem;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer\SlateSessionStateCode;
 use ILIAS\GlobalScreen\Scope\Tool\Factory\isToolItem;
 use ILIAS\UI\Component\Breadcrumbs\Breadcrumbs;
 use ILIAS\UI\Component\Image\Image;
-use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Component\Legacy\Content;
 use ILIAS\UI\Component\MainControls\Footer;
 use ILIAS\UI\Component\MainControls\MainBar;
 use ILIAS\UI\Component\MainControls\MetaBar;
-use ILIAS\UI\Component\MainControls\Slate\Combined;
 use ILIAS\UI\Component\Toast\Container as TContainer;
 use ilUserUtil;
 use ilUtil;
@@ -38,8 +36,6 @@ use ILIAS\GlobalScreen\Services;
 use ILIAS\DI\UIServices;
 use ilLanguage;
 use ILIAS\GlobalScreen\Client\CallbackHandler;
-use ILIAS\GlobalScreen\Scope\Footer\Factory\Group;
-use ILIAS\GlobalScreen\Scope\Footer\Factory\Link;
 use ILIAS\GlobalScreen\Scope\Footer\Collector\Renderer\FooterRendererFactory;
 
 /**
@@ -67,9 +63,9 @@ class StandardPagePartProvider implements PagePartProvider
     }
 
 
-    public function getContent(): ?Legacy
+    public function getContent(): ?Content
     {
-        return $this->content ?? $this->ui->factory()->legacy("");
+        return $this->content ?? $this->ui->factory()->legacy()->content("");
     }
 
 

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 /**
 * Class ilSAHSPresentationGUI
@@ -90,10 +90,6 @@ class ilSAHSPresentationGUI implements ilCtrlBaseClassInterface
         }
 
         $this->slm_gui = new ilObjSCORMLearningModuleGUI("", $this->refId, true, false);
-
-        # AXH: DEBUGGING!
-        $DIC->logger()->root()->info( '===== $next_class: ' . $next_class . ' =====' );
-        $DIC->logger()->root()->info( '===== $cmd: ' . $cmd . ' =====' );
 
         if ($next_class !== "ilinfoscreengui" &&
             $cmd !== "infoScreen" &&
@@ -286,7 +282,7 @@ class ilSAHSPresentationGUI implements ilCtrlBaseClassInterface
         // add read / back button
         if ($ilAccess->checkAccess("read", "", $refId)) {
             $ilToolbar = $GLOBALS['DIC']->toolbar();
-            $ilToolbar->addButtonInstance($this->slm_gui->getObject()->getViewButton());
+            $ilToolbar->addComponent($this->slm_gui->getObject()->getViewButton());
         }
 
         // show standard meta data section

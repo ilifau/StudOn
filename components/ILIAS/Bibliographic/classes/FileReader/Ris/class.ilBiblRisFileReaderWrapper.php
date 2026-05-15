@@ -16,8 +16,6 @@
  *
  *********************************************************************/
 
-use LibRIS\RISReader;
-
 /**
  * Class ilBiblRisFileReaderWrapper
  * @author Fabian Schmid <fs@studer-raimann.ch>

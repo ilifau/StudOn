@@ -37,6 +37,8 @@ use ILIAS\Data\DataSize;
 use ILIAS\UI\Implementation\Component\Input\Input;
 use ILIAS\Data\FiveStarRatingScale;
 use ILIAS\UI\Implementation\Component\Input\Container\Filter\ProxyFilterField;
+use ILIAS\Data\URI;
+use ILIAS\UI\Implementation\Component\ComponentHelper;
 
 /**
  * Class Renderer
@@ -44,6 +46,8 @@ use ILIAS\UI\Implementation\Component\Input\Container\Filter\ProxyFilterField;
  */
 class Renderer extends AbstractComponentRenderer
 {
+    use ComponentHelper;
+
     public const DATETIME_DATEPICKER_MINMAX_FORMAT = 'Y-m-d\Th:m';
     public const DATE_DATEPICKER_MINMAX_FORMAT = 'Y-m-d';
     public const TYPE_DATE = 'date';
@@ -83,6 +87,10 @@ class Renderer extends AbstractComponentRenderer
      */
     public function render(Component\Component $component, RendererInterface $default_renderer): string
     {
+        if ($component instanceof Component\Triggerer) {
+            $component = $this->addTriggererOnLoadCode($component);
+        }
+
         $component = $this->setSignals($component);
 
         switch (true) {
@@ -137,6 +145,9 @@ class Renderer extends AbstractComponentRenderer
             case ($component instanceof F\DateTime):
                 return $this->renderDateTimeField($component, $default_renderer);
 
+            case ($component instanceof F\Image):
+                return $this->renderImageField($component, $default_renderer);
+
             case ($component instanceof F\File):
                 return $this->renderFileField($component, $default_renderer);
 
@@ -146,11 +157,17 @@ class Renderer extends AbstractComponentRenderer
             case ($component instanceof F\Hidden):
                 return $this->renderHiddenField($component);
 
-            case ($component instanceof F\ColorPicker):
-                return $this->renderColorPickerField($component, $default_renderer);
+            case ($component instanceof F\ColorSelect):
+                return $this->renderColorSelectField($component, $default_renderer);
 
             case ($component instanceof F\Rating):
                 return $this->renderRatingField($component, $default_renderer);
+
+            case ($component instanceof F\TreeMultiSelect):
+                return $this->renderTreeMultiSelectField($component, $default_renderer);
+
+            case ($component instanceof F\TreeSelect):
+                return $this->renderTreeSelectField($component, $default_renderer);
 
             default:
                 $this->cannotHandleComponent($component);
@@ -239,7 +256,7 @@ class Renderer extends AbstractComponentRenderer
      * for this specific component and the placement of {VALUE} in its template.
      * Please note: this may not work for customized templates!
      */
-    protected function applyValue(FormInput $component, Template $tpl, callable $escape = null): void
+    protected function applyValue(FormInput $component, Template $tpl, ?callable $escape = null): void
     {
         $value = $component->getValue();
         if (!is_null($escape)) {
@@ -302,6 +319,8 @@ class Renderer extends AbstractComponentRenderer
         $this->applyName($component, $tpl);
         $this->applyValue($component, $tpl, $this->escapeSpecialChars());
 
+        $tpl->setVariable("STEPSIZE", $component->getStepSize());
+
         $label_id = $this->createId();
         $tpl->setVariable('ID', $label_id);
         return $this->wrapInFormContext($component, $component->getLabel(), $tpl->get(), $label_id);
@@ -347,8 +366,6 @@ class Renderer extends AbstractComponentRenderer
         }
 
         $input_html = '';
-        $groupswitch_disabled = $component->getDisabledGroupSwitch();
-
         foreach ($component->getInputs() as $key => $group) {
             $tpl = $this->getTemplate("tpl.switchablegroup_label.html", true, true);
             $tpl->setVariable('LABEL', $group->getLabel());
@@ -360,16 +377,6 @@ class Renderer extends AbstractComponentRenderer
 
             if ($key == $value) {
                 $tpl->setVariable("CHECKED", 'checked="checked"');
-            }
-
-            if ($groupswitch_disabled) {
-                $tpl->setVariable("DISABLED", "disabled");
-                if ($key == $value) {
-                    $tpl->setVariable("HIDDEN_NAME", $component->getName());
-                    $tpl->setVariable("HIDDEN_VAL", (string) $key);
-                } else {
-                    $group = $group->withDisabled(true);
-                }
             }
 
             $input_html .= $this->wrapInFormContext(
@@ -399,17 +406,29 @@ class Renderer extends AbstractComponentRenderer
         if ($value) {
             $value = array_map(
                 function ($v) {
-                    return ['value' => urlencode($v), 'display' => $v];
+                    return ['value' => rawurlencode($v), 'display' => $v];
                 },
                 $value
             );
         }
 
+        $autocomplete_endpoint = 'undefined';
+        $autocomplete_token = 'undefined';
+        if ($component->getAsyncAutocompleteEndpoint() !== null) {
+            $autocomplete_endpoint = $component->getAsyncAutocompleteEndpoint()
+                ->renderObject([$component->getAsyncAutocompleteToken()]);
+            $autocomplete_token = $component->getAsyncAutocompleteToken()->render();
+        }
+
         $component = $component->withAdditionalOnLoadCode(
-            function ($id) use ($configuration, $value) {
+            function ($id) use ($configuration, $value, $autocomplete_endpoint, $autocomplete_token) {
                 $encoded = json_encode($configuration);
                 $value = json_encode($value);
-                return "il.UI.Input.tagInput.init('{$id}', {$encoded}, {$value});";
+                return 'il.UI.Input.tagInput.init(document.querySelector('
+                . "'#{$id} .c-field-tag'), {$encoded}, {$value},"
+                . " {$autocomplete_endpoint}, "
+                . " {$autocomplete_token}"
+                . ");";
             }
         );
 
@@ -447,13 +466,13 @@ class Renderer extends AbstractComponentRenderer
             });
 
             $f = $this->getUIFactory();
-            $glyph_reveal = $f->symbol()->glyph()->eyeopen("#")
-                              ->withOnClick($sig_reveal);
-            $glyph_mask = $f->symbol()->glyph()->eyeclosed("#")
-                            ->withOnClick($sig_mask);
+            $btn_reveal = $f->button()->shy('', '')->withSymbol($f->symbol()->glyph()->eyeopen())
+                ->withOnClick($sig_reveal);
+            $btn_mask = $f->button()->shy('', '')->withSymbol($f->symbol()->glyph()->eyeclosed())
+               ->withOnClick($sig_mask);
 
-            $tpl->setVariable('PASSWORD_REVEAL', $default_renderer->render($glyph_reveal));
-            $tpl->setVariable('PASSWORD_MASK', $default_renderer->render($glyph_mask));
+            $tpl->setVariable('PASSWORD_REVEAL', $default_renderer->render($btn_reveal));
+            $tpl->setVariable('PASSWORD_MASK', $default_renderer->render($btn_mask));
         }
 
         $this->applyValue($component, $tpl, $this->escapeSpecialChars());
@@ -503,13 +522,14 @@ class Renderer extends AbstractComponentRenderer
 
     protected function renderMarkdownField(F\Markdown $component, RendererInterface $default_renderer): string
     {
+        [$textarea_tpl, $component] = $this->getPreparedTextareaTemplate($component);
+
         /** @var $component F\Markdown */
         $component = $component->withAdditionalOnLoadCode(
             static function ($id) use ($component): string {
                 return "
-                    const id = document.querySelector('#$id .c-input__field textarea')?.id;
                     il.UI.Input.markdown.init(
-                        id,
+                        document.querySelector('#$id .c-input__field textarea')?.id,
                         '{$component->getMarkdownRenderer()->getAsyncUrl()}',
                         '{$component->getMarkdownRenderer()->getParameterName()}'
                     );
@@ -518,7 +538,6 @@ class Renderer extends AbstractComponentRenderer
         );
 
         $textarea_id = $this->createId();
-        $textarea_tpl = $this->getPreparedTextareaTemplate($component);
         $textarea_tpl->setVariable('ID', $textarea_id);
 
         $markdown_tpl = $this->getTemplate("tpl.markdown.html", true, true);
@@ -552,10 +571,6 @@ class Renderer extends AbstractComponentRenderer
         ];
 
         foreach ($markdown_actions_glyphs as $tpl_variable => $glyph) {
-            if ($component->isDisabled()) {
-                $glyph = $glyph->withUnavailableAction();
-            }
-
             $action = $this->getUIFactory()->button()->standard('', '#')->withSymbol($glyph);
 
             if ($component->isDisabled()) {
@@ -570,24 +585,22 @@ class Renderer extends AbstractComponentRenderer
 
     protected function renderTextareaField(F\Textarea $component, RendererInterface $default_renderer): string
     {
+        [$tpl, $component] = $this->getPreparedTextareaTemplate($component);
+
         /** @var $component F\Textarea */
         $component = $component->withAdditionalOnLoadCode(
-            static function ($id): string {
-                return "
-                    taId = document.querySelector('#$id .c-input__field textarea')?.id;
-                    il.UI.Input.textarea.init(taId);
-                ";
-            }
+            static fn($id) => "il.UI.Input.textarea.init(document.querySelector('#$id .c-input__field textarea')?.id);",
         );
-
-        $tpl = $this->getPreparedTextareaTemplate($component);
 
         $label_id = $this->createId();
         $tpl->setVariable('ID', $label_id);
         return $this->wrapInFormContext($component, $component->getLabel(), $tpl->get(), $label_id);
     }
 
-    protected function getPreparedTextareaTemplate(F\Textarea $component): Template
+    /**
+     * @return array{0: Template, 1: F\Textarea}
+     */
+    protected function getPreparedTextareaTemplate(F\Textarea $component): array
     {
         $tpl = $this->getTemplate("tpl.textarea.html", true, true);
 
@@ -601,9 +614,53 @@ class Renderer extends AbstractComponentRenderer
             $tpl->setVariable('MIN_LIMIT', $component->getMinLimit());
         }
 
+        [$mustache_variable_html, $component] = $this->renderMustacheVariables($component);
+        $tpl->setVariable('MUSTACHE_VARIABLES_HTML', $mustache_variable_html);
+
         $this->applyName($component, $tpl);
-        $this->applyValue($component, $tpl, $this->htmlEntities());
-        return $tpl;
+        $this->applyValue(
+            $component,
+            $tpl,
+            $this->mustacheVariableEntities()
+        );
+        return [$tpl, $component];
+    }
+
+    /**
+     * @return array{0: string, 1: F\HasMustacheVariablesInternal}
+     */
+    protected function renderMustacheVariables(F\HasMustacheVariablesInternal $component): array
+    {
+        $mustache_variable_definitions = $component->getMustacheVariables();
+        if (empty($mustache_variable_definitions)) {
+            return ['', $component];
+        }
+
+        $template = $this->getTemplate('tpl.mustache_variables.html', true, true);
+        $template->setVariable('MUSTACHE_VARIABLE_USAGE_INFO', $this->txt('ui_mustache_variables_usage_info'));
+
+        $mustache_variable_context_info = $component->getMustacheVariableContextInfo();
+        if (null !== $mustache_variable_context_info) {
+            $template->setVariable('MUSTACHE_VARIABLE_CONTEXT_INFO', $mustache_variable_context_info);
+        }
+
+        foreach ($mustache_variable_definitions as $variable_name => $description) {
+            $template->setCurrentBlock('with_mustache_variable_definition');
+            $template->setVariable('VARIABLE_NAME', $variable_name);
+            $template->setVariable('VARIABLE_DESCRIPTION', $description);
+            $template->parseCurrentBlock();
+        }
+
+        // @todo: this feature is currently highly coupled to textareas
+        $enriched_component = $component->withAdditionalOnLoadCode(static fn($id) => "
+            il.UI.Input.mustacheVariables.init(
+                il.UI.Input.textarea.get(document.querySelector('#$id .c-input__field textarea')?.id) ??
+                il.UI.Input.markdown.get(document.querySelector('#$id .c-input__field textarea')?.id),
+                document.getElementById('$id'),
+            );
+        ");
+
+        return [$template->get(), $enriched_component];
     }
 
     protected function renderRadioField(F\Radio $component, RendererInterface $default_renderer): string
@@ -612,6 +669,11 @@ class Renderer extends AbstractComponentRenderer
         $id = $this->createId();
 
         foreach ($component->getOptions() as $value => $label) {
+            // @todo: can we get rid of this enganglement?
+            if ($component->hasOptionFilter()) {
+                $tpl->touchBlock('is_filter_option');
+            }
+
             $opt_id = $id . '_' . $value . '_opt';
 
             $tpl->setCurrentBlock('optionblock');
@@ -635,7 +697,16 @@ class Renderer extends AbstractComponentRenderer
             $tpl->parseCurrentBlock();
         }
 
-        return $this->wrapInFormContext($component, $component->getLabel(), $tpl->get());
+        if ($component->hasOptionFilter()) {
+            // @todo: can we get rid of this enganglement?
+            $tpl->touchBlock("has_option_filter");
+            $field_html = $tpl->get();
+            [$field_html, $component] = $this->renderOptionFilter($field_html, $component, $default_renderer);
+        } else {
+            $field_html = $tpl->get();
+        }
+
+        return $this->wrapInFormContext($component, $component->getLabel(), $field_html);
     }
 
     protected function renderMultiSelectField(F\MultiSelect $component, RendererInterface $default_renderer): string
@@ -647,6 +718,11 @@ class Renderer extends AbstractComponentRenderer
             $value = $component->getValue();
             $name = $this->applyName($component, $tpl);
             foreach ($options as $opt_value => $opt_label) {
+                // @todo: can we get rid of this enganglement?
+                if ($component->hasOptionFilter()) {
+                    $tpl->touchBlock('is_filter_option');
+                }
+
                 $tpl->setCurrentBlock("option");
                 $tpl->setVariable("NAME", $name);
                 $tpl->setVariable("VALUE", $opt_value);
@@ -655,13 +731,23 @@ class Renderer extends AbstractComponentRenderer
                 if ($value && in_array($opt_value, $value)) {
                     $tpl->setVariable("CHECKED", 'checked="checked"');
                 }
+
                 $tpl->parseCurrentBlock();
             }
         } else {
             $tpl->touchBlock("no_options");
         }
 
-        return $this->wrapInFormContext($component, $component->getLabel(), $tpl->get());
+        if ($component->hasOptionFilter()) {
+            // @todo: can we get rid of this enganglement?
+            $tpl->touchBlock("has_option_filter");
+            $field_html = $tpl->get();
+            [$field_html, $component] = $this->renderOptionFilter($field_html, $component, $default_renderer);
+        } else {
+            $field_html = $tpl->get();
+        }
+
+        return $this->wrapInFormContext($component, $component->getLabel(), $field_html);
     }
 
     protected function renderDateTimeField(F\DateTime $component, RendererInterface $default_renderer): string
@@ -777,14 +863,18 @@ class Renderer extends AbstractComponentRenderer
         return $this->wrapInFormContext($component, $component->getLabel(), $tpl->get(), $label_id);
     }
 
-    protected function renderFileField(FI\File $input, RendererInterface $default_renderer): string
+    protected function renderImageField(F\Image $input, RendererInterface $default_renderer): string
+    {
+        return $this->renderFileField($input, $default_renderer);
+    }
+
+    protected function renderFileField(F\File $input, RendererInterface $default_renderer): string
     {
         $template = $this->getTemplate('tpl.file.html', true, true);
-        foreach ($input->getDynamicInputs() as $metadata_input) {
+        foreach ($input->getGeneratedDynamicInputs() as $metadata_input) {
             $file_info = null;
             if (null !== ($data = $metadata_input->getValue())) {
-                $file_id = (!$input->hasMetadataInputs()) ?
-                    $data : $data[$input->getUploadHandler()->getFileIdentifierParameterName()] ?? null;
+                $file_id = (!$input->hasMetadataInputs()) ? $data : $data[0] ?? null;
 
                 if (null !== $file_id) {
                     $file_info = $input->getUploadHandler()->getInfoResult($file_id);
@@ -850,7 +940,6 @@ class Renderer extends AbstractComponentRenderer
     public function registerResources(ResourceRegistry $registry): void
     {
         parent::registerResources($registry);
-        $registry->register('assets/js/tagify.min.js');
         $registry->register('assets/css/tagify.css');
         $registry->register('assets/js/tagInput.js');
 
@@ -859,6 +948,8 @@ class Renderer extends AbstractComponentRenderer
         $registry->register('assets/js/input.js');
         $registry->register('assets/js/core.js');
         $registry->register('assets/js/file.js');
+        // workaround to manipulate the order of scripts
+        $registry->register('assets/js/drilldown.min.js');
         $registry->register('assets/js/input.factory.min.js');
     }
 
@@ -879,12 +970,12 @@ class Renderer extends AbstractComponentRenderer
         if ($signals !== null) {
             $signals = json_encode($signals);
 
-            $input = $input->withAdditionalOnLoadCode(function ($id) use ($signals) {
+            $input = $input->withAdditionalOnLoadCode($input->getUpdateOnLoadCode());
+
+            $input = $input->withAdditionalOnLoadCode(static function ($id) use ($signals) {
                 $code = "il.UI.input.setSignalsForId('$id', $signals);";
                 return $code;
             });
-
-            $input = $input->withAdditionalOnLoadCode($input->getUpdateOnLoadCode());
         }
         return $input;
     }
@@ -917,9 +1008,10 @@ class Renderer extends AbstractComponentRenderer
         ?FileInfoResult $file_info,
         Template $template
     ): Template {
+        $f = $this->getUIFactory();
         $template->setCurrentBlock('block_file_preview');
         $template->setVariable('REMOVAL_GLYPH', $default_renderer->render(
-            $this->getUIFactory()->symbol()->glyph()->close()->withAction("#")
+            $f->button()->shy('', '')->withSymbol($f->symbol()->glyph()->close())
         ));
 
         if (null !== $file_info) {
@@ -934,10 +1026,10 @@ class Renderer extends AbstractComponentRenderer
         // contains actual (unhidden) inputs.
         if ($file_input->hasMetadataInputs()) {
             $template->setVariable('EXPAND_GLYPH', $default_renderer->render(
-                $this->getUIFactory()->symbol()->glyph()->expand()->withAction("#")
+                $f->button()->shy('', '')->withSymbol($f->symbol()->glyph()->expand())
             ));
             $template->setVariable('COLLAPSE_GLYPH', $default_renderer->render(
-                $this->getUIFactory()->symbol()->glyph()->collapse()->withAction("#")
+                $f->button()->shy('', '')->withSymbol($f->symbol()->glyph()->collapse())
             ));
         }
 
@@ -952,7 +1044,7 @@ class Renderer extends AbstractComponentRenderer
     {
         return $input->withAdditionalOnLoadCode(
             function ($id) use ($input) {
-                $current_file_count = count($input->getDynamicInputs());
+                $current_file_count = count($input->getGeneratedDynamicInputs());
                 $translations = json_encode($input->getTranslations());
                 $is_disabled = ($input->isDisabled()) ? 'true' : 'false';
                 $php_upload_limit = $this->getUploadLimitResolver()->getPhpUploadLimitInBytes();
@@ -995,9 +1087,9 @@ class Renderer extends AbstractComponentRenderer
         return $mime_type_string;
     }
 
-    protected function renderColorPickerField(F\ColorPicker $component, RendererInterface $default_renderer): string
+    protected function renderColorSelectField(F\ColorSelect $component, RendererInterface $default_renderer): string
     {
-        $tpl = $this->getTemplate("tpl.colorpicker.html", true, true);
+        $tpl = $this->getTemplate("tpl.color_select.html", true, true);
         $this->applyName($component, $tpl);
         $tpl->setVariable('VALUE', $component->getValue());
 
@@ -1059,6 +1151,141 @@ class Renderer extends AbstractComponentRenderer
         return $this->wrapInFormContext($component, $component->getLabel(), $tpl->get());
     }
 
+    protected function renderTreeMultiSelectField(F\TreeMultiSelect $component, RendererInterface $default_renderer): string
+    {
+        $template = $this->prepareTreeSelectTemplate($component, $default_renderer);
+
+        if ($component->canSelectChildNodes()) {
+            $select_child_nodes = 'true';
+        } else {
+            $select_child_nodes = 'false';
+        }
+
+        $enriched_component = $component->withAdditionalOnLoadCode(
+            static fn($id) => "il.UI.Input.treeSelect.initTreeMultiSelect('$id', $select_child_nodes);"
+        );
+
+        $id = $this->bindJSandApplyId($enriched_component, $template);
+
+        return $this->wrapInFormContext($component, $component->getLabel(), $template->get(), $id);
+    }
+
+    protected function renderTreeSelectField(F\TreeSelect $component, RendererInterface $default_renderer): string
+    {
+        $template = $this->prepareTreeSelectTemplate($component, $default_renderer);
+
+        $enriched_component = $component->withAdditionalOnLoadCode(
+            static fn($id) => "il.UI.Input.treeSelect.initTreeSelect('$id');"
+        );
+
+        $id = $this->bindJSandApplyId($enriched_component, $template);
+
+        return $this->wrapInFormContext($component, $component->getLabel(), $template->get(), $id);
+    }
+
+    protected function prepareTreeSelectTemplate(
+        TreeSelect|TreeMultiSelect $component,
+        RendererInterface $default_renderer,
+    ): Template {
+        $template = $this->getTemplate('tpl.tree_select.html', true, true);
+
+        if ($component->isDisabled()) {
+            $template->setVariable('DISABLED', 'disabled');
+        }
+
+        $template->setVariable('SELECT_LABEL', $this->txt('select'));
+        $template->setVariable('CLOSE_LABEL', $this->txt('close'));
+        $template->setVariable('LABEL', $component->getLabel());
+
+        $template->setVariable('INPUT_TEMPLATE', $default_renderer->render(
+            $component->getTemplateForDynamicInputs()
+        ));
+        $template->setVariable('BREADCRUMB_TEMPLATE', $default_renderer->render(
+            $this->getUIFactory()->breadcrumbs([$this->getUIFactory()->link()->standard('label', '#')])
+        ));
+        $template->setVariable('BREADCRUMBS', $default_renderer->render(
+            $this->getUIFactory()->breadcrumbs([])
+        ));
+
+        /** @var $dynamic_inputs_generator \Generator<FormInput> */
+        $dynamic_inputs_generator = (static fn() => yield from $component->getGeneratedDynamicInputs())();
+
+        $leaf_generator = $component->getNodeRetrieval()->getNodesAsLeaf(
+            $this->getUIFactory()->input()->field()->node(),
+            $this->getUIFactory()->symbol()->icon(),
+            $component->getValue(),
+        );
+
+        $lockstep_iterator = $this->iterateGeneratorsInLockstep($leaf_generator, $dynamic_inputs_generator);
+        $sync_node_id_whitelst = [];
+
+        foreach ($lockstep_iterator as [$leaf, $dynamic_input]) {
+            // check against internal interface, will not be delegated to rendering chain.
+            /** @var $leaf Node\Leaf */
+            $this->checkArgInstanceOf('leaf', $leaf, Node\Leaf::class);
+
+            $value_template = $this->getTemplate('tpl.tree_select.html', true, true);
+            $value_template->setCurrentBlock('with_value_template');
+            $value_template->setVariable('NODE_ID', (string) ($leaf->getId()));
+            $value_template->setVariable('NODE_NAME', $leaf->getName());
+            $value_template->setVariable('INPUT_TEMPLATE', $default_renderer->render($dynamic_input));
+            $value_template->setVariable('UNSELECT_NODE_LABEL', sprintf($this->txt('unselect_node'), $leaf->getName()));
+            $value_template->parseCurrentBlock();
+
+            $template->setCurrentBlock('with_value');
+            $template->setVariable('VALUE', $value_template->get('with_value_template'));
+            $template->parseCurrentBlock();
+
+            foreach ($leaf->getFullPath() as $node_id) {
+                // deduplicate overlaping node ids by using them as offset
+                $sync_node_id_whitelst[$node_id] = $node_id;
+            }
+        }
+
+        $node_factory = $this->getUIFactory()->input()->field()->node();
+        $node_generator = $component->getNodeRetrieval()->getNodes(
+            $node_factory,
+            $this->getUIFactory()->symbol()->icon(),
+            array_values($sync_node_id_whitelst),
+            null,
+        );
+
+        $nodes = [];
+        foreach ($node_generator as $node) {
+            // check against public interface, will be delegated to rendering chain.
+            $this->checkArgInstanceOf('node', $node, Component\Input\Field\Node\Node::class);
+            $nodes[] = $node;
+        }
+
+        $template->setVariable('DRILLDOWN', $default_renderer->render(
+            $this->getUIFactory()->menu()->drilldown($component->getLabel(), $nodes)
+        ));
+
+        $this->toJS('unselect_node');
+        $this->toJS('select_node');
+
+        return $template;
+    }
+
+    /**
+     * Iterates over two Generators in lockstep, yielding their current values as paired arrays which
+     * can be destructured.
+     *
+     * @return \Generator<array{0: mixed, 1: mixed}>
+     * @throws LogicException If one Generator finishes before the other.
+     */
+    protected function iterateGeneratorsInLockstep(\Generator $a, \Generator $b): \Generator
+    {
+        while ($a->valid() && $b->valid()) {
+            yield [$a->current(), $b->current()];
+            $a->next();
+            $b->next();
+        }
+        if ($a->valid() || $b->valid()) {
+            throw new LogicException('Generators do not have equal lenghts.');
+        }
+    }
+
     private function setHelpBlockForFileField(Template $template, FI\File $input): void
     {
         $template->setCurrentBlock('HELP_BLOCK');
@@ -1074,5 +1301,60 @@ class Renderer extends AbstractComponentRenderer
         $template->parseCurrentBlock();
 
         $template->parseCurrentBlock();
+    }
+
+    /**
+     * Renders a list search around input fields that support it.
+     *
+     * @param string $input_html Rendered HTML of the inner input field made searchable.
+     * @param F\HasOptionFilterInternal $component The component object to attach onload JavaScript to.
+     * @return array{0: string, 1: F\HasOptionFilterInternal}
+     */
+    protected function renderOptionFilter(string $input_html, F\HasOptionFilterInternal $component, RendererInterface $default_renderer): array
+    {
+        $option_filter_template = $this->getTemplate("tpl.option_filter.html", true, true);
+        $option_filter_template->setVariable('INPUT', $input_html);
+
+        $search_input_id = $this->createId();
+        $search_input_label_id = $this->createId();
+        $search_input_description_id = $this->createId();
+        $list_id = $this->createId();
+
+        $option_filter_template->setVariable('SEARCH_INPUT_ID', $search_input_id);
+        $option_filter_template->setVariable('SEARCH_INPUT_LABEL_ID', $search_input_label_id);
+        $option_filter_template->setVariable('SEARCH_INPUT_DESCRIPTION_ID', $search_input_description_id);
+        $option_filter_template->setVariable('LIST_ID', $list_id);
+
+        $no_selection_text = $this->txt('ui_field_option_filter_no_selection');
+        $option_filter_template->setVariable('NOTHING_SELECTED', $no_selection_text);
+        $option_filter_template->setVariable('ARIA_FILTERED_RESULTS', $this->txt('ui_field_option_filter_filtered_results_aria_label'));
+
+        $option_filter_template->setVariable('SEARCH_LABEL', $this->txt("ui_field_option_filter_search_in"));
+        $option_filter_template->setVariable('SCREEN_READER_HINT', $this->txt('ui_field_option_filter_screen_reader_hint'));
+        $option_filter_template->setVariable('NO_MATCH', $this->txt('ui_field_option_filter_no_match'));
+        $option_filter_template->setVariable('OPTIONS_SHOWN', $this->txt('ui_field_option_filter_options_shown'));
+
+        $expand_icon = $default_renderer->render($this->getUIFactory()->symbol()->glyph()->expand()->withLabel(''));
+        $option_filter_template->setVariable('EXPAND_TEXT', $expand_icon . $this->txt('ui_field_option_filter_show_all_options'));
+
+        $collapse_icon = $default_renderer->render($this->getUIFactory()->symbol()->glyph()->collapseHorizontal()->withLabel(''));
+        $option_filter_template->setVariable('COLLAPSE_TEXT', $collapse_icon . $this->txt('ui_field_option_filter_show_less'));
+
+        $remove_icon = $default_renderer->render($this->getUIFactory()->symbol()->glyph()->remove()->withLabel(''));
+        $option_filter_template->setVariable('CLEAR_SEARCH_BTN', $remove_icon . $this->txt('ui_field_option_filter_clear_search'));
+
+        $component = $component->withAdditionalOnLoadCode(
+            static fn($id): string => "il.UI.Input.optionFilter.init(document.getElementById('$id'));",
+        );
+
+        return [$option_filter_template->get(), $component];
+    }
+
+    private function mustacheVariableEntities(): Closure
+    {
+        return function ($val) {
+            $val = htmlentities((string) $val);
+            return str_replace('{{', '&lcub;&lcub;', str_replace('}}', '&rcub;&rcub;', $val));
+        };
     }
 }

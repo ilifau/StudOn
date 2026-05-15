@@ -42,6 +42,7 @@ class arJoinCollection extends arStatementCollection
         return $tableName;
     }
 
+    #[\Override]
     public function add(arStatement $arStatement): void
     {
         $arStatement->setTableNameAs($this->getSaveTableName($arStatement));

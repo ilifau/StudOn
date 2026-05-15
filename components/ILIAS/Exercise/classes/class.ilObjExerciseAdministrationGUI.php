@@ -65,7 +65,7 @@ class ilObjExerciseAdministrationGUI extends ilObjectGUI
 
     public function getAdminTabs(): void
     {
-        if ($this->checkPermissionBool("visible,read")) {
+        if ($this->checkPermissionBool("read")) {
             $this->tabs_gui->addTarget(
                 "settings",
                 $this->ctrl->getLinkTarget($this, "editSettings"),
@@ -83,7 +83,7 @@ class ilObjExerciseAdministrationGUI extends ilObjectGUI
         }
     }
 
-    public function editSettings(ilPropertyFormGUI $a_form = null): void
+    public function editSettings(?ilPropertyFormGUI $a_form = null): void
     {
         $this->tabs_gui->setTabActive('settings');
 

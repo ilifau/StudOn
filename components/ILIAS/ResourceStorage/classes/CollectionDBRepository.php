@@ -22,9 +22,6 @@ use ILIAS\ResourceStorage\Collection\Repository\CollectionRepository;
 use ILIAS\ResourceStorage\Collection\ResourceCollection;
 use ILIAS\ResourceStorage\Identification\ResourceCollectionIdentification;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
-use ILIAS\ResourceStorage\Events\Subject;
-use ILIAS\ResourceStorage\Events\Event;
-use ILIAS\ResourceStorage\Events\Data;
 use ILIAS\ResourceStorage\Events\DataContainer;
 use ILIAS\ResourceStorage\Events\CollectionData;
 
@@ -40,11 +37,9 @@ class CollectionDBRepository implements CollectionRepository
     public const COLLECTION_ASSIGNMENT_TABLE_NAME = 'il_resource_rca';
     public const R_IDENTIFICATION = 'rid';
     public const C_IDENTIFICATION = 'rcid';
-    protected \ilDBInterface $db;
 
-    public function __construct(\ilDBInterface $db)
+    public function __construct(protected \ilDBInterface $db)
     {
-        $this->db = $db;
     }
 
     /**

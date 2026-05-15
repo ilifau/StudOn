@@ -16,17 +16,15 @@
  *
  *********************************************************************/
 
+use ILIAS\MetaData\Services\ServicesInterface as LOMServices;
+
 /**
-* searchResult stores all result of a search query.
-* Offers methods like mergeResults. To merge result sets of different queries.
-*
-*
-* @author Stefan Meyer <meyer@leifos.com>
-*
-* @package ilias-search
-*/
-
-
+ * searchResult stores all result of a search query.
+ * Offers methods like mergeResults. To merge result sets of different queries.
+ *
+ *
+ * @author Stefan Meyer <meyer@leifos.com>
+ */
 class ilSearchResult
 {
     private string $permission = 'visible';
@@ -46,6 +44,7 @@ class ilSearchResult
     protected ilTree $tree;
     protected ilObjUser $user;
     protected ilSearchSettings $search_settings;
+    protected LOMServices $lom_services;
 
     // Stores info if MAX HITS is reached or not
     public bool $limit_reached = false;
@@ -54,12 +53,6 @@ class ilSearchResult
 
     protected ilLogger $logger;
 
-
-
-    /**
-    * Constructor
-    * @access	public
-    */
     public function __construct(int $a_user_id = 0)
     {
         global $DIC;
@@ -69,6 +62,7 @@ class ilSearchResult
         $this->db = $DIC->database();
         $this->tree = $DIC->repositoryTree();
         $this->user = $DIC->user();
+        $this->lom_services = $DIC->learningObjectMetadata();
 
         if ($a_user_id) {
             $this->user_id = $a_user_id;
@@ -80,8 +74,8 @@ class ilSearchResult
     }
 
     /**
-    * Set the required permission for the rbac checks in function 'filter()'
-    */
+     * Set the required permission for the rbac checks in function 'filter()'
+     */
     public function setRequiredPermission(string $a_permission): void
     {
         $this->permission = $a_permission;
@@ -91,7 +85,6 @@ class ilSearchResult
     {
         return $this->permission;
     }
-
 
     public function setUserId(int $a_user_id): void
     {
@@ -133,14 +126,20 @@ class ilSearchResult
      *
      * add search result entry
      * Entries are stored with 'obj_id'. This method is typically called to store db query results.
-     * @param int object object_id
-     * @param string obj_type 'lm' or 'crs' ...
-     * @param array value position of query parser words in query string
-     * @param int child id e.g id of page or chapter
+     * @param int    $a_obj_id      object object_id
+     * @param string $a_type        obj_type 'lm' or 'crs' ...
+     * @param array  $found         value position of query parser words in query string
+     * @param int    $a_child_id    child id e.g id of page or chapter
+     * @param string $a_child_type  child type e.g 'pg' or 'st'
      * @return void
      */
-    public function addEntry(int $a_obj_id, string $a_type, array $found, int $a_child_id = 0): void
-    {
+    public function addEntry(
+        int $a_obj_id,
+        string $a_type,
+        array $found,
+        int $a_child_id = 0,
+        string $a_child_type = ''
+    ): void {
         // Create new entry if it not exists
         if (!isset($this->entries[$a_obj_id])) {
             $this->entries[$a_obj_id]['obj_id'] = $a_obj_id;
@@ -149,12 +148,16 @@ class ilSearchResult
             $this->entries[$a_obj_id]['child'] = [];
 
             if ($a_child_id and $a_child_id != $a_obj_id) {
-                $this->entries[$a_obj_id]['child'][$a_child_id] = $a_child_id;
+                $this->entries[$a_obj_id]['child'][$a_child_type . '__' . $a_child_id] = [
+                    'id' => $a_child_id, 'type' => $a_child_type
+                ];
             }
         } else {
-            // replace or add child ('pg','st') id
+            // replace or add child ('pg','st') id and type
             if ($a_child_id and $a_child_id != $a_obj_id) {
-                $this->entries[$a_obj_id]['child'][$a_child_id] = $a_child_id;
+                $this->entries[$a_obj_id]['child'][$a_child_type . '__' . $a_child_id] = [
+                    'id' => $a_child_id, 'type' => $a_child_type
+                ];
             }
             $counter = 0;
             foreach ($found as $position) {
@@ -166,11 +169,6 @@ class ilSearchResult
         }
     }
 
-    /**
-     *
-     * Check number of entries
-     * @access	public
-     */
     public function numEntries(): int
     {
         return count($this->getEntries());
@@ -179,8 +177,6 @@ class ilSearchResult
     /**
      *
      * merge entries of this instance and another result object
-     * @param object result_obj
-     * @access	public
      */
     public function mergeEntries(ilSearchResult $result_obj): void
     {
@@ -252,8 +248,7 @@ class ilSearchResult
     }
 
     /**
-     * get result ids
-     * @return int[] result ids
+     * @return int[]
      */
     public function getResultIds(): array
     {
@@ -272,7 +267,6 @@ class ilSearchResult
         }
         return $tmp_res;
     }
-
 
     /**
      * Get unique results. Return an array of obj_id (No multiple results for references)
@@ -305,6 +299,9 @@ class ilSearchResult
         return $res;
     }
 
+    /**
+     * @return list<array{id: int, type: string}>
+     */
     public function getSubitemIds(): array
     {
         $res = array();
@@ -314,19 +311,24 @@ class ilSearchResult
         return $res;
     }
 
-
-
     /**
      * Filter search result.
      * Do RBAC checks.
      * Allows paging of results for referenced objects
+     * @param string[] $copyright_identifiers
      */
     public function filter(
         int $a_root_node,
         bool $check_and,
-        ilDate $creation_filter_date_start = null,
-        ilDate $creation_filter_date_end = null
+        ?ilDate $creation_filter_date_start = null,
+        ?ilDate $creation_filter_date_end = null,
+        array $copyright_identifiers = []
     ): bool {
+        // check for copyright of all entries at once
+        if ($copyright_identifiers !== []) {
+            $entries_with_copyright = $this->findEntriesWithCopyright(...$copyright_identifiers);
+        }
+
         // get ref_ids and check access
         $counter = 0;
         $offset_counter = 0;
@@ -376,11 +378,33 @@ class ilSearchResult
                     if (!ilDate::_before($creation_date, $creation_filter_date_end)) {
                         continue;
                     }
-                } else {
-                    if (!ilDate::_within($creation_date, $creation_filter_date_start, $creation_filter_date_end)) {
+                } elseif (!ilDate::_within($creation_date, $creation_filter_date_start, $creation_filter_date_end)) {
+                    continue;
+                }
+            }
+
+            // filter by copyright
+            $filtered_children = $entry['child'];
+            if ($copyright_identifiers !== []) {
+                foreach ($filtered_children as $key => $child) {
+                    if (in_array(
+                        $entry['obj_id'] . '__' . $child['id'] . '__' . $child['type'],
+                        $entries_with_copyright
+                    )) {
                         continue;
                     }
+                    unset($filtered_children[$key]);
                 }
+                if (
+                    empty($filtered_children) &&
+                    !in_array(
+                        $entry['obj_id'] . '__' . $entry['obj_id'] . '__' . $entry['type'],
+                        $entries_with_copyright
+                    )
+                ) {
+                    continue;
+                }
+
             }
 
             // Check referenced objects
@@ -417,8 +441,8 @@ class ilSearchResult
                         if (1) {
                             $this->addResult($ref_id, $entry['obj_id'], $type);
                             $this->search_cache->appendToChecked($ref_id, $entry['obj_id']);
-                            $this->__updateResultChilds($ref_id, $entry['child']);
-
+                            $this->__updateResultChilds($ref_id, $filtered_children);
+                            ilObject::_lookupType($entry['obj_id']);
                             $counter++;
                             $offset_counter++;
                             // Stop if maximum of hits is reached
@@ -440,9 +464,39 @@ class ilSearchResult
     }
 
     /**
-     *
+     * @param string ...$copyright_identifiers
+     * @return string[] in the format {OBJ_ID}__{SUB_ID}__{TYPE}
+     */
+    protected function findEntriesWithCopyright(string ...$copyright_identifiers): array
+    {
+        $filters = [];
+        foreach ($this->entries as $entry) {
+            $filters[] = $this->lom_services->search()->getFilter(
+                $entry['obj_id'],
+                0,
+                $entry['type']
+            );
+            foreach ($entry['child'] as $child) {
+                $filters[] = $this->lom_services->search()->getFilter(
+                    $entry['obj_id'],
+                    $child['id'],
+                    $child['type']
+                );
+            }
+        }
+
+        $clause = $this->lom_services->copyrightHelper()->getCopyrightSearchClause(...$copyright_identifiers);
+        $results = $this->lom_services->search()->execute($clause, null, null, ...$filters);
+
+        $ids = [];
+        foreach ($results as $result) {
+            $ids[] = $result->objID() . '__' . $result->subID() . '__' . $result->type();
+        }
+        return $ids;
+    }
+
+    /**
      * Filter search area of result set
-     * @access	public
      */
     public function filterResults(int $a_root_node): void
     {
@@ -456,62 +510,47 @@ class ilSearchResult
         }
     }
 
-
-    /**
-     *
-     * Save search results
-     * @param int DEFAULT_SEARCH or ADVANCED_SEARCH
-     */
     public function save(int $a_type = ilUserSearchCache::DEFAULT_SEARCH): void
     {
         $this->search_cache->save();
     }
-    /**
-     *
-     * read search results
-     * @param int DEFAULT_SEARCH or ADVANCED_SEARCH
-     * @access	public
-     */
+
     public function read(int $a_type = ilUserSearchCache::DEFAULT_SEARCH): void
     {
         $this->results = $this->search_cache->getResults();
     }
 
-    // PRIVATE
     /**
-     *
-     * Update childs for a specific entry
-     * @param int object object_id
-     * @param array array of child ids. E.g 'pg', 'st'
-     * @access	private
+     * @param int   $a_obj_id
+     * @param array $a_childs array of children as ['id' => $id, 'type' => $type]. E.g 'pg', 'st'
+     * @return bool
      */
     public function __updateEntryChilds(int $a_obj_id, array $a_childs): bool
     {
         if ($this->entries[$a_obj_id] and is_array($a_childs)) {
-            foreach ($a_childs as $child_id) {
-                if ($child_id) {
-                    $this->entries[$a_obj_id]['child'][$child_id] = $child_id;
+            foreach ($a_childs as $child_info) {
+                if ($child_info) {
+                    $this->entries[$a_obj_id]['child'][$child_info['type'] . '__' . $child_info['id']] = $child_info;
                 }
             }
             return true;
         }
         return false;
     }
+
     /**
-     * Update child ids for a specific result
+     * Update children for a specific result
      */
     public function __updateResultChilds(int $a_ref_id, array $a_childs): bool
     {
         if ($this->results[$a_ref_id] and is_array($a_childs)) {
-            foreach ($a_childs as $child_id) {
-                $this->results[$a_ref_id]['child'][$child_id] = $child_id;
+            foreach ($a_childs as $child_info) {
+                $this->results[$a_ref_id]['child'][$child_info['type'] . '__' . $child_info['id']] = $child_info;
             }
             return true;
         }
         return false;
     }
-
-
 
     public function __initSearchSettingsObject(): void
     {
@@ -521,12 +560,6 @@ class ilSearchResult
         }
     }
 
-    /**
-     * Init user search cache
-     *
-     * @access private
-     *
-     */
     protected function initUserSearchCache(): void
     {
         $this->search_cache = ilUserSearchCache::_getInstance($this->getUserId());
@@ -556,8 +589,8 @@ class ilSearchResult
      * Every callback function should support the following parameters:
      * array of ids. E.g: ref_id = 5,array(obj_id = 1,type = 'crs'),
      * The function should return true or false.
-     * @param object class of callback function
-     * @param string name of callback method
+     * @param object $a_class  class of callback function
+     * @param string $a_method name of callback method
      */
     public function addObserver(object $a_class, string $a_method): bool
     {
@@ -579,4 +612,4 @@ class ilSearchResult
         }
         return true;
     }
-} // END class.Search
+}

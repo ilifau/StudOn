@@ -18,6 +18,8 @@
 
 declare(strict_types=1);
 
+use ILIAS\User\Profile\PublicProfileGUI;
+
 /**
 *
 * @author Stefan Meyer <smeyer.ilias@gmx.de>
@@ -38,7 +40,6 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
     protected ilAppEventHandler $event;
     protected \ILIAS\FileUpload\FileUpload $upload;
     protected ilHelpGUI $help;
-    protected \ILIAS\HTTP\Services $http;
     protected \ILIAS\Refinery\Factory $refinery;
 
     public ilLanguage $lng;
@@ -90,7 +91,6 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         $this->event = $DIC->event();
         $this->upload = $DIC->upload();
         $this->help = $DIC->help();
-        $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
 
         $this->type = "sess";
@@ -753,7 +753,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         if (count($contacts) > 0) {
             $info->addSection($this->lng->txt("crs_mem_contacts"));
             foreach ($contacts as $contact) {
-                $pgui = new ilPublicUserProfileGUI($contact);
+                $pgui = new PublicProfileGUI($contact);
                 $pgui->setBackUrl($this->ctrl->getLinkTargetByClass("ilinfoscreengui"));
                 $pgui->setEmbedded(true);
                 $info->addProperty("", $pgui->getHTML());

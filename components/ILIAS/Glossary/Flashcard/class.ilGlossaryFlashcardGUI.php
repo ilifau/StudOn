@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\UI;
 use ILIAS\Glossary\Presentation;
@@ -88,7 +88,7 @@ class ilGlossaryFlashcardGUI
 
         $intro_box = $this->ui_fac->panel()->standard(
             $this->lng->txt("glo_introduction"),
-            $this->ui_fac->legacy($this->lng->txt("glo_flashcards_intro"))
+            $this->ui_fac->legacy()->content($this->lng->txt("glo_flashcards_intro"))
         );
         $flashcard_tpl->setVariable("INTRO_BOX", $this->ui_ren->render($intro_box));
 

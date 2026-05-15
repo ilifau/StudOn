@@ -22,12 +22,10 @@ use ILIAS\Test\Settings\MainSettings\SettingsGeneral;
 
 class SettingsGeneralTest extends ilTestBaseTestCase
 {
-    /**
-     * @dataProvider getAndWithQuestionSetTypeDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithQuestionSetTypeDataProvider')]
     public function testGetAndWithQuestionSetType(string $io): void
     {
-        $Settings_general = (new SettingsGeneral(0))->withQuestionSetType($io);
+        $Settings_general = (new SettingsGeneral())->withQuestionSetType($io);
 
         $this->assertInstanceOf(SettingsGeneral::class, $Settings_general);
         $this->assertEquals($io, $Settings_general->getQuestionSetType());
@@ -41,12 +39,10 @@ class SettingsGeneralTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithAnonymityDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithAnonymityDataProvider')]
     public function testGetAndWithAnonymity(bool $io): void
     {
-        $Settings_general = (new SettingsGeneral(0))->withAnonymity($io);
+        $Settings_general = (new SettingsGeneral())->withAnonymity($io);
 
         $this->assertInstanceOf(SettingsGeneral::class, $Settings_general);
         $this->assertEquals($io, $Settings_general->getAnonymity());

@@ -14,8 +14,7 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -334,7 +333,7 @@ class ilOrgUnitPositionGUI extends BaseCommands
         return $this->positionRepo->getSingle($id, 'id');
     }
 
-    public function getSinglePosLinkTarget(string $action, int $pos_id = null): string
+    public function getSinglePosLinkTarget(string $action, ?int $pos_id = null): string
     {
         $target_id = $pos_id !== null ? [$pos_id] : [$this->getRowIdFromQuery()];
         return $this->url_builder
@@ -378,7 +377,7 @@ class ilOrgUnitPositionGUI extends BaseCommands
         ];
 
         return $this->ui_factory->table()
-            ->data('', $columns, $this->positionRepo)
+            ->data($this->positionRepo, '', $columns)
             ->withId('orgu_positions')
             ->withActions($actions);
     }

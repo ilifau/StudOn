@@ -16,9 +16,15 @@
  *
  *********************************************************************/
 
+use ILIAS\UI\Renderer;
+use ILIAS\Refinery\Factory;
+use ILIAS\HTTP\Services;
+use ILIAS\FileUpload\FileUpload;
+use ILIAS\Filesystem\Util\Archive\Archives;
+use ILIAS\components\ResourceStorage\Container\View\ActionBuilder\ActionProvider;
+use ILIAS\UI\Component\Modal\InterruptiveItem\Standard;
 use ILIAS\FileUpload\Handler\BasicHandlerResult;
 use ILIAS\Filesystem\Stream\Streams;
-use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\UI\Component\Input\Field\UploadHandler;
 use ILIAS\FileUpload\Handler\FileInfoResult;
 use ILIAS\components\ResourceStorage\Container\View\Configuration;
@@ -30,7 +36,6 @@ use ILIAS\components\ResourceStorage\Container\View\ActionBuilder;
 use ILIAS\components\ResourceStorage\Container\View\ViewControlBuilder;
 use ILIAS\components\ResourceStorage\Container\View\UploadBuilder;
 use ILIAS\components\ResourceStorage\Container\View\PreviewDefinition;
-use ILIAS\Refinery\ConstraintViolationException;
 use ILIAS\components\ResourceStorage\Container\View\StandardActionProvider;
 use ILIAS\components\ResourceStorage\Container\View\CombinedActionProvider;
 
@@ -41,37 +46,75 @@ final class ilContainerResourceGUI implements UploadHandler
 {
     use URLSerializer;
 
+    /**
+     * @var string
+     */
     public const P_PATH = 'path';
+    /**
+     * @var string
+     */
     public const P_PATHS = 'paths';
 
+    /**
+     * @var string
+     */
     public const CMD_INDEX = 'index';
+    /**
+     * @var string
+     */
     public const CMD_INFO = 'info';
+    /**
+     * @var string
+     */
     public const CMD_UPLOAD = 'upload';
+    /**
+     * @var string
+     */
     public const CMD_POST_UPLOAD = 'postUpload';
+
+
+    /**
+     * @var string
+     */
     public const CMD_REMOVE = 'remove';
+    /**
+     * @var string
+     */
     public const CMD_DOWNLOAD = 'download';
+    /**
+     * @var string
+     */
     public const CMD_DOWNLOAD_ZIP = 'downloadZIP';
 
+    /**
+     * @var string
+     */
     public const CMD_UNZIP = 'unzip';
+    /**
+     * @var string
+     */
     public const CMD_RENDER_CONFIRM_REMOVE = 'renderConfirmRemove';
+    /**
+     * @var string
+     */
     public const ADD_DIRECTORY = 'addDirectory';
 
     private ilCtrlInterface $ctrl;
     private ilGlobalTemplateInterface $main_tpl;
     private Request $view_request;
     private ViewFactory $view_factory;
-    private \ILIAS\UI\Renderer $ui_renderer;
-    private \ILIAS\Refinery\Factory $refinery;
-    private \ILIAS\HTTP\Services $http;
+    private Renderer $ui_renderer;
+    private Factory $refinery;
+    private Services $http;
     private ilLanguage $language;
     private \ILIAS\ResourceStorage\Services $irss;
     private ActionBuilder $action_builder;
     private ViewControlBuilder $view_control_builder;
     private \ILIAS\UI\Factory $ui_factory;
-    private \ILIAS\FileUpload\FileUpload $upload;
-    private \ILIAS\Filesystem\Util\Archive\Archives $archive;
+    private FileUpload $upload;
+    private Archives $archive;
     private PreviewDefinition $preview_definition;
-    private ActionBuilder\ActionProvider $action_provider;
+    private ActionProvider $action_provider;
     private StandardActionProvider $standard_action_provider;
 
     final public function __construct(
@@ -140,7 +183,7 @@ final class ilContainerResourceGUI implements UploadHandler
 
     // CMD CLASS
 
-    protected function abortWithPermissionDenied(): void
+    private function abortWithPermissionDenied(): void
     {
         $this->main_tpl->setOnScreenMessage('failure', $this->language->txt('msg_no_perm_read'), true);
         $this->ctrl->redirect($this, self::CMD_INDEX);
@@ -150,9 +193,7 @@ final class ilContainerResourceGUI implements UploadHandler
     {
         if ($this->view_request->handleViewTitle()) {
             $title = $this->view_request->getTitle();
-            if ($title !== null) {
-                $this->main_tpl->setTitle($title);
-            }
+            $this->main_tpl->setTitle($title);
             $description = $this->view_request->getDescription();
             if ($description !== null) {
                 $this->main_tpl->setDescription($description);
@@ -305,20 +346,19 @@ final class ilContainerResourceGUI implements UploadHandler
         $this->ctrl->redirect($this, self::CMD_INDEX);
     }
 
-    private function download(): void
+    private function download(): never
     {
         $paths = $this->getPathsFromRequest();
 
         $this->view_request->getWrapper()->download(
-            $paths[0],
-            $this->view_request->getPath()
+            $paths[0]
         );
     }
 
-    protected function getPathsFromRequest(): array
+    private function getPathsFromRequest(): array
     {
-        $unhash = fn(string $path) => $this->unhash($path);
-        $unhash_array = static fn(array $paths) => array_map(
+        $unhash = fn(string $path): string => $this->unhash($path);
+        $unhash_array = static fn(array $paths): array => array_map(
             $unhash,
             $paths
         );
@@ -361,7 +401,8 @@ final class ilContainerResourceGUI implements UploadHandler
             $paths
         );
 
-        $this->postUpload();
+        $this->main_tpl->setOnScreenMessage('success', $this->language->txt('rids_appended'), true);
+        $this->ctrl->redirect($this, self::CMD_INDEX);
     }
 
     private function renderConfirmRemove(): void
@@ -379,12 +420,10 @@ final class ilContainerResourceGUI implements UploadHandler
                     $this->language->txt('action_remove_zip_path_msg'),
                     $this->ctrl->getLinkTarget($this, self::CMD_REMOVE)
                 )->withAffectedItems(
-                    array_map(function (string $path_inside_zip) {
-                        return $this->ui_factory->modal()->interruptiveItem()->standard(
-                            $this->hash($path_inside_zip),
-                            $path_inside_zip
-                        );
-                    }, $paths)
+                    array_map(fn(string $path_inside_zip): Standard => $this->ui_factory->modal()->interruptiveItem()->standard(
+                        $this->hash($path_inside_zip),
+                        $path_inside_zip
+                    ), $paths)
                 )
             )
         );
@@ -416,59 +455,6 @@ final class ilContainerResourceGUI implements UploadHandler
 
         $this->main_tpl->setOnScreenMessage('success', $this->language->txt('msg_paths_deleted'), true);
         $this->ctrl->redirect($this, self::CMD_INDEX);
-    }
-
-    // REQUEST HELPERS
-
-    /**
-     * @return ResourceIdentification[]
-     */
-    private function getResourceIdsFromRequest(): array
-    {
-        $token = $this->action_builder->getUrlToken();
-        $wrapper = $this->http->wrapper();
-        $to_string = $this->refinery->kindlyTo()->string();
-        $to_array_of_string = $this->refinery->to()->listOf($to_string);
-        $rid_string = null;
-
-        if ($wrapper->query()->has($token->getName())) {
-            try {
-                $rid_string = $wrapper->query()->retrieve(
-                    $token->getName(),
-                    $to_string
-                );
-                $rid_strings = explode(',', $rid_string);
-            } catch (ConstraintViolationException $e) {
-                $rid_strings = $wrapper->query()->retrieve(
-                    $token->getName(),
-                    $to_array_of_string
-                );
-            }
-        }
-
-        if ($wrapper->post()->has('interruptive_items')) {
-            $rid_strings = $wrapper->post()->retrieve(
-                'interruptive_items',
-                $to_array_of_string
-            );
-        }
-
-        if ($rid_strings[0] === 'ALL_OBJECTS') {
-            return $this->view_request->getWrapper()->getResourceIdentifications();
-        }
-
-        if ($rid_strings === []) {
-            return [];
-        }
-        $resource_identifications = [];
-        foreach ($rid_strings as $rid_string) {
-            $resource_identification = $this->irss->manage()->find($this->unhash($rid_string));
-            if ($resource_identification === null) {
-                continue;
-            }
-            $resource_identifications[] = $resource_identification;
-        }
-        return $resource_identifications;
     }
 
 

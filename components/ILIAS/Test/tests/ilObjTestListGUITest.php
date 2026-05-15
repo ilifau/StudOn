@@ -31,6 +31,7 @@ class ilObjTestListGUITest extends ilTestBaseTestCase
         $this->addGlobal_rbacreview();
         $this->addGlobal_ilObjDataCache();
         $this->addGlobal_ilLoggerFactory();
+        $this->addGlobal_user();
 
         $this->testObj = new ilObjTestListGUI(1);
     }
@@ -39,9 +40,7 @@ class ilObjTestListGUITest extends ilTestBaseTestCase
         $this->assertInstanceOf(ilObjTestListGUI::class, $this->testObj);
     }
 
-    /**
-     * @dataProvider createDefaultCommandDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('createDefaultCommandDataProvider')]
     public function testCreateDefaultCommand(array $IO): void
     {
         $this->assertEquals($IO, $this->testObj->createDefaultCommand($IO));

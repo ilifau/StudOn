@@ -34,6 +34,7 @@ class ilObjFileServicesGUI extends ilObject2GUI
     protected const TAB_SETTINGS = 'settings';
     protected const TAB_OVERVIEW = 'resource_overview';
     protected const TAB_UPLOAD_LIMITS = 'upload_limits';
+    protected const TAB_WOPI = 'wopi_settings';
 
     protected ilTabsGUI $tabs;
     public ilLanguage $lng;
@@ -42,7 +43,6 @@ class ilObjFileServicesGUI extends ilObject2GUI
     protected ilSetting $settings;
     public ilGlobalTemplateInterface $tpl;
     protected Factory $refinery;
-    protected WrapperFactory $http;
     protected ilFileServicesSettings $file_service_settings;
 
     /**
@@ -60,13 +60,13 @@ class ilObjFileServicesGUI extends ilObject2GUI
         $this->lng = $DIC->language();
         $this->lng->loadLanguageModule('adn');
         $this->lng->loadLanguageModule('irss');
+        $this->lng->loadLanguageModule('wopi');
         $this->ctrl = $DIC['ilCtrl'];
         $this->tpl = $DIC['tpl'];
         $this->tree = $DIC['tree'];
         $this->settings = $DIC['ilSetting'];
         $this->error_handling = $DIC["ilErr"];
-        $this->http = $DIC->http()->wrapper();
-        $this->ref_id = $this->http->query()->retrieve('ref_id', $DIC->refinery()->kindlyTo()->int());
+        $this->ref_id = $this->request_wrapper->retrieve('ref_id', $DIC->refinery()->kindlyTo()->int());
         $this->refinery = $DIC->refinery();
         $this->file_service_settings = $DIC->fileServiceSettings();
     }
@@ -95,6 +95,7 @@ class ilObjFileServicesGUI extends ilObject2GUI
      * Execute command
      * @access public
      */
+    #[\Override]
     public function executeCommand(): void
     {
         $this->lng->loadLanguageModule("fils");
@@ -121,6 +122,11 @@ class ilObjFileServicesGUI extends ilObject2GUI
                 $limits_gui = new ilUploadLimitsOverviewGUI();
                 $this->ctrl->forwardCommand($limits_gui);
                 break;
+            case strtolower(ilWOPIAdministrationGUI::class):
+                $this->tabs_gui->activateTab(self::TAB_WOPI);
+                $wopi_gui = new ilWOPIAdministrationGUI();
+                $this->ctrl->forwardCommand($wopi_gui);
+                break;
             default:
                 if (!$cmd || $cmd === 'view') {
                     $cmd = self::CMD_EDIT_SETTINGS;
@@ -133,11 +139,12 @@ class ilObjFileServicesGUI extends ilObject2GUI
     /**
      * Get tabs
      */
+    #[\Override]
     public function getAdminTabs(): void
     {
         // General Settings for File-Services
         if ($this->rbac_system->checkAccess(
-            "visible,read",
+            "read",
             $this->object->getRefId()
         )
         ) {
@@ -149,7 +156,7 @@ class ilObjFileServicesGUI extends ilObject2GUI
         }
         // Resource-Overview
         if ($this->rbac_system->checkAccess(
-            "visible,read",
+            "read",
             $this->object->getRefId()
         )
         ) {
@@ -161,7 +168,7 @@ class ilObjFileServicesGUI extends ilObject2GUI
         }
         // Upload-Limit
         if ($this->rbac_system->checkAccess(
-            "visible,read",
+            "read",
             $this->object->getRefId()
         )
         ) {
@@ -171,6 +178,19 @@ class ilObjFileServicesGUI extends ilObject2GUI
                 $this->ctrl->getLinkTargetByClass(ilUploadLimitsOverviewGUI::class),
             );
         }
+        // WOPI
+        if ($this->rbac_system->checkAccess(
+            "read",
+            $this->object->getRefId()
+        )
+        ) {
+            $this->tabs_gui->addTab(
+                self::TAB_WOPI,
+                $this->lng->txt(self::TAB_WOPI),
+                $this->ctrl->getLinkTargetByClass(ilWOPIAdministrationGUI::class),
+            );
+        }
+
         // Permissions-tab
         if ($this->rbac_system->checkAccess(
             'edit_permission',
@@ -185,6 +205,7 @@ class ilObjFileServicesGUI extends ilObject2GUI
         }
     }
 
+    #[\Override]
     public function setTitleAndDescription(): void
     {
         parent::setTitleAndDescription();
@@ -258,7 +279,7 @@ class ilObjFileServicesGUI extends ilObject2GUI
     {
         $this->tabs_gui->setTabActive(self::TAB_SETTINGS);
 
-        $this->checkPermissionOrFail("visible,read");
+        $this->checkPermissionOrFail("read");
 
         // get form
         $form = $this->initSettingsForm();
@@ -281,11 +302,9 @@ class ilObjFileServicesGUI extends ilObject2GUI
         // get form
         $form = $this->initSettingsForm();
         if ($form->checkInput()) {
-            $trafo = function (string $id): ?string {
-                return $this->http->post()->has($id)
-                    ? $this->http->post()->retrieve($id, $this->refinery->to()->string())
-                    : null;
-            };
+            $trafo = (fn(string $id): ?string => $this->post_wrapper->has($id)
+                ? $this->post_wrapper->retrieve($id, $this->refinery->to()->string())
+                : null);
 
 
             $this->settings->set("suffix_repl_additional", $trafo("suffix_repl_additional"));

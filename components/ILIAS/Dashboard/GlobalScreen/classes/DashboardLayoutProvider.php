@@ -33,6 +33,7 @@ class DashboardLayoutProvider extends AbstractModificationProvider
     public function __construct(Container $dic)
     {
         $dic->ui()->mainTemplate()->addJavaScript('assets/js/modal-confirmation.js');
+        $dic->ui()->mainTemplate()->addJavaScript('assets/js/manual-sorting.js');
         parent::__construct($dic);
     }
 

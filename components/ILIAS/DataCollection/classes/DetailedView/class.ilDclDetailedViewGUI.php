@@ -167,28 +167,12 @@ class ilDclDetailedViewGUI
             $ilCtrl->redirectByClass(ilDclRecordListGUI::class, "listRecords");
         }
 
-        // see ilObjDataCollectionGUI->executeCommand about instantiation
         $pageObj = new ilDclDetailedViewDefinitionGUI($this->tableview_id);
         $pageObj->setOutputMode($pageObj::PRESENTATION);
-
+        $pageObj->setRecord($this->record_obj);
         $html = $pageObj->showPage();
         $rctpl->addCss("./assets/css/content.css");
         $rctpl->fillCssFiles();
-        $table = ilDclCache::getTableCache($this->record_obj->getTableId());
-        foreach ($table->getRecordFields() as $field) {
-            $html = str_ireplace(
-                "[" . $field->getTitle() . "]",
-                $this->record_obj->getRecordFieldSingleHTML($field->getId(), ['tableview_id' => $this->tableview_id]),
-                $html
-            );
-        }
-        foreach ($table->getStandardFields() as $field) {
-            $html = str_ireplace(
-                "[" . $field->getId() . "]",
-                $this->record_obj->getRecordFieldSingleHTML($field->getId(), ['tableview_id' => $this->tableview_id]),
-                $html
-            );
-        }
         $rctpl->setVariable("CONTENT", $html);
 
         //Permanent Link
@@ -223,7 +207,7 @@ class ilDclDetailedViewGUI
             $this->ctrl->setParameterByClass(ilDclRecordEditGUI::class, 'redirect', ilDclRecordEditGUI::REDIRECT_DETAIL);
             $this->ctrl->saveParameterByClass(ilDclRecordEditGUI::class, 'record_id');
             $DIC->toolbar()->addComponent($DIC->ui()->factory()->button()->standard(
-                $this->lng->txt('dcl_edit_record'),
+                $this->lng->txt('edit'),
                 $this->ctrl->getLinkTargetByClass(ilDclRecordEditGUI::class, 'edit')
             ));
         }
@@ -322,8 +306,9 @@ class ilDclDetailedViewGUI
 
     protected function checkAccess(): bool
     {
+        $page = new ilDclDetailedViewDefinitionGUI($this->tableview_id);
         $has_accass = ilObjDataCollectionAccess::hasAccessTo($this->dcl_gui_object->getRefId(), $this->table->getId(), $this->tableview_id);
-        $is_active = ilDclDetailedViewDefinition::isActive($this->tableview_id);
+        $is_active = $page->getPageObject()->isActive();
         return $has_accass && $is_active;
     }
 }

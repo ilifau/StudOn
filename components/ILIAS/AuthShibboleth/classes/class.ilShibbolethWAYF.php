@@ -148,7 +148,7 @@ class ilShibbolethWAYF
         $_saml_idp = $this->wrapper->cookie()->retrieve(self::COOKIE_NAME_SAML_IDP, $this->refinery->kindlyTo()->string());
         $arr_idps = $_saml_idp ? $this->generateCookieArray($_saml_idp) : [];
         $arr_idps = $this->appendCookieValue($this->selected_idp, $arr_idps);
-        setcookie(self::COOKIE_NAME_SAML_IDP, $this->generateCookieValue($arr_idps), time() + (100 * 24 * 3600), '/');
+        setcookie(self::COOKIE_NAME_SAML_IDP, $this->generateCookieValue($arr_idps), ['expires' => time() + (100 * 24 * 3600), 'path' => '/']);
     }
 
     /**
@@ -170,13 +170,13 @@ class ilShibbolethWAYF
     public function getIdplist(): array
     {
         $idp_list = [];
-        $idp_raw_list = explode("\n", $this->settings->get("shib_idp_list"));
+        $idp_raw_list = explode("\n", (string) $this->settings->get("shib_idp_list"));
         foreach ($idp_raw_list as $idp_line) {
             $idp_data = explode(',', $idp_line);
             if (isset($idp_data[2])) {
-                $idp_list[trim($idp_data[0])] = array(trim($idp_data[1]), trim($idp_data[2]));
+                $idp_list[trim($idp_data[0])] = [trim($idp_data[1]), trim($idp_data[2])];
             } elseif (isset($idp_data[1])) {
-                $idp_list[trim($idp_data[0])] = array(trim($idp_data[1]));
+                $idp_list[trim($idp_data[0])] = [trim($idp_data[1])];
             }
         }
 

@@ -27,6 +27,7 @@ use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\MessageBox;
 use ILIAS\UI\Component\Button;
 use ILIAS\UI\Component\Modal\RoundTrip;
+use ILIAS\User\Profile\PublicProfileGUI;
 
 /**
  * Class ilObjStudyProgrammeAutoCategoriesGUI
@@ -145,7 +146,7 @@ class ilObjStudyProgrammeAutoCategoriesGUI
                 continue;
             }
             [$title, $link] = $this->getItemPath($ref_id);
-            $usr = $this->getUserRepresentation($ac->getLastEditorId()) ?? $this->ui_factory->legacy('-');
+            $usr = $this->getUserRepresentation($ac->getLastEditorId()) ?? $this->ui_factory->legacy()->content('-');
             $modal = $this->getModal($ref_id);
             $collected_modals[] = $modal;
             $actions = $this->getItemAction(
@@ -288,7 +289,7 @@ class ilObjStudyProgrammeAutoCategoriesGUI
         return $this->object;
     }
 
-    protected function getModal(int $current_ref_id = null): RoundTrip
+    protected function getModal(?int $current_ref_id = null): RoundTrip
     {
         if (!is_null($current_ref_id)) {
             $this->ctrl->setParameter($this, self::CHECKBOX_CATEGORY_REF_IDS, (string) $current_ref_id);
@@ -322,7 +323,7 @@ class ilObjStudyProgrammeAutoCategoriesGUI
         $modal = $this->ui_factory->modal()
             ->roundtrip(
                 $this->lng->txt('modal_categories_title'),
-                $this->ui_factory->legacy($form->getHtml())
+                $this->ui_factory->legacy()->content($form->getHtml())
             )
             ->withActionButtons([$submit])
             ->withAdditionalOnLoadCode(
@@ -420,9 +421,9 @@ class ilObjStudyProgrammeAutoCategoriesGUI
         ]);
 
         $back_url = $this->ctrl->getLinkTarget($this, self::CMD_VIEW);
-        $this->ctrl->setParameterByClass('ilPublicUserProfileGUI', 'back_url', urlencode($back_url));
-        $this->ctrl->setParameterByClass('ilPublicUserProfileGUI', 'user_id', $usr_id);
-        $url = $this->ctrl->getLinkTargetByClass('ilPublicUserProfileGUI', 'view');
+        $this->ctrl->setParameterByClass(PublicProfileGUI::class, 'back_url', urlencode($back_url));
+        $this->ctrl->setParameterByClass(PublicProfileGUI::class, 'user_id', $usr_id);
+        $url = $this->ctrl->getLinkTargetByClass([ilPublicProfileBaseClassGUI::class, PublicProfileGUI::class], 'view');
 
         $usr = ilObjectFactory::getInstanceByObjId($usr_id);
         if (!$usr->hasPublicProfile()) {

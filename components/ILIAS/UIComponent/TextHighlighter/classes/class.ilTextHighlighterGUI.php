@@ -20,7 +20,7 @@
  * Text highlighter.
  * @author Alexander Killing <killing@leifos.de>
  *
- * @deprecated 10
+ * @deprecated with ILIAS 12
  */
 class ilTextHighlighterGUI
 {
@@ -30,7 +30,7 @@ class ilTextHighlighterGUI
     public static function highlight(
         string $a_dom_node_id,
         string $a_text,
-        ilGlobalTemplateInterface $a_tpl = null
+        ?ilGlobalTemplateInterface $a_tpl = null
     ): void {
         /** @var \ILIAS\DI\Container $DIC */
         global $DIC;

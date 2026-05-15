@@ -20,16 +20,18 @@ declare(strict_types=1);
 
 namespace ILIAS\components\ResourceStorage\Container\View;
 
+use ILIAS\components\ResourceStorage\Container\Wrapper\Dir;
+use ILIAS\UI\Renderer;
+use ILIAS\UI\Component\Dropdown\Standard;
+use ILIAS\UI\Component\Table\Data;
 use ILIAS\UI\Factory;
 use ILIAS\components\ResourceStorage\Container\DataProvider\TableDataProvider;
-use ILIAS\components\ResourceStorage\Container\DataProvider\DataTableDataProviderAdapter;
 use ILIAS\Data\Range;
 use ILIAS\HTTP\Services;
 use ILIAS\components\ResourceStorage\URLSerializer;
 use ILIAS\Data\Order;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\UI\Component\Table\DataRetrieval;
-use ILIAS\components\ResourceStorage\Container\Dir;
 use ILIAS\UI\Component\Signal;
 
 /**
@@ -40,15 +42,16 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
     use Formatter;
     use URLSerializer;
 
-    public const F_TITLE = 'title';
-    public const F_SIZE = 'size';
-    public const F_TYPE = 'type';
-    public const F_MODIFICATION_DATE = 'create_date';
-    public const FIELD_TITLE = 'title';
-    public const HOME = 'HOME';
+    public const string F_TITLE = 'title';
+    public const string F_SIZE = 'size';
+    public const string F_TYPE = 'type';
+    public const string F_STATUS = 'status';
+    public const string F_MODIFICATION_DATE = 'create_date';
+    public const string FIELD_TITLE = 'title';
+    public const string HOME = 'HOME';
     private \ILIAS\Data\Factory $data_factory;
     private \ILIAS\ResourceStorage\Services $irss;
-    private \ILIAS\UI\Renderer $ui_renderer;
+    private Renderer $ui_renderer;
     private \ilCtrlInterface $ctrl;
     /**
      * @var ActionBuilder\SingleAction[]
@@ -74,7 +77,7 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
         );
     }
 
-    protected function buildTopActions(): \ILIAS\UI\Component\Dropdown\Standard
+    protected function buildTopActions(): Standard
     {
         $buttons = [];
         if ($this->request->canUserAdministrate()) {
@@ -122,7 +125,7 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
         if ($this->request->getPath() !== './') {
             $directories = array_filter(
                 explode('/', $this->request->getPath()),
-                static fn(string $part) => $part !== ''
+                static fn(string $part): bool => $part !== ''
             );
 
             foreach ($directories as $i => $directory) {
@@ -157,29 +160,37 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
         yield $this->buildTable();
     }
 
-    /**
-     * @return \ILIAS\UI\Component\Table\Data
-     */
-    protected function buildTable(): \ILIAS\UI\Component\Table\Data
+    protected function buildTable(): Data
     {
+        $columns = [];
+
+        $columns[self::F_TITLE] = $this->ui_factory->table()->column()->text(
+            $this->language->txt(self::F_TITLE)
+        )->withIsSortable(true);
+
+        if ($this->request->getPathStatusInfo() instanceof PathStatusInfo) {
+            $columns[self::F_STATUS] = $this->ui_factory->table()->column()->text(
+                $this->language->txt(self::F_STATUS)
+            )->withIsSortable(false);
+        }
+
+        $columns[self::F_SIZE] = $this->ui_factory->table()->column()->text(
+            $this->language->txt(self::F_SIZE)
+        )->withIsSortable(true);
+
+        $columns[self::F_MODIFICATION_DATE] = $this->ui_factory->table()->column()->date(
+            $this->language->txt(self::F_MODIFICATION_DATE),
+            $this->data_factory->dateFormat()->germanLong()
+        )->withIsSortable(true);
+
+        $columns[self::F_TYPE] = $this->ui_factory->table()->column()->text(
+            $this->language->txt(self::F_TYPE)
+        )->withIsSortable(true);
+
         return $this->ui_factory->table()->data(
+            $this,
             $this->request->getTitle(), // we already have the title in the panel
-            [
-                self::F_TITLE => $this->ui_factory->table()->column()->text(
-                    $this->language->txt(self::F_TITLE)
-                )->withIsSortable(true),
-                self::F_SIZE => $this->ui_factory->table()->column()->text(
-                    $this->language->txt(self::F_SIZE)
-                )->withIsSortable(true),
-                self::F_MODIFICATION_DATE => $this->ui_factory->table()->column()->date(
-                    $this->language->txt(self::F_MODIFICATION_DATE),
-                    $this->data_factory->dateFormat()->germanLong()
-                )->withIsSortable(true),
-                self::F_TYPE => $this->ui_factory->table()->column()->text(
-                    $this->language->txt(self::F_TYPE)
-                )->withIsSortable(true),
-            ],
-            $this
+            $columns,
         )->withRequest(
             $this->http->request()
         )->withActions(
@@ -194,8 +205,9 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         $this->initSortingAndOrdering($range, $order);
 
@@ -210,7 +222,7 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
         );
 
         foreach ($entries as $entry) {
-            $is_dir = $entry instanceof \ILIAS\components\ResourceStorage\Container\Wrapper\Dir;
+            $is_dir = $entry instanceof Dir;
             $path_inside_zip = $entry->getPathInsideZIP();
 
             $entry_name = trim((string) $entry, '/');
@@ -237,6 +249,9 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
                 $this->hash($entry->getPathInsideZIP()),
                 [
                     self::F_TITLE => $title,
+                    self::F_STATUS => $this->request->getPathStatusInfo()?->statusTextForPath(
+                        $entry->getPathInsideZIP()
+                    ),
                     self::F_SIZE => $is_dir ? '' : $this->formatSize($entry->getSize()),
                     self::F_TYPE => $is_dir ? '' : $entry->getMimeType(),
                     self::F_MODIFICATION_DATE => $entry->getModificationDate(),
@@ -257,7 +272,7 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
                         } else {
                             $mime_type_quoted = [];
                             foreach ($single_action->getSupportedMimeTypes() as $mime_type) {
-                                $mime_type_quoted[] = str_replace('*', '.*', preg_quote($mime_type, '/'));
+                                $mime_type_quoted[] = str_replace('*', '.*', preg_quote((string) $mime_type, '/'));
                             }
 
                             $regex_storage[$key] = $regex = implode('|', $mime_type_quoted);
@@ -310,8 +325,11 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
         }
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         return $this->data_provider->getTotal();
     }
 }

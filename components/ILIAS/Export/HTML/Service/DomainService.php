@@ -41,8 +41,7 @@ class DomainService
     public function collector(
         int $obj_id,
         string $type = ""
-    ) : ExportCollector
-    {
+    ): ExportCollector {
         return new ExportCollector(
             $this->data,
             $this->repo->exportFile(),
@@ -52,8 +51,7 @@ class DomainService
     }
 
     public function fileManager(
-    ) : ExportFileManager
-    {
+    ): ExportFileManager {
         return self::$instance["file_manager"] ??= new ExportFileManager(
             $this->data,
             $this->repo->exportFile()

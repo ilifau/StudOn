@@ -122,8 +122,6 @@ class Util
      */
     public function exportCOPageFiles(int $style_sheet_id = 0, string $obj_type = ""): void
     {
-        \ilMathJax::getInstance()->init(\ilMathJax::PURPOSE_EXPORT);
-
         // init co page html exporter
         $this->co_page_html_export->setContentStyleId($style_sheet_id);
         if (is_null($this->export_collector)) {
@@ -163,6 +161,23 @@ class Util
         $js = $global_screen->layout()->meta()->getJs();
         foreach ($js->getItemsInOrderOfDelivery() as $item) {
             $this->exportResourceFile($target_dir, $item->getContent());
+        }
+    }
+
+    public function resetGlobalScreen(): void
+    {
+        // we reset to get rid of collected onload code
+        // however we accumulate js and css files, since the
+        // ui framework renderer do not register their resources each time
+        // the renderer is being called.
+        $css = $this->global_screen->layout()->meta()->getCss();
+        $js = $this->global_screen->layout()->meta()->getJs();
+        $this->global_screen->layout()->meta()->reset();
+        foreach ($css->getItemsInOrderOfDelivery() as $item) {
+            $this->global_screen->layout()->meta()->addCss($item->getContent());
+        }
+        foreach ($js->getItemsInOrderOfDelivery() as $item) {
+            $this->global_screen->layout()->meta()->addJs($item->getContent());
         }
     }
 

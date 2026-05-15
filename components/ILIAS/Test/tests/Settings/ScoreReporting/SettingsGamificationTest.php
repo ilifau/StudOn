@@ -25,16 +25,14 @@ class SettingsGamificationTest extends ilTestBaseTestCase
 {
     public function testConstruct(): void
     {
-        $gamificationTest = new SettingsGamification(0);
+        $gamificationTest = new SettingsGamification();
         $this->assertInstanceOf(SettingsGamification::class, $gamificationTest);
     }
 
-    /**
-     * @dataProvider getAndWithHighscoreEnabledDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithHighscoreEnabledDataProvider')]
     public function testGetAndWithHighscoreEnabled(bool $IO): void
     {
-        $gamificationTest = new SettingsGamification(0);
+        $gamificationTest = new SettingsGamification();
         $gamificationTest = $gamificationTest->withHighscoreEnabled($IO);
         $this->assertEquals($IO, $gamificationTest->getHighscoreEnabled());
     }
@@ -47,12 +45,10 @@ class SettingsGamificationTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithHighscoreOwnTableDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithHighscoreOwnTableDataProvider')]
     public function testGetAndWithHighscoreOwnTable(bool $IO): void
     {
-        $gamificationTest = new SettingsGamification(0);
+        $gamificationTest = new SettingsGamification();
         $gamificationTest = $gamificationTest->withHighscoreOwnTable($IO);
         $this->assertEquals($IO, $gamificationTest->getHighscoreOwnTable());
     }
@@ -65,12 +61,10 @@ class SettingsGamificationTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithHighscoreTopTableDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithHighscoreTopTableDataProvider')]
     public function testGetAndWithHighscoreTopTable(bool $IO): void
     {
-        $gamificationTest = new SettingsGamification(0);
+        $gamificationTest = new SettingsGamification();
         $gamificationTest = $gamificationTest->withHighscoreTopTable($IO);
         $this->assertEquals($IO, $gamificationTest->getHighscoreTopTable());
     }
@@ -83,12 +77,10 @@ class SettingsGamificationTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithHighscoreTopNumDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithHighscoreTopNumDataProvider')]
     public function testGetAndWithHighscoreTopNum(int $IO): void
     {
-        $gamificationTest = new SettingsGamification(0);
+        $gamificationTest = new SettingsGamification();
         $gamificationTest = $gamificationTest->withHighscoreTopNum($IO);
         $this->assertEquals($IO, $gamificationTest->getHighscoreTopNum());
     }
@@ -102,12 +94,10 @@ class SettingsGamificationTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithHighscoreAnonDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithHighscoreAnonDataProvider')]
     public function testGetAndWithHighscoreAnon(bool $IO): void
     {
-        $gamificationTest = new SettingsGamification(0);
+        $gamificationTest = new SettingsGamification();
         $gamificationTest = $gamificationTest->withHighscoreAnon($IO);
         $this->assertEquals($IO, $gamificationTest->getHighscoreAnon());
     }
@@ -120,12 +110,10 @@ class SettingsGamificationTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithHighscoreAchievedTSDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithHighscoreAchievedTSDataProvider')]
     public function testGetAndWithHighscoreAchievedTS(bool $IO): void
     {
-        $gamificationTest = new SettingsGamification(0);
+        $gamificationTest = new SettingsGamification();
         $gamificationTest = $gamificationTest->withHighscoreAchievedTS($IO);
         $this->assertEquals($IO, $gamificationTest->getHighscoreAchievedTS());
     }
@@ -138,12 +126,10 @@ class SettingsGamificationTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithHighscoreScoreDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithHighscoreScoreDataProvider')]
     public function testGetAndWithHighscoreScore(bool $IO): void
     {
-        $gamificationTest = new SettingsGamification(0);
+        $gamificationTest = new SettingsGamification();
         $gamificationTest = $gamificationTest->withHighscoreScore($IO);
         $this->assertEquals($IO, $gamificationTest->getHighscoreScore());
     }
@@ -156,12 +142,10 @@ class SettingsGamificationTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithHighscorePercentageDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithHighscorePercentageDataProvider')]
     public function testGetAndWithHighscorePercentage(bool $IO): void
     {
-        $gamificationTest = new SettingsGamification(0);
+        $gamificationTest = new SettingsGamification();
         $gamificationTest = $gamificationTest->withHighscorePercentage($IO);
         $this->assertEquals($IO, $gamificationTest->getHighscorePercentage());
     }
@@ -174,30 +158,10 @@ class SettingsGamificationTest extends ilTestBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getAndWithHighscoreHintsDataProvider
-     */
-    public function testGetAndWithHighscoreHints(bool $IO): void
-    {
-        $gamificationTest = new SettingsGamification(0);
-        $gamificationTest = $gamificationTest->withHighscoreHints($IO);
-        $this->assertEquals($IO, $gamificationTest->getHighscoreHints());
-    }
-
-    public static function getAndWithHighscoreHintsDataProvider(): array
-    {
-        return [
-            [true],
-            [false]
-        ];
-    }
-
-    /**
-     * @dataProvider getAndWithHighscoreWTimeDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAndWithHighscoreWTimeDataProvider')]
     public function testGetAndWithHighscoreWTime(bool $IO): void
     {
-        $gamificationTest = new SettingsGamification(0);
+        $gamificationTest = new SettingsGamification();
         $gamificationTest = $gamificationTest->withHighscoreWTime($IO);
         $this->assertEquals($IO, $gamificationTest->getHighscoreWTime());
     }

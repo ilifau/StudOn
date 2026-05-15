@@ -20,18 +20,19 @@ declare(strict_types=1);
 
 namespace Filesystem\tests;
 
+use ILIAS\DI\Container;
 use PHPUnit\Framework\TestCase;
 use ilFileData;
 
 class ilServicesFileSystemTest extends TestCase
 {
-    private ?\ILIAS\DI\Container $dic_backup;
+    private ?Container $dic_backup = null;
 
     public function testTrailingSlashes(): void
     {
         $file_data = new ilFileData();
-        $this->assertEquals('/var/www/ilias', $file_data->deleteTrailingSlash('/var/www/ilias/'));
-        $this->assertEquals('\\var\\www\\ilias', $file_data->deleteTrailingSlash('\\var\\www\\ilias\\'));
+        $this->assertSame('/var/www/ilias', $file_data->deleteTrailingSlash('/var/www/ilias/'));
+        $this->assertSame('\\var\\www\\ilias', $file_data->deleteTrailingSlash('\\var\\www\\ilias\\'));
     }
 
     public function testBaseDirectory(): void

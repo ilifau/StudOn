@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,10 +16,13 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Containter\Content;
 
 use ILIAS\Container\InternalDomainService;
 use ILIAS\Container\InternalGUIService;
+use ILIAS\UI\Component\Card\RepositoryObject;
 
 /**
  * @todo currently too fat for a renderer, more a GUI class
@@ -58,10 +59,6 @@ class ItemRenderer
         $this->container = $container;              // id, refid, other stuff
     }
 
-    /**
-     * Render an item
-     * @return \ILIAS\UI\Component\Card\RepositoryObject|string|null
-     */
     public function renderItem(
         array $a_item_data,
         int $a_position = 0,
@@ -71,7 +68,7 @@ class ItemRenderer
         int $checkbox = self::CHECKBOX_NONE,
         bool $item_ordering = false,
         int $details_level = \ilObjectListGUI::DETAILS_ALL
-    ) {
+    ): RepositoryObject|string|null {
         $ilSetting = $this->domain->settings();
         $ilAccess = $this->domain->access();
         $ilCtrl = $this->gui->ctrl();
@@ -241,7 +238,7 @@ class ItemRenderer
         return $html;
     }
 
-    public function setItemModifierClosure(\Closure $f) : void
+    public function setItemModifierClosure(\Closure $f): void
     {
         $this->item_modifier_closure = $f;
     }
@@ -251,7 +248,7 @@ class ItemRenderer
         int $a_position = 0,
         bool $a_force_icon = false,
         string $a_pos_prefix = ""
-    ): ?\ILIAS\UI\Component\Card\RepositoryObject {
+    ): ?RepositoryObject {
         $item_list_gui = $this->getItemGUI($a_item_data);
         $item_list_gui->setAjaxHash(\ilCommonActionDispatcherGUI::buildAjaxHash(
             \ilCommonActionDispatcherGUI::TYPE_REPOSITORY,

@@ -16,16 +16,13 @@
  *
  *********************************************************************/
 
-
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use ILIAS\UI\Component\Input\Field\Section;
 use ILIAS\FileUpload\Handler\AbstractCtrlAwareUploadHandler;
 
-/**
- * @backupGlobals disabled
- */
+#[\PHPUnit\Framework\Attributes\BackupGlobals(false)]
 class ilIndividualAssessmentUserGradingTest extends TestCase
 {
     public function test_create_instance()
@@ -129,6 +126,7 @@ class ilIndividualAssessmentUserGradingTest extends TestCase
         $df = new ILIAS\Data\Factory();
         $refinery = new ILIAS\Refinery\Factory($df, $lng);
         $f = new ILIAS\UI\Implementation\Component\Input\Field\Factory(
+            $this->createMock(\ILIAS\UI\Implementation\Component\Input\Field\Node\Factory::class),
             $this->createMock(\ILIAS\UI\Implementation\Component\Input\UploadLimitResolver::class),
             new ILIAS\UI\Implementation\Component\SignalGenerator(),
             $df,

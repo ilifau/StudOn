@@ -48,7 +48,7 @@ export default class Dropdown {
 
     this.#list = this.#element.querySelector('.dropdown-menu');
     if (this.#list === null) {
-      throw new Error('Dropdown: Expected a dropdown element.', this.#element);
+      throw new Error('Dropdown: Expected exactly a dropdown element.', this.#element);
     }
 
     this.#button.addEventListener('click', this.#showOnClick);

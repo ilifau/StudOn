@@ -16,6 +16,7 @@
  *
  *********************************************************************/
 
+use ILIAS\components\OrgUnit\ARHelper\DIC;
 use ILIAS\UI\Component\Input\Field\MultiSelect;
 use ILIAS\UI\Component\Input\Field\Select;
 use ILIAS\UI\Component\Input\Field\Text;
@@ -27,18 +28,14 @@ use ILIAS\UI\Component\Input\Field\Text;
  */
 class ilBiblFieldFilterPresentationGUI
 {
-    use \ILIAS\components\OrgUnit\ARHelper\DIC;
-    protected ilBiblFactoryFacadeInterface $facade;
-    protected ilBiblFieldFilterInterface $filter;
+    use DIC;
 
 
     /**
      * ilBiblFieldFilterPresentationGUI constructor.
      */
-    public function __construct(ilBiblFieldFilterInterface $filter, ilBiblFactoryFacadeInterface $facade)
+    public function __construct(protected ilBiblFieldFilterInterface $filter, protected ilBiblFactoryFacadeInterface $facade)
     {
-        $this->facade = $facade;
-        $this->filter = $filter;
         $this->lng()->loadLanguageModule('bibl');
     }
 

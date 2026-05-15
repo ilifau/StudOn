@@ -43,8 +43,8 @@ class IconDatabaseRepository extends IconAbstractRepository
     ) {
         global $DIC;
         parent::__construct();
-        $this->db = $this->db ?? $DIC->database();
-        $this->irss = $this->irss ?? $DIC->resourceStorage();
+        $this->db ??= $DIC->database();
+        $this->irss ??= $DIC->resourceStorage();
     }
 
     public function createIcon(string $a_rid, bool $a_active, bool $a_is_default_icon, array $a_suffixes): Icon
@@ -78,8 +78,8 @@ class IconDatabaseRepository extends IconAbstractRepository
         $rid_filter = null;
         // due to the database schema, the suffixes filter has to be handled separately
         if ($filter !== [] && ($filter['suffixes'] ?? null) !== null && $filter['suffixes'] !== '') {
-            $suffixes = explode(',', $filter['suffixes']);
-            $suffixes = array_map(fn($suffix) => $this->db->quote(trim($suffix), 'text'), $suffixes);
+            $suffixes = explode(',', (string) $filter['suffixes']);
+            $suffixes = array_map(fn($suffix): string => $this->db->quote(trim((string) $suffix), 'text'), $suffixes);
             $q = "SELECT rid FROM " . self::SUFFIX_TABLE_NAME . " WHERE suffix IN (" . implode(',', $suffixes) . ")";
             $rid_filter = $this->db->fetchAll($this->db->query($q));
             $rid_filter = array_map(fn($row) => $row['rid'], $rid_filter);
@@ -100,7 +100,7 @@ class IconDatabaseRepository extends IconAbstractRepository
             }
 
             if ($rid_filter) {
-                $rid_filter = array_map(fn($rid) => $this->db->quote(trim($rid), 'text'), $rid_filter);
+                $rid_filter = array_map(fn($rid): string => $this->db->quote(trim((string) $rid), 'text'), $rid_filter);
                 $query .= " AND i.rid IN (" . implode(',', $rid_filter) . ")";
             }
 
@@ -127,7 +127,7 @@ class IconDatabaseRepository extends IconAbstractRepository
     }
 
     /**
-     * @return array<int|string, \ILIAS\File\Icon\CustomIcon>
+     * @return array<int|string, CustomIcon>
      */
     public function getIcons(): array
     {

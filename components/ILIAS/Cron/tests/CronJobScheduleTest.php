@@ -19,7 +19,10 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class CronJobScheduleTest extends TestCase
 {
@@ -28,11 +31,11 @@ class CronJobScheduleTest extends TestCase
 
     private static function getJob(
         bool $has_flexible_schedule,
-        CronJobScheduleType $default_schedule_type,
+        JobScheduleType $default_schedule_type,
         ?int $default_schedule_value,
-        CronJobScheduleType $schedule_type,
+        JobScheduleType $schedule_type,
         ?int $schedule_value
-    ): ilCronJob {
+    ): CronJob {
         $job_instance = new class (
             $has_flexible_schedule,
             $default_schedule_type,
@@ -40,12 +43,12 @@ class CronJobScheduleTest extends TestCase
             $schedule_type,
             $schedule_value
         ) extends
-            ilCronJob {
+            CronJob {
             public function __construct(
                 private readonly bool $has_flexible_schedule,
-                private readonly CronJobScheduleType $default_schedule_type,
+                private readonly JobScheduleType $default_schedule_type,
                 private readonly ?int $default_schedule_value,
-                CronJobScheduleType $schedule_type,
+                JobScheduleType $schedule_type,
                 ?int $schedule_value
             ) {
                 $this->schedule_type = $schedule_type;
@@ -77,7 +80,7 @@ class CronJobScheduleTest extends TestCase
                 return $this->has_flexible_schedule;
             }
 
-            public function getDefaultScheduleType(): CronJobScheduleType
+            public function getDefaultScheduleType(): JobScheduleType
             {
                 return $this->default_schedule_type;
             }
@@ -87,21 +90,19 @@ class CronJobScheduleTest extends TestCase
                 return $this->default_schedule_value;
             }
 
-            public function run(): ilCronJobResult
+            public function run(): JobResult
             {
-                return new ilCronJobResult();
+                return new JobResult();
             }
         };
 
-        $job_instance->setDateTimeProvider(function (): DateTimeImmutable {
-            return self::$now;
-        });
+        $job_instance->setDateTimeProvider(fn(): DateTimeImmutable => self::$now);
 
         return $job_instance;
     }
 
     /**
-     * @return array<string, array{0: ilCronJob, 1: bool, 2: ?callable(): DateTimeImmutable, 3: CronJobScheduleType, 4: ?int, 5: bool}>
+     * @return array<string, array{0: CronJob, 1: bool, 2: ?callable(): DateTimeImmutable, 3: JobScheduleType, 4: ?int, 5: bool}>
      */
     public static function jobProvider(): array
     {
@@ -109,37 +110,37 @@ class CronJobScheduleTest extends TestCase
             'Manual Run is Always Due' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                    JobScheduleType::DAILY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                    JobScheduleType::DAILY,
                     null
                 ),
                 true,
                 null,
-                CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                JobScheduleType::DAILY,
                 null,
                 true
             ],
             'Job Without Any Run is Always Due' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                    JobScheduleType::DAILY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                    JobScheduleType::DAILY,
                     null
                 ),
                 false,
                 null,
-                CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                JobScheduleType::DAILY,
                 null,
                 true
             ],
             'Daily Schedule / Did not run Today' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                    JobScheduleType::DAILY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                    JobScheduleType::DAILY,
                     null
                 ),
                 false,
@@ -148,16 +149,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('-1 day');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                JobScheduleType::DAILY,
                 null,
                 true
             ],
             'Daily Schedule / Did run Today' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                    JobScheduleType::DAILY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                    JobScheduleType::DAILY,
                     null
                 ),
                 false,
@@ -166,16 +167,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now;
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+                JobScheduleType::DAILY,
                 null,
                 false
             ],
             'Weekly Schedule / Did not run this Week' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                    JobScheduleType::WEEKLY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                    JobScheduleType::WEEKLY,
                     null
                 ),
                 false,
@@ -184,16 +185,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('-1 week');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null,
                 true
             ],
             'Weekly Schedule / Did run this Week' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                    JobScheduleType::WEEKLY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                    JobScheduleType::WEEKLY,
                     null
                 ),
                 false,
@@ -202,16 +203,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('monday this week');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null,
                 false
             ],
             'Monthly Schedule / Did not run this Month' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_MONTHLY,
+                    JobScheduleType::MONTHLY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_MONTHLY,
+                    JobScheduleType::MONTHLY,
                     null
                 ),
                 false,
@@ -220,16 +221,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('last day of last month');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_MONTHLY,
+                JobScheduleType::MONTHLY,
                 null,
                 true
             ],
             'Monthly Schedule / Did run this Month' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_MONTHLY,
+                    JobScheduleType::MONTHLY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_MONTHLY,
+                    JobScheduleType::MONTHLY,
                     null
                 ),
                 false,
@@ -238,16 +239,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('first day of this month');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_MONTHLY,
+                JobScheduleType::MONTHLY,
                 null,
                 false
             ],
             'Yearly Schedule / Did not run this Year' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_YEARLY,
+                    JobScheduleType::YEARLY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_YEARLY,
+                    JobScheduleType::YEARLY,
                     null
                 ),
                 false,
@@ -256,16 +257,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('-1 year');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_YEARLY,
+                JobScheduleType::YEARLY,
                 null,
                 true
             ],
             'Yearly Schedule / Did run this Year' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_YEARLY,
+                    JobScheduleType::YEARLY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_YEARLY,
+                    JobScheduleType::YEARLY,
                     null
                 ),
                 false,
@@ -274,16 +275,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('first day of January this year');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_YEARLY,
+                JobScheduleType::YEARLY,
                 null,
                 false
             ],
             'Quarterly Schedule / Did not run this Quarter' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_QUARTERLY,
+                    JobScheduleType::QUARTERLY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_QUARTERLY,
+                    JobScheduleType::QUARTERLY,
                     null
                 ),
                 false,
@@ -295,16 +296,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$this_quarter_start->modify('-1 seconds');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_QUARTERLY,
+                JobScheduleType::QUARTERLY,
                 null,
                 true
             ],
             'Quarterly Schedule / Did run this Quarter' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_QUARTERLY,
+                    JobScheduleType::QUARTERLY,
                     null,
-                    CronJobScheduleType::SCHEDULE_TYPE_QUARTERLY,
+                    JobScheduleType::QUARTERLY,
                     null
                 ),
                 false,
@@ -316,16 +317,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$this_quarter_start->modify('+30 seconds');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_QUARTERLY,
+                JobScheduleType::QUARTERLY,
                 null,
                 false
             ],
             'Minutely Schedule / Did not run this Minute' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES,
+                    JobScheduleType::IN_MINUTES,
                     1,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES,
+                    JobScheduleType::IN_MINUTES,
                     1
                 ),
                 false,
@@ -334,16 +335,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('-1 minute');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES,
+                JobScheduleType::IN_MINUTES,
                 1,
                 true
             ],
             'Minutely Schedule / Did run this Minute' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES,
+                    JobScheduleType::IN_MINUTES,
                     1,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES,
+                    JobScheduleType::IN_MINUTES,
                     1
                 ),
                 false,
@@ -352,16 +353,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('-30 seconds');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES,
+                JobScheduleType::IN_MINUTES,
                 1,
                 false
             ],
             'Hourly Schedule / Did not run this Hour' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS,
+                    JobScheduleType::IN_HOURS,
                     7,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS,
+                    JobScheduleType::IN_HOURS,
                     7
                 ),
                 false,
@@ -370,16 +371,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('-7 hours');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS,
+                JobScheduleType::IN_HOURS,
                 7,
                 true
             ],
             'Hourly Schedule / Did run this Hour' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS,
+                    JobScheduleType::IN_HOURS,
                     7,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS,
+                    JobScheduleType::IN_HOURS,
                     7
                 ),
                 false,
@@ -388,16 +389,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('-7 hours +30 seconds');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS,
+                JobScheduleType::IN_HOURS,
                 7,
                 false
             ],
             'Every 5 Days Schedule / Did not run for 5 Days' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS,
+                    JobScheduleType::IN_DAYS,
                     5,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS,
+                    JobScheduleType::IN_DAYS,
                     5
                 ),
                 false,
@@ -406,16 +407,16 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('-5 days');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS,
+                JobScheduleType::IN_DAYS,
                 5,
                 true
             ],
             'Every 5 Days Schedule / Did run withing the last 5 Days' => [
                 self::getJob(
                     true,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS,
+                    JobScheduleType::IN_DAYS,
                     5,
-                    CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS,
+                    JobScheduleType::IN_DAYS,
                     5
                 ),
                 false,
@@ -424,7 +425,7 @@ class CronJobScheduleTest extends TestCase
 
                     return self::$now->modify('-4 days');
                 },
-                CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS,
+                JobScheduleType::IN_DAYS,
                 5,
                 false
             ]
@@ -432,14 +433,14 @@ class CronJobScheduleTest extends TestCase
     }
 
     /**
-     * @dataProvider jobProvider
      * @param null|callable(): DateTimeImmutable $last_run_datetime_callable
      */
+    #[DataProvider('jobProvider')]
     public function testSchedule(
-        ilCronJob $job_instance,
+        CronJob $job_instance,
         bool $is_manual_run,
         ?callable $last_run_datetime_callable,
-        CronJobScheduleType $schedule_type,
+        JobScheduleType $schedule_type,
         ?int $schedule_value,
         bool $should_be_due
     ): void {
@@ -456,9 +457,9 @@ class CronJobScheduleTest extends TestCase
         yield 'Different Week' => [
             self::getJob(
                 true,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null
             ),
             function (): DateTimeImmutable {
@@ -474,9 +475,9 @@ class CronJobScheduleTest extends TestCase
         yield 'Same Week and Year, but different Month: December (now) and January (Last run)' => [
             self::getJob(
                 true,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null
             ),
             function (): DateTimeImmutable {
@@ -494,9 +495,9 @@ class CronJobScheduleTest extends TestCase
         yield 'Same Week and Year and same Month: January' => [
             self::getJob(
                 true,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null
             ),
             function (): DateTimeImmutable {
@@ -514,9 +515,9 @@ class CronJobScheduleTest extends TestCase
         yield 'Same Week (52nd), but Year Difference > 1' => [
             self::getJob(
                 true,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null
             ),
             function (): DateTimeImmutable {
@@ -534,9 +535,9 @@ class CronJobScheduleTest extends TestCase
         yield 'Same Week (52nd) in different Years, but Turn of the Year' => [
             self::getJob(
                 true,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null
             ),
             function (): DateTimeImmutable {
@@ -554,9 +555,9 @@ class CronJobScheduleTest extends TestCase
         yield 'Same Week (52nd) in different Years, but not Turn of the Year' => [
             self::getJob(
                 true,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null,
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY,
+                JobScheduleType::WEEKLY,
                 null
             ),
             function (): DateTimeImmutable {
@@ -573,11 +574,11 @@ class CronJobScheduleTest extends TestCase
     }
 
     /**
-     * @dataProvider weeklyScheduleProvider
      * @param callable(): DateTimeImmutable $last_run_datetime_provider
      */
+    #[DataProvider('weeklyScheduleProvider')]
     public function testWeeklySchedules(
-        ilCronJob $job_instance,
+        CronJob $job_instance,
         callable $last_run_datetime_provider,
         bool $should_be_due
     ): void {

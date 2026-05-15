@@ -40,7 +40,6 @@ class SurveyQuestion
     public bool $obligatory;
     public ilLanguage $lng;
     public int $orientation;    // 0 = vertical, 1 = horizontal
-    /** @var ilSurveyMaterial[] */
     public array $material;
     public bool $complete;
     protected array $cumulated;
@@ -68,11 +67,8 @@ class SurveyQuestion
         $this->title = $title;
         $this->description = $description;
         $this->questiontext = $questiontext;
-        $this->author = $author;
+        $this->author = $author ?: $ilUser->getFullname();
         $this->cumulated = array();
-        if (!$this->author) {
-            $this->author = $ilUser->fullname;
-        }
         $this->owner = $owner;
         if ($this->owner === -1) {
             $this->owner = $ilUser->getId();
@@ -219,12 +215,7 @@ class SurveyQuestion
 
     public function setAuthor(string $author = ""): void
     {
-        $ilUser = $this->user;
-
-        if (!$author) {
-            $author = $ilUser->fullname;
-        }
-        $this->author = $author;
+        $this->author = $author ?: $this->user->getFullname();
     }
 
     public function setQuestiontext(string $questiontext = ""): void
@@ -969,7 +960,7 @@ class SurveyQuestion
 
     public static function _getInternalLinkHref(
         string $target = "",
-        int $a_parent_ref_id = null
+        ?int $a_parent_ref_id = null
     ): string {
         $linktypes = array(
             "lm" => "LearningModule",
@@ -1115,7 +1106,7 @@ class SurveyQuestion
 
     public static function _instanciateQuestionEvaluation(
         int $question_id,
-        array $a_finished_ids = null
+        ?array $a_finished_ids = null
     ): ?SurveyQuestionEvaluation {
         $question = self::_instanciateQuestion($question_id);
         if (is_null($a_finished_ids)) {

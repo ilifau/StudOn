@@ -16,7 +16,9 @@
  *
  *********************************************************************/
 
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\CronJob;
 
 /**
  * Cron for survey notifications
@@ -24,7 +26,7 @@ use ILIAS\Cron\Schedule\CronJobScheduleType;
  *
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
  */
-class ilSurveyCronNotification extends ilCronJob
+class ilSurveyCronNotification extends CronJob
 {
     protected const MAX_MESSAGE_LENGTH = 397;
 
@@ -62,9 +64,9 @@ class ilSurveyCronNotification extends ilCronJob
         return $lng->txt("survey_reminder_cron_info");
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
+        return JobScheduleType::DAILY;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -82,14 +84,14 @@ class ilSurveyCronNotification extends ilCronJob
         return false;
     }
 
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         global $tree;
 
         $log = ilLoggerFactory::getLogger("svy");
         $log->debug("start");
 
-        $status = ilCronJobResult::STATUS_NO_ACTION;
+        $status = JobResult::STATUS_NO_ACTION;
         $message = array();
 
         $root = $tree->getNodeData(ROOT_FOLDER_ID);
@@ -98,11 +100,11 @@ class ilSurveyCronNotification extends ilCronJob
             $num = $svy->checkReminder();
             if (!is_null($num)) {
                 $message[] = $svy_ref_id . "(" . $num . ")";
-                $status = ilCronJobResult::STATUS_OK;
+                $status = JobResult::STATUS_OK;
             }
         }
 
-        $result = new ilCronJobResult();
+        $result = new JobResult();
         $result->setStatus($status);
 
         if (count($message)) {

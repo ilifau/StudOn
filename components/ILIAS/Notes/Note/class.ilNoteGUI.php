@@ -19,12 +19,14 @@
 use ILIAS\Notes\NotesManager;
 use ILIAS\Notes\StandardGUIRequest;
 use ILIAS\Notes\Note;
+use ILIAS\Data\ReferenceId;
 
 /**
  * @ilCtrl_Calls ilNoteGUI: ilCommentGUI
  */
 class ilNoteGUI
 {
+    protected \ILIAS\Notes\InternalDomainService $domain;
     /**
      * @var Note[]
      */
@@ -52,7 +54,7 @@ class ilNoteGUI
     /**
      * @var int|int[]
      */
-    protected $rep_obj_id;
+    protected array|int $rep_obj_id;
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
     protected ilObjUser $user;
@@ -97,7 +99,7 @@ class ilNoteGUI
      * @throws ilCtrlException
      */
     public function __construct(
-        $a_rep_obj_id = 0,
+        array|int $a_rep_obj_id = 0,
         int $a_obj_id = 0,
         string $a_obj_type = "",
         bool $a_include_subobjects = false,
@@ -125,6 +127,7 @@ class ilNoteGUI
             ->gui()
             ->standardRequest();
         $this->data = $ns->data();
+        $this->domain = $ns->domain();
         $this->gui = $ns->gui();
         $this->notes_access = $ns->domain()->noteAccess();
 
@@ -282,11 +285,6 @@ class ilNoteGUI
 
     public function getListHTML(bool $a_init_form = true): string
     {
-        $ilUser = $this->user;
-        $lng = $this->lng;
-        $ilCtrl = $this->ctrl;
-        $ilSetting = $this->settings;
-
         $content = $this->getNoteListHTML($a_init_form);
         return $this->renderContent($content);
     }
@@ -833,7 +831,7 @@ class ilNoteGUI
     protected function getNoteForm(
         string $mode,
         int $type,
-        Note $note = null
+        ?Note $note = null
     ): \ILIAS\Repository\Form\FormAdapterGUI {
         global $DIC;
 
@@ -853,7 +851,7 @@ class ilNoteGUI
             $this->ctrl->setParameter($this, "note_id", $this->requested_note_id);
         }
         $action = $this->ctrl->getFormActionByClass(static::class, $cmd, "");
-        $form = $this->gui->form(static::class, $action)
+        $form = $this->gui->form([static::class], $action)
             ->section("props", $this->lng->txt($label_key))
             ->textarea("note", $this->lng->txt("note_text"), "", $value);
         return $form;
@@ -918,7 +916,11 @@ class ilNoteGUI
                     }
                     $this->item_list_gui[$type]->initItem($vis_ref_id, $context->getObjId(), $title, $a_obj_type);
                     $link = $this->item_list_gui[$type]->getCommandLink("infoScreen");
-                    $link = $this->item_list_gui[$type]->appendRepositoryFrameParameter($link) . "#note_" . $a_note_id;
+                    if ($link === "") {
+                        $link = (string) $this->domain->staticUrl()->builder()->build($type, new ReferenceId($vis_ref_id));
+                    } else {
+                        $link = $this->item_list_gui[$type]->appendRepositoryFrameParameter($link) . "#note_" . $a_note_id;
+                    }
                 } else {
                     $title = ilObject::_lookupTitle($context->getObjId());
                     $link = "goto.php?target=pg_" . $a_obj_id . "_" . $vis_ref_id;
@@ -1177,7 +1179,7 @@ class ilNoteGUI
      */
     public static function getListNotesJSCall(
         string $a_hash,
-        string $a_update_code = null
+        ?string $a_update_code = null
     ): string {
         if ($a_update_code === null) {
             $a_update_code = "null";
@@ -1193,7 +1195,7 @@ class ilNoteGUI
      */
     public static function getListCommentsJSCall(
         string $a_hash,
-        string $a_update_code = null
+        ?string $a_update_code = null
     ): string {
         if ($a_update_code === null) {
             $a_update_code = "null";
@@ -1362,13 +1364,15 @@ class ilNoteGUI
         $query_url = $ctrl->getLinkTarget($this, "getListHtml", "", true, false);
         $comps = array();
         $c = $f->counter()->status((int) $cnt);
-        $comps[] = $f->symbol()->glyph()->comment()->withCounter($c)->withAdditionalOnLoadCode(function ($id) use ($hash, $query_url) {
-            $code = "$('#$id').attr('data-note-key','$hash');\n";
-            $code .= "$('#$id').attr('data-note-ui-type','trigger');\n";
-            $code .= "$('#$id').attr('data-note-query-url','" . $query_url . "');\n";
-            $code .= "$(\"#$id\").click(function(event) { ilNotes.clickTrigger(event)});";
-            return $code;
-        });
+        $comps[] = $f->button()->shy('', '')
+            ->withSymbol($f->symbol()->glyph()->comment()->withCounter($c))
+            ->withAdditionalOnLoadCode(function ($id) use ($hash, $query_url) {
+                $code = "$('#$id').attr('data-note-key','$hash');\n";
+                $code .= "$('#$id').attr('data-note-ui-type','trigger');\n";
+                $code .= "$('#$id').attr('data-note-query-url','" . $query_url . "');\n";
+                $code .= "$(\"#$id\").click(function(event) { ilNotes.clickTrigger(event)});";
+                return $code;
+            });
         if ($this->ctrl->isAsynch()) {
             $html = $r->renderAsync($comps);
         } else {
@@ -1502,13 +1506,15 @@ class ilNoteGUI
         $comps = array();
         if ($cnt > 0) {
             $c = $f->counter()->status((int) $cnt);
-            $comps[] = $f->symbol()->glyph()->comment()->withCounter($c)->withAdditionalOnLoadCode(function ($id) use ($hash, $query_url) {
-                $code = "$('#$id').attr('data-note-key','$hash');\n";
-                $code .= "$('#$id').attr('data-note-ui-type','trigger');\n";
-                $code .= "$('#$id').attr('data-note-query-url','" . $query_url . "');\n";
-                $code .= "$(\"#$id\").click(function(event) { ilNotes.clickTrigger(event)});";
-                return $code;
-            });
+            $comps[] = $f->button()->shy('', '#')
+                ->withSymbol($f->symbol()->glyph()->comment()->withCounter($c))
+                ->withAdditionalOnLoadCode(function ($id) use ($hash, $query_url) {
+                    $code = "$('#$id').attr('data-note-key','$hash');\n";
+                    $code .= "$('#$id').attr('data-note-ui-type','trigger');\n";
+                    $code .= "$('#$id').attr('data-note-query-url','" . $query_url . "');\n";
+                    $code .= "$(\"#$id\").click(function(event) { ilNotes.clickTrigger(event)});";
+                    return $code;
+                });
             $comps[] = $f->divider()->vertical();
             $tpl->setVariable("GLYPH", $r->render($comps));
             $tpl->setVariable("TXT_LATEST", $this->getLatestItemText());

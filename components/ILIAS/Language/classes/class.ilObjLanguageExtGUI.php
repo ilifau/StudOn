@@ -14,8 +14,7 @@
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -42,8 +41,7 @@ class ilObjLanguageExtGUI extends ilObjectGUI
 {
     private const ILIAS_LANGUAGE_MODULE = "components/ILIAS/Language";
     private string $langmode;
-    protected HTTPServices $http;
-    protected Refinery $refinery;
+
     /**
     * Constructor
     *
@@ -61,8 +59,8 @@ class ilObjLanguageExtGUI extends ilObjectGUI
         $ilClientIniFile = $DIC->clientIni();
         $ilCtrl = $DIC->ctrl();
         $lng = $DIC->language();
-        $this->http = $DIC->http();
-        $this->refinery = $DIC->refinery();
+        $this->http = $DIC['http'];
+        $this->refinery = $DIC['refinery'];
 
         // language maintenance strings are defined in administration
         $lng->loadLanguageModule("administration");
@@ -74,11 +72,13 @@ class ilObjLanguageExtGUI extends ilObjectGUI
         // type and id of get the bound object
         $this->type = "lng";
         $obj_id_get = 0;
+
         if ($this->http->wrapper()->query()->has("obj_id")) {
             $obj_id_get = $this->http->wrapper()->query()->retrieve("obj_id", $this->refinery->kindlyTo()->int());
         } elseif ($this->http->wrapper()->query()->has("language_folder_obj_ids")) {
             $obj_id_get = $this->http->wrapper()->query()->retrieve("language_folder_obj_ids", $this->refinery->kindlyTo()->int());
         }
+
         if (!$this->id = $obj_id_get) {
             $this->id = ilObjLanguageAccess::_lookupId($lng->getUserLanguage());
         }
@@ -928,7 +928,7 @@ class ilObjLanguageExtGUI extends ilObjectGUI
     // new entries
     //
 
-    protected function buildMissingEntries(array $a_missing = null): string
+    protected function buildMissingEntries(?array $a_missing = null): string
     {
         global $DIC;
         $ilCtrl = $DIC->ctrl();
@@ -952,7 +952,7 @@ class ilObjLanguageExtGUI extends ilObjectGUI
         return implode("\n", $res);
     }
 
-    public function addNewEntryObject(ilPropertyFormGUI $a_form = null): void
+    public function addNewEntryObject(?ilPropertyFormGUI $a_form = null): void
     {
         global $DIC;
         $tpl = $DIC["tpl"];
@@ -968,7 +968,7 @@ class ilObjLanguageExtGUI extends ilObjectGUI
         $tpl->setContent($a_form->getHTML());
     }
 
-    protected function initAddNewEntryForm(string $a_id = null): ilPropertyFormGUI
+    protected function initAddNewEntryForm(?string $a_id = null): ilPropertyFormGUI
     {
         global $DIC;
         $ilCtrl = $DIC->ctrl();

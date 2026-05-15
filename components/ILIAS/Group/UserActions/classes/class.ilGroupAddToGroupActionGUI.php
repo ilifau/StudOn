@@ -176,11 +176,11 @@ class ilGroupAddToGroupActionGUI
             );
         }
         if ($modal_exists) {
-            echo $this->ui->renderer()->renderAsync($this->ui->factory()->legacy($a_content));
+            echo $this->ui->renderer()->renderAsync($this->ui->factory()->legacy()->content($a_content));
         } else {
             $mtpl = new ilTemplate("tpl.grp_add_to_grp_modal_content.html", true, true, "./components/ILIAS/Group/UserActions");
             $mtpl->setVariable("CONTENT", $a_content);
-            $content = $this->ui->factory()->legacy($mtpl->get());
+            $content = $this->ui->factory()->legacy()->content($mtpl->get());
             $modal = $this->ui->factory()->modal()->roundtrip(
                 $lng->txt("grp_add_user_to_group"),
                 $content

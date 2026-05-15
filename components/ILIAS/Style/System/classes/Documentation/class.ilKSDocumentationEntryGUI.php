@@ -21,9 +21,6 @@ declare(strict_types=1);
 use ILIAS\UI\Implementation\Crawler\Entry as Entry;
 use ILIAS\UI\Implementation\Crawler\Entry\ComponentEntries as Entries;
 use ILIAS\UI\Component\Panel\Report;
-use Phiki\Phiki;
-use Phiki\Grammar\Grammar;
-use Phiki\Theme\Theme;
 
 /**
  * Renders the Overview of one Example in the Administration
@@ -118,10 +115,10 @@ class ilKSDocumentationEntryGUI
                 } catch (\ILIAS\UI\NotImplementedException $e) {
                     $example = "<div class='well'>This component is not yet fully implemented.</div>";
                 }
-                $content_part_1 = $this->f->legacy($example);
+                $content_part_1 = $this->f->legacy()->content($example);
                 $code = str_replace('<?php\n', '', file_get_contents($path));
                 $code_html = "<div class='code-container'><pre><code>" . htmlspecialchars($code) . '</code></pre></div>';
-                $content_part_2 = $this->f->legacy($code_html);
+                $content_part_2 = $this->f->legacy()->content($code_html);
                 $content = [$content_part_1, $content_part_2];
                 $sub_panels[] = $this->f->panel()->sub($title, $content);
             }

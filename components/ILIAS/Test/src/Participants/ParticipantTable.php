@@ -40,6 +40,7 @@ class ParticipantTable implements DataRetrieval
 {
     private const ID = 'pt';
     private ?iterable $records = null;
+    private bool $scoring_enabled = false;
 
     public function __construct(
         private readonly UIFactory $ui_factory,
@@ -55,6 +56,7 @@ class ParticipantTable implements DataRetrieval
         private readonly \ilObjTest $test_object,
         private readonly ParticipantTableActions $table_actions
     ) {
+        $this->scoring_enabled = $this->test_object->getGlobalSettings()->isManualScoringEnabled();
     }
 
     public function execute(URLBuilder $url_builder): ?Modal
@@ -79,8 +81,11 @@ class ParticipantTable implements DataRetrieval
         ];
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         return $this->repository->countParticipants($this->test_object->getTestId(), $filter_data);
     }
 
@@ -89,8 +94,9 @@ class ParticipantTable implements DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         $processing_time = $this->test_object->getProcessingTimeInSeconds();
         $reset_time_on_new_attempt = $this->test_object->getResetProcessingTime();
@@ -101,13 +107,12 @@ class ParticipantTable implements DataRetrieval
         foreach ($this->getViewControlledRecords($filter_data, $range, $order) as $record) {
             $total_duration = $record->getTotalDuration($processing_time);
             $status_of_attempt = $record->getAttemptOverviewInformation()?->getStatusOfAttempt() ?? StatusOfAttempt::NOT_YET_STARTED;
-
             $row = [
                 'name' => $record->getDisplayName($this->lng, $this->test_object->getAnonymity()),
                 'login' => $record->getLogin(),
                 'matriculation' => $record->getMatriculation(),
                 'total_time_on_task' => $record->getAttemptOverviewInformation()?->getHumanReadableTotalTimeOnTask() ?? '',
-                'status_of_attempt' => $this->lng->txt($status_of_attempt->value),
+                'status_of_attempt' => $status_of_attempt->getTranslation($this->lng),
                 'id_of_attempt' => $record->getAttemptOverviewInformation()?->getExamId(),
                 'ip_range' => $record->getClientIpTo() !== '' || $record->getClientIpFrom() !== ''
                     ? sprintf('%s - %s', $record->getClientIpFrom(), $record->getClientIpTo())
@@ -117,6 +122,10 @@ class ParticipantTable implements DataRetrieval
                 'total_duration' => $total_duration > 0 ? sprintf('%d min', $total_duration / 60) : '',
                 'remaining_duration' => sprintf('%d min', $record->getRemainingDuration($processing_time, $reset_time_on_new_attempt) / 60),
             ];
+
+            if ($this->scoring_enabled) {
+                $row['scoring_finalized'] = $record->isScoringFinalized();
+            }
 
             $first_access = $record->getAttemptOverviewInformation()?->getStartedDate();
             if ($first_access !== null) {
@@ -183,7 +192,10 @@ class ParticipantTable implements DataRetrieval
                 $value === $record->getAttemptOverviewInformation()?->getStatusOfAttempt()->value,
             'test_passed' => fn(string $value, Participant $record) => $value === 'true'
                 ? $record->getAttemptOverviewInformation()?->hasPassingMark() === true
-                : $record->getAttemptOverviewInformation()?->hasPassingMark() !== true
+                : $record->getAttemptOverviewInformation()?->hasPassingMark() !== true,
+            'scoring_finalized' => fn(string $value, Participant $record) => $value === 'true'
+                ? $record->isScoringFinalized() == true
+                : $record->isScoringFinalized() === false
         ];
     }
 
@@ -207,11 +219,13 @@ class ParticipantTable implements DataRetrieval
             ) => $a->getRemainingDuration($processing_time, $reset_time_on_new_attempt)
                 <=> $b->getRemainingDuration($processing_time, $reset_time_on_new_attempt),
             'last_access' => static fn(Participant $a, Participant $b) => $a->getLastAccess() <=> $b->getLastAccess(),
-            'status_of_attempt' => static fn(
+            'status_of_attempt' => fn(
                 Participant $a,
                 Participant $b
-            ) => $a->getAttemptOverviewInformation()?->getStatusOfAttempt()
-                <=> $b->getAttemptOverviewInformation()?->getStatusOfAttempt(),
+            ) => strcmp(
+                $a->getAttemptOverviewInformation()?->getStatusOfAttempt()?->getTranslation($this->lng) ?? StatusOfAttempt::NOT_YET_STARTED->getTranslation($this->lng),
+                $b->getAttemptOverviewInformation()?->getStatusOfAttempt()?->getTranslation($this->lng) ?? StatusOfAttempt::NOT_YET_STARTED->getTranslation($this->lng)
+            ),
             'reached_points' => static fn(
                 Participant $a,
                 Participant $b
@@ -319,6 +333,13 @@ class ParticipantTable implements DataRetrieval
             true
         ];
 
+        if ($this->scoring_enabled) {
+            $filters['scoring_finalized'] = [
+                $field_factory->select($this->lng->txt('finalized_evaluation'), $yes_no_all_options),
+                true
+            ];
+        }
+
         return $filters;
     }
 
@@ -327,9 +348,9 @@ class ParticipantTable implements DataRetrieval
         return $this->ui_factory
             ->table()
             ->data(
+                $this,
                 $this->lng->txt('list_of_participants'),
                 $this->getColumns(),
-                $this
             )
             ->withId(self::ID)
             ->withRequest($request)
@@ -389,10 +410,12 @@ class ParticipantTable implements DataRetrieval
 
         if ($this->test_access->checkParticipantsResultsAccess()) {
             $columns['reached_points'] = $column_factory->text($this->lng->txt('tst_reached_points'))
-                ->withIsSortable(true);
+                ->withIsSortable(true)
+                ->withOrderingLabels(...$column_factory->number($this->lng->txt('tst_reached_points'))->getOrderingLabels());
             $columns['nr_of_answered_questions'] = $column_factory->text($this->lng->txt('tst_answered_questions'))
                 ->withIsOptional(true, false)
-                ->withIsSortable(true);
+                ->withIsSortable(true)
+                ->withOrderingLabels(...$column_factory->number($this->lng->txt('tst_answered_questions'))->getOrderingLabels());
             $columns['percent_of_available_points'] = $column_factory->number($this->lng->txt('tst_percent_solved'))
                 ->withUnit('%')
                 ->withIsOptional(true, false)
@@ -411,12 +434,28 @@ class ParticipantTable implements DataRetrieval
                 )
             )->withIsSortable(true)
             ->withOrderingLabels(
-                "{$this->lng->txt('tst_passed')}, {$this->lng->txt('yes')} {$this->lng->txt('order_option_first')}",
-                "{$this->lng->txt('tst_passed')}, {$this->lng->txt('no')} {$this->lng->txt('order_option_first')}"
+                "{$this->lng->txt('tst_passed')}, {$this->lng->txt('no')} {$this->lng->txt('order_option_first')}",
+                "{$this->lng->txt('tst_passed')}, {$this->lng->txt('yes')} {$this->lng->txt('order_option_first')}"
             );
             $columns['mark'] = $column_factory->text($this->lng->txt('tst_mark'))
                 ->withIsOptional(true, false)
                 ->withIsSortable(true);
+        }
+        if ($this->scoring_enabled) {
+            $columns['scoring_finalized'] = $column_factory->boolean(
+                $this->lng->txt('finalized_evaluation'),
+                $this->ui_factory->symbol()->icon()->custom(
+                    'assets/images/standard/icon_checked.svg',
+                    $this->lng->txt('yes'),
+                    'small'
+                ),
+                $this->ui_factory->symbol()->icon()->custom(
+                    'assets/images/standard/icon_unchecked.svg',
+                    $this->lng->txt('no'),
+                    'small'
+                )
+            )->withIsOptional(true, false)
+            ->withIsSortable(true);
         }
 
         $columns['last_access'] = $column_factory->date(

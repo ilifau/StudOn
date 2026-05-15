@@ -23,8 +23,11 @@ abstract class ilAbstractBuddySystemRelationStateButtonRenderer implements ilBud
     protected ilTemplate $tpl;
     protected ilLanguage $lng;
 
-    public function __construct(protected int $usrId, protected ilBuddySystemRelation $relation, ilLanguage $lng = null)
-    {
+    public function __construct(
+        protected int $usrId,
+        protected ilBuddySystemRelation $relation,
+        ?ilLanguage $lng = null
+    ) {
         global $DIC;
 
         $this->tpl = new ilTemplate(

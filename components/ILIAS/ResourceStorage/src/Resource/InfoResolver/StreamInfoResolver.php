@@ -61,7 +61,7 @@ class StreamInfoResolver extends AbstractInfoResolver implements InfoResolver
         parent::__construct($next_version_number, $revision_owner_id, $revision_title);
         $this->path = $uri;
         $this->initFileName($file_name);
-        $this->suffix = pathinfo($this->file_name, PATHINFO_EXTENSION);
+        $this->suffix = pathinfo((string) $this->file_name, PATHINFO_EXTENSION);
         $this->initSize();
         $this->initMimeType();
         $this->initCreationDate();
@@ -98,9 +98,16 @@ class StreamInfoResolver extends AbstractInfoResolver implements InfoResolver
     {
         $this->size = 0;
         try {
-            $size = $this->file_stream->getSize();
-            if ($size !== null) {
-                $this->size = $size;
+            $this->size = $this->file_stream->getSize();
+        } catch (\Throwable) {
+            $mb_strlen_exists = function_exists('mb_strlen');
+            //We only read one MB at a time as this radically reduces RAM-Usage
+            while ($content = $this->file_stream->read(1_048_576)) {
+                if ($mb_strlen_exists) {
+                    $this->size += mb_strlen($content, '8bit');
+                } else {
+                    $this->size += strlen($content);
+                }
             }
         } catch (\Throwable $exception) {
             if ($this->file_stream->isSeekable()) {

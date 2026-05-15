@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -36,8 +37,9 @@ class ilADNNotification extends ActiveRecord
     public const LINK_TYPE_NONE = 0;
     public const LINK_TYPE_REF_ID = 1;
     public const LINK_TYPE_URL = 2;
-    protected static array $allowed_user_ids = array(0, 13, 6);
+    protected static array $allowed_user_ids = [0, 13, 6];
 
+    #[\Override]
     public function getConnectorContainerName(): string
     {
         return self::TABLE_NAME;
@@ -69,7 +71,7 @@ class ilADNNotification extends ActiveRecord
 
     public function resetForAllUsers(): void
     {
-        foreach (ilADNDismiss::where(array('notification_id' => $this->getId()))->get() as $not) {
+        foreach (ilADNDismiss::where(['notification_id' => $this->getId()])->get() as $not) {
             $not->delete();
         }
     }
@@ -85,12 +87,11 @@ class ilADNNotification extends ActiveRecord
                 $this->getEventStart()
             ) . " - "
                 . date(self::TIME_FORMAT, $this->getEventEnd());
-        } else {
-            return date(self::DATE_TIME_FORMAT, $this->getEventStart()) . ' - ' . date(
-                self::DATE_TIME_FORMAT,
-                $this->getEventEnd()
-            );
         }
+        return date(self::DATE_TIME_FORMAT, $this->getEventStart()) . ' - ' . date(
+            self::DATE_TIME_FORMAT,
+            $this->getEventEnd()
+        );
     }
 
     public function isUserAllowedToDismiss(ilObjUser $user): bool
@@ -141,14 +142,23 @@ class ilADNNotification extends ActiveRecord
         return ($this->isVisibleToUserBasedOnLanguage($ilObjUser) && $this->isVisibleRoleUserRoles($ilObjUser));
     }
 
-
-    protected function isVisibleToUserBasedOnLanguage(ilObjUser $ilObjUser): bool
+    protected function isVisibleToUserBasedOnLanguage(ilObjUser $user): bool
     {
         if (!$this->hasLanguageLimitation()) {
             return true;
         }
 
-        return in_array($ilObjUser->getLanguage(), $this->getLimitedToLanguages(), true);
+        // Special case for anonymous user
+        if ($user->isAnonymous()) {
+            // current language
+            global $DIC;
+            $current_language = $DIC->http()->request()->getQueryParams()['lang']
+                ?? $DIC->language()->getDefaultLanguage();
+        } else {
+            $current_language = $user->getLanguage();
+        }
+
+        return in_array($current_language, $this->getLimitedToLanguages(), true);
     }
 
 
@@ -242,7 +252,7 @@ class ilADNNotification extends ActiveRecord
      * @con_fieldtype  text
      * @con_length     256
      */
-    protected array $allowed_users = array(0, 6, 13);
+    protected array $allowed_users = [0, 6, 13];
     /**
      * @con_has_field  true
      * @con_fieldtype  integer
@@ -348,7 +358,7 @@ class ilADNNotification extends ActiveRecord
                 if ($field_value === null) {
                     $array_unique = self::$allowed_user_ids;
                 } else {
-                    $json_decode = json_decode($field_value, true);
+                    $json_decode = json_decode((string) $field_value, true);
                     if (!is_array($json_decode)) {
                         $json_decode = self::$allowed_user_ids;
                     }
@@ -360,8 +370,9 @@ class ilADNNotification extends ActiveRecord
                 return $array_unique;
             case 'limited_to_languages':
             case 'limited_to_role_ids':
-                return json_decode($field_value, true);
+                return json_decode((string) $field_value, true);
         }
+        return null;
     }
 
     /**
@@ -393,8 +404,10 @@ class ilADNNotification extends ActiveRecord
             case 'limited_to_role_ids':
                 return json_encode($this->{$field_name}, JSON_THROW_ON_ERROR);
         }
+        return null;
     }
 
+    #[\Override]
     public function create(): void
     {
         global $DIC;

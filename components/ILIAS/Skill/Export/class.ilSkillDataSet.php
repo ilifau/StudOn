@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -16,8 +14,9 @@ declare(strict_types=1);
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
- ********************************************************************
- */
+ *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\Skill\Tree\SkillTreeFactory;
 use ILIAS\Skill\Service\SkillInternalManagerService;
@@ -460,7 +459,7 @@ class ilSkillDataSet extends ilDataSet
                     break;
                 case "8.0":
                     foreach ($a_ids as $obj_id) {
-                        $obj_ref_id = ilObject::_getAllReferences((int)$obj_id);
+                        $obj_ref_id = ilObject::_getAllReferences((int) $obj_id);
                         $obj_ref_id = end($obj_ref_id);
                         $profiles = $this->skill_manager->getProfileManager()->getLocalProfilesForObject($obj_ref_id);
                         $profile_ids = [];

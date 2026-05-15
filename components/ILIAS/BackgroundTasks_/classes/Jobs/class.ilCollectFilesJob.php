@@ -16,6 +16,7 @@
  *
  *********************************************************************/
 
+use ILIAS\BackgroundTasks\Observer;
 use ILIAS\BackgroundTasks\Implementation\Tasks\AbstractJob;
 use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\BooleanValue;
 use ILIAS\BackgroundTasks\Types\SingleType;
@@ -85,14 +86,14 @@ class ilCollectFilesJob extends AbstractJob
      * @inheritDoc
      * @todo use filsystem service
      */
-    public function run(array $input, \ILIAS\BackgroundTasks\Observer $observer): Value
+    public function run(array $input, Observer $observer): Value
     {
         $this->logger->debug('Start collecting files!');
         $this->logger->dump($input);
         $definition = $input[0];
         $initiated_by_folder_action = $input[1]->getValue();
         $object_ref_ids = $definition->getObjectRefIds();
-        $files = array();
+        $files = [];
 
         foreach ($object_ref_ids as $object_ref_id) {
             $object = ilObjectFactory::getInstanceByRefId($object_ref_id);
@@ -121,7 +122,7 @@ class ilCollectFilesJob extends AbstractJob
             $this->logger->debug('Added new copy definition: ' . $file['source_dir'] . ' -> ' . $file['target_dir']);
 
             // count files only (without empty directories)
-            $is_empty_folder = preg_match_all("/\/$/", $file['target_dir']);
+            $is_empty_folder = preg_match_all("/\/$/", (string) $file['target_dir']);
             if (!$is_empty_folder) {
                 $num_files++;
             }
@@ -139,7 +140,7 @@ class ilCollectFilesJob extends AbstractJob
      * duplicate entries. DO NOT call this method e.g. in an if condition and
      * then again in its body.
      */
-    private function getFileDirs($a_ref_id, $a_file_name, $a_temp_dir)
+    private function getFileDirs($a_ref_id, string $a_file_name, string $a_temp_dir): false|array
     {
         global $DIC;
 
@@ -186,14 +187,14 @@ class ilCollectFilesJob extends AbstractJob
      *
      * @return mixed[]
      */
-    private function recurseFolder($a_ref_id, $a_folder_name, $a_temp_dir, $a_num_recursions, $a_initiated_by_folder_action): array
+    private function recurseFolder($a_ref_id, string $a_folder_name, string $a_temp_dir, int|float $a_num_recursions, $a_initiated_by_folder_action): array
     {
         global $DIC;
 
         $num_recursions = $a_num_recursions + 1;
         $tree = $DIC->repositoryTree();
         $ilAccess = $DIC->access();
-        $files = array();
+        $files = [];
 
         // Avoid the duplication of the uppermost folder when the download is initiated via a folder's action drop-down
         // by not including said folders name in the temp_dir path.
@@ -203,7 +204,7 @@ class ilCollectFilesJob extends AbstractJob
             $temp_dir = $a_temp_dir . '/' . ilFileUtils::getASCIIFilename($a_folder_name);
         }
 
-        $subtree = $tree->getChildsByTypeFilter($a_ref_id, array("fold", "file"));
+        $subtree = $tree->getChildsByTypeFilter($a_ref_id, ["fold", "file"]);
 
         foreach ($subtree as $child) {
             if (!$ilAccess->checkAccess("read", "", $child["ref_id"])) {
@@ -215,10 +216,8 @@ class ilCollectFilesJob extends AbstractJob
             if ($child["type"] == "fold") {
                 $files_from_folder = $this->recurseFolder($child["ref_id"], $child['title'], $temp_dir, $num_recursions, $a_initiated_by_folder_action);
                 $files = array_merge($files, $files_from_folder);
-            } else {
-                if (($child["type"] === "file") && (($dirs = $this->getFileDirs($child["ref_id"], $child['title'], $temp_dir)) !== false)) {
-                    $files[] = $dirs;
-                }
+            } elseif (($child["type"] === "file") && (($dirs = $this->getFileDirs($child["ref_id"], $child['title'], $temp_dir)) !== false)) {
+                $files[] = $dirs;
             }
         }
         // ensure that empty folders are also contained in the downloaded zip

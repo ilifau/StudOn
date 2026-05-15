@@ -76,21 +76,21 @@ declare(strict_types=1);
  */
 class ilConditionHandler
 {
-    public const OPERATOR_PASSED = 'passed';
-    public const OPERATOR_FINISHED = 'finished';
-    public const OPERATOR_NOT_FINISHED = 'not_finished';
-    public const OPERATOR_NOT_MEMBER = 'not_member';
-    public const OPERATOR_FAILED = 'failed';
-    public const OPERATOR_LP = 'learning_progress';
-    public const OPERATOR_ACCREDITED_OR_PASSED = 'accredited_or_passed';
+    public const string OPERATOR_PASSED = 'passed';
+    public const string OPERATOR_FINISHED = 'finished';
+    public const string OPERATOR_NOT_FINISHED = 'not_finished';
+    public const string OPERATOR_NOT_MEMBER = 'not_member';
+    public const string OPERATOR_FAILED = 'failed';
+    public const string OPERATOR_LP = 'learning_progress';
+    public const string OPERATOR_ACCREDITED_OR_PASSED = 'accredited_or_passed';
 
-    public const OPERATOR_RESULT_RANGE_PERCENTAGE = 'result_range_percentage';
+    public const string OPERATOR_RESULT_RANGE_PERCENTAGE = 'result_range_percentage';
 
-    public const UNIQUE_CONDITIONS = 1;
+    public const int UNIQUE_CONDITIONS = 1;
 
     // conditions are used for all tree references of the target object.
     // This is currently only used for lm chapters and likely to be abandonded in the future
-    public const SHARED_CONDITIONS = 0;
+    public const int SHARED_CONDITIONS = 0;
 
     public static array $cond_for_target_cache = array();
     public static array $cond_target_rows = array();
@@ -644,18 +644,18 @@ class ilConditionHandler
                 $obligatory = $set->getAllObligatory() || $c->getObligatory();
                 $trigger = $c->getTrigger();
                 $cond[] = [
-                    "target_ref_id" => $a_target_ref_id,
-                    "target_obj_id" => $a_target_obj_id,
-                    "target_type" => $a_target_type,
-                    "trigger_ref_id" => $trigger->getRefId(),
-                    "trigger_obj_id" => $trigger->getObjId(),
-                    "trigger_type" => $trigger->getType(),
-                    "operator" => $c->getOperator(),
-                    "value" => $c->getValue(),
-                    "ref_handling" => 1,
-                    "obligatory" => $obligatory,
-                    "num_obligatory" => $set->getNumObligatory(),
-                    "hidden_status" => $set->getHiddenStatus()
+                        "target_ref_id" => $a_target_ref_id,
+                        "target_obj_id" => $a_target_obj_id,
+                        "target_type" => $a_target_type,
+                        "trigger_ref_id" => $trigger->getRefId(),
+                        "trigger_obj_id" => $trigger->getObjId(),
+                        "trigger_type" => $trigger->getType(),
+                        "operator" => $c->getOperator(),
+                        "value" => $c->getValue(),
+                        "ref_handling" => 1,
+                        "obligatory" => $obligatory,
+                        "num_obligatory" => $set->getNumObligatory(),
+                        "hidden_status" => $set->getHiddenStatus()
                 ];
             }
             return $cond;

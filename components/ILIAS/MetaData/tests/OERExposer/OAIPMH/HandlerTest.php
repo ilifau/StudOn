@@ -71,7 +71,7 @@ class HandlerTest extends TestCase
                     public function sendResponseAndClose(
                         int $status_code,
                         string $message = '',
-                        \DOMDocument $body = null
+                        ?\DOMDocument $body = null
                     ): void {
                         $this->exposed_responses[] = [
                             'status' => $status_code,
@@ -150,7 +150,8 @@ class HandlerTest extends TestCase
                             throw new \Error('thrown error message');
                         }
                         if ($this->triggers_error) {
-                            trigger_error('triggered error message', E_USER_ERROR);
+                            /** @noinspection PhpExpressionResultUnusedInspection */
+                            1 / 0;
                         }
 
                         $url = (string) $request->baseURL();
@@ -308,11 +309,11 @@ class HandlerTest extends TestCase
 
         $this->assertCount(1, $initiator->exposeHTTPResponses());
         $this->assertEquals(
-            ['status' => 500, 'message' => 'triggered error message', 'body' => null],
+            ['status' => 500, 'message' => 'Division by zero', 'body' => null],
             $initiator->exposeHTTPResponses()[0] ?? []
         );
         $this->assertEquals(
-            ['triggered error message'],
+            ['Division by zero'],
             $handler->exposed_logged_errors
         );
     }

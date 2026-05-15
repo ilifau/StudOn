@@ -24,7 +24,7 @@ use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Data\URI;
 use ILIAS\Test\Utilities\TitleColumnsBuilder;
 use ILIAS\Test\RequestDataCollector;
-use ILIAS\UI\Component\Table\OrderingBinding;
+use ILIAS\UI\Component\Table\OrderingRetrieval;
 use ILIAS\UI\Component\Table\OrderingRowBuilder;
 use ILIAS\UI\Component\Table\Ordering as OrderingTable;
 use ILIAS\UI\Factory as UIFactory;
@@ -34,7 +34,7 @@ use ilTestRandomQuestionSetSourcePoolDefinitionList as PoolDefinitionList;
 use ilTestRandomQuestionSetConfigGUI as ConfigGUI;
 use Psr\Http\Message\ServerRequestInterface;
 
-class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingBinding
+class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingRetrieval
 {
     private URI $target;
     private URLBuilder $url_builder;
@@ -66,9 +66,8 @@ class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingBinding
             $record = [
                 'sequence_position' => (int) $qp['sequence_position'],
                 'source_pool_label' => $this->title_builder->buildAccessCheckedQuestionpoolTitleAsLink(
-                    $qp['ref_id'],
-                    $qp['source_pool_label'],
-                    true
+                    $qp['pool_id'],
+                    $qp['source_pool_label']
                 ),
                 'taxonomy_filter' => $this->taxonomy_translator->getTaxonomyFilterLabel(
                     $qp['taxonomy_filter'],
@@ -100,7 +99,7 @@ class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingBinding
             $set['type_filter'] = $source_pool_definition->getTypeFilter();
             // fau.
             $set['question_amount'] = $source_pool_definition->getQuestionAmount();
-            $set['ref_id'] = $source_pool_definition->getPoolRefId();
+            $set['pool_id'] = $source_pool_definition->getPoolId();
             $data[] = $set;
         }
 
@@ -112,10 +111,10 @@ class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingBinding
     {
         return $this->ui_factory->table()
             ->ordering(
+                $this,
+                $this->getTarget(ConfigGUI::CMD_SAVE_SRC_POOL_DEF_LIST),
                 $this->lng->txt('tst_src_quest_pool_def_list_table'),
                 $this->getColumns(),
-                $this,
-                $this->getTarget(ConfigGUI::CMD_SAVE_SRC_POOL_DEF_LIST)
             )
             ->withActions($this->getActions())
             ->withRequest($this->request)
@@ -166,9 +165,6 @@ class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingBinding
      */
     private function getActions(): array
     {
-        if (!$this->editable) {
-            return [];
-        }
         return [
             'delete' => $this->ui_factory->table()->action()->standard(
                 $this->lng->txt('delete'),

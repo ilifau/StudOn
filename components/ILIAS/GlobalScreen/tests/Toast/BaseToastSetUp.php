@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +18,8 @@
 
 declare(strict_types=1);
 
+use ILIAS\DI\UIServices;
+use ILIAS\UI\Factory;
 use ILIAS\GlobalScreen\Scope\Toast\Provider\AbstractToastProvider;
 use ILIAS\GlobalScreen\Scope\Toast\Provider\ToastProvider;
 use ILIAS\GlobalScreen\Scope\Toast\ToastServices;
@@ -32,8 +35,6 @@ require_once(__DIR__ . "/../../../UI/tests/Base.php");
 abstract class BaseToastSetUp extends TestCase
 {
     private array $toasts = [];
-
-    private \ILIAS\DI\UIServices $ui_mock;
     protected ToastProvider $provider;
     protected ToastFactory $factory;
 
@@ -44,20 +45,20 @@ abstract class BaseToastSetUp extends TestCase
     {
         parent::setUp();
 
-        $this->ui_mock = $this->createMock(\ILIAS\DI\UIServices::class);
+        $ui_mock = $this->createMock(UIServices::class);
         $this->provider = $this->createMock(ToastProvider::class);
-        $this->provider->expects($this->any())->method('getProviderNameForPresentation')->willReturn('Provider');
-        $this->factory = (new ToastServices($this->ui_mock))->factory();
+        $this->provider->method('getProviderNameForPresentation')->willReturn('Provider');
+        $this->factory = (new ToastServices($ui_mock))->factory();
     }
 
-    public function getDIC(): ILIAS\DI\Container
+    public function getDIC(): Container
     {
         $mocks = [
-            'ui' => $this->createMock(\ILIAS\DI\UIServices::class),
-            'ui.factory' => $this->createMock(\ILIAS\UI\Factory::class),
-            'provider_factory'=> $this->createMock(ProviderFactory::class),
+            'ui' => $this->createMock(UIServices::class),
+            'ui.factory' => $this->createMock(Factory::class),
+            'provider_factory' => $this->createMock(ProviderFactory::class),
         ];
-        return new class ($mocks) extends ILIAS\DI\Container {
+        return new class ($mocks) extends Container {
             public function globalScreen(): Services
             {
                 return new Services($this['provider_factory'], $this['ui']);

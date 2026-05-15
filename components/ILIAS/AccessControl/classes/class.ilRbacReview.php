@@ -608,8 +608,9 @@ class ilRbacReview
         $ga = [];
         foreach ($this->getGlobalRoles() as $role_id) {
             if (ilObjRole::_getAssignUsersStatus($role_id)) {
-                $ga[] = ['obj_id' => $role_id,
-                              'role_type' => 'global'
+                $ga[] = [
+                    'obj_id' => $role_id,
+                    'role_type' => 'global'
                 ];
             }
         }
@@ -687,7 +688,7 @@ class ilRbacReview
     }
 
     /**
-     * @return list<int|numeric-string>
+     * @return list<int>
      */
     public function getActiveOperationsOfRole(int $a_ref_id, int $a_role_id): array
     {
@@ -697,7 +698,10 @@ class ilRbacReview
 
         $res = $this->db->query($query);
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_ASSOC)) {
-            return $row['ops_id'] === ':' ? [] : unserialize($row['ops_id'], ['allowed_classes' => false]);
+            return array_map(
+                intval(...),
+                $row['ops_id'] === ':' ? [] : unserialize($row['ops_id'], ['allowed_classes' => false])
+            );
         }
         return [];
     }
@@ -727,7 +731,7 @@ class ilRbacReview
     }
 
     /**
-     * @return list<int|numeric-string>
+     * @return list<int>
      */
     public function getRoleOperationsOnObject(int $a_role_id, int $a_ref_id): array
     {
@@ -739,7 +743,10 @@ class ilRbacReview
         $ops = [];
         while ($row = $this->db->fetchObject($res)) {
             if ($row->ops_id !== ':') {
-                $ops = unserialize($row->ops_id, ['allowed_classes' => false]);
+                $ops = array_map(
+                    intval(...),
+                    unserialize($row->ops_id, ['allowed_classes' => false])
+                );
             }
         }
 
@@ -1412,7 +1419,7 @@ class ilRbacReview
         self::$assigned_users_cache = [];
     }
 
-    public static function _getCustomRBACOperationId(string $operation, \ilDBInterface $ilDB = null): ?int
+    public static function _getCustomRBACOperationId(string $operation, ?\ilDBInterface $ilDB = null): ?int
     {
         if (!$ilDB) {
             global $DIC;
@@ -1434,7 +1441,7 @@ class ilRbacReview
         return (int) $row["ops_id"] ?? null;
     }
 
-    public static function _isRBACOperation(int $type_id, int $ops_id, \ilDBInterface $ilDB = null): bool
+    public static function _isRBACOperation(int $type_id, int $ops_id, ?\ilDBInterface $ilDB = null): bool
     {
         if (!$ilDB) {
             global $DIC;

@@ -51,6 +51,6 @@ final class ShowOnLoginPage
         $template->setVariable('LABEL', htmlentities($this->ui->txt('usr_agreement')));
         $template->setVariable('HREF', $this->legal_documents->publicPage()->url());
 
-        return [$this->ui->create()->legacy($template->get())];
+        return [$this->ui->create()->legacy()->content($template->get())];
     }
 }

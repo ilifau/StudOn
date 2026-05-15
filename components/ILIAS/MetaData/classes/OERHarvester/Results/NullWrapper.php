@@ -22,9 +22,9 @@ namespace ILIAS\MetaData\OERHarvester\Results;
 
 class NullWrapper implements WrapperInterface
 {
-    public function get(): \ilCronJobResult
+    public function get(): \ILIAS\Cron\Job\JobResult
     {
-        return new \ilCronJobResult();
+        return new \ILIAS\Cron\Job\JobResult();
     }
 
     public function withStatus(int $status): WrapperInterface

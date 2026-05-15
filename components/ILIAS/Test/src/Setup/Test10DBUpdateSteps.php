@@ -342,9 +342,7 @@ class Test10DBUpdateSteps implements \ilDatabaseUpdateSteps
             $this->db->manipulate(
                 '
                 UPDATE tst_addtime INNER JOIN tst_active ON tst_active.active_id = tst_addtime.active_fi
-                SET tst_addtime.test_fi = tst_active.test_fi, tst_addtime.user_fi = tst_active.user_fi
-                WHERE tst_active.test_fi <> 0 AND tst_active.user_fi <> 0
-                '
+                SET tst_addtime.test_fi = tst_active.test_fi, tst_addtime.user_fi = tst_active.user_fi'
             );
 
             $this->db->dropTableColumn('tst_addtime', 'active_fi');
@@ -468,50 +466,6 @@ class Test10DBUpdateSteps implements \ilDatabaseUpdateSteps
             'rbac_operations',
             ['op_order' => [\ilDBConstants::T_INTEGER, 4200]],
             ['operation' => [\ilDBConstants::T_TEXT, 'tst_results']]
-        );
-    }
-
-    public function step_14(): void
-    {
-        $this->db->manipulate(
-            'DELETE FROM settings WHERE module="assessment" AND keyword="assessment_man_scoring_fix_run"'
-        );
-    }
-
-    public function step_15(): void
-    {
-        $this->db->manipulate(
-            'DELETE FROM settings WHERE module="assessment" AND keyword="export_essay_qst_with_html"'
-        );
-    }
-
-    public function step_16(): void
-    {
-        $this->db->manipulate(
-            'UPDATE tst_rnd_quest_set_qpls SET pool_path = "" WHERE pool_path IS NULL'
-        );
-        $this->db->modifyTableColumn(
-            'tst_rnd_quest_set_qpls',
-            'pool_path',
-            [
-                'default' => '',
-                'notnull' => true
-            ]
-        );
-    }
-
-    public function step_17(): void
-    {
-        $this->db->manipulate(
-            'UPDATE tst_rnd_quest_set_qpls SET pool_title = "" WHERE pool_title IS NULL'
-        );
-        $this->db->modifyTableColumn(
-            'tst_rnd_quest_set_qpls',
-            'pool_title',
-            [
-                'default' => '',
-                'notnull' => true
-            ]
         );
     }
 }

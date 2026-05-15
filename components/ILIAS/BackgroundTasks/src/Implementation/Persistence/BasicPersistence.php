@@ -33,7 +33,6 @@ class BasicPersistence implements Persistence
 {
     protected static BasicPersistence $instance;
     protected static array $buckets = [];
-    protected \ilDBInterface $db;
     protected \SplObjectStorage $bucketHashToObserverContainerId;
     protected \SplObjectStorage $taskHashToTaskContainerId;
     protected \SplObjectStorage $valueHashToValueContainerId;
@@ -49,9 +48,8 @@ class BasicPersistence implements Persistence
         return self::$instance;
     }
 
-    public function __construct(\ilDBInterface $db)
+    public function __construct(protected \ilDBInterface $db)
     {
-        $this->db = $db;
         $this->valueHashToValueContainerId = new \SplObjectStorage();
         $this->bucketHashToObserverContainerId = new \SplObjectStorage();
         $this->taskHashToTaskContainerId = new \SplObjectStorage();
@@ -160,7 +158,7 @@ class BasicPersistence implements Persistence
         // Garbage Collection
         $random = new \Random\Randomizer();
 
-        if($random->getInt(1, 100) === 1) {
+        if ($random->getInt(1, 100) === 1) {
             $this->gc();
         }
 
@@ -176,7 +174,7 @@ class BasicPersistence implements Persistence
     {
         $buckets = BucketContainer::where(['user_id' => $user_id])->get();
 
-        return array_map(function (BucketContainer $bucketContainer): \ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucketMeta {
+        return array_map(function (BucketContainer $bucketContainer): BasicBucketMeta {
             $bucketMeta = new BasicBucketMeta();
 
             $bucketMeta->setUserId($bucketContainer->getUserId());
@@ -196,7 +194,7 @@ class BasicPersistence implements Persistence
     {
         $buckets = BucketContainer::where(['state' => $state])->get();
 
-        return array_map(fn (BucketContainer $bucket_container): int => $bucket_container->getId(), $buckets);
+        return array_map(fn(BucketContainer $bucket_container): int => $bucket_container->getId(), $buckets);
     }
 
     /**
@@ -256,8 +254,8 @@ class BasicPersistence implements Persistence
         // The basic information about the task.
         $taskContainer->setType($task->getType());
         $taskContainer->setBucketId($bucketId);
-        $reflection = new \ReflectionClass(get_class($task));
-        $taskContainer->setClassName(get_class($task));
+        $reflection = new \ReflectionClass($task::class);
+        $taskContainer->setClassName($task::class);
 
         // Recursivly save the inputs and link them to this task.
         foreach ($task->getInput() as $k => $input) {
@@ -315,7 +313,7 @@ class BasicPersistence implements Persistence
         } else {
             $valueContainer = new ValueContainer(0, $this->connector);
         }
-        $valueContainer->setClassName(get_class($value));
+        $valueContainer->setClassName($value::class);
         // bugfix mantis 23503
         // $absolute_class_path = $reflection->getFileName();
         // $relative_class_path = str_replace(ILIAS_ABSOLUTE_PATH,".",$absolute_class_path);
@@ -375,11 +373,11 @@ class BasicPersistence implements Persistence
                 . print_r($value, true));
         }
 
-        return (int )$this->valueHashToValueContainerId[$value];
+        return (int) $this->valueHashToValueContainerId[$value];
     }
 
     /**
-     * @throws \ILIAS\BackgroundTasks\Exceptions\BucketNotFoundException
+     * @throws BucketNotFoundException
      */
     public function loadBucket(int $bucket_container_id): Bucket
     {
@@ -414,7 +412,7 @@ class BasicPersistence implements Persistence
      * @param BucketContainer $bucketContainer Needed because we need the current tasks container
      *                                         id for correct linking.
      */
-    private function loadTask(int $taskContainerId, Bucket $bucket, BucketContainer $bucketContainer): \ILIAS\BackgroundTasks\Task
+    private function loadTask(int $taskContainerId, Bucket $bucket, BucketContainer $bucketContainer): Task
     {
         global $DIC;
         $factory = $DIC->backgroundTasks()->taskFactory();
@@ -445,7 +443,7 @@ class BasicPersistence implements Persistence
         return $task;
     }
 
-    private function loadValue($valueContainerId, Bucket $bucket, BucketContainer $bucketContainer): \ILIAS\BackgroundTasks\Value
+    private function loadValue($valueContainerId, Bucket $bucket, BucketContainer $bucketContainer): Value
     {
         global $DIC;
         $factory = $DIC->backgroundTasks()->injector();
@@ -504,7 +502,7 @@ class BasicPersistence implements Persistence
     }
 
     /**
-     * @return \ILIAS\BackgroundTasks\Bucket[]
+     * @return Bucket[]
      */
     public function loadBuckets(array $bucket_container_ids): array
     {
@@ -512,7 +510,7 @@ class BasicPersistence implements Persistence
         foreach ($bucket_container_ids as $bucket_id) {
             try {
                 $buckets[] = $this->loadBucket($bucket_id);
-            } catch (\Throwable $t) {
+            } catch (\Throwable) {
                 // there seem to be a problem with this container, we must delete it
                 $this->deleteBucketById($bucket_id);
             }

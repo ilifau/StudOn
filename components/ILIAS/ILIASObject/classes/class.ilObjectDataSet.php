@@ -18,8 +18,12 @@
 
 declare(strict_types=1);
 
-use ILIAS\Object\ilObjectDIC;
+use ILIAS\ILIASObject\LocalDIC;
+use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Services as ResourceStorage;
+use ILIAS\ILIASObject\Properties\Aggregator;
+use ILIAS\ILIASObject\Properties\Translations\Language;
+use ILIAS\ILIASObject\Properties\Translations\CachedRepository as TranslationsRepository;
 
 /**
  * Object data set class
@@ -32,9 +36,11 @@ use ILIAS\ResourceStorage\Services as ResourceStorage;
  */
 class ilObjectDataSet extends ilDataSet
 {
-    protected ilObjectDIC $obj_dic;
-    protected ResourceStorage $storage;
-    protected ilObjectPropertiesAgregator $object_properties_agregator;
+    private ResourceStorage $storage;
+    private Aggregator $properties_aggregator;
+    private TranslationsRepository $translations_repository;
+
+    public static ?string $base_lang = null;
 
     public function __construct()
     {
@@ -42,8 +48,9 @@ class ilObjectDataSet extends ilDataSet
         global $DIC;
         $this->storage = $DIC->resourceStorage();
 
-        $obj_dic = ilObjectDIC::dic();
-        $this->object_properties_agregator = $obj_dic['object_properties_agregator'];
+        $object_dic = LocalDIC::dic();
+        $this->properties_aggregator = $object_dic['properties.aggregator'];
+        $this->translations_repository = $object_dic['properties.translations.repository'];
 
         parent::__construct();
     }
@@ -155,9 +162,10 @@ class ilObjectDataSet extends ilDataSet
                 case '5.2.0':
                 case '5.4.0':
                     $this->getDirectDataFromQuery(
-                        'SELECT obj_id, master_lang' . PHP_EOL
-                        . 'FROM obj_content_master_lng' . PHP_EOL
+                        'SELECT obj_id, lang_code' . PHP_EOL
+                        . 'FROM object_translation' . PHP_EOL
                         . 'WHERE ' . $this->db->in('obj_id', $ids, false, 'integer') . PHP_EOL
+                        . 'AND lang_base = 1'
                     );
                     break;
             }
@@ -210,12 +218,14 @@ class ilObjectDataSet extends ilDataSet
         if ($entity == "tile") {
             $this->data = [];
             foreach ($ids as $id) {
-                $rid = $this->object_properties_agregator->getFor((int) $id)
+                $rid_string = $this->properties_aggregator->getFor((int) $id)
                     ->getPropertyTileImage()->getTileImage()->getRid();
-                if ($rid === null) {
+                if ($rid_string === null
+                    || ($rid = $this->storage->manage()->find($rid_string)) === null) {
                     continue;
                 }
 
+                ;
                 $temp_dir = $this->copyTileToTempFolderForExport($rid);
 
                 $this->data[] = [
@@ -243,15 +253,20 @@ class ilObjectDataSet extends ilDataSet
         }
     }
 
-    private function copyTileToTempFolderForExport(string $rid): string
+    private function copyTileToTempFolderForExport(ResourceIdentification $rid): string
     {
-        $i = $this->storage->manage()->find($rid);
-        $resource = $this->storage->manage()->getResource($i);
-        $path_in_container = "/dsDir_" . $this->dircnt . "/" . $resource->getCurrentRevision()->getTitle();
+        $path_in_container = "/dsDir_{$this->dircnt}/"
+            . $this->storage->manage()->getResource($rid)
+                ->getCurrentRevision()->getTitle();
         $path_in_container = $this->export->isContainerExport()
-            ? $this->export->getPathToComponentExpDirInContainerWithLeadingSetNumber() . $path_in_container
-            : $this->export->getPathToComponentExpDirInContainer() . $path_in_container;
-        $this->export->getExportWriter()->writeFilesByResourceId($rid, $path_in_container);
+            ? $this->export->getPathToComponentExpDirInContainerWithLeadingSetNumber()
+                . $path_in_container
+            : $this->export->getPathToComponentExpDirInContainer()
+                . $path_in_container;
+        $this->export->getExportWriter()->writeFilesByResourceId(
+            $rid->serialize(),
+            $path_in_container
+        );
         return $path_in_container;
     }
     /**
@@ -291,26 +306,44 @@ class ilObjectDataSet extends ilDataSet
         switch ($entity) {
             case 'transl_entry':
                 $new_id = $this->getNewObjId($mapping, $rec['ObjId']);
-                if ($new_id > 0) {
-                    $transl = ilObjectTranslation::getInstance($new_id);
-                    $transl->addLanguage(
-                        $rec['LangCode'],
-                        $rec['Title'],
-                        $rec['Description'],
-                        (bool) $rec['LangDefault'],
-                        true
-                    );
-                    $transl->save();
+                if ($new_id <= 0) {
+                    break;
+                }
+
+                $is_base_lang = $rec['LangCode'] === self::$base_lang;
+
+                $transl = $this->translations_repository->getFor($new_id);
+                $this->translations_repository->store(
+                    $transl->withLanguage(
+                        new Language(
+                            $rec['LangCode'],
+                            $rec['Title'],
+                            $rec['Description'],
+                            (bool) $rec['LangDefault'],
+                            $rec['LangCode'] === self::$base_lang
+                        )
+                    )
+                );
+                if ($is_base_lang) {
+                    self::$base_lang = null;
                 }
                 break;
 
             case 'transl':
                 $new_id = $this->getNewObjId($mapping, $rec['ObjId']);
-                if ($new_id > 0) {
-                    $transl = ilObjectTranslation::getInstance($new_id);
-                    $transl->setMasterLanguage($rec['MasterLang']);
-                    $transl->save();
+                if ($new_id <= 0) {
+                    break;
                 }
+                $transl = $this->translations_repository->getFor($new_id);
+                $lang_code = $rec['LangCode'] ?? $rec['MasterLang'];
+                if ($transl->getLaguageForCode($lang_code) === null) {
+                    self::$base_lang = $lang_code;
+                    break;
+                }
+
+                $this->translations_repository->store(
+                    $transl->withBaseLanguage($lang_code)
+                );
                 break;
 
             case 'service_settings':
@@ -350,7 +383,7 @@ class ilObjectDataSet extends ilDataSet
                 $dir = str_replace('..', '', $rec['Dir']);
                 if ($new_id > 0 && $dir != '' && $this->getImportDirectory() != '') {
                     $source_dir = $this->getImportDirectory() . '/' . $dir;
-                    $object_properties = $this->object_properties_agregator->getFor($new_id);
+                    $object_properties = $this->properties_aggregator->getFor($new_id);
                     $ti = $object_properties->getPropertyTileImage()->getTileImage();
                     $ti->createFromImportDir($source_dir);
                     $object_properties->storePropertyTileImage(

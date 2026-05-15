@@ -120,7 +120,7 @@ class ilPortfolioExerciseGUI
         int $a_assignment_id,
         bool $a_add_submit = false,
         bool $as_array = false
-    ) {
+    ): string|array {
         global $DIC;
 
         $ui = $DIC->ui();
@@ -227,7 +227,7 @@ class ilPortfolioExerciseGUI
         }
 
         if ($tooltip) {
-            $modal = $ui->factory()->modal()->roundtrip($lng->txt("exc_instruction"), $ui->factory()->legacy($tooltip))
+            $modal = $ui->factory()->modal()->roundtrip($lng->txt("exc_instruction"), $ui->factory()->legacy()->content($tooltip))
                 ->withCancelButtonLabel($lng->txt("close"));
             $elements[] = $modal;
             $buttons[] = $ui->factory()->button()->standard($lng->txt("exc_instruction"), '#')

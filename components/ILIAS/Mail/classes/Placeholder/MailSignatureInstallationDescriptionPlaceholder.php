@@ -25,12 +25,12 @@ use ilLanguage;
 
 class MailSignatureInstallationDescriptionPlaceholder extends AbstractPlaceholderHandler
 {
-    private readonly ilIniFile $clientIniFile;
+    private readonly ilIniFile $client_ini_file;
 
     public function __construct(ilLanguage $lng)
     {
         global $DIC;
-        $this->clientIniFile = $DIC['ilClientIniFile'];
+        $this->client_ini_file = $DIC['ilClientIniFile'];
         parent::__construct($lng);
     }
 
@@ -41,7 +41,7 @@ class MailSignatureInstallationDescriptionPlaceholder extends AbstractPlaceholde
 
     public function addPlaceholder(array $placeholder): array
     {
-        $placeholder[$this->getId()] = $this->clientIniFile->readVariable('client', 'description');
+        $placeholder[$this->getId()] = $this->client_ini_file->readVariable('client', 'description');
 
         return $placeholder;
     }

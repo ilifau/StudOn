@@ -33,10 +33,7 @@ class Factory implements F\Factory
     ) {
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function standard(string $post_url, array $inputs): F\Standard
+    public function standard(string $post_url, array $inputs): Standard
     {
         return new Standard(
             $this->signal_generator,

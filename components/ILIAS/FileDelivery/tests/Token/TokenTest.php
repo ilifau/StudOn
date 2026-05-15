@@ -18,6 +18,7 @@
 
 namespace ILIAS\Tests\FileDelivery\Token;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ILIAS\FileDelivery\Token\DataSigner;
 use ILIAS\FileDelivery\Token\Signer\Key\Secret\SecretKeyRotation;
@@ -79,9 +80,7 @@ class TokenTest extends TestCase
         yield [$random(32768)];
     }
 
-    /**
-     * @dataProvider providePayloads
-     */
+    #[DataProvider('providePayloads')]
     public function testLargeAmountOfData(string $data): void
     {
         $datasigner = new DataSigner(

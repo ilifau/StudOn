@@ -23,7 +23,7 @@ namespace ILIAS\UI\Implementation\Render;
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\UI\Component\Component;
-use ILIAS\UI\Factory as RootFactory;
+use ILIAS\UI\Implementation\FactoryInternal;
 use ILIAS\UI\HelpTextRetriever;
 use ILIAS\Language\Language;
 use ILIAS\UI\Implementation\Component\Input\UploadLimitResolver;
@@ -31,7 +31,7 @@ use ILIAS\UI\Implementation\Component\Input\UploadLimitResolver;
 class DefaultRendererFactory implements RendererFactory
 {
     public function __construct(
-        protected RootFactory $ui_factory,
+        protected FactoryInternal $ui_factory,
         protected TemplateFactory $tpl_factory,
         protected Language $lng,
         protected JavaScriptBinding $js_binding,

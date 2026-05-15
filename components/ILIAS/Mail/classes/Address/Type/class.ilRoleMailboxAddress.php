@@ -18,41 +18,24 @@
 
 declare(strict_types=1);
 
-/**
- * Class ilRoleMailboxAddress
- * @author Werner Randelshofer <wrandels@hsw.fhz.ch>
- * @author Stefan Meyer <meyer@leifos.com>
- * @author Michael Jansen <mjansen@databay.de>
- */
 class ilRoleMailboxAddress
 {
-    protected ilMailRfc822AddressParserFactory $parserFactory;
+    protected ilMailRfc822AddressParserFactory $parser_factory;
     protected ilDBInterface $db;
     protected ilLanguage $lng;
 
     public function __construct(
-        protected int $roleId,
+        protected int $role_id,
         protected bool $localize = true,
-        ilMailRfc822AddressParserFactory $parserFactory = null,
-        ilDBInterface $db = null,
-        ilLanguage $lng = null
+        ?ilMailRfc822AddressParserFactory $parser_factory = null,
+        ?ilDBInterface $db = null,
+        ?ilLanguage $lng = null
     ) {
         global $DIC;
 
-        if (null === $db) {
-            $db = $DIC->database();
-        }
-        $this->db = $db;
-
-        if (null === $lng) {
-            $lng = $DIC->language();
-        }
-        $this->lng = $lng;
-
-        if (null === $parserFactory) {
-            $parserFactory = new ilMailRfc822AddressParserFactory();
-        }
-        $this->parserFactory = $parserFactory;
+        $this->db = $db ?? $DIC->database();
+        $this->lng = $lng ?? $DIC->language();
+        $this->parser_factory = $parser_factory ?? new ilMailRfc822AddressParserFactory();
     }
 
     /**
@@ -124,7 +107,7 @@ class ilRoleMailboxAddress
             'INNER JOIN tree rtree ON rtree.child = fa.parent ' .
             'INNER JOIN object_reference oref ON oref.ref_id = rtree.child ' .
             'INNER JOIN object_data odat ON odat.obj_id = oref.obj_id ' .
-            'WHERE rdat.obj_id = ' . $this->db->quote($this->roleId, ilDBConstants::T_INTEGER);
+            'WHERE rdat.obj_id = ' . $this->db->quote($this->role_id, ilDBConstants::T_INTEGER);
         $res = $this->db->query($query);
         if (($row = $this->db->fetchObject($res)) === null) {
             return '';
@@ -184,7 +167,7 @@ class ilRoleMailboxAddress
                 strrpos($role_title, '_') - $pos
             );
         } else {
-            $unambiguous_role_title = 'il_role_' . $this->roleId;
+            $unambiguous_role_title = 'il_role_' . $this->role_id;
         }
 
         // Determine if the local part is unique. If we don't have a
@@ -263,7 +246,7 @@ class ilRoleMailboxAddress
         }
 
         try {
-            $parser = $this->parserFactory->getParser($mailbox);
+            $parser = $this->parser_factory->getParser($mailbox);
             $parser->parse();
 
             return $mailbox;
@@ -272,7 +255,7 @@ class ilRoleMailboxAddress
                 'SELECT od.title
                  FROM object_data od
                  INNER JOIN role_data rd ON rd.role_id = od.obj_id
-                 WHERE od.obj_id = ' . $this->db->quote($this->roleId, ilDBConstants::T_INTEGER) . '
+                 WHERE od.obj_id = ' . $this->db->quote($this->role_id, ilDBConstants::T_INTEGER) . '
                    AND NOT EXISTS (
                        SELECT 1
                        FROM object_data maybe_same_role_od
@@ -285,7 +268,7 @@ class ilRoleMailboxAddress
                 return '#' . $row->title;
             }
 
-            return '#il_role_' . $this->roleId;
+            return '#il_role_' . $this->role_id;
         }
     }
 }

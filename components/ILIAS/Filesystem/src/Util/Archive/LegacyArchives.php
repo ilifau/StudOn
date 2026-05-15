@@ -21,8 +21,6 @@ declare(strict_types=1);
 namespace ILIAS\Filesystem\Util\Archive;
 
 use ILIAS\Filesystem\Stream\Streams;
-use ILIAS\Filesystem\Stream\FileStream;
-use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
 
 /**
  * @author      Fabian Schmid <fabian@sr.solutions>
@@ -77,7 +75,7 @@ final class LegacyArchives
      */
     public function unzip(
         string $path_to_zip,
-        string $extract_to_path = null,
+        ?string $extract_to_path = null,
         bool $overwrite = false,
         bool $flat = false,
         bool $ensure_top_directory = false

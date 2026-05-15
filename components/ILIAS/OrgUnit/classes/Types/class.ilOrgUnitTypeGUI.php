@@ -198,8 +198,8 @@ class ilOrgUnitTypeGUI
     }
 
     protected function getIconForm(
-        string $section_title = null,
-        string $current_identifier = null
+        ?string $section_title = null,
+        ?string $current_identifier = null
     ): StandardForm {
         $handler_gui = new ilOrgUnitTypeUploadHandlerGUI();
 
@@ -296,7 +296,7 @@ class ilOrgUnitTypeGUI
         return 0;
     }
 
-    public function getSingleTypeLinkTarget(string $action, int $type_id = null): string
+    public function getSingleTypeLinkTarget(string $action, ?int $type_id = null): string
     {
         $target_id = $type_id ? [$type_id] : [$this->getRowIdFromQuery()];
         return $this->url_builder
@@ -314,7 +314,10 @@ class ilOrgUnitTypeGUI
         foreach ($available_records as $record) {
             $options[$record->getRecordId()] = $record->getTitle();
         }
-        $selected_ids = $type->getAssignedAdvancedMDRecordIds();
+        $selected_ids = array_values(array_filter(
+            $type->getAssignedAdvancedMDRecordIds(),
+            fn(int $id) => array_key_exists($id, $options)
+        ));
 
         $trafo = $this->refinery->custom()->transformation(
             fn($v) => is_array($v) ? array_shift($v) : []
@@ -425,7 +428,7 @@ class ilOrgUnitTypeGUI
         ];
 
         return $this->ui_factory->table()
-            ->data('', $columns, $this->getTableDataRetrieval())
+            ->data($this->getTableDataRetrieval(), '', $columns)
             ->withId('orgu_types')
             ->withActions($actions);
     }
@@ -445,8 +448,9 @@ class ilOrgUnitTypeGUI
             }
 
             public function getTotalRowCount(
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): ?int {
                 return count($this->data);
             }
@@ -456,8 +460,9 @@ class ilOrgUnitTypeGUI
                 array $visible_column_ids,
                 Range $range,
                 Order $order,
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): \Generator {
                 $records = array_map(
                     fn($type) => [

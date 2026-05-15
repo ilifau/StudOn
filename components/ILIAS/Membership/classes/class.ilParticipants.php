@@ -160,7 +160,7 @@ abstract class ilParticipants
     /**
      * Check if (current) user has access to the participant list
      */
-    public static function hasParticipantListAccess(int $a_obj_id, int $a_usr_id = null): bool
+    public static function hasParticipantListAccess(int $a_obj_id, ?int $a_usr_id = null): bool
     {
         global $DIC;
 
@@ -395,7 +395,6 @@ abstract class ilParticipants
                 case 'il_crs_a':
                 case 'il_crs_t':
                 case 'il_grp_a':
-                case 'il_sess_':
                     break;
 
                 // fau: limitMemberRoles - don't count others roles as members

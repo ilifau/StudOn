@@ -37,7 +37,7 @@ class ilNotificationSystem
     private readonly ilRbacReview $rbacReview;
     private readonly ilLogger $logger;
 
-    public function __construct(ilRbacReview $rbacReview = null, ilLogger $logger = null)
+    public function __construct(?ilRbacReview $rbacReview = null, ?ilLogger $logger = null)
     {
         $this->addHandler('osd', new ilNotificationOSDHandler());
         $this->addHandler('mail', new ilNotificationMailHandler());

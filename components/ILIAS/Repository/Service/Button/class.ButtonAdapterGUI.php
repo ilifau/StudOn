@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Repository\Button;
 
@@ -161,7 +161,7 @@ EOT;
         return $button;
     }
 
-    public function toToolbar(bool $sticky = false, \ilToolbarGUI $toolbar = null): void
+    public function toToolbar(bool $sticky = false, ?\ilToolbarGUI $toolbar = null): void
     {
         $button = $this->getButton();
         if (is_null($toolbar)) {
@@ -174,8 +174,16 @@ EOT;
         }
     }
 
-    public function render(): string
+    public function render(?array $data = null): string
     {
-        return $this->ui->renderer()->render($this->getButton());
+        $html = $this->ui->renderer()->render($this->getButton());
+        $data_str = "";
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $data_str .= " data-$key=\"$value\" ";
+            }
+            $html = str_replace("<button", "<button $data_str", $html);
+        }
+        return $html;
     }
 }

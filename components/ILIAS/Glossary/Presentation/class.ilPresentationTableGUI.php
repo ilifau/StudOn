@@ -41,7 +41,7 @@ class ilPresentationTableGUI
     protected UI\Factory $ui_fac;
     protected UI\Renderer $ui_ren;
     protected ServerRequestInterface $request;
-    protected $parent_obj;
+    protected object $parent_obj;
     protected ilObjGlossary $glossary;
     protected bool $offline = false;
     protected int $tax_node = 0;
@@ -287,7 +287,7 @@ class ilPresentationTableGUI
     {
         $vc_start = 0;
         $vc_length = 9999;
-        if (!$this->offline) {
+        if (!$offline) {
             $vc_start = $this->manager->getSessionViewControlStart();
             $vc_length = $this->manager->getSessionViewControlLength();
         }
@@ -297,7 +297,6 @@ class ilPresentationTableGUI
             $vc_start,
             $vc_length
         );
-
         $data = [];
         foreach ($terms_sliced as $term) {
             $data[] = [
@@ -340,7 +339,7 @@ class ilPresentationTableGUI
                     ->withHeadline($record["term"])
                     ->withImportantFields([$record["short_txt"]])
                     ->withContent(
-                        $ui_factory->legacy($record["definition"])
+                        $ui_factory->legacy()->content($record["definition"])
                     )
                     ->withFurtherFieldsHeadline($this->lng->txt("glo_md_advanced"))
                     ->withFurtherFields($adv_data)
@@ -402,8 +401,6 @@ class ilPresentationTableGUI
             $short_str = \ilStr::shortenTextExtended($short_str, $ltexe + 6, true);
         }
 
-        $short_str = \ilMathJax::getInstance()->insertLatexImages($short_str);
-
         $short_str = \ilPCParagraph::xml2output(
             $short_str,
             false,
@@ -411,13 +408,19 @@ class ilPresentationTableGUI
             !$page->getPageConfig()->getPreventHTMLUnmasking()
         );
 
+        $short_str = $this->ui_ren->render($this->ui_fac->legacy()->latexContent($short_str));
+
         return $short_str;
     }
 
     public function renderPresentationTableForOffline(): string
     {
+        $this->initTerms([]);
         $pres_table = $this->initPresentationTable(true);
-        $this->tpl->setVariable("ADM_CONTENT", $this->ui_ren->render($pres_table));
-        return $this->tpl->printToString();
+
+        return $this->ui_ren->render($pres_table);
+
+        //$this->tpl->setVariable("ADM_CONTENT", $this->ui_ren->render($pres_table));
+        //return $this->tpl->printToString();
     }
 }

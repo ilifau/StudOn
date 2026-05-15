@@ -50,6 +50,7 @@ class MarkSchemaTable implements DataRetrieval
         $f = $this->ui_factory->table();
 
         $table = $f->data(
+            $this,
             $this->lng->txt('mark_schema'),
             [
                 'name' => $f->column()->text($this->lng->txt('tst_mark_short_form')),
@@ -69,7 +70,6 @@ class MarkSchemaTable implements DataRetrieval
                     )
                 )
             ],
-            $this
         );
 
         if (!$this->marks_editable) {
@@ -97,8 +97,9 @@ class MarkSchemaTable implements DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         foreach ($this->mark_schema->getMarkSteps() as $index => $mark) {
             yield $row_builder->buildDataRow(
@@ -120,8 +121,9 @@ class MarkSchemaTable implements DataRetrieval
     }
 
     public function getTotalRowCount(
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): ?int {
         return count($this->mark_schema->getMarkSteps());
     }

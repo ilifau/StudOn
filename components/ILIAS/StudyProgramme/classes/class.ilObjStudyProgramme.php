@@ -19,6 +19,7 @@
 declare(strict_types=1);
 
 use ILIAS\Filesystem\Filesystem;
+use ILIAS\ILIASObject\Properties\AdditionalProperties\Icon\Factory as CustomIconFactory;
 
 class ilObjStudyProgramme extends ilContainer
 {
@@ -64,7 +65,7 @@ class ilObjStudyProgramme extends ilContainer
     protected Filesystem $webdir;
     protected ilObjUser $ilUser;
     protected ?ilObjectFactoryWrapper $object_factory = null;
-    protected ilObjectCustomIconFactory $custom_icon_factory;
+    protected CustomIconFactory $custom_icon_factory;
     protected ilLogger $logger;
 
     /**
@@ -950,7 +951,7 @@ class ilObjStudyProgramme extends ilContainer
      *
      * @throws ilException
      */
-    public function assignUser(int $usr_id, int $acting_usr_id = null, $raise_event = true): ilPRGAssignment
+    public function assignUser(int $usr_id, ?int $acting_usr_id = null, $raise_event = true): ilPRGAssignment
     {
         $this->members_cache = null;
 
@@ -1067,11 +1068,14 @@ class ilObjStudyProgramme extends ilContainer
             [$user_id]
         );
 
-        usort($assignments, function ($a_one, $a_other) {
-            return strcmp(
-                $a_one->getLastChange()->format('Y-m-d'),
-                $a_other->getLastChange()->format('Y-m-d')
-            );
+        usort($assignments, static function (ilPRGAssignment $a_one, ilPRGAssignment $a_other): int {
+            $left = $a_one->getLastChange();
+            $right = $a_other->getLastChange();
+            if ($left === null || $right === null) {
+                return (int) ($left !== null) <=> (int) ($right !== null);
+            }
+
+            return $left->getTimestamp() <=> $right->getTimestamp();
         });
         return $assignments;
     }
@@ -1579,7 +1583,7 @@ class ilObjStudyProgramme extends ilContainer
         $prg->succeed($user_id, $obj_id);
     }
 
-    public function succeed(int $usr_id, int $triggering_obj_id, ilPRGAssignment $ass = null): void
+    public function succeed(int $usr_id, int $triggering_obj_id, ?ilPRGAssignment $ass = null): void
     {
         $progress_node_id = $this->getId();
         if (is_null($ass)) {
@@ -1685,7 +1689,7 @@ class ilObjStudyProgramme extends ilContainer
         return new DateTimeImmutable();
     }
 
-    protected function refreshLPStatus(int $usr_id, int $node_obj_id = null): void
+    protected function refreshLPStatus(int $usr_id, ?int $node_obj_id = null): void
     {
         if (is_null($node_obj_id)) {
             $node_obj_id = $this->getId();
@@ -1828,7 +1832,7 @@ class ilObjStudyProgramme extends ilContainer
     public function updatePlanFromRepository(
         int $assignment_id,
         int $acting_usr_id,
-        ilPRGMessageCollection $err_collection = null
+        ?ilPRGMessageCollection $err_collection = null
     ): void {
         $assignment = $this->assignment_repository->get($assignment_id)
             ->updatePlanFromRepository(
@@ -1844,7 +1848,7 @@ class ilObjStudyProgramme extends ilContainer
     public function acknowledgeCourses(
         int $assignment_id,
         array $nodes,
-        ilPRGMessageCollection $err_collection = null
+        ?ilPRGMessageCollection $err_collection = null
     ): void {
         $acting_usr_id = $this->getLoggedInUserId();
         $assignment = $this->assignment_repository->get($assignment_id);

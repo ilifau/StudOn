@@ -47,19 +47,19 @@ use DateTimeZone;
 class MailFolderTableUI implements \ILIAS\UI\Component\Table\DataRetrieval
 {
     // table actions
-    public const ACTION_SHOW = 'show';
-    public const ACTION_EDIT = 'edit';
-    public const ACTION_REPLY = 'reply';
-    public const ACTION_FORWARD = 'forward';
-    public const ACTION_DOWNLOAD_ATTACHMENT = 'download';
-    public const ACTION_PRINT = 'print';
-    public const ACTION_PROFILE = 'profile';
-    public const ACTION_MOVE_TO = 'moveTo';
-    public const ACTION_DELETE = 'delete';
-    public const ACTION_MARK_READ = 'markRead';
-    public const ACTION_MARK_UNREAD = 'marUnread';
+    public const string ACTION_SHOW = 'show';
+    public const string ACTION_EDIT = 'edit';
+    public const string ACTION_REPLY = 'reply';
+    public const string ACTION_FORWARD = 'forward';
+    public const string ACTION_DOWNLOAD_ATTACHMENT = 'download';
+    public const string ACTION_PRINT = 'print';
+    public const string ACTION_PROFILE = 'profile';
+    public const string ACTION_MOVE_TO = 'moveTo';
+    public const string ACTION_DELETE = 'delete';
+    public const string ACTION_MARK_READ = 'markRead';
+    public const string ACTION_MARK_UNREAD = 'marUnread';
 
-    /** @var string[] */
+    /** @var array<int, string> */
     private array $avatars = [];
 
     /**
@@ -91,9 +91,9 @@ class MailFolderTableUI implements \ILIAS\UI\Component\Table\DataRetrieval
         return $this->ui_factory
             ->table()
             ->data(
+                $this,
                 $this->getTableTitle(),
                 $this->getColumnDefinition(),
-                $this
             )
             ->withId(str_replace('\\', '', self::class))
             ->withOrder(new Order('date', Order::DESC))
@@ -242,7 +242,7 @@ class MailFolderTableUI implements \ILIAS\UI\Component\Table\DataRetrieval
             }
         }
 
-        if ($this->current_folder->isDrafts()) {
+        if ($this->current_folder->isDrafts() || $this->current_folder->isOutbox()) {
             unset($actions[self::ACTION_SHOW], $actions[self::ACTION_REPLY], $actions[self::ACTION_FORWARD]);
         } else {
             unset($actions[self::ACTION_EDIT]);
@@ -264,8 +264,9 @@ class MailFolderTableUI implements \ILIAS\UI\Component\Table\DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,            // not used, because data is filtered by MailDataSearch
-        ?array $additional_parameters   // not used
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,             // not used, because data is filtered by MailDataSearch
+        mixed $additional_parameters    // not used
     ): \Generator {
         // mapping of table columns to allowed order columns of the mailbox query
         $order_columns = [
@@ -326,8 +327,11 @@ class MailFolderTableUI implements \ILIAS\UI\Component\Table\DataRetrieval
         }
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         return $this->search->getCount();
     }
 
@@ -422,7 +426,7 @@ class MailFolderTableUI implements \ILIAS\UI\Component\Table\DataRetrieval
             (string) $this->url_builder
                 ->withParameter(
                     $this->action_token,
-                    $this->current_folder->isDrafts() ? self::ACTION_EDIT : self::ACTION_SHOW
+                    $this->current_folder->isDrafts() || $this->current_folder->isOutbox() ? self::ACTION_EDIT : self::ACTION_SHOW
                 )
                 ->withParameter($this->row_id_token, (string) $record->getMailId())
                 ->buildURI()

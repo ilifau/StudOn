@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-use FAU\Ilias\Helper\WaitingListConstantsHelper;
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -18,6 +16,9 @@ use FAU\Ilias\Helper\WaitingListConstantsHelper;
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
+use FAU\Ilias\Helper\WaitingListConstantsHelper;
 
 class ilLearningSequenceWaitingList extends ilWaitingList
 {

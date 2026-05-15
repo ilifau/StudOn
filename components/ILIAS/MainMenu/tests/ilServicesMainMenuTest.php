@@ -18,18 +18,17 @@
 
 declare(strict_types=1);
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
 use PHPUnit\Framework\TestCase;
 use ILIAS\DI\Container;
 use ILIAS\MainMenu\Provider\CustomMainBarProvider;
 use ILIAS\GlobalScreen\Services;
 use ILIAS\GlobalScreen\Provider\ProviderFactory;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Information\TypeInformationCollection;
-use ILIAS\GlobalScreen\Scope\MetaBar\Factory\LinkItem;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\Item\Link;
-use ILIAS\GlobalScreen\MainMenu\IdentificationTest;
 use ILIAS\GlobalScreen\Identification\NullIdentification;
-use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer\TypeRenderer;
-use ILIAS\GlobalScreen\Scope\MainMenu\Factory\TopItem\TopLinkItem;
 use ILIAS\GlobalScreen\Scope\MainMenu\Factory\TopItem\TopParentItem;
 use ILIAS\GlobalScreen\Scope\MainMenu\Collector\Renderer\TopParentItemRenderer;
 use ILIAS\UI\Component\MainControls\Slate\Combined;
@@ -45,14 +44,9 @@ use ILIAS\GlobalScreen\Identification\IdentificationInterface;
 
 class ilServicesMainMenuTest extends TestCase
 {
-    private ?\ILIAS\DI\Container $dic_backup;
+    private ?Container $dic_backup;
     /**
-     * @var ProviderFactory|(ProviderFactory&object&\PHPUnit\Framework\MockObject\MockObject)|(ProviderFactory&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private ProviderFactory|\PHPUnit\Framework\MockObject\MockObject $provider_factory_mock;
-    private Services $gs_mock;
-    /**
-     * @var ilDBInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var ilDBInterface|MockObject
      */
     protected ilDBInterface $db_mock;
     protected Container $dic_mock;
@@ -71,15 +65,15 @@ class ilServicesMainMenuTest extends TestCase
         }
         $this->dic_backup = is_object($DIC) ? clone $DIC : $DIC;
         $this->dic_mock = $DIC = new Container();
-        $this->provider_factory_mock = $this->createMock(ProviderFactory::class);
-        $this->gs_mock = $DIC['global_screen'] = new Services($this->provider_factory_mock);
+        $provider_factory_mock = $this->createMock(ProviderFactory::class);
+        $gs_mock = $DIC['global_screen'] = new Services($provider_factory_mock);
         $this->db_mock = $DIC['ilDB'] = $this->createMock(ilDBInterface::class);
         $this->dic_mock['ilUser'] = $DIC['ilUser'] = $this->createMock(ilObjUser::class);
         $this->dic_mock['ilSetting'] = $DIC['ilSetting'] = $this->createMock(ilSetting::class);
         $this->dic_mock['rbacsystem'] = $DIC['rbacsystem'] = $this->createMock(ilRbacSystem::class);
         $this->dic_mock['lng'] = $DIC['lng'] = $this->createMock(ilLanguage::class);
-        $this->dic_mock['ui.factory'] = $DIC['ui.factory'] = $this->createMock(\ILIAS\UI\Factory::class);
-        $this->dic_mock['ui.renderer'] = $DIC['ui.renderer'] = $this->createMock(\ILIAS\UI\Renderer::class);
+        $this->dic_mock['ui.factory'] = $DIC['ui.factory'] = $this->createMock(Factory::class);
+        $this->dic_mock['ui.renderer'] = $DIC['ui.renderer'] = $this->createMock(Renderer::class);
         $this->dic_mock['objDefinition'] = $DIC['objDefinition'] = $this->createMock(ilObjectDefinition::class);
     }
 
@@ -148,6 +142,7 @@ class ilServicesMainMenuTest extends TestCase
     public function testStandardTopItems(): void
     {
         $this->dic_mock['lng'] = $this->createMock(ilLanguage::class);
+        $this->dic_mock['tree'] = $this->createMock(ilTree::class);
         $standard_top_items = new StandardTopItemsProvider($this->dic_mock);
         $items = $standard_top_items->getStaticTopItems();
         $item_identifications = array_map(
@@ -155,25 +150,25 @@ class ilServicesMainMenuTest extends TestCase
             $items
         );
 
-        $this->assertEquals(7, count($items)); // this contains Dashboard as well
-        $this->assertEquals(7, count($item_identifications));
+        $this->assertCount(7, $items); // this contains Dashboard as well
+        $this->assertCount(7, $item_identifications);
 
         $repo = $standard_top_items->getRepositoryIdentification();
-        $this->assertTrue(in_array($repo, $item_identifications));
+        $this->assertContains($repo, $item_identifications);
 
         $admin = $standard_top_items->getAdministrationIdentification();
-        $this->assertTrue(in_array($admin, $item_identifications));
+        $this->assertContains($admin, $item_identifications);
 
         $achievments = $standard_top_items->getAchievementsIdentification();
-        $this->assertTrue(in_array($achievments, $item_identifications));
+        $this->assertContains($achievments, $item_identifications);
 
         $communication = $standard_top_items->getCommunicationIdentification();
-        $this->assertTrue(in_array($communication, $item_identifications));
+        $this->assertContains($communication, $item_identifications);
 
         $organisation = $standard_top_items->getOrganisationIdentification();
-        $this->assertTrue(in_array($communication, $item_identifications));
+        $this->assertContains($communication, $item_identifications);
 
         $personal = $standard_top_items->getPersonalWorkspaceIdentification();
-        $this->assertTrue(in_array($personal, $item_identifications));
+        $this->assertContains($personal, $item_identifications);
     }
 }

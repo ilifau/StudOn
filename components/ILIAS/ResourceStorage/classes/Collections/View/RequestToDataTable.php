@@ -20,9 +20,9 @@ declare(strict_types=1);
 
 namespace ILIAS\components\ResourceStorage\Collections\View;
 
+use ILIAS\UI\Component\Table\Data;
 use ILIAS\UI\Factory;
 use ILIAS\components\ResourceStorage\Collections\DataProvider\TableDataProvider;
-use ILIAS\components\ResourceStorage\Collections\DataProvider\DataTableDataProviderAdapter;
 use ILIAS\Data\Range;
 use ILIAS\HTTP\Services;
 use ILIAS\components\ResourceStorage\BinToHexSerializer;
@@ -74,11 +74,12 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
     }
 
     /**
-     * @return \ILIAS\UI\Component\Table\Data
+     * @return Data
      */
-    protected function buildTable(): \ILIAS\UI\Component\Table\Data
+    protected function buildTable(): Data
     {
         return $this->ui_factory->table()->data(
+            $this,
             '', // $this->request->getTitle() we already have the title in the panel
             [
                 self::F_TITLE => $this->ui_factory->table()->column()->text(
@@ -95,7 +96,6 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
                     $this->language->txt(self::F_TYPE)
                 )->withIsSortable(false),
             ],
-            $this
         )->withRequest(
             $this->http->request()
         )->withActions(
@@ -110,8 +110,9 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
         array $visible_column_ids,
         Range $range,
         Order $order,
-        ?array $filter_data,
-        ?array $additional_parameters
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
     ): \Generator {
         $this->initSortingAndOrdering($range, $order);
 
@@ -169,8 +170,11 @@ class RequestToDataTable implements RequestToComponents, DataRetrieval
         }
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
+    public function getTotalRowCount(
+        mixed $additional_viewcontrol_data,
+        mixed $filter_data,
+        mixed $additional_parameters
+    ): ?int {
         return $this->data_provider->getTotal();
     }
 }

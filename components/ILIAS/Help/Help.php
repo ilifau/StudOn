@@ -32,6 +32,9 @@ class Help implements Component\Component
         array | \ArrayAccess &$pull,
         array | \ArrayAccess &$internal,
     ): void {
+        $implement[UI\HelpTextRetriever::class] = static fn() =>
+            new \ilHelpUITextRetriever();
+
         $contribute[\ILIAS\Setup\Agent::class] = static fn() =>
             new \ILIAS\Help\Setup\Agent(
                 $pull[\ILIAS\Refinery\Factory::class]
@@ -39,5 +42,10 @@ class Help implements Component\Component
 
         $contribute[Component\Resource\PublicAsset::class] = fn() =>
             new Component\Resource\ComponentJS($this, "ilHelp.js");
+        $contribute[Component\Resource\PublicAsset::class] = fn() =>
+            new Component\Resource\ComponentJS($this, "guided-tour.js");
+
+        $contribute[User\Settings\UserSettings::class] = fn() =>
+            new Help\UserSettings\Settings();
     }
 }

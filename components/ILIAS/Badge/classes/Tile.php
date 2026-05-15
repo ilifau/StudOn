@@ -47,10 +47,10 @@ class Tile
      */
     public function __construct(
         private readonly Container $container,
-        BadgeParent $parent = null,
-        Modal $modal = null,
+        ?BadgeParent $parent = null,
+        ?Modal $modal = null,
         $sign_file = [ilWACSignedPath::class, 'signFile'],
-        Closure $format_date = null,
+        ?Closure $format_date = null,
     ) {
         $this->parent = $parent ?? new BadgeParent($this->container);
         $this->modal = $modal ?? new Modal($this->container);

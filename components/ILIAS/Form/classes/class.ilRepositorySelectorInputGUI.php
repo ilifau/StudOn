@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 /**
  * This class represents a repository selector in a property form.
  *
@@ -26,6 +26,7 @@ declare(strict_types=1);
  *
  * @author Alexander Killing <killing@leifos.de>
  * @ilCtrl_IsCalledBy ilRepositorySelectorInputGUI: ilFormPropertyDispatchGUI
+ * @deprecated 12 This component will be removed with ILIAS 12
  */
 class ilRepositorySelectorInputGUI extends ilFormPropertyGUI implements ilTableFilterItem
 {

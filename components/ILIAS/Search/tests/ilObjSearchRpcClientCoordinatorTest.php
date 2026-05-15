@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
@@ -46,11 +46,10 @@ class ilObjSearchRpcClientCoordinatorTest extends TestCase
 
         $rpc_client = $this->getMockBuilder(ilRpcClient::class)
                            ->disableOriginalConstructor()
-                           ->addMethods(['refreshSettings'])
                            ->getMock();
         $rpc_client->expects($this->once())
-                   ->method('refreshSettings')
-                   ->with('id_test');
+                   ->method('__call')
+                   ->with('refreshSettings', ['id_test']);
 
         $coord = $this->getMockBuilder(ilObjSearchRpcClientCoordinator::class)
                       ->setConstructorArgs([$settings, $src_logger])
@@ -90,11 +89,10 @@ class ilObjSearchRpcClientCoordinatorTest extends TestCase
 
         $rpc_client = $this->getMockBuilder(ilRpcClient::class)
                            ->disableOriginalConstructor()
-                           ->addMethods(['refreshSettings'])
                            ->getMock();
         $rpc_client->expects($this->once())
-                   ->method('refreshSettings')
-                   ->with('id_test')
+                   ->method('__call')
+                   ->with('refreshSettings', ['id_test'])
                    ->willThrowException(new Exception('message'));
 
         $coord = $this->getMockBuilder(ilObjSearchRpcClientCoordinator::class)

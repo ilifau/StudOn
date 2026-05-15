@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Export;
 
-
 use ILIAS\Repository\RepoServiceBase;
 
 class InternalRepoService
@@ -31,11 +30,11 @@ class InternalRepoService
 
     public function __construct(
         protected InternalDataService $data,
-        protected \ilDBInterface $db)
-    {
+        protected \ilDBInterface $db
+    ) {
     }
 
-    public function html() : HTML\RepoService
+    public function html(): HTML\RepoService
     {
         return self::$instance['html'] ??= new HTML\RepoService(
             $this->data->html(),

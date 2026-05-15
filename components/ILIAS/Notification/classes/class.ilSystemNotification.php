@@ -3,15 +3,18 @@
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
+ *
  * ILIAS is licensed with the GPL-3.0,
  * see https://www.gnu.org/licenses/gpl-3.0.en.html
  * You should have received a copy of said license along with the
  * source code, too.
+ *
  * If this is not the case or you just want to try ILIAS, you'll find
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 /**
  * Wrapper classes for system notifications
@@ -19,6 +22,13 @@
  * @see FeatureWiki/Guidelines/System Notification Guideline
  *
  * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
+ *
+ * @phpstan-type SystemNotificationAdditionalInfo array{
+ *     caption: string,
+ *     content: string,
+ *     is_multiline: bool,
+ *     is_direct_translation: bool
+ * }
  */
 class ilSystemNotification extends ilMailNotification
 {
@@ -28,6 +38,7 @@ class ilSystemNotification extends ilMailNotification
     protected string $introduction_direct = "";
     protected string $task = "";
     protected string $reason = "";
+    /** @var list<SystemNotificationAdditionalInfo> */
     protected array $additional = [];
     protected string $goto_caption = "";
     protected int $changed_by = 0;
@@ -88,7 +99,12 @@ class ilSystemNotification extends ilMailNotification
         bool $a_multiline = false,
         bool $a_lang_direct = false
     ): void {
-        $this->additional[$a_lang_id] = array(trim($a_value), $a_multiline, $a_lang_direct);
+        $this->additional[] = [
+            'caption' => $a_lang_id,
+            'content' => trim($a_value),
+            'is_direct_translation' => $a_lang_direct,
+            'is_multiline' => $a_multiline
+        ];
     }
 
     /**
@@ -185,28 +201,55 @@ class ilSystemNotification extends ilMailNotification
             $this->appendBody($this->getLanguageText("obj_" . $this->getObjType()) . ": " .
                 $this->getObjectTitle() . "\n");
         }
-        if (count($this->additional) > 0) {
-            foreach ($this->additional as $lang_id => $item) {
-                $caption = "";
-                if ($lang_id) {
-                    $caption = (!$item[2])
-                        ? $this->getLanguageText($lang_id)
-                        : $lang_id;
+
+        if (!empty($this->additional)) {
+            $num_addtional_sections = 0;
+            $render_opening_block_border = true;
+
+            /** @var SystemNotificationAdditionalInfo $item */
+            foreach ($this->additional as $item) {
+                if ($num_addtional_sections > 0) {
+                    $this->appendBody("\n");
                 }
-                if (!$item[1]) {
-                    if ($caption) {
-                        $caption .= ": ";
+
+                $caption = $item['caption'];
+                if ($caption !== '') {
+                    $caption = $item['is_direct_translation']
+                        ? $caption
+                        : $this->getLanguageText($caption);
+                }
+
+                if ($item['is_multiline']) {
+                    if ($caption !== '') {
+                        $this->appendBody($caption);
+                        $this->appendBody("\n");
+                        // a) If we render a new caption, we ensure a new opening block border is rendered
+                        $render_opening_block_border = true;
                     }
-                    $this->appendBody($caption . $item[0] . "\n");
+
+                    if ($render_opening_block_border) {
+                        $this->appendBody($this->getBlockBorder());
+                    }
+
+                    $this->appendBody("\n");
+                    $this->appendBody($item['content']);
+                    $this->appendBody("\n");
+                    $this->appendBody($this->getBlockBorder());
+
+                    // b) We rendered a closing block border, the next block does not need an opening block border
+                    $render_opening_block_border = false;
                 } else {
                     if ($caption) {
-                        $caption .= "\n";
+                        $caption .= ': ';
                     }
-                    $this->appendBody("\n" . $caption .
-                        $this->getBlockBorder() .
-                        $item[0] . "\n" .
-                        $this->getBlockBorder() . "\n");
+
+                    $this->appendBody($caption . $item['content']);
+
+                    // c) If a single line was rendered, the next block needs an opening border
+                    $render_opening_block_border = true;
                 }
+
+                ++$num_addtional_sections;
             }
         }
         $this->body = trim($this->body);

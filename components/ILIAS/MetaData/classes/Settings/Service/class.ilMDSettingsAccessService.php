@@ -20,10 +20,9 @@ declare(strict_types=1);
 
 class ilMDSettingsAccessService
 {
-    protected const VISIBLE = 'visible';
-    protected const READ = 'read';
-    protected const WRITE = 'write';
-    protected const EDIT_PERMISSION = 'edit_permission';
+    protected const string READ = 'read';
+    protected const string WRITE = 'write';
+    protected const string EDIT_PERMISSION = 'edit_permission';
 
     protected ilAccess $access;
     protected int $ref_id;
@@ -32,11 +31,6 @@ class ilMDSettingsAccessService
     {
         $this->ref_id = $ref_id;
         $this->access = $access;
-    }
-
-    public function hasCurrentUserVisibleAccess(): bool
-    {
-        return $this->hasCurrentUserAccess(self::VISIBLE);
     }
 
     public function hasCurrentUserReadAccess(): bool

@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Test\Results\Presentation;
 
-use ILIAS\Test\Results\Data\AttemptResult;
+use ILIAS\Test\Results\Data\AttemptSolutions;
 use ILIAS\Test\Results\Data\TestOverview;
 use ILIAS\UI\Factory as UIFactory;
 use ILIAS\UI\Renderer as UIRenderer;
@@ -44,7 +44,7 @@ class Factory
     }
 
     public function getAttemptResultsPresentationTable(
-        AttemptResult $attempt_result,
+        AttemptSolutions $attempt_result,
         Settings $settings,
         string $title,
         bool $for_print
@@ -79,7 +79,6 @@ class Factory
             $test_obj->getId(),
             $show_hidden_questions,
             $show_optional_questions,
-            $test_obj->getMainSettings()->getQuestionBehaviourSettings()->getQuestionHintsEnabled(),
             $show_best_solution,
             $settings_result->getShowSolutionFeedback(),
             $settings_result->getShowSolutionAnswersOnly(),

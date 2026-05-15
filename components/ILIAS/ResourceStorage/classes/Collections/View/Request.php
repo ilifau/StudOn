@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\components\ResourceStorage\Collections\View;
 
-use ILIAS\Refinery\Factory;
+use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 use ILIAS\ResourceStorage\Collection\ResourceCollection;
 
@@ -29,23 +29,62 @@ use ILIAS\ResourceStorage\Collection\ResourceCollection;
  */
 final class Request
 {
+    /**
+     * @var int
+     */
     public const MODE_AS_DATA_TABLE = 1;
+    /**
+     * @var int
+     */
     public const MODE_AS_PRESENTATION_TABLE = 2;
+    /**
+     * @var int
+     */
     public const MODE_AS_ITEMS = 3;
+    /**
+     * @var int
+     */
     public const MODE_AS_DECK = 4;
+    /**
+     * @var string
+     */
     public const P_PAGE = 'irss_page';
+    /**
+     * @var string
+     */
     public const P_SORTATION = 'irss_sort';
+    /**
+     * @var string
+     */
     public const BY_CREATION_DATE_DESC = 'by_creation_date_desc';
+    /**
+     * @var string
+     */
     public const BY_CREATION_DATE_ASC = 'by_creation_date_asc';
+    /**
+     * @var string
+     */
     public const BY_TITLE_DESC = 'by_title_desc';
+    /**
+     * @var string
+     */
     public const BY_TITLE_ASC = 'by_title_asc';
+    /**
+     * @var string
+     */
     public const BY_SIZE_DESC = 'by_size_desc';
+    /**
+     * @var string
+     */
     public const BY_SIZE_ASC = 'by_size_asc';
+    /**
+     * @var string
+     */
     public const P_MODE = 'irss_view_mode';
     private Mode $mode;
     private int $page;
     private string $sortation;
-    private Factory $refinery;
+    private Refinery $refinery;
     private int $items_per_page = 20;
 
     public function __construct(

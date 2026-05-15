@@ -35,7 +35,6 @@ use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\HTTP\Response\ResponseHeader;
 use ILIAS\LegalDocuments\Provide\ProvideDocument;
 use ILIAS\LegalDocuments\HTMLPurifier;
-use ILIAS\Refinery\ConstraintViolationException;
 
 class ilLegalDocumentsAdministrationGUI
 {
@@ -200,17 +199,12 @@ class ilLegalDocumentsAdministrationGUI
         }
 
         $edit_links = $this->config->editable() ? new AdministrationEditLinks($this, $this->admin) : null;
-        $this->admin->setContent($this->config->legalDocuments()->document()->table($this, __FUNCTION__, $edit_links));
+        $this->ui->mainTemplate()->setContent($this->config->legalDocuments()->document()->table($this, $edit_links)->render());
     }
 
     public function deleteDocuments(): void
     {
-        $documents = $this->admin->retrieveDocuments();
-        if ($documents === []) {
-            $this->ui->mainTemplate()->setOnScreenMessage('failure', $this->ui->txt('select_at_least_one_object'), true);
-            $this->ctrlTo('redirectByClass', 'documents');
-        }
-        $this->deleteDocumentsConfirmation($documents);
+        $this->deleteDocumentsConfirmation($this->admin->retrieveDocuments());
     }
 
     public function deleteDocument(): void
@@ -248,14 +242,8 @@ class ilLegalDocumentsAdministrationGUI
     public function saveOrder(): void
     {
         $this->admin->requireEditable();
-        try {
-            $this->admin->withDocumentsAndOrder($this->admin->saveDocumentOrder(...));
-            $this->returnWithMessage('saved_successfully', 'documents');
-        } catch (ConstraintViolationException) {
-            $this->ui->mainTemplate()->setOnScreenMessage('failure', $this->ui->txt('ldoc_order_invalid'), true);
-            $this->ctrlTo('redirectByClass', 'documents');
-        }
-
+        $this->admin->withDocumentsAndOrder($this->admin->saveDocumentOrder(...));
+        $this->returnWithMessage('saved_successfully', 'documents');
     }
 
     /**

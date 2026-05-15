@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 use ILIAS\GlobalScreen\Scope\Notification\Collector\MainNotificationCollector;
 
 /**
@@ -32,7 +48,7 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
     {
         $povider = $this->getDummyNotificationsProviderWithNotifications([]);
         $collector = new MainNotificationCollector([$povider]);
-        $this->assertEquals([], $collector->getNotifications());
+        $this->assertSame([], $collector->getNotifications());
 
         $group_notification = $this->factory->standardGroup($this->id);
         $povider = $this->getDummyNotificationsProviderWithNotifications([$group_notification]);
@@ -50,12 +66,12 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
     {
         $povider = $this->getDummyNotificationsProviderWithNotifications([]);
         $collector = new MainNotificationCollector([$povider]);
-        $this->assertEquals(0, $collector->getAmountOfNewNotifications());
+        $this->assertSame(0, $collector->getAmountOfNewNotifications());
 
         $group_notification = $this->factory->standardGroup($this->id);
         $povider = $this->getDummyNotificationsProviderWithNotifications([$group_notification]);
         $collector = new MainNotificationCollector([$povider]);
-        $this->assertEquals(0, $collector->getAmountOfNewNotifications());
+        $this->assertSame(0, $collector->getAmountOfNewNotifications());
 
         $group_notification = $this->factory->standardGroup($this->id);
         $standard_notification = $this->factory->standard($this->id)->withNewAmount(3);
@@ -64,7 +80,7 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
 
         $povider = $this->getDummyNotificationsProviderWithNotifications([$group_notification, $group_notification]);
         $collector = new MainNotificationCollector([$povider]);
-        $this->assertEquals(4, $collector->getAmountOfNewNotifications());
+        $this->assertSame(4, $collector->getAmountOfNewNotifications());
     }
 
 
@@ -72,12 +88,12 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
     {
         $povider = $this->getDummyNotificationsProviderWithNotifications([]);
         $collector = new MainNotificationCollector([$povider]);
-        $this->assertEquals(0, $collector->getAmountOfOldNotifications());
+        $this->assertSame(0, $collector->getAmountOfOldNotifications());
 
         $group_notification = $this->factory->standardGroup($this->id);
         $povider = $this->getDummyNotificationsProviderWithNotifications([$group_notification]);
         $collector = new MainNotificationCollector([$povider]);
-        $this->assertEquals(0, $collector->getAmountOfOldNotifications());
+        $this->assertSame(0, $collector->getAmountOfOldNotifications());
 
         $group_notification = $this->factory->standardGroup($this->id);
         $standard_notification = $this->factory->standard($this->id)->withOldAmount(3);
@@ -86,7 +102,7 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
 
         $povider = $this->getDummyNotificationsProviderWithNotifications([$group_notification, $group_notification]);
         $collector = new MainNotificationCollector([$povider]);
-        $this->assertEquals(4, $collector->getAmountOfOldNotifications());
+        $this->assertSame(4, $collector->getAmountOfOldNotifications());
     }
 
 
@@ -95,7 +111,7 @@ class MainNotificationCollectorTest extends BaseNotificationSetUp
         $provider = $this->getDummyNotificationsProviderWithNotifications([]);
         $collector = new MainNotificationCollector([$provider]);
 
-        $this->assertEquals([], $collector->getNotificationsIdentifiersAsArray());
+        $this->assertSame([], $collector->getNotificationsIdentifiersAsArray());
 
         $group_notification = $this->factory->standardGroup($this->id);
         $provider = $this->getDummyNotificationsProviderWithNotifications([$group_notification]);

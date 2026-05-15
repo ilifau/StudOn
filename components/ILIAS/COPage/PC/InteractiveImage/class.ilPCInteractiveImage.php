@@ -786,7 +786,7 @@ class ilPCInteractiveImage extends ilPageContent
                 $new_inner = $inner;
             } else {
                 $pop = $this->ui->factory()->popover()->standard(
-                    $this->ui->factory()->legacy("#####popovercontent#####")
+                    $this->ui->factory()->legacy()->content("#####popovercontent#####")
                 );
                 $signal_id = $pop->getShowSignal()->getId();
                 //$new_inner = $this->ui->renderer()->render($pop);

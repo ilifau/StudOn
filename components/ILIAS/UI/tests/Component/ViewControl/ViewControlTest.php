@@ -158,11 +158,11 @@ class ViewControlTest extends ILIAS_UI_TestBase
     public function getUIFactory(): NoUIFactory
     {
         return new class () extends NoUIFactory {
-            public function counter(): C\Counter\Factory
+            public function counter(): I\Component\Counter\Factory
             {
                 return new I\Component\Counter\Factory();
             }
-            public function button(): C\Button\Factory
+            public function button(): I\Component\Button\Factory
             {
                 return new I\Component\Button\Factory();
             }

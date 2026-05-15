@@ -45,7 +45,6 @@ class ilObjSurveyQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassI
     protected ilHelpGUI $help;
     protected ilLogger $log;
     protected RefineryFactory $refinery;
-    protected HTTPServices $http;
     protected ILIASArchives $archives;
     public string $defaultscript;
 
@@ -57,7 +56,6 @@ class ilObjSurveyQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassI
         $this->toolbar = $DIC->toolbar();
         $this->help = $DIC["ilHelp"];
         $this->refinery = $DIC->refinery();
-        $this->http = $DIC->http();
         $this->archives = $DIC->archives();
         $this->edit_request = $DIC->surveyQuestionPool()
             ->internal()
@@ -188,7 +186,7 @@ class ilObjSurveyQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassI
     /**
      * Edit question pool properties
      */
-    public function propertiesObject(ilPropertyFormGUI $a_form = null): void
+    public function propertiesObject(?ilPropertyFormGUI $a_form = null): void
     {
         $this->ctrl->redirectByClass(\ILIAS\SurveyQuestionPool\Settings\SettingsGUI::class);
     }
@@ -645,7 +643,7 @@ class ilObjSurveyQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassI
 
         $newObj = new ilObjSurveyQuestionPool();
         $newObj->setTitle("dummy");
-        $newObj->create(true);
+        $newObj->create();
         $this->putObjectInTree($newObj);
 
         // import qti data

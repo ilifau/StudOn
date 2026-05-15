@@ -411,4 +411,14 @@ class MediaObjectManager
 
         return implode("\n", $vttLines);
     }
+
+    public function getLastChangeTimestamp(int $mob_id): int
+    {
+        return $this->repo->getLastChangeTimestamp($mob_id);
+    }
+
+    public function updateLastChange(int $mob_id): void
+    {
+        $this->repo->updateLastChangeTimestamp($mob_id, time());
+    }
 }

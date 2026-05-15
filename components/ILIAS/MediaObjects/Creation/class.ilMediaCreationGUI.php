@@ -72,8 +72,8 @@ class ilMediaCreationGUI
         Closure $after_upload,
         Closure $after_url_saving,
         Closure $after_pool_insert,
-        Closure $finish_single_upload = null,
-        Closure $on_mob_update = null
+        ?Closure $finish_single_upload = null,
+        ?Closure $on_mob_update = null
     ) {
         global $DIC;
 
@@ -261,7 +261,7 @@ class ilMediaCreationGUI
             $mep_hash = uniqid();
             $this->ctrl->setParameter($this, "mep_hash", $mep_hash);
             $this->bulk_upload_form = $this->gui
-                ->form(self::class, 'performBulkUpload')
+                ->form([self::class], 'performBulkUpload')
                 ->section("props", $this->lng->txt('mob_upload_file'))
                 ->file(
                     "media_files",

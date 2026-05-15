@@ -37,16 +37,19 @@ class ilDatabaseResetStepsObjective extends AdminConfirmedObjective
         );
     }
 
+    #[\Override]
     public function getHash(): string
     {
         return hash("sha256", self::class);
     }
 
+    #[\Override]
     public function getLabel(): string
     {
         return "failing update steps are removed.";
     }
 
+    #[\Override]
     public function isNotable(): bool
     {
         return true;
@@ -55,11 +58,13 @@ class ilDatabaseResetStepsObjective extends AdminConfirmedObjective
     /**
      * @return \ilDatabaseInitializedObjective[]|ClientIdReadObjective[]|\ilIniFilesPopulatedObjective[]
      */
+    #[\Override]
     public function getPreconditions(Environment $environment): array
     {
         return [new ClientIdReadObjective(), new ilIniFilesPopulatedObjective(), new ilDatabaseInitializedObjective()];
     }
 
+    #[\Override]
     public function achieve(Environment $environment): Environment
     {
         $environment = parent::achieve($environment);
@@ -71,6 +76,7 @@ class ilDatabaseResetStepsObjective extends AdminConfirmedObjective
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function isApplicable(Environment $environment): bool
     {
         $db = $environment->getResource(Environment::RESOURCE_DATABASE);

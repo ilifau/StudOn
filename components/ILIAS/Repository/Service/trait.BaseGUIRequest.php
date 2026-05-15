@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +15,8 @@ declare(strict_types=1);
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Repository;
 
@@ -192,7 +192,7 @@ trait BaseGUIRequest
     /**
      * @return mixed|null
      */
-    protected function raw(string $key)
+    protected function raw(string $key): mixed
     {
         $no_transform = $this->refinery->identity();
         return $this->get($key, $no_transform);
@@ -206,7 +206,7 @@ trait BaseGUIRequest
      * @param Refinery\Transformation $t
      * @return mixed|null
      */
-    protected function get(string $key, Refinery\Transformation $t)
+    protected function get(string $key, Refinery\Transformation $t): mixed
     {
         if ($this->passed_query_params === null && $this->passed_post_data === null) {
             $w = $this->http->wrapper();
@@ -224,5 +224,17 @@ trait BaseGUIRequest
             return $t->transform($this->passed_query_params[$key]);
         }
         return null;
+    }
+
+    public function has(string $key): bool
+    {
+        $w = $this->http->wrapper();
+        if ($w->post()->has($key)) {
+            return true;
+        }
+        if ($w->query()->has($key)) {
+            return true;
+        }
+        return false;
     }
 }

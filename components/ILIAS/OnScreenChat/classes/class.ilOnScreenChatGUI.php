@@ -98,7 +98,7 @@ class ilOnScreenChatGUI implements ilCtrlBaseClassInterface
             case 'inviteModal':
                 $this->dic->language()->loadLanguageModule('chatroom');
                 $txt = $this->dic->language()->txt(...);
-                $modal = $this->dic->ui()->factory()->modal()->roundtrip($txt('chat_osc_invite_to_conversation'), $this->dic->ui()->factory()->legacy($txt('chat_osc_search_modal_info')), [
+                $modal = $this->dic->ui()->factory()->modal()->roundtrip($txt('chat_osc_invite_to_conversation'), $this->dic->ui()->factory()->legacy()->content($txt('chat_osc_search_modal_info')), [
                     $this->dic->ui()->factory()->input()->field()->text($txt('chat_osc_user')),
                 ])->withSubmitLabel($txt('confirm'));
                 $response = $this->renderAsyncModal('inviteModal', $modal);
@@ -200,9 +200,10 @@ class ilOnScreenChatGUI implements ilCtrlBaseClassInterface
             $chatWindowTemplate->setVariable('SUBMIT_ACTION', $renderer->render(
                 $factory->button()->standard($DIC->language()->txt('chat_osc_send'), 'onscreenchat-submit')
             ));
-            $chatWindowTemplate->setVariable('ADD_ACTION', $renderer->render(
-                $factory->symbol()->glyph()->add('addUser')
-            ));
+            $add_button = $factory->button()->shy('', 'addUser')
+                        ->withSymbol($factory->symbol()->glyph()->add());
+
+            $chatWindowTemplate->setVariable('ADD_ACTION', $renderer->render($add_button));
             $chatWindowTemplate->setVariable('MINIMIZE_ACTION', $renderer->render(
                 $factory->button()->minimize()
             ));
@@ -311,15 +312,13 @@ class ilOnScreenChatGUI implements ilCtrlBaseClassInterface
             $page->addJavaScript('assets/js/modal.min.js');
             $page->addJavaScript('assets/js/socket.io.min.js');
             $page->addJavaScript('assets/js/Chatroom.min.js');
-            $page->addJavaScript('assets/js/moment-with-locales.min.js');
-            $page->addJavaScript('assets/js/browser_notifications.js');
+            $page->addJavaScript('assets/js/BrowserNotifications.min.js');
             $page->addJavaScript('assets/js/onscreenchat-notifications.js');
             $page->addJavaScript('assets/js/moment.js');
             $page->addJavaScript('assets/js/chat.js');
             $page->addJavaScript('assets/js/onscreenchat.js');
             $page->addOnLoadCode("il.Chat.setConfig(" . json_encode($chatConfig, JSON_THROW_ON_ERROR) . ");");
-            $page->addOnLoadCode("il.OnScreenChat.setConfig(" . json_encode($guiConfig, JSON_THROW_ON_ERROR) . ");");
-            $page->addOnLoadCode("il.OnScreenChat.init();");
+            $page->addOnLoadCode('il.OnScreenChat.init(' . json_encode($guiConfig, JSON_THROW_ON_ERROR) . ' )');
             $page->addOnLoadCode('il.OnScreenChatNotifications.init(' . json_encode([
                 'conversationIdleTimeThreshold' => max(
                     1,

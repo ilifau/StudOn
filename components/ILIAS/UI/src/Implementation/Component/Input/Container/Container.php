@@ -23,7 +23,7 @@ namespace ILIAS\UI\Implementation\Component\Input\Container;
 use ILIAS\UI\Component as C;
 use ILIAS\UI\Implementation\Component as CI;
 use ILIAS\UI\Implementation\Component\Input\NameSource;
-use ILIAS\UI\Implementation\Component\Input\InputData;
+use ILIAS\UI\Component\Input\InputData;
 use ILIAS\Refinery\Transformation;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\Data\Result;
@@ -63,10 +63,15 @@ abstract class Container implements C\Input\Container\Container
      */
     public function withRequest(ServerRequestInterface $request): self
     {
-        $post_data = $this->extractRequestData($request);
+        return $this->withInput(
+            $this->extractRequestData($request)
+        );
+    }
 
+    public function withInput(InputData $input_data): self
+    {
         $clone = clone $this;
-        $clone->input_group = $this->getInputGroup()->withInput($post_data);
+        $clone->input_group = $this->getInputGroup()->withInput($input_data);
         $clone->result = $clone->input_group->getContent();
 
         if (!$clone->result->isok()) {
@@ -144,4 +149,9 @@ abstract class Container implements C\Input\Container\Container
      * since different containers may allow different request methods.
      */
     abstract protected function extractRequestData(ServerRequestInterface $request): InputData;
+
+    public function getSubComponents(): array
+    {
+        return $this->getInputs();
+    }
 }

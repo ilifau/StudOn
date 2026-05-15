@@ -23,6 +23,8 @@ namespace ILIAS\UI\Implementation\Component\Legacy;
 use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component;
+use ILIAS\UI\Implementation\Component as I;
+use ILIAS\UI\Implementation\Render\ResourceRegistry;
 
 /**
  * Class Renderer
@@ -35,16 +37,34 @@ class Renderer extends AbstractComponentRenderer
      */
     public function render(Component\Component $component, RendererInterface $default_renderer): string
     {
-        if (!$component instanceof Component\Legacy\Legacy) {
-            $this->cannotHandleComponent($component);
+
+        if ($component instanceof I\Legacy\Content) {
+            return $this->renderContent($component, $default_renderer);
+        }
+        if ($component instanceof I\Legacy\Segment) {
+            return $this->renderSegment($component, $default_renderer);
         }
 
+        $this->cannotHandleComponent($component);
+
+    }
+
+    protected function renderContent(Content $component, RendererInterface $default_renderer): string
+    {
         $component = $this->registerSignals($component);
         $this->bindJavaScript($component);
+
+        // Wrap LatexContent in a div with a css class that enables the rendering inside
+        if ($component instanceof Component\Legacy\LatexContent) {
+            $tpl = $this->getTemplate("tpl.latex_content.html", true, true);
+            $tpl->setVariable('CONTENT', $component->getContent());
+            return $tpl->get();
+        }
+
         return $component->getContent();
     }
 
-    protected function registerSignals(Legacy $component): Component\JavaScriptBindable
+    protected function registerSignals(Content $component): Component\JavaScriptBindable
     {
         $custom_signals = $component->getAllCustomSignals();
 
@@ -57,5 +77,21 @@ class Renderer extends AbstractComponentRenderer
             }
             return $code;
         });
+    }
+
+
+    /**
+     * Register additional resources which are needed for the LatexContent component
+     */
+    public function registerResources(ResourceRegistry $registry): void
+    {
+        parent::registerResources($registry);
+        $registry->register('assets/js/mathjax_config.js');
+        $registry->register('node_modules/mathjax/es5/tex-chtml-full.js');
+    }
+
+    protected function renderSegment(Segment $component, RendererInterface $default_renderer): string
+    {
+        return $component->getSegmentContent();
     }
 }

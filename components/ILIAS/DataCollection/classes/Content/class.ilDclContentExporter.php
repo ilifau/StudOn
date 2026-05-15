@@ -94,7 +94,7 @@ class ilDclContentExporter
     {
     }
 
-    public function export(string $format = self::EXPORT_EXCEL, string $filepath = null, bool $send = false): bool
+    public function export(string $format = self::EXPORT_EXCEL, ?string $filepath = null, bool $send = false): bool
     {
         if (empty($filepath)) {
             $filepath = $this->getExportContentPath($format);
@@ -154,7 +154,7 @@ class ilDclContentExporter
         return true;
     }
 
-    public function exportAsync(string $format = self::EXPORT_EXCEL, string $filepath = null): mixed
+    public function exportAsync(string $format = self::EXPORT_EXCEL, ?string $filepath = null): mixed
     {
         global $DIC;
 

@@ -189,7 +189,7 @@ class ilPortfolioAccessHandler implements ilWACCheckingClass
     public function addPermission(
         int $a_node_id,
         int $a_object_id,
-        string $a_extended_data = null
+        ?string $a_extended_data = null
     ): void {
         $ilDB = $this->db;
         $ilUser = $this->user;
@@ -220,7 +220,7 @@ class ilPortfolioAccessHandler implements ilWACCheckingClass
      */
     public function removePermission(
         int $a_node_id,
-        int $a_object_id = null
+        ?int $a_object_id = null
     ): void {
         $ilDB = $this->db;
 
@@ -312,7 +312,7 @@ class ilPortfolioAccessHandler implements ilWACCheckingClass
             " WHERE obj.owner = " . $ilDB->quote($ilUser->getId(), "integer");
 
         if ($a_online_only) {
-            $sql .= " AND prtf.is_online = " . $ilDB->quote(1, "integer");
+            $sql .= " AND obj.offline <> " . $ilDB->quote(1, "integer");
         }
 
         $set = $ilDB->query($sql);
@@ -356,7 +356,7 @@ class ilPortfolioAccessHandler implements ilWACCheckingClass
             " JOIN usr_data u on (u.usr_id = obj.owner)" .
             " WHERE " . $ilDB->in("acl.object_id", $obj_ids, "", "integer") .
             " AND obj.owner <> " . $ilDB->quote($ilUser->getId(), "integer") .
-            " AND prtf.is_online = " . $ilDB->quote(1, "integer") .
+            " AND obj.offline <> " . $ilDB->quote(1, "integer") .
             " ORDER BY u.lastname, u.firstname, u.title");
         while ($row = $ilDB->fetchAssoc($set)) {
             $user_ids[$row["owner"]] = $row["lastname"] . ", " . $row["firstname"];
@@ -382,7 +382,7 @@ class ilPortfolioAccessHandler implements ilWACCheckingClass
             " JOIN usr_portf_acl acl ON (acl.node_id = obj.obj_id)" .
             " WHERE " . $ilDB->in("acl.object_id", $obj_ids, "", "integer") .
             " AND obj.owner = " . $ilDB->quote($a_owner_id, "integer") .
-            " AND prtf.is_online = " . $ilDB->quote(1, "integer"));
+            " AND obj.offline <> " . $ilDB->quote(1, "integer"));
         while ($row = $ilDB->fetchAssoc($set)) {
             $res[$row["obj_id"]] = $row["obj_id"];
         }
@@ -405,7 +405,7 @@ class ilPortfolioAccessHandler implements ilWACCheckingClass
             " JOIN usr_portf_acl acl ON (acl.node_id = obj.obj_id)" .
             " WHERE " . $ilDB->in("acl.object_id", $obj_ids, "", "integer") .
             " AND " . $ilDB->in("obj.owner", $a_owner_ids, "", "integer") .
-            " AND prtf.is_online = " . $ilDB->quote(1, "integer"));
+            " AND obj.offline <> " . $ilDB->quote(1, "integer"));
         while ($row = $ilDB->fetchAssoc($set)) {
             $res[$row["owner"]][$row["obj_id"]] = $row["title"];
         }
@@ -414,9 +414,9 @@ class ilPortfolioAccessHandler implements ilWACCheckingClass
     }
 
     public function findSharedObjects(
-        array $a_filter = null,
-        array $a_crs_ids = null,
-        array $a_grp_ids = null
+        ?array $a_filter = null,
+        ?array $a_crs_ids = null,
+        ?array $a_grp_ids = null
     ): array {
         $ilDB = $this->db;
         $ilUser = $this->user;
@@ -462,7 +462,7 @@ class ilPortfolioAccessHandler implements ilWACCheckingClass
             " WHERE " . $ilDB->in("acl.object_id", $obj_ids, "", "integer") .
             " AND obj.owner <> " . $ilDB->quote($ilUser->getId(), "integer") .
             " AND obj.type = " . $ilDB->quote("prtf", "text") .
-            " AND prtf.is_online = " . $ilDB->quote(1, "integer");
+            " AND obj.offline <> " . $ilDB->quote(1, "integer");
 
         if ($a_filter["title"] && strlen($a_filter["title"]) >= 3) {
             $sql .= " AND " . $ilDB->like("obj.title", "text", "%" . $a_filter["title"] . "%");

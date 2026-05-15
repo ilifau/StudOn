@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -36,6 +37,7 @@ class ilECSParticipantSetting
     public const INCOMING_AUTH_TYPE_INACTIVE = 0;
     public const INCOMING_AUTH_TYPE_LOGIN_PAGE = 1;
     public const INCOMING_AUTH_TYPE_SHIBBOLETH = 2;
+    public const INCOMING_AUTH_TYPE_OIDC = 3;
 
     public const OUTGOING_AUTH_MODE_DEFAULT = 'default';
 

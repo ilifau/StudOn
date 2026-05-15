@@ -455,7 +455,7 @@ class ilObjectDefinition
     public function getCreatableSubObjects(
         string $obj_type,
         int $context = self::MODE_REPOSITORY,
-        int $parent_ref_id = null
+        ?int $parent_ref_id = null
     ): array {
         $sub_objects = $this->getSubObjects($obj_type);
 
@@ -512,9 +512,8 @@ class ilObjectDefinition
 
     public function setHandlers($xml_parser): void
     {
-        xml_set_object($xml_parser, $this);
-        xml_set_element_handler($xml_parser, 'handlerBeginTag', 'handlerEndTag');
-        xml_set_character_data_handler($xml_parser, 'handlerCharacterData');
+        xml_set_element_handler($xml_parser, $this->handlerBeginTag(...), $this->handlerEndTag(...));
+        xml_set_character_data_handler($xml_parser, $this->handlerCharacterData(...));
     }
 
     public function handlerBeginTag($xml_parser, string $name, array $attribs): void

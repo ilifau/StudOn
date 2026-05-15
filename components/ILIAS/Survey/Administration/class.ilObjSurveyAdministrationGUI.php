@@ -72,7 +72,7 @@ class ilObjSurveyAdministrationGUI extends ilObjectGUI
      * Display survey settings form
      */
     public function settingsObject(
-        ilPropertyFormGUI $a_form = null
+        ?ilPropertyFormGUI $a_form = null
     ): void {
         $tpl = $this->tpl;
         $ilTabs = $this->tabs;
@@ -190,7 +190,7 @@ class ilObjSurveyAdministrationGUI extends ilObjectGUI
     {
         $lng = $this->lng;
 
-        if ($this->rbac_system->checkAccess("visible,read", $this->object->getRefId())) {
+        if ($this->rbac_system->checkAccess("read", $this->object->getRefId())) {
             $this->tabs_gui->addTab(
                 "settings",
                 $lng->txt("settings"),

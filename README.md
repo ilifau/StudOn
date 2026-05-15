@@ -1,5 +1,5 @@
-[![checks](https://github.com/ILIAS-eLearning/ILIAS/actions/workflows/checks.yml/badge.svg?branch=release_10)](https://github.com/ILIAS-eLearning/ILIAS/actions/workflows/checks.yml)
-[![Supported PHP Version](https://img.shields.io/badge/php-%3E%3D8.2%7C%3C%3D8.3-8892BF.svg)](https://php.net/)
+[![checks](https://github.com/ILIAS-eLearning/ILIAS/actions/workflows/checks.yml/badge.svg?branch=release_11)](https://github.com/ILIAS-eLearning/ILIAS/actions/workflows/checks.yml)
+[![Supported PHP Version](https://img.shields.io/badge/php-%3E%3D8.3%7C%3C%3D8.4-8892BF.svg)](https://php.net/)
 
 # ILIAS
 
@@ -19,7 +19,7 @@ ILIAS can be extended with a lot of Plugins. You find the complete list in the [
 
 ### Community
 
-We have a big [community](http://www.ilias.de/docu/goto.php?target=cat_1444&client_id=docu) and you can become a member of [ILIAS Society](http://www.ilias.de/docu/goto.php?target=cat_1669&client_id=docu).
+We have a big [community](http://www.ilias.de/docu/goto.php?target=cat_1444&client_id=docu) and you can get a member of [ILIAS Society](http://www.ilias.de/docu/goto.php?target=cat_1669&client_id=docu).
 You may even join us at one of our regular [ILIAS Conferences](http://www.ilias.de/docu/goto.php?target=cat_2255&client_id=docu).
 
 

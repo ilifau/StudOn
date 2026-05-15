@@ -25,6 +25,7 @@ use ILIAS\UI\Implementation\Component\Input\Field\FormInput;
 use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\UI\Component\Input\Field\Section;
+use ILIAS\UI\Component\Input\Input;
 
 /**
  * @ilCtrl_Calls      ilObjDashboardSettingsGUI: ilPermissionGUI
@@ -68,7 +69,7 @@ class ilObjDashboardSettingsGUI extends ilObjectGUI
 
         $this->prepareOutput();
 
-        if (!$this->rbac_system->checkAccess('visible,read', $this->object->getRefId())) {
+        if (!$this->rbac_system->checkAccess('read', $this->object->getRefId())) {
             throw new ilPermissionException($this->lng->txt('no_permission'));
         }
 
@@ -106,7 +107,7 @@ class ilObjDashboardSettingsGUI extends ilObjectGUI
 
     public function getAdminTabs(): void
     {
-        if ($this->rbac_system->checkAccess('visible,read', $this->object->getRefId())) {
+        if ($this->rbac_system->checkAccess('read', $this->object->getRefId())) {
             $this->tabs_gui->addTarget(
                 'settings',
                 $this->ctrl->getLinkTarget($this, 'editSettings'),
@@ -142,11 +143,11 @@ class ilObjDashboardSettingsGUI extends ilObjectGUI
         $this->tpl->setContent($table->getHTML());
     }
 
-    public function editSorting(): void
+    public function editSorting(?StandardForm $form = null): void
     {
         $this->tabs_gui->activateTab('settings');
         $this->setSettingsSubTabs('sorting');
-        $form = $this->getViewForm(self::VIEW_MODE_SORTING);
+        $form = $form ?? $this->getViewForm(self::VIEW_MODE_SORTING);
         $this->tpl->setContent($this->ui_renderer->renderAsync($form));
     }
 
@@ -171,41 +172,24 @@ class ilObjDashboardSettingsGUI extends ilObjectGUI
         if ($this->canWrite()) {
             $this->tpl->addJavaScript("assets/js/SortationUserInputHandler.js");
         }
-        $lng = $this->lng;
-        $availabe_sort_options = $this->view_settings->getAvailableSortOptionsByView($view);
-        $options = array_reduce(
-            $availabe_sort_options,
-            static function (array $options, string $option) use ($lng): array {
-                $options[$option] = $lng->txt(self::DASH_SORT_PREFIX . $option);
-                return $options;
-            },
-            []
-        );
-
-        $available_sorting = $this->ui_factory
-            ->input()
-            ->field()
-            ->multiSelect($this->lng->txt('dash_avail_sortation'), $options)
-            ->withValue(
-                $this->view_settings->getActiveSortingsByView($view)
-            )
-            ->withAdditionalOnLoadCode(
-                static fn(string $id) => "document.getElementById('$id').setAttribute('data-checkbox', 'activeSorting$view');
-                    document.addEventListener('DOMContentLoaded', function () {
-                        il.Dashboard.handleUserInputForSortationsByView($view);
-                    });"
-            );
+        $available = $this->view_settings->getAvailableSortOptionsByView($view);
+        $options = array_combine($available, $available);
+        $select_options = array_map(fn($s) => $this->lng->txt(self::DASH_SORT_PREFIX . $s), $options);
+        $available_sorting = array_map($this->sortingInputs($view), $options);
         $default_sorting = $this->ui_factory
             ->input()
             ->field()
-            ->select($this->lng->txt('dash_default_sortation'), $options)
+            ->select($this->lng->txt('dash_default_sortation'), $select_options)
             ->withValue($this->view_settings->getDefaultSortingByView($view))
-            ->withRequired(true)
             ->withAdditionalOnLoadCode(
-                static fn(string $id) => "document.getElementById('$id').setAttribute('data-select', 'sorting$view');"
+                static fn(string $id) => "
+                document.getElementById('$id').setAttribute('data-select', 'sorting$view');
+                window.addEventListener('DOMContentLoaded', () => il.Dashboard.handleUserInputForSortationsByView($view));
+            "
             );
+
         return $this->ui_factory->input()->field()->section(
-            $this->maybeDisable(['avail_sorting' => $available_sorting, 'default_sorting' => $default_sorting]),
+            $this->maybeDisable([...$available_sorting, 'default_sorting' => $default_sorting]),
             $title
         );
     }
@@ -267,7 +251,7 @@ class ilObjDashboardSettingsGUI extends ilObjectGUI
         $ctrl = $this->ctrl;
         $lng = $this->lng;
 
-        if ($this->rbac_system->checkAccess('visible,read', $this->object->getRefId())) {
+        if ($this->rbac_system->checkAccess('read', $this->object->getRefId())) {
             $tabs->addSubTab(
                 'general',
                 $lng->txt('general_settings'),
@@ -375,22 +359,28 @@ class ilObjDashboardSettingsGUI extends ilObjectGUI
 
     public function saveSorting(): void
     {
+        $form = null;
         if ($this->canWrite()) {
-            $data = $this->getViewForm(self::VIEW_MODE_SORTING)->withRequest($this->request)->getData();
-
-            foreach ($data as $view => $view_data) {
-                if (isset($view_data['default_sorting'])) {
-                    if (!is_array($view_data['avail_sorting'] ?? null)) {
-                        $view_data['avail_sorting'] = [$view_data['default_sorting']];
+            $form = $this->getViewForm(self::VIEW_MODE_SORTING)->withRequest($this->request);
+            $data = $form->getData();
+            if ($data) {
+                foreach ($data as $view => $view_data) {
+                    $avail_sorting = array_keys(array_filter($view_data));
+                    $saved = array_filter($view_data, fn($x) => !is_bool($x));
+                    if (isset($view_data['default_sorting'])) {
+                        $this->view_settings->storeViewSorting(
+                            $view,
+                            $view_data['default_sorting'],
+                            $avail_sorting
+                        );
+                        $this->view_settings->storeViewSortingOptions($view, $saved);
                     }
-                    $this->view_settings->storeViewSorting(
-                        $view,
-                        $view_data['default_sorting'],
-                        $view_data['avail_sorting']
-                    );
                 }
+                $this->tpl->setOnScreenMessage($this->tpl::MESSAGE_TYPE_SUCCESS, $this->lng->txt('msg_obj_modified'), true);
+            } else {
+                $this->editSorting($form);
+                return;
             }
-            $this->tpl->setOnScreenMessage($this->tpl::MESSAGE_TYPE_SUCCESS, $this->lng->txt('msg_obj_modified'), true);
         } else {
             $this->tpl->setOnScreenMessage($this->tpl::MESSAGE_TYPE_FAILURE, $this->lng->txt('no_permission'), true);
         }
@@ -413,5 +403,57 @@ class ilObjDashboardSettingsGUI extends ilObjectGUI
     private function canWrite(): bool
     {
         return $this->rbac_system->checkAccess('write', $this->object->getRefId());
+    }
+
+    /**
+     * @param array<string, mixed> $saved
+     */
+    private function manuallySortingSettings(int $view, string $name, array $saved): Input
+    {
+        $options = $this->view_settings->getSortingOptionsByView($view);
+        $sort_options = $this->view_settings->getAvailableOptionsBySortation($name);
+        $value = isset($saved[$name]) ?
+            ['new_items' => ($options[$name]['new_items'] ?? null) ?: 'top'] :
+            null;
+
+        return $this->ui_factory->input()->field()->optionalGroup([
+            'new_items' => array_reduce(
+                $sort_options,
+                fn($r, $o) => $r->withOption($o, $this->lng->txt('dash_manual_new_item_pos_' . $o)),
+                $this->ui_factory->input()->field()->radio($this->lng->txt('dash_manual_new_item_pos'), '')
+            )
+        ], $this->lng->txt(self::DASH_SORT_PREFIX . $name))
+            ->withValue($value);
+    }
+
+    /**
+     * @param array<string, mixed> $saved
+     */
+    private function sortingCheckbox(int $view, string $name, array $saved): Input
+    {
+        return $this->ui_factory->input()->field()
+            ->checkbox($this->lng->txt(self::DASH_SORT_PREFIX . $name))
+            ->withAdditionalOnLoadCode(fn(string $id) => "
+                document.getElementById('$id').closest('form').addEventListener('submit', e => (
+                    e.target.querySelectorAll('input[disabled]').forEach(x => {x.disabled = false;})
+                ));
+            ")
+            ->withValue(isset($saved[$name]));
+    }
+
+    private function sortingInputs(int $view): Closure
+    {
+        $saved = array_flip($this->view_settings->getActiveSortingsByView($view));
+        $with_js = fn($name, $check) => $check->withAdditionalOnLoadCode(fn($id) => "
+            document.getElementById('$id').setAttribute('data-checkbox', 'activeSorting$view');
+            document.querySelector('#$id input').setAttribute('data-value', '$name')
+        ");
+
+        $special_settings = ['manually'];
+        $method_for = fn($name) => in_array($name, $special_settings, true) ?
+            $name . 'SortingSettings' :
+            'sortingCheckbox';
+
+        return fn(string $name) => $with_js($name, $this->{$method_for($name)}($view, $name, $saved));
     }
 }
