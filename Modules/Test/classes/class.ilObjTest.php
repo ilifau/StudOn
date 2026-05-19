@@ -3372,13 +3372,15 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware
                             ->withStartTimeEnabled(true);
                     }
                     break;
+                // fau: fixEndTimeEnabled      
                 case "ending_time":
                     $ending_time = $this->buildDateTimeImmutableFromPeriod($metadata['entry']);
                     if ($ending_time !== null) {
                         $access_settings = $access_settings->withEndTime($ending_time)
-                            ->withStartTimeEnabled(true);
+                            ->withEndTimeEnabled(true);
                     }
                     break;
+                // fau.
                 case "enable_examview":
                     $finishing_settings = $finishing_settings->withShowAnswerOverview((bool) $metadata["entry"]);
                     break;
