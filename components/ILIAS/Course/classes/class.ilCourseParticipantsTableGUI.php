@@ -252,15 +252,16 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
 
                 // fau: userData - format table output of studydata, educations, memberships and waitinglists
                 case 'studydata':
+                    global $DIC;
                     $this->tpl->setCurrentBlock('custom_fields');
-                    $this->tpl->setVariable('VAL_CUST', nl2br($a_set['studydata']));
+                    $this->tpl->setVariable('VAL_CUST', nl2br($DIC->fau()->user()->getStudiesAsText($a_set['usr_id'])));
                     $this->tpl->parseCurrentBlock();
                     break;
-
                 case 'educations':
+                    global $DIC;
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
-                        nl2br($a_set['educations']),
+                        nl2br($DIC->fau()->user()->getEducationsAsText($a_set['usr_id'])),
                         $this->lng->txt('fau_educations_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
                         50
                     ));
@@ -393,6 +394,10 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
         unset($additional_fields['roles']);
         unset($additional_fields['org_units']);
 
+        // fau: userData - don't query for studydata and educations by default
+        unset($additional_fields['studydata']);
+        unset($additional_fields['educations']);
+        // fau.
         // fau: campoSub - don't query for module by default
         // fau: campoCheck - don't query for restrictions by default
         unset($additional_fields["module"]);

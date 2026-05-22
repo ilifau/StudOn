@@ -13,6 +13,7 @@ use FAU\Study\Data\ImportId;
 use FAU\Org\Data\Orgunit;
 use FAU\Tools\Settings;
 use ilContainer;
+use ILIAS\ILIASObject\Properties\Translations\Language;
 
 /**
  * Functions for matching the orgunit and repository tree
@@ -288,12 +289,13 @@ class TreeMatching
         $category->create();
 
         $trans = $category->getObjectTranslation();
-        $trans->addLanguage('en',
-            $this->lng->txtlng('fau', 'fau_campo_courses', 'en')
-            . ': ' . $this->study->getTermTextForLang($term, 'en'),
-            $this->lng->txtlng('fau', 'fau_campo_courses_desc', 'en'),
-            false);
-        $trans->save();
+        $trans->withLanguage(
+            new Language('en',
+                $this->lng->txtlng('fau', 'fau_campo_courses', 'en')
+                . ': ' . $this->study->getTermTextForLang($term, 'en'),
+                $this->lng->txtlng('fau', 'fau_campo_courses_desc', 'en'),
+                false)
+            );
 
         $category->createReference();
         $category->putInTree($parent_ref_id);

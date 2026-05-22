@@ -148,6 +148,15 @@ class LocalDIC extends PimpleContainer
                     new Standard\Hobby(),
                     new Standard\ReferralComment(),
                     new Standard\Matriculation(),
+                    // fau: userData - add study data to profile fields
+                    new Standard\StudyData(),
+                    //  fau.
+                    // fau: userData - add raw study data to profile fields
+                    new Standard\StudyDataRaw(),
+                    //  fau.
+                    // fau: userData - add educations to profile fields
+                    new Standard\Educations(),
+                    //  fau.
                     new Standard\ClientIP(),
                     \ilMapUtil::isActivated() ? new Standard\Location() : null
                 ])

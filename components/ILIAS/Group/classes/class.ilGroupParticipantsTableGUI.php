@@ -228,22 +228,21 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 
                 // fau: userData - format table output of studydata, educations, memberships and waitinglists
                 case 'studydata':
+                    global $DIC;
                     $this->tpl->setCurrentBlock('custom_fields');
-                    $this->tpl->setVariable('VAL_CUST', nl2br($a_set['studydata']));
+                    $this->tpl->setVariable('VAL_CUST', nl2br($DIC->fau()->user()->getStudiesAsText($a_set['usr_id'])));
                     $this->tpl->parseCurrentBlock();
                     break;
-
                 case 'educations':
-                    //ilTooltipGUI::addTooltip($cell_id, nl2br($a_set['educations']),'','bottom center','top center',false);
+                    global $DIC;
                     $this->tpl->setCurrentBlock('custom_fields');
-                    //$this->tpl->setVariable('ID_CUST', $cell_id);
                     $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
-                        nl2br($a_set['educations']),
+                        nl2br($DIC->fau()->user()->getEducationsAsText($a_set['usr_id'])),
                         $this->lng->txt('fau_educations_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
                         50
                     ));
                     $this->tpl->parseCurrentBlock();
-                    break;
+                    break;  
                 case 'memberships':
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
@@ -352,6 +351,11 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
         unset($additional_fields['roles']);
         unset($additional_fields['org_units']);
 
+        // fau: userData - don't query for studydata and educations by default
+        unset($additional_fields['studydata']);
+        unset($additional_fields['educations']);
+        // fau.
+                
         // fau: campoSub - don't query for module by default
         // fau: campoCheck - don't query for restrictions by default
         unset($additional_fields["module"]);

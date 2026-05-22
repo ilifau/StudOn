@@ -225,7 +225,11 @@ class ilUserTableGUI extends ilTable2GUI
                     'txt' => $this->lng->txt('auth_mode'),
                     'default' => false
                 ],
-                'org_units' => null
+                'org_units' => null,
+                // fau: userData - add studydata and educations to selectable columns
+                'studydata' => null,
+                'educations' => null
+                // fau.
             ]
         );
 
@@ -289,7 +293,9 @@ class ilUserTableGUI extends ilTable2GUI
             $additional_fields['second_email'],
             $additional_fields['last_login'],
             $additional_fields['access_until'],
-            $additional_fields['org_units']
+            $additional_fields['org_units'],
+            $additional_fields['studydata'],
+            $additional_fields['educations']
         );
 
         $udf_filter = [];
