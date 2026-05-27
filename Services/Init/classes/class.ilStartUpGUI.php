@@ -313,7 +313,7 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
             );
             $this->mainTemplate->setOnScreenMessage(
                 ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
-                $this->lng->txt($reason) . $this->lng->txt('err_wrong_login_assist'));
+                $this->lng->txt($reason) . " " . $this->lng->txt('err_wrong_login_assist'));
         }
         // fau.
 
