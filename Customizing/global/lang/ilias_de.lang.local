@@ -251,7 +251,7 @@ common#:#shib_data_missing#:#Ihr Single Sign-On hat funktioniert, aber es fehlen
 common#:#shib_help_title#:#Hilfe zum Single-Sign-On
 common#:#shib_login_used#:#Der Benutzername %s wird bereits von einem anderen Benutzer verwendet. Bitte wenden Sie sich an <a href="mailto:studon@fau.de">studon@fau.de</a> um das Problem zu lösen!
 common#:#shib_updated_field#:#Dieses Feld wird beim Single Sign-On übertragen
-common#:#shib_user_not_found#:#Zu Ihrer Benutzerkennung wurde in dieser Installation kein Benutzerkonto gefunden. Ein automatischen Anlegen ist nicht möglich.
+common#:#shib_user_not_found#:#Zu Ihrer Benutzerkennung wurde in dieser Installation kein Benutzerkonto gefunden. Ein automatisches Anlegen ist nicht möglich.
 common#:#start#:#Start
 common#:#studon_login_exportrequest#:#Bitte loggen Sie sich ein, um den Exportantrag zu stellen!
 common#:#studon_ref_id#:#StudOn-ID
