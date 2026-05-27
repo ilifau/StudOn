@@ -1463,6 +1463,7 @@ assessment#:#tst_eval_total_passed_average_points#:#Average points of passed tes
 assessment#:#tst_eval_total_passed_average_time#:#Average Time on Task of All Passed Tests
 assessment#:#tst_eval_total_persons#:#Total number of participants who started the test
 assessment#:#tst_exam_access_code#:#Access Code
+assessment#:#tst_exam_access_code_invalid_message#:#The code you provided is invalid.
 assessment#:#tst_exam_access_code_label#:#Enter access code to continue your already started test. Leave the field empty to start a new test run.
 assessment#:#tst_exam_conditions#:#Exam Conditions
 assessment#:#tst_exam_conditions_label#:#Check this box to confirm that you accept the conditions.
@@ -2682,7 +2683,7 @@ book#:#participants#:#Participants
 book#:#reservation_deleted#:#Booking deleted.
 buddysystem#:#buddy_allow_to_contact_me#:#Allow Contact Requests
 buddysystem#:#buddy_allow_to_contact_me_default_info#:#Defines if users can send each other requests for getting into contact by default.
-buddysystem#:#buddy_allow_to_contact_me_info#:#Other users are able to send me request for getting into contact.
+buddysystem#:#buddy_allow_to_contact_me_info#:#Allow other users to send you contact requests.
 buddysystem#:#buddy_bs_act_btn_txt_ignored_request_to_linked#:#Confirm Request
 buddysystem#:#buddy_bs_act_btn_txt_ignored_request_to_unlinked#:#Cancel Request
 buddysystem#:#buddy_bs_act_btn_txt_linked_to_unlinked#:#Unlink
@@ -2907,9 +2908,12 @@ chatroom#:#chat_https_dhparam_info#:#Please define an absolute server path to a 
 chatroom#:#chat_https_key_info#:#Please define an absolute server path to the private key file (e.g..: /etc/ssl/private/server.key).
 chatroom#:#chat_invitation#:#"[INVITER_NAME]" invites you into chat room "[ROOM_NAME]"
 chatroom#:#chat_invitation_long#:#[SALUTATION][BR][BR]You have been invited to a chat room:[BR]Chat Room Title: [ROOM_NAME][BR]Invited by: [INVITER_NAME][BR]URL: [LINK][BR][BR]To join the chat room, please follow the given URL.
+chatroom#:#chat_invitation_modal_headline#:#Invitation to Chat Room
+chatroom#:#chat_invitation_modal_section#:#Invite User
 chatroom#:#chat_invitation_nc_inv_x#:#You have %s chat invitations.
 chatroom#:#chat_invitation_nc_no_inv#:#You have no chat invitations.
 chatroom#:#chat_invitation_short#:#Please click the link to enter the chat room.
+chatroom#:#chat_invitation_username_input_label#:#Enter Username:
 chatroom#:#chat_invitations#:#Chat invitations
 chatroom#:#chat_invite#:#Invite
 chatroom#:#chat_join#:#Join
@@ -5529,7 +5533,7 @@ common#:#scorm_login_as_learner_id_info#:#If enabled, the Username instead of th
 common#:#scorm_lp_auto_activate#:#Default setting for learning progress
 common#:#scorm_lp_auto_activate_info#:#If learning progress is activated in general, the settings for new SCORM learning modules are set to ‘Collection of SCORM Items’ and all SCOs are selected for learning progress determination. Adjustments are still possible for every SCORM learning module.
 common#:#scorm_new#:#Create SCORM Learning Module (Authoring Mode)
-common#:#scorm_without_session#:#SCORM 2004: enable storing data without session
+common#:#scorm_without_session#:#SCORM 2004: Data Storage Without Session
 common#:#scorm_without_session_info#:#This ensures the storage of SCORM 2004 learning data even if ILIAS session expired. For SCORM 1.2, storage without session is always enabled.
 common#:#search#:#Search
 common#:#search_active#:#Include active users
@@ -7035,7 +7039,7 @@ content#:#cont_sc_stat_running#:#Running
 content#:#cont_sc_store_if_previous_score_was_lower#:#if achieved score in previous attempt was higher or equal
 content#:#cont_sc_title#:#title
 content#:#cont_sc_usession#:#Prevent from Logging-Out Automatically
-content#:#cont_sc_usession_info#:#Periodical requests will be sent to ILIAS to keep the session alive. Otherwise ILIAS will categorize working on the learning module as idleness, terminate the session and loose the tracking data.
+content#:#cont_sc_usession_info#:#While working on a learning module, logging out of ILIAS can be disruptive and lead to the loss of learning data. The SCORM RTE regularly sends requests to ILIAS to prevent automatic logouts. To prevent the loss of learning data for SCORM 2004, please also activate the "SCORM 2004: Data Storage Without Session" option. For SCORM 1.2, this option is permanently enabled. You can find this option in the system-wide administration of learning modules.
 content#:#cont_sc_version#:#Version of Learning Module
 content#:#cont_sc_version_info#:#The version number is provided automatically by the version management of the learning module.
 content#:#cont_scheduled_activation#:#Scheduled Activation
@@ -14566,6 +14570,9 @@ rbac#:#positions_override_operations#:#Override global Settings
 rbac#:#precondition_not_obligatory_alt#:#Precondition is optional
 rbac#:#precondition_num_obligatory#:#Number of Required Materials
 rbac#:#precondition_num_optional_info#:#Please enter the minimum number of materials required to fulfill this precondition.
+rbac#:#precondition_number_of_required_materials_bigger_preconditions_number#:#The number of required materials must be less than the total number of preconditions.
+rbac#:#precondition_number_of_required_materials_lower_compulsory_items#:#The number of required materials must be greater than the number of compulsory preconditions.
+rbac#:#precondition_number_of_required_materials_lower_than_one#:#The number of required materials must be at least 1.
 rbac#:#precondition_obligatory#:#Compulsory
 rbac#:#precondition_obligatory_alt#:#Precondition must be fulfilled
 rbac#:#precondition_obligatory_info#:#Compulsory preconditions must be fulfilled, for having access.

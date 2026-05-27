@@ -1475,6 +1475,7 @@ assessment#:#tst_eval_total_passed_average_points#:#Durchschnittliche Punktezahl
 assessment#:#tst_eval_total_passed_average_time#:#Mittlere Bearbeitungsdauer aller bestandenen Tests
 assessment#:#tst_eval_total_persons#:#Gesamtzahl der Personen, die den Test gestartet haben
 assessment#:#tst_exam_access_code#:#Zugangscode
+assessment#:#tst_exam_access_code_invalid_message#:#Der Zugangscode ist ungültig.
 assessment#:#tst_exam_access_code_label#:#Geben Sie den Zugangscode ein, um Ihren bereits begonnenen Test fortzusetzen. Lassen Sie das Feld leer, um einen neuen Testdurchlauf zu starten.
 assessment#:#tst_exam_conditions#:#Prüfungsbedingungen
 assessment#:#tst_exam_conditions_label#:#Ankreuzen, um die Bedingungen zu akzeptieren.
@@ -2933,9 +2934,12 @@ chatroom#:#chat_https_dhparam_info#:#Bitte geben Sie hier den absoluten Serverpf
 chatroom#:#chat_https_key_info#:#Bitte geben Sie den absoluten Serverpfad zum privaten Schlüssel an (bspw.: /etc/ssl/private/server.key).
 chatroom#:#chat_invitation#:#"[INVITER_NAME]" lädt ein in Chatraum "[ROOM_NAME]"
 chatroom#:#chat_invitation_long#:#[SALUTATION][BR][BR]Sie wurden in einen Chatraum eingeladen:[BR]Titel des Chatraums: [ROOM_NAME][BR]Eingeladen von: [INVITER_NAME][BR]URL: [LINK][BR][BR]Zum Betreten des Chatraums folgen Sie bitte der angegebenen URL.
+chatroom#:#chat_invitation_modal_headline#:#Chatraum Einladung
+chatroom#:#chat_invitation_modal_section#:#Benutzer einladen
 chatroom#:#chat_invitation_nc_inv_x#:#Sie haben %s Chateinladungen.
 chatroom#:#chat_invitation_nc_no_inv#:#Sie haben keine Chateinaldungen.
 chatroom#:#chat_invitation_short#:#Klicken Sie auf den Link, um den Chatraum zu betreten.
+chatroom#:#chat_invitation_username_input_label#:#Benutzer eingeben:
 chatroom#:#chat_invitations#:#Chateinladungen
 chatroom#:#chat_invite#:#Einladen
 chatroom#:#chat_join#:#Betreten
@@ -5552,7 +5556,7 @@ common#:#scorm_login_as_learner_id_info#:#An Stelle der ILIAS-Benutzer-ID wird d
 common#:#scorm_lp_auto_activate#:#Standardeinstellungen für den Lernfortschritt
 common#:#scorm_lp_auto_activate_info#:#Wenn der Lernfortschritt im Allgemeinen aktiviert ist, wird bei neuen SCORM-Lernmodulen der Gesamtstatus des Lernfortschritts bestimmt durch ausgewählte SCORM-Materialien (SCOs) und alle SCOs werden für die Lernfortschritts-Bestimmung ausgewählt. Anpassungen sind weiterhin bei jedem SCORM-Lernmodul möglich.
 common#:#scorm_new#:#Neues SCORM-Lernmodul anlegen
-common#:#scorm_without_session#:#SCORM 2004-Speicherung ohne Session aktivieren
+common#:#scorm_without_session#:#SCORM 2004: Speicherung ohne Session
 common#:#scorm_without_session_info#:#Dies sichert die Speicherung von SCORM 2004-Lernstandsdaten auch bei abgelaufener ILIAS-Session. Bei SCORM 1.2 ist die Speicherung ohne Session immer aktiviert.
 common#:#search#:#Suche
 common#:#search_active#:#Aktive Benutzer
@@ -7058,7 +7062,7 @@ content#:#cont_sc_stat_running#:#Aktiv
 content#:#cont_sc_store_if_previous_score_was_lower#:#wenn der zuvor erzielte Punktestand höher oder gleich war
 content#:#cont_sc_title#:#Titel
 content#:#cont_sc_usession#:#Automatische Abmeldung aus ILIAS verhindern
-content#:#cont_sc_usession_info#:#Um das automatische Ausloggen und den Verlust von Bearbeitungsdaten zu verhindern, sendet das Lernmodul regelmäßig Anfragen an ILIAS. Die Bearbeitung des SCORM-Lernmoduls würde ansonsten nicht als Aktivität gewertet und die ILIAS-Sitzung beendet werden.
+content#:#cont_sc_usession_info#:#Während das Lernmodul bearbeitet wird, kann eine Abmeldung aus ILIAS als störend empfunden werden und zum Verlust von Bearbeitungsdaten führen. Die SCORM RTE sendet regelmäßig Anfragen an ILIAS, um das automatische Abmelden zu verhindern. Um den Verlust von Bearbeitungsdaten für SCORM 2004 zu verhindern, aktivieren Sie ebenfalls die Option „SCORM 2004: Speicherung ohne Session“. Für SCORM 1.2 ist diese Option dauerhaft aktiviert. Sie finden die Option in der systemweiten Administration von Lernmodulen.
 content#:#cont_sc_version#:#Version des Lernmoduls
 content#:#cont_sc_version_info#:#Die laufende Nummer wird automatisch aus dem Versionsmanagement des Lernmoduls gelesen.
 content#:#cont_scheduled_activation#:#Zeitliche Aktivierung
@@ -13376,7 +13380,7 @@ pd#:#pd_view_select_at_least_one#:#Bitte wählen Sie mindestens eine Sicht, entw
 pdesk#:#bookmark_moved_ok#:#Bookmark wurde verschoben.
 pdesk#:#bookmark_select_target#:#Bitte wählen Sie das Ziel.
 poll#:#poll_absolute#:#Aktuelle Stimmen
-poll#:#poll_activation_online_info#:#Wählen Sie diese Einstellung, um die Abstimmung für Benutzer verfügbar zumachen.
+poll#:#poll_activation_online_info#:#Diese Abstimmung verfügbar machen.
 poll#:#poll_add#:#Abstimmung anlegen
 poll#:#poll_anonymous_warning#:#Dies ist eine anonyme Abstimmung. Ihre Stimme wird gespeichert, Ihr Name aber nicht in den Abstimmungsergebnissen angezeigt.
 poll#:#poll_answer#:#Antwort
@@ -13392,25 +13396,25 @@ poll#:#poll_comments#:#Kommentare
 poll#:#poll_copy#:#Abstimmung kopieren
 poll#:#poll_delete_votes#:#Alle Stimmabgaben löschen
 poll#:#poll_delete_votes_sure#:#Sind Sie sicher, dass Sie alle Stimmabgaben löschen möchten?
-poll#:#poll_edit#:#Abstimmung editieren
+poll#:#poll_edit#:#Abstimmung bearbeiten
 poll#:#poll_edit_question#:#Frage bearbeiten
 poll#:#poll_image#:#Bild
 poll#:#poll_import#:#Abstimmung importieren
-poll#:#poll_limit_not_below_answer_count#:#Die begrenzte Anzahl muss kleiner sein als die Anzahl der möglichen Antworten.
-poll#:#poll_limit_number_of_answers#:#Anzahl Antworten begrenzen
+poll#:#poll_limit_not_below_answer_count#:#Die maximale Anzahl der auswählbaren Antworten muss geringer sein als die Gesamtzahl der möglichen Antworten.
+poll#:#poll_limit_number_of_answers#:#Anzahl der auswählbaren Antworten begrenzen
 poll#:#poll_max_number_of_answers#:#Maximale Anzahl pro Person
 poll#:#poll_max_number_of_answers_info#:#Sie dürfen bis zu %s Antworten auswählen.
 poll#:#poll_mode#:#Modus
 poll#:#poll_mode_anonymous#:#Ohne Namen / Anonym
 poll#:#poll_mode_anonymous_info#:#Im Tab "Abstimmungsergebnisse" werden Namen der Teilnehmenden nicht aufgeführt.
 poll#:#poll_mode_personal#:#Mit Namen
-poll#:#poll_mode_personal_info#:#Im Reiter „Abstimmungsergebnisse“ werden die Namen der teilnehmenden Personen mit ihren Antworten aufgeführt.
+poll#:#poll_mode_personal_info#:#Im Reiter „Abstimmungsergebnisse“ werden die Namen der teilnehmenden Personen mit ihren Antworten aufgeführt. Personen, die Zugriff auf diesen Reiter haben, können sehen, wer welche Antwort gegeben hat.
 poll#:#poll_new#:#Neue Abstimmung anlegen
 poll#:#poll_non_anonymous_warning#:#Ihr Name und Votum sind für die Administration in den Ergebnissen sichtbar.
-poll#:#poll_notification_activated#:#Sie haben die Benachrichtigung aktiviert.
-poll#:#poll_notification_deactivated#:#Sie haben die Benachrichtigung deaktiviert.
-poll#:#poll_notification_subscribe#:#Benachrichtigung aktivieren
-poll#:#poll_notification_unsubscribe#:#Benachrichtigung deaktivieren
+poll#:#poll_notification_activated#:#Benachrichtigungen aktiviert.
+poll#:#poll_notification_deactivated#:#Benachrichtigungen deaktiviert.
+poll#:#poll_notification_subscribe#:#Benachrichtigungen aktivieren
+poll#:#poll_notification_unsubscribe#:#Benachrichtigungen deaktivieren
 poll#:#poll_percentage#:#Aktueller Anteil
 poll#:#poll_population#:#%s Stimmabgaben
 poll#:#poll_population_singular#:#Eine Stimmabgabe
@@ -13426,7 +13430,7 @@ poll#:#poll_sortorder#:#Sortierung
 poll#:#poll_stacked_chart#:#Stapeldiagramm
 poll#:#poll_view_results#:#Ergebnisse anzeigen
 poll#:#poll_view_results_after_period#:#Nach Stimmperiode
-poll#:#poll_view_results_after_period_impossible#:#Die Stimmperiode ist nicht zeitlich begrenzt.
+poll#:#poll_view_results_after_period_impossible#:#Damit die Abstimmungsergebnisse erst nach Ende der Stimmperiode gezeigt werden können, müssen Sie oben eine zeitlich begrenzte Stimmperiode einrichten.
 poll#:#poll_view_results_after_vote#:#Nach Stimmabgabe
 poll#:#poll_view_results_always#:#Immer
 poll#:#poll_view_results_never#:#Niemals
@@ -13437,12 +13441,12 @@ poll#:#poll_vote_error_single#:#Wählen Sie eine Antwort aus.
 poll#:#poll_vote_notification_body#:#die folgende Abstimmung hat eine Stimme erhalten
 poll#:#poll_vote_notification_link#:#Link zur Abstimmung
 poll#:#poll_vote_notification_reason#:#Sie erhalten diese Nachricht, da Sie die Benachrichtigungsfunktion für die oben genannte Abstimmung aktiviert haben.
-poll#:#poll_vote_notification_subject#:#Abstimmung „%s“: neue Stimme
+poll#:#poll_vote_notification_subject#:#Abstimmung „%s“ – neue Stimmabgabe
 poll#:#poll_votes_no_edit#:#Diese Abstimmung beinhaltet bereits Stimmen. Sie kann nicht bearbeitet werden so lange Sie die Stimmen nicht löschen.
 poll#:#poll_voting_period_and_results#:#Stimmperiode und Ergebnisse
 poll#:#poll_voting_period_ended_info#:#Das Ende der Abstimmung war %s.
-poll#:#poll_voting_period_full_info#:#Abstimmung von %s bis %s
-poll#:#poll_voting_period_info#:#Das Ende der Abstimmung ist %s.
+poll#:#poll_voting_period_full_info#:#Die Abstimmung in dieser Umfrage ist vom %s bis zum %s möglich
+poll#:#poll_voting_period_info#:#Die Frist für die Abstimmung endet am %s.
 poll#:#poll_voting_period_limited#:#Zeitlich begrenzte Stimmperiode
 prg#:#access_ctr_by_orgu_position#:#Berechtigungen anhand Positionen in Organisationseinheiten
 prg#:#active_only#:#nur aktive
@@ -14572,6 +14576,9 @@ rbac#:#positions_override_operations#:#Globale Einstellungen überschreiben
 rbac#:#precondition_not_obligatory_alt#:#Die Vorbedingung ist optional
 rbac#:#precondition_num_obligatory#:#Geforderte Anzahl Materialien
 rbac#:#precondition_num_optional_info#:#Anzahl von Materialien, die bis zum festgelegten Status / Ergebnis zu bearbeiten sind
+rbac#:#precondition_number_of_required_materials_bigger_preconditions_number#:#Die Anzahl der geforderten Materialien muss kleiner sein als die Anzahl der Vorbedingungen.
+rbac#:#precondition_number_of_required_materials_lower_compulsory_items#:#Die Anzahl der geforderten Materialien muss größer sein als die Anzahl der verpflichtenden Vorbedingungen.
+rbac#:#precondition_number_of_required_materials_lower_than_one#:#Die Anzahl der geforderten Materialien muss mindestens 1 sein.
 rbac#:#precondition_obligatory#:#Verpflichtend
 rbac#:#precondition_obligatory_alt#:#Die Vorbedingung muss erfüllt werden
 rbac#:#precondition_obligatory_info#:#Verpflichtende Vorbedingungen müssen erfüllt werden, um Zugriff zu erhalten.
