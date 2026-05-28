@@ -356,7 +356,7 @@ class ilMemberExport
 
         // fau: memberExport - add learning progress titles in header row
         foreach ($this->lp_keys as $key) {
-            $this->addCol($this->lp_data[$key]['title'], $row, $col++);
+            $this->addCol($this->lp_data[$key]['title']. ' - ' . $this->lp_data[$key]['lp_type'], $row, $col++);
         }
         // fau.    
 
@@ -632,7 +632,7 @@ class ilMemberExport
                         break;
 
                     case 'comments':
-                        $this->addCol(isset($this->lp_data[$key]['comments'][$usr_id]['u_comment']) ? isset($this->lp_data[$key]['comments'][$usr_id]['u_comment']) : "", $row, $col++);
+                        $this->addCol(isset($this->lp_data[$key]['comments'][$usr_id]['u_comment']) ? $this->lp_data[$key]['comments'][$usr_id]['u_comment'] : "", $row, $col++);
                         break;
 
                     default:
