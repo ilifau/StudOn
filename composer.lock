@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f10b72bc16a6ee755523c4614fd691f7",
+    "content-hash": "9c0967ab0ee0cee97b0c492e6729a344",
     "packages": [
         {
             "name": "brick/math",
@@ -9145,16 +9145,16 @@
     "packages-dev": [
         {
             "name": "captainhook/captainhook",
-            "version": "5.27.3",
+            "version": "5.29.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/captainhook-git/captainhook.git",
-                "reference": "a4f836f6185b87066ce3388f6c944883eb248022"
+                "reference": "805d44b0de8ed143f4acfb8c6bcb788cdbc42963"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/captainhook-git/captainhook/zipball/a4f836f6185b87066ce3388f6c944883eb248022",
-                "reference": "a4f836f6185b87066ce3388f6c944883eb248022",
+                "url": "https://api.github.com/repos/captainhook-git/captainhook/zipball/805d44b0de8ed143f4acfb8c6bcb788cdbc42963",
+                "reference": "805d44b0de8ed143f4acfb8c6bcb788cdbc42963",
                 "shasum": ""
             },
             "require": {
@@ -9217,7 +9217,7 @@
             ],
             "support": {
                 "issues": "https://github.com/captainhook-git/captainhook/issues",
-                "source": "https://github.com/captainhook-git/captainhook/tree/5.27.3"
+                "source": "https://github.com/captainhook-git/captainhook/tree/5.29.2"
             },
             "funding": [
                 {
@@ -9225,7 +9225,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-11-27T13:11:01+00:00"
+            "time": "2026-03-25T19:32:25+00:00"
         },
         {
             "name": "captainhook/secrets",

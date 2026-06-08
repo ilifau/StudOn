@@ -76,7 +76,7 @@
 		"phiki/phiki": "^2.0"
 	},
 	"require-dev": {
-		"captainhook/captainhook": "^5.27",
+		"captainhook/captainhook": "^5.29",
 		"friendsofphp/php-cs-fixer": "^3.65",
 		"mikey179/vfsstream": "^1.6",
 		"phpstan/phpstan": "^2.0"
