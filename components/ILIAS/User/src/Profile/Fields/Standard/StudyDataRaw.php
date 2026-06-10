@@ -61,7 +61,7 @@ class StudyDataRaw implements FieldDefinition
 
     private function buildNonEditableInput(
         Language $lng,
-        \ilObjUser $user
+        ?\ilObjUser $user
     ): \ilFormPropertyGUI {
         $input = new \ilTextAreaInputGUI('');
         $input->setInfo($lng->txt('fau_read_only'));
@@ -79,9 +79,12 @@ class StudyDataRaw implements FieldDefinition
         return $user;
     }
 
-    public function retrieveValueFromUser(\ilObjUser $user): string
+    public function retrieveValueFromUser(?\ilObjUser $user): string
     {
         global $DIC;
+        if(!$user) {
+            return "";
+        }   
         $person =  $DIC->fau()->user()->repo()->getPersonOfUser($user->getId());
         if ($person) {
             return json_encode(json_decode($person->getStudydata()), JSON_PRETTY_PRINT);

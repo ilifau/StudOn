@@ -61,7 +61,7 @@ class Educations implements FieldDefinition
 
     private function buildNonEditableInput(
         Language $lng,
-        \ilObjUser $user
+        ?\ilObjUser $user
     ): \ilFormPropertyGUI {
         $input = new \ilCustomInputGUI($this->getLabel($lng));
         $input->setHtml(
@@ -78,7 +78,7 @@ class Educations implements FieldDefinition
         return $user;
     }
 
-    public function retrieveValueFromUser(\ilObjUser $user): string
+    public function retrieveValueFromUser(?\ilObjUser $user): string
     {
         global $DIC;
 
