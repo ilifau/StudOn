@@ -91,5 +91,10 @@ class StudyDataRaw implements FieldDefinition
         }
         else return "";
     }
+
+    public function hiddenInLists(): bool
+    {
+        return true;
+    }
 }
 // fau.
