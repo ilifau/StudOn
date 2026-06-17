@@ -294,8 +294,10 @@ class ilUserTableGUI extends ilTable2GUI
             $additional_fields['last_login'],
             $additional_fields['access_until'],
             $additional_fields['org_units'],
+            // fau: userData  
             $additional_fields['studydata'],
             $additional_fields['educations']
+            // fau.
         );
 
         $udf_filter = [];
@@ -327,6 +329,16 @@ class ilUserTableGUI extends ilTable2GUI
                 $usr_data['set'][$k]['org_units'] = ilObjUser::lookupOrgUnitsRepresentation($user['usr_id']);
             }
 
+            // fau: userData - query studydata and educations 
+            global $DIC;
+            if (in_array('studydata', $this->getSelectedColumns())) {
+                $usr_data['set'][$k]['studydata'] = $DIC->fau()->user()->getStudiesAsText($user['usr_id']);
+            }
+
+            if (in_array('educations', $this->getSelectedColumns())) {
+                $usr_data['set'][$k]['educations'] = $DIC->fau()->user()->getEducationsAsText($user['usr_id']);
+            }
+            // fau.
 
             $current_time = time();
             if ($user['active']) {
