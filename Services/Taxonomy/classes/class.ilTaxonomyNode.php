@@ -246,7 +246,7 @@ class ilTaxonomyNode
     {
         global $ilDB;
 
-        return self::_lookup($a_obj_id, "description");
+        return self::_lookup((int) $a_obj_id, "description");
     }
     // fau.    
     public static function putInTree(
