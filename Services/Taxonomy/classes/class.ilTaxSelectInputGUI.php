@@ -86,7 +86,7 @@ class ilTaxSelectInputGUI extends ilExplorerSelectInputGUI
         // fau: taxDesc - add tooltip for taxonomy description, show full path of node
         $description = ilTaxonomyNode::_lookupDescription($a_id);
 
-        $path = $this->tax->getTree()->getPathFull($a_id);
+        $path = $this->tax->getTree()->getPathFull((int) $a_id);
         $titles = [];
         foreach ($path as $node) {
             if (!empty($node['parent'])) {
