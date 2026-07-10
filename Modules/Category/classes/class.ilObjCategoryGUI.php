@@ -236,7 +236,7 @@ class ilObjCategoryGUI extends ilContainerGUI implements \ILIAS\Taxonomy\Setting
                 $this->prepareOutput();
                 $this->tabs_gui->activateTab('export');
                 $exp = new ilContainerExportGUI($this);
-                $this->ctrl->forwardCommand($exp);
+                $this->cmd_perm->forwardPermitted($this, $exp);
                 break;
             // fau.
 

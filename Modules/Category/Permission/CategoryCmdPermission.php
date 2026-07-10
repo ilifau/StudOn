@@ -84,6 +84,12 @@ class CategoryCmdPermission extends CmdPermission
             return $this->access->checkAccess("visible", "", $node_id);
         }
 
+        // fau: campoInfo - allow command getOrgunits
+        // administration visible permission
+        if (in_array($cmd, ["getOrgunits"])) {
+            return \ilCust::administrationIsVisible();
+        }
+        // fau.
 
         return false;
     }
@@ -129,6 +135,9 @@ class CategoryCmdPermission extends CmdPermission
                 \ilTaxonomySettingsGUI::class,
                 \ilObjectMetaDataGUI::class,
                 \ilContainerNewsSettingsGUI::class,
+                // fau: campoExport - allow ilContainerExportGUI
+                \ilContainerExportGUI::class,
+                // fau.
             ])) {
                 return $this->access->checkAccess("write", "", $node_id);
             }
