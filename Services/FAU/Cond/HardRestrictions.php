@@ -741,11 +741,12 @@ class HardRestrictions
                 
                 // event with multiple parallel groups (ilias course with groups)
                 $object_id = \ilObject::_lookupObjIdByImportId($import_id->toString());
-                $type = \ilObject::_lookupType($object_id, true);
+                $type = \ilObject::_lookupType($object_id, false);
+                $ref_id = $this->dic->fau()->ilias()->objects()->getUntrashedReference($object_id);
 
                 $crs_object = NULL;
                 if($type == "crs")
-                    $crs_object = new \ilObjCourse($object_id, false);
+                    $crs_object = new \ilObjCourse($ref_id, true);
                 else if($type == "grp")
                 {
                     $ref_id = $this->dic->fau()->staging()->repo()->getStudOnCourse($course_id)->getStudOnRefId();
@@ -757,9 +758,7 @@ class HardRestrictions
                     $parallel_groups = $this->dic->fau()->ilias()->objects()->getParallelObjectIds($crs_object);
                     foreach($parallel_groups as $group_id)
                     {
-                        $grp_object = new \ilObjGroup($group_id, false);
-                        $grp_object->getRefId();
-                        $campo_course_id = $this->dic->fau()->study()->repo()->getImportId($grp_object->getRefId())->getCourseId();
+                        $campo_course_id = $this->dic->fau()->study()->repo()->getImportId($group_id)->getCourseId();
                         if($this->dic->fau()->staging()->repo()->getStudOnMember($campo_course_id, $person->getPersonId()) != NULL) 
                         {
                             $satisfied = true;
