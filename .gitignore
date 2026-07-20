@@ -37,6 +37,7 @@
 /public
 /Customizing/global
 /Customizing/clients
+/Customizing/skin
 virtual-data
 /vendor/composer/vendor
 ./vscode
