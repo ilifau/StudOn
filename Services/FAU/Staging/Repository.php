@@ -390,6 +390,14 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, StudOnCourse::model(), false, true);
     }
 
+    /**
+     * @return StudOnCourse|null
+     */
+    public function getStudOnCourseIdFromRefId(int $ref_id) : ?StudOnCourse
+    {
+        $query = "SELECT * FROM studon_courses WHERE studon_ref_id=" . $this->db->quote($ref_id, 'integer');
+        return $this->getSingleRecord($query, StudOnCourse::model(), null, true);
+    }    
 
     /**
      * Save record data of an allowed type

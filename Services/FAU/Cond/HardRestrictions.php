@@ -463,7 +463,7 @@ class HardRestrictions
 
         // check the restrictions of the event
         // - all restrictions of the event must be satisfied
-        $this->checkEvent($event, $person, $term);
+        $this->checkEvent($event, $person, $term, $import_id);
 
         // check all modules of the event
         // - at least one module must match the courses of study
@@ -702,7 +702,7 @@ class HardRestrictions
     /**
      * Check if the restrictions of an event are satisfied for a user
      */
-    protected function checkEvent(Event $event, Person $person, Term $term) : bool
+    protected function checkEvent(Event $event, Person $person, Term $term, ImportId $import_id) : bool
     {
         // prepare a clone of the event that gets the check result
         // only the failed restrictions will be added
@@ -718,9 +718,61 @@ class HardRestrictions
         // check the hard restrictions defined for the module
         // all restrictions must be passed, if one is failed then the module is forbidden
         $oneRestrictionFailed = false;
-        foreach ($event->getRestrictions() as $restriction) {
+        foreach ($event->getRestrictions() as $restriction) {            
             $restriction = $this->checkRestriction($restriction, $subjects, $achievements);
             $checkedEvent = $checkedEvent->withRestriction($restriction);
+
+            // for events the restriction V17 can have the current event as requirement. If the user is already in the current course, the restriction is satisfied for this course.
+            if
+            (
+                $restriction->getRestriction() == "V17" && 
+                $restriction->hasRequirement($event->getEventId()) && 
+                (sizeof($restriction->getRequirements()) == 1) 
+            ) 
+            {
+                $satisfied = false;
+                $course_id = $import_id->getCourseId();
+                // event with only one parallel group (ilias course)
+                if($course_id != NULL && $this->dic->fau()->staging()->repo()->getStudOnMember($course_id, $person->getPersonId()) != NULL) 
+                {
+                    $satisfied = true;
+                    continue;
+                }
+                
+                // event with multiple parallel groups (ilias course with groups)
+                $object_id = \ilObject::_lookupObjIdByImportId($import_id->toString());
+                $type = \ilObject::_lookupType($object_id, false);
+                $ref_id = $this->dic->fau()->ilias()->objects()->getUntrashedReference($object_id);
+
+                $crs_object = NULL;
+                if($type == "crs")
+                    $crs_object = new \ilObjCourse($ref_id, true);
+                else if($type == "grp")
+                {
+                    $ref_id = $this->dic->fau()->staging()->repo()->getStudOnCourse($course_id)->getStudOnRefId();
+                    $crs_object = $this->dic->fau()->ilias()->objects()->findParentIliasCourse($ref_id);
+                }
+
+                if($course_id == NULL && $crs_object != NULL)
+                {
+                    $parallel_groups = $this->dic->fau()->ilias()->objects()->getParallelObjectIds($crs_object);
+                    foreach($parallel_groups as $group_id)
+                    {
+                        $campo_course_id = $this->dic->fau()->study()->repo()->getImportId($group_id)->getCourseId();
+                        if($this->dic->fau()->staging()->repo()->getStudOnMember($campo_course_id, $person->getPersonId()) != NULL) 
+                        {
+                            $satisfied = true;
+                            break;
+                        }
+                    }
+                } 
+                
+                if($satisfied)
+                {
+                    continue;
+                }
+            }
+
             if (!$restriction->isSatisfied()) {
                 $oneRestrictionFailed = true;
             }
