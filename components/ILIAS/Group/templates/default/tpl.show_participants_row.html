@@ -1,6 +1,4 @@
-<!-- fau: fairSub - set small class for participants list row (equal to waiting list) -->
-<tr class="{CSS_ROW} small">
-<!-- fau. -->
+<tr class="{CSS_ROW}">
 	<td class="std">
 		<input type="checkbox" name="{VAL_POSTNAME}[]" value="{VAL_ID}" {VAL_CHECKED} />
 		<input type="hidden" name="visible_member_ids[]" value="{VAL_ID}" />		
@@ -34,13 +32,6 @@
 		{VAL_ACCESS}
 	</td>
 	<!--  END access_time -->
-	<!-- fau: setPassedFlag  - add checkbox column -->
-	<td class="std">
-		<!--  BEGIN grade -->
-		<input type="checkbox" name="passed[]" value="{VAL_PASSED_ID}" {VAL_PASSED_CHECKED}  />
-		<!--  END grade -->{TXT_PASSED}
-	</td>
-	<!-- fau. -->
 	<td class="std">
 		<!-- BEGIN with_contact -->
 		<input type="checkbox" name="contact[]" value="{VAL_CONTACT_ID}" {VAL_CONTACT_CHECKED} />
