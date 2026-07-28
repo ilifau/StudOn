@@ -458,7 +458,7 @@ class fauStudyInfoGUI extends BaseGUI implements \ilCtrlBaseClassInterface
     {
         $html = $this->renderer->render($this->factory->listing()->unordered($list));
         if ($aligned) {
-            $html = '<div style="margin-top:-10px; margin-left:-30px">' . $html . '</div>';
+            $html = '<div>' . $html . '</div>';
         }
         return $html;
     }
