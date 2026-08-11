@@ -31,6 +31,10 @@ use ILIAS\Language\Language;
  */
 class ilUserQuery
 {
+    // fau: userData
+    use FAU\Ilias\Helper\UserQueryHelper;
+    // fau.
+
     public const DEFAULT_ORDER_FIELD = 'login';
 
     private const array DEFAULT_MULTI_FIELDS = [
@@ -469,6 +473,7 @@ class ilUserQuery
     }
 
 
+    // fau: userData add ref id to filter the display of educations as parameter
     /**
      * Get data for user administration list.
      * @deprecated
@@ -489,8 +494,34 @@ class ilUserQuery
         ?array $a_additional_fields = null,
         ?array $a_user_filter = null,
         string $a_first_letter = "",
-        string $a_authentication_filter = ""
+        string $a_authentication_filter = "",
+        ?int $a_educations_ref_id = null
     ): array {
+
+        global $DIC;
+        $add_educations = false;
+        $add_study_data = false;
+        $add_memberships = false;
+        $add_waitinglists = false;
+        
+        // remove the special fields from the additional fields array and set flags to add them later
+        if(in_array("educations", $a_additional_fields)) {
+            $a_additional_fields = array_diff($a_additional_fields, ["educations"]);
+            $add_educations = true;
+        }
+        if(in_array("studydata", $a_additional_fields)) {
+            $a_additional_fields = array_diff($a_additional_fields, ["studydata"]);
+            $add_study_data = true;
+        }
+        if(in_array("memberships", $a_additional_fields)) {
+            $a_additional_fields = array_diff($a_additional_fields, ["memberships"]);
+            $add_memberships = true;
+        }
+        if(in_array("waitinglists", $a_additional_fields)) {
+            $a_additional_fields = array_diff($a_additional_fields, ["waitinglists"]);
+            $add_waitinglists = true;
+        }
+
         $query = new ilUserQuery();
         $query->setOrderField($a_order_field);
         $query->setOrderDirection($a_order_dir);
@@ -508,6 +539,27 @@ class ilUserQuery
         $query->setUserFilter($a_user_filter ?? []);
         $query->setFirstLetterLastname($a_first_letter);
         $query->setAuthenticationFilter($a_authentication_filter);
-        return $query->query();
+        $query->setEducationsRefId($a_educations_ref_id);
+
+        $result = $query->query();
+                        
+        // add the special fields to the result set
+        foreach($result["set"] as $id => $row) 
+        {
+            if($add_study_data) {
+                $result["set"][$id]['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $row["usr_id"]);
+            }
+            if($add_educations) {
+                $result["set"][$id]['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $row["usr_id"], $a_educations_ref_id);
+            }
+            if($add_memberships) {
+                $result["set"][$id]['memberships'] = $DIC->fau()->user()->getMembershipsAsText((int) $row["usr_id"]);
+            }
+            if($add_waitinglists) {
+                $result["set"][$id]['waitinglists'] = $DIC->fau()->user()->getWaitingListsAsText((int) $row["usr_id"]);
+            }
+        }
+        return $result;
     }
+    // fau.
 }
