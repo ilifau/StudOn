@@ -645,6 +645,7 @@ class ilParticipantsTestResultsGUI
                     false                   // use placeholders
                 );
                 
+                $error = $mail->sendMail($mail_data);   
                 if ($error) {
                     $failed[] = $uname;
                 } else {
