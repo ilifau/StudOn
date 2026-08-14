@@ -18,15 +18,19 @@
 
 declare(strict_types=1);
 
-class ilMailTemplatePlaceholderToEmptyResolver
+namespace ILIAS\Filesystem\Finder\Iterator;
+
+class LazyIterator implements \IteratorAggregate
 {
-    public function resolve(
-        string $message,
-    ): string {
-        return preg_replace(
-            "/({{)(\w+)(}})/",
-            '$2',
-            $message
-        );
+    private \Closure $iterator_factory;
+
+    public function __construct(callable $iterator_factory)
+    {
+        $this->iterator_factory = $iterator_factory(...);
+    }
+
+    public function getIterator(): \Traversable
+    {
+        yield from ($this->iterator_factory)();
     }
 }
