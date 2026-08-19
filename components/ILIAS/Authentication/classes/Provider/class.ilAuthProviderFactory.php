@@ -88,7 +88,9 @@ class ilAuthProviderFactory
 
             case ilAuthUtils::AUTH_ECS:
                 $this->logger->debug('Using ecs authentication.');
-                return new ilAuthProviderECS($credentials);
+// fau: samlAuth - use StudOn Auth provider
+                return new ilAuthProviderSamlStudOn($credentials, ilSamlIdp::getIdpIdByAuthMode($a_authmode));
+// fau.
 
             case ilAuthUtils::AUTH_SAML:
                 $this->logger->debug('Using apache authentication.');

@@ -52,6 +52,9 @@ class ilObjUser extends ilObject
     public const DATABASE_DATE_FORMAT = 'Y-m-d H:i:s';
 
     private string $ext_account = '';
+    // fau: samlChange - new class variable idle_ext_account
+    protected ?string $idle_ext_account = null;
+    // fau.
     private string $fullname;
     private bool $time_limit_unlimited = false;
     private ?int $time_limit_until = null;
@@ -204,6 +207,18 @@ class ilObjUser extends ilObject
         return true;
     }
 
+    // fau: loginFallback - add function to assign data from array
+    // fau: samlAuth/samlChange - add function to assign system information from array
+    /**
+     * loads a record "user" from array
+     * @param array $a_data<string,mixed>
+     */
+    public function assignData(array $data): void
+    {
+        $this->assignSystemInformationFromDB($data);
+    }
+    // fau.
+
     private function assignSystemInformationFromDB(array $data): void
     {
         if (!empty($data['passwd'])) {
@@ -235,6 +250,9 @@ class ilObjUser extends ilObject
 
         $this->auth_mode = $data['auth_mode'];
         $this->ext_account = $data['ext_account'] ?? '';
+        // fau: samlChange - add idle_ext_account to system information
+        $this->idle_ext_account = $data['idle_ext_account'] ?? null;
+        // fau.
         $this->is_self_registered = $data['is_self_registered'];
         $this->last_visited = $data['last_visited'];
     }
@@ -263,6 +281,9 @@ class ilObjUser extends ilObject
             'profile_incomplete' => $this->profile_incomplete,
             'auth_mode' => $this->auth_mode,
             'ext_account' => $this->ext_account ?? '',
+            // fau: samlChange - add idle_ext_account to system information
+            'idle_ext_account' => $this->idle_ext_account ?? null,
+            // fau.
             'is_self_registered' => $this->is_self_registered,
             'last_update' => $this->last_update,
             'create_date' => $this->create_date,
@@ -1234,6 +1255,24 @@ class ilObjUser extends ilObject
     {
         return $this->ext_account;
     }
+
+    // fau: samlChange - getter and setter
+    /**
+     * Set the idle ext account
+     */
+    public function setIdleExtAccount(?string $a_str)
+    {
+        $this->idle_ext_account = $a_str;
+    }
+
+    /**
+     * Get the idle ext account
+     */
+    public function getIdleExtAccount() : ?string
+    {
+        return $this->idle_ext_account;
+    }
+    // fau.
 
     /**
      * add an item to user's personal clipboard
@@ -2596,6 +2635,23 @@ class ilObjUser extends ilObject
         );
     }
 
+    // fau: samlChange - write idle external account to database
+    public static function _writeIdleExternalAccount(
+        int $a_usr_id,
+        string $a_idle_ext_id
+    ): void {
+        global $DIC;
+        $ilDB = $DIC['ilDB'];
+
+        $ilDB->manipulateF(
+            'UPDATE usr_data ' .
+            ' SET idle_ext_account = %s WHERE usr_id = %s',
+            ['text', 'integer'],
+            [$a_idle_ext_id, $a_usr_id]
+        );
+    }
+    // fau.
+
     public static function _writeAuthMode(int $a_usr_id, string $a_auth_mode): void
     {
         global $DIC;
@@ -2651,6 +2707,13 @@ class ilObjUser extends ilObject
         return (string) self::_lookup($a_user_id, 'ext_account') ?? '';
     }
 
+    // fau: samlChange - lookup idle external account from database
+    public static function _lookupIdleExternalAccount(int $a_user_id): string
+    {
+        return (string) self::_lookup($a_user_id, 'idle_ext_account') ?? '';
+    }
+    // fau.
+    
     /**
      * Get list of external account by authentication method
      * Note: If login == ext_account for two user with auth_mode 'default' and auth_mode 'ldap'
@@ -2750,12 +2813,14 @@ class ilObjUser extends ilObject
         }
 
         // For compatibility, check for login (no ext_account entry given)
+        // fau: loginFallback - allow local login with different external account (e.g. vhb user)
         $res = $db->queryF(
-            'SELECT login FROM usr_data ' .
-            'WHERE login = %s AND auth_mode = %s AND (ext_account IS NULL OR ext_account = "") ',
-            ['text', 'text'],
+            "SELECT login FROM usr_data " .
+            "WHERE login = %s AND auth_mode = %s ",
+            ["text", "text"],
             [$a_account, $a_auth]
         );
+        // fau.
         if ($usr = $db->fetchAssoc($res)) {
             return $usr['login'];
         }
