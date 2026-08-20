@@ -326,6 +326,11 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
         $page_editor_html = $this->purgePlaceholders($page_editor_html);
 
         // fau: samlAuth - provide a login URL with return target
+        
+        // In ILIAS 11 the page editor may keep inserted HTML as HTML entities, so decode first
+        // to allow custom markup like <a href="SAML_LOGIN_URL"> to be rendered as a real link.
+        $page_editor_html = html_entity_decode($page_editor_html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
         $return = '';
         if ($this->http->wrapper()->query()->has('target')) {
             $return = '?returnTo=' . urlencode(ilUtil::stripSlashes(
