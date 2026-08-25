@@ -9,7 +9,7 @@ use FAU\Staging\Data\Identity;
  */
 class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 {
-    protected Identity $identity;
+    protected ?Identity $identity;
 
     /**
      * @inheritdoc

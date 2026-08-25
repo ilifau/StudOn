@@ -31,6 +31,9 @@ use ILIAS\DataProtection\Consumer as DataProtection;
 use ILIAS\components\Authentication\Logout\ConfigurableLogoutTarget;
 use ILIAS\LegalDocuments\Conductor;
 use ILIAS\components\Authentication\Pages\AuthPageEditorContext;
+// fau: samlAuth
+use ILIAS\Authentication\Password\LocalUserPasswordManager;
+// fau.
 
 /**
  * @ilCtrl_Calls ilStartUpGUI: ilAccountRegistrationGUI, ilPasswordAssistanceGUI, ilLoginPageGUI, ilDashboardGUI
@@ -1161,7 +1164,7 @@ class ilStartUpGUI implements ilCtrlBaseClassInterface, ilCtrlSecurityInterface
             $this->showChangeToSso();
         }
 
-        else if (!ilUserPasswordManager::getInstance()->verifyPassword($user, $password)) {
+        else if (!LocalUserPasswordManager::getInstance()->verifyPassword($user, $password)) {
             $this->mainTemplate->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
                 $this->lng->txt('sso_change_password_is_wrong'));
             $this->showChangeToSso();
