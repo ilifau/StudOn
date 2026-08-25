@@ -162,10 +162,6 @@ class ilLocalUserPasswordSettingsGUI
                 ->withByline($this->lng->txt('current_password_info'));
             $items['login'] = $user_name;
 
-      /*      $button = $this->ui_factory->button()->standard(
-                $this->lng->txt('forgot_password'),
-                $this->ctrl->getLinkTarget($this, 'confirmPasswordAssistance')
-            );*/
             // fau.
 
             if ((int) $this->user->getAuthMode(true) === ilAuthUtils::AUTH_LOCAL) {
@@ -327,10 +323,6 @@ class ilLocalUserPasswordSettingsGUI
             $this->ctrl->redirect($this, "showPersonalData");
             return;
         }
-
-   //     $this->initSubTabs("showPersonalData");
-   //     $this->tabs->activateTab("password");
-   //     $this->setHeader();
 
         $gui = new ilConfirmationGUI();
         $gui->setFormAction($this->ctrl->getFormAction($this));
