@@ -156,12 +156,16 @@ class ilLocalUserPasswordSettingsGUI
             $pw_info_set = false;
 
             // fau: pwChangeForm - show username, add button for password assistance
-            $user_name = $this->ui_factory->item()->standard($this->user->getLogin())
-                ->withLeadText($this->lng->txt('login'));
+            $user_name = $this->ui_factory->input()->field()->text($this->lng->txt('login'))
+                ->withValue($this->user->getLogin())
+                ->withDisabled(true)
+                ->withByline($this->lng->txt('current_password_info'));
             $items['login'] = $user_name;
 
-            $button = $this->ui_factory->button()->standard($this->lng->txt('forgot_password'), $this->ctrl->getLinkTarget($this, 'confirmPasswordAssistance'));
-            $items['forgot_password'] = $button;
+      /*      $button = $this->ui_factory->button()->standard(
+                $this->lng->txt('forgot_password'),
+                $this->ctrl->getLinkTarget($this, 'confirmPasswordAssistance')
+            );*/
             // fau.
 
             if ((int) $this->user->getAuthMode(true) === ilAuthUtils::AUTH_LOCAL) {
@@ -258,6 +262,9 @@ class ilLocalUserPasswordSettingsGUI
                 $items
             )
             ->withSubmitLabel($this->lng->txt('save'))
+            ->withAdditionalFormAction($this->ctrl->getLinkTarget($this, 'confirmPasswordAssistance'),
+                $this->lng->txt('forgot_password')
+            )
             ->withAdditionalTransformation(
                 $this->refinery->custom()->transformation(static function (array $values): array {
                     return array_merge(...$values);
@@ -313,7 +320,7 @@ class ilLocalUserPasswordSettingsGUI
     /**
      * Confirm the sending of a password assistance mail
      */
-    protected function confirmPasswordAssistance()
+    protected function confirmPasswordAssistanceCmd()
     {
         // normally we should not end up here
         if (!$this->password_manager->allowPasswordChange($this->user)) {
@@ -321,9 +328,9 @@ class ilLocalUserPasswordSettingsGUI
             return;
         }
 
-        $this->initSubTabs("showPersonalData");
-        $this->tabs->activateTab("password");
-        $this->setHeader();
+   //     $this->initSubTabs("showPersonalData");
+   //     $this->tabs->activateTab("password");
+   //     $this->setHeader();
 
         $gui = new ilConfirmationGUI();
         $gui->setFormAction($this->ctrl->getFormAction($this));
@@ -344,7 +351,7 @@ class ilLocalUserPasswordSettingsGUI
     /**
      * Send a mail for password assistance
      */
-    protected function sendPasswordAssistanceMail()
+    protected function sendPasswordAssistanceMailCmd()
     {
         global $DIC;
         // normally we should not end up here
