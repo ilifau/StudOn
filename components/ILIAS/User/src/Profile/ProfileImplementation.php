@@ -91,6 +91,13 @@ class ProfileImplementation implements Profile
         ?\ilObjUser $user,
         array $fields_to_skip = []
     ): \ilPropertyFormGUI {
+        // fau: samlAuth - disable also changing firstname and lastname if password modification is not allowed
+        if(isset($user) && !\ilAuthUtils::isPasswordModificationEnabled($user->getAuthMode(true)))
+        {
+            $fields_to_skip[] = \ILIAS\User\Profile\Fields\Standard\Firstname::class;
+            $fields_to_skip[] = \ILIAS\User\Profile\Fields\Standard\Lastname::class;
+        }
+        // fau.
         return array_reduce(
             $this->getVisibleFieldsBySection($context, $user, $fields_to_skip),
             function (\ilPropertyFormGUI $c, array $v) use ($context, $user, $do_require): \ilPropertyFormGUI {

@@ -367,13 +367,30 @@ class ilObjUserGUI extends ilObjectGUI
         }
         if (ilAuthUtils::_isExternalAccountEnabled()) {
             $user_object->setExternalAccount($this->form_gui->getInput('ext_account'));
+            // fau: samlChange - load form value for idle ext account
+            $user_object->setIdleExtAccount($this->form_gui->getInput('idle_ext_account'));
+            // fau.
         }
         $user_object->setLastPasswordChangeTS(time());
 
         $user_object->setTitle($user_object->getFullname());
         $user_object->setDescription($user_object->getEmail());
+        
         $user_object->update();
-
+        
+        // fau: samlAuth - check authentication settings
+        global $DIC;
+        $user_object->setAuthMode($this->form_gui->getInput('auth_mode'));
+        if ($errors = $DIC->fau()->user()->getAuthSettingErrors($user_object)) {
+            $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
+                $this->lng->txt('user_error_auth_settings_wrong')
+                . $DIC->fau()->tools()->format()->list($errors));
+            $this->form_gui->setValuesByPost();
+            $this->tpl->setContent($this->form_gui->getHtml());
+            return;
+        }
+        // fau.
+                
         $this->object = $this->user_settings->saveForm(
             $this->form_gui,
             [AvailablePages::MainSettings, AvailablePages::PrivacySettings],
@@ -471,10 +488,26 @@ class ilObjUserGUI extends ilObjectGUI
         }
         if (ilAuthUtils::_isExternalAccountEnabled()) {
             $this->object->setExternalAccount($this->form_gui->getInput('ext_account'));
+            // fau: samlChange - load form value for idle ext account
+            $this->object->setIdleExtAccount($this->form_gui->getInput('idle_ext_account'));
+            // fau.
         }
 
         $this->object->setTitle($this->object->getFullname());
         $this->object->setDescription($this->object->getEmail());
+
+        // fau: samlAuth - check authentication settings
+        global $DIC;
+        $this->object->setAuthMode($this->form_gui->getInput('auth_mode'));
+        if ($errors = $DIC->fau()->user()->getAuthSettingErrors($this->object)) {
+            $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
+                $this->lng->txt('user_error_auth_settings_wrong')
+                . $DIC->fau()->tools()->format()->list($errors));
+            $this->form_gui->setValuesByPost();
+            $this->tpl->setContent($this->form_gui->getHtml());
+            return;
+        }
+        // fau.
 
         $this->object = $this->user_settings->saveForm(
             $this->form_gui,
@@ -574,6 +607,9 @@ class ilObjUserGUI extends ilObjectGUI
         if (ilAuthUtils::_isExternalAccountEnabled()) {
             $this->form_gui->addItem(
                 $this->buildExternalAccountInput($user)
+            );
+            $this->form_gui->addItem(
+                $this->buildIdleExternalAccountInput($user)
             );
         }
 
@@ -694,6 +730,20 @@ class ilObjUserGUI extends ilObjectGUI
         $input->setValue($user->getExternalAccount());
         return $input;
     }
+
+    private function buildIdleExternalAccountInput(
+        ?\ilObjUser $user
+    ): ilTextInputGUI {
+        $input = new ilTextInputGUI($this->lng->txt('idle_ext_account'), 'idle_ext_account');
+        $input->setSize(40);
+        $input->setMaxLength(250);
+        $input->setInfo($this->lng->txt('idle_ext_account_info'));
+        if ($user === null) {
+            return $input;
+        }
+        $input->setValue($user->getIdleExtAccount());
+        return $input;
+    }    
 
     private function buildTimeLimitInput(
         ?\ilObjUser $user

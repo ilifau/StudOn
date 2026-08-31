@@ -36,9 +36,9 @@ class Setup
     /**
      * Get the update steps for ilias data
      */
-    public function ilias() : FAUILIASSteps
+    public function ilias() : FAUIliasSteps
     {
-        $steps = new FAUILIASSteps();
+        $steps = new FAUIliasSteps();
         $steps->prepare($this->db);
         return $steps;
     }

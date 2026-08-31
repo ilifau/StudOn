@@ -154,6 +154,16 @@ class ilLocalUserPasswordSettingsGUI
         $items = [];
         if ($this->password_manager->allowPasswordChange($this->user)) {
             $pw_info_set = false;
+
+            // fau: pwChangeForm - show username, add button for password assistance
+            $user_name = $this->ui_factory->input()->field()->text($this->lng->txt('login'))
+                ->withValue($this->user->getLogin())
+                ->withDisabled(true)
+                ->withByline($this->lng->txt('current_password_info'));
+            $items['login'] = $user_name;
+
+            // fau.
+
             if ((int) $this->user->getAuthMode(true) === ilAuthUtils::AUTH_LOCAL) {
                 $current_passwd = $this->ui_factory
                     ->input()
@@ -248,6 +258,9 @@ class ilLocalUserPasswordSettingsGUI
                 $items
             )
             ->withSubmitLabel($this->lng->txt('save'))
+            ->withAdditionalFormAction($this->ctrl->getLinkTarget($this, 'confirmPasswordAssistance'),
+                $this->lng->txt('forgot_password')
+            )
             ->withAdditionalTransformation(
                 $this->refinery->custom()->transformation(static function (array $values): array {
                     return array_merge(...$values);
@@ -298,4 +311,58 @@ class ilLocalUserPasswordSettingsGUI
 
         $this->showPasswordCmd($form);
     }
+
+    // fau: pwChangeForm - new function confirmPasswordAssistance()
+    /**
+     * Confirm the sending of a password assistance mail
+     */
+    protected function confirmPasswordAssistanceCmd()
+    {
+        // normally we should not end up here
+        if (!$this->password_manager->allowPasswordChange($this->user)) {
+            $this->ctrl->redirect($this, "showPersonalData");
+            return;
+        }
+
+        $gui = new ilConfirmationGUI();
+        $gui->setFormAction($this->ctrl->getFormAction($this));
+        $gui->setHeaderText(sprintf($this->lng->txt('confirm_password_assistance'), $this->user->getEmail()));
+        $gui->addHiddenItem('username',  $this->user->getLogin());
+        $gui->addHiddenItem('email',  $this->user->getEmail());
+
+        $gui->setConfirm($this->lng->txt('ok'), 'sendPasswordAssistanceMail');
+        $gui->setCancel($this->lng->txt('cancel'), 'showPassword');
+
+
+        $this->tpl->setContent($gui->getHTML());
+        $this->tpl->printToStdOut();
+    }
+    // fau.
+
+    // fau: pwChangeForm - new function sendPasswordAssistanceMail()
+    /**
+     * Send a mail for password assistance
+     */
+    protected function sendPasswordAssistanceMailCmd()
+    {
+        global $DIC;
+        // normally we should not end up here
+        if (!$this->password_manager->allowPasswordChange($this->user)) {
+            $this->ctrl->redirect($this, "showPersonalData");
+            return;
+        }
+
+        $this->lng->loadLanguageModule('pwassist');
+        $gui = new ilPasswordAssistanceGUI();
+        $gui->sendPasswordAssistanceMail($this->user);
+
+        $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS,
+            sprintf($this->lng->txt('pwassist_mail_sent'), $this->user->getEmail()));
+        //$this->ctrl->redirect($this, 'showPassword');
+        // logout user after sending the password assistance mail
+        $DIC['ilAuthSession']->logout();
+        ilInitialisation::redirectToStartingPage();
+    }
+    // fau.
+
 }
