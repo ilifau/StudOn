@@ -331,7 +331,8 @@ administration#:#svn_path#:#Pfad: %s
 administration#:#svn_revision_current#:#Aktuelle Revision: %s
 administration#:#svn_revision_last_change#:#Zuletzt geänderte Revision: %s
 administration#:#svn_root#:#Root: %s
-administration#:#system_check_no_owner#:#Objekte ohne Angabe zum Besitz###Modified as part of gender mainstreaming activities for ILIAS 8
+administration#:#system_check_no_owner#:#Objekte ohne Angabe zum Besitz
+administration#:#system_folder_info#:#Wählen Sie einen Eintrag links im Administrationsmenü.
 administration#:#systemcheck#:#Systemcheck
 administration#:#tree_corrupt#:#Baum ist korrumpiert! Weitere Angaben finden Sie im Scan-Log.
 administration#:#user_criteria#:#Eindeutiges Benutzermerkmal
@@ -660,7 +661,7 @@ assessment#:#err_wrong_rating_advanced#:#Bitte stellen Sie sicher, dass die Summ
 assessment#:#error_creating_certificate_zip_empty#:#Keine Daten zu exportieren.
 assessment#:#error_importing_question#:#Beim Importieren der Fragen ist ein Fehler aufgetreten!
 assessment#:#error_open_image_file#:#Fehler beim Öffnen einer Bilddatei!
-assessment#:#error_random_question_generation#:#Bei der Erzeugung von Zufallsfragen ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie Ihre ILIAS-Administration und geben Sie die folgende Information weiter: Das ILIAS-System konnte keine Aktivitäts-ID für die ID des ILIAS-Kontos %s und die Test-ID %s erzeugen.###Modified as part of gender mainstreaming activities for ILIAS 8
+assessment#:#error_random_question_generation#:#Bei der Erzeugung von Zufallsfragen ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie die technische Betreuung und geben die folgende Information weiter: Das ILIAS-System konnte keine Aktivitäts-ID für die ID des ILIAS-Kontos %s und die Test-ID %s erzeugen.
 assessment#:#errors#:#Fehler
 assessment#:#errors_section#:#Fehlerdaten
 assessment#:#errortext#:#Fehler/Worte markieren
@@ -744,11 +745,11 @@ assessment#:#finish_test_no_valid_participants_selected#:#Für die gewählten Te
 assessment#:#finish_test_single#:#Sind Sie sicher, dass Sie den Testdurchlauf für den Teilnehmer "%s" beenden möchten?
 assessment#:#finish_unfinished_passes#:#Beendet noch offene Testdurchläufe
 assessment#:#finish_unfinished_passes_desc#:#Noch nicht beendete Testdurchläufe werden automatisch beendet – vorausgesetzt, es wurde für diese Tests ein Endzeitpunkt festgelegt oder Teilnehmende haben die maximale Bearbeitungsdauer überschritten.
-assessment#:#finished_by_administrator#:#Beendet durch Administrator
-assessment#:#finished_by_cronjob#:#Beendet durch Cronjob
-assessment#:#finished_by_duration#:#Beendet aufgrund Zeitlimit
-assessment#:#finished_by_participant#:#Beendet durch Teilnehmer
-assessment#:#finished_by_unknown#:#Beendet durch Unbekannt
+assessment#:#finished_by_administrator#:#Administrativ beendet
+assessment#:#finished_by_cronjob#:#Vom System beendet
+assessment#:#finished_by_duration#:#Beendet: Zeitlimit erreicht
+assessment#:#finished_by_participant#:#Selbst beendet
+assessment#:#finished_by_unknown#:#Beendet: Grund unbekannt
 assessment#:#fixed_participants_hint#:#Dieser Test ist nur für die nachfolgend definierte Gruppe von Teilnehmern verfügbar. Soll der Test für alle Personen verfügbar sein, deren Rollen Lesezugriff auf den Test gewähren, müssen Sie im Reiter „Einstellungen“ die Option „Nur ausgewählte Teilnehmer“ deaktivieren.
 assessment#:#fixedparticipants_subtab#:#Ausgewählte Teilnehmer
 assessment#:#flashfile#:#Flash-Datei
@@ -792,8 +793,7 @@ assessment#:#ip_range_for_selected_participants#:#Sie bearbeiten die IP Bereich 
 assessment#:#ip_range_for_single_participant#:#Sie bearbeiten die IP Bereich für folgenden Teilnehmer:
 assessment#:#ip_range_info#:#Nur Geräte mit einer IP aus der festgelegten Spanne können den Test starten.
 assessment#:#ip_range_label#:#Beschränkung auf IPs
-assessment#:#ip_range_updated#:#Die IP-Rang wurde für die gewählten Teilnehmer aktualisiert.
-assessment#:#javaapplet#:#Java-Applet
+assessment#:#ip_range_updated#:#Die IP Bereich wurde für die gewählten Teilnehmer aktualisiert.
 assessment#:#kiosk#:#Prüfungsansicht
 assessment#:#kiosk_description#:#Die Prüfungsansicht zeigt den Test im Kiosk-Modus. Dabei werden alle Bildschirmelemente, die nicht zum Test gehören, ausgeblendet. Um Teilnehmer effektiv daran zu hindern, während des Tests andere Webseiten zu öffnen, setzen Sie bitte zusätzlich einen auf E-Klausuren spezialisierten Browser ein (z.B. den „Safe Exam Browser“).
 assessment#:#kiosk_options#:#Angezeigte Informationen
@@ -892,9 +892,7 @@ assessment#:#logs_test_run_started#:#Testdurchlauf gestartet
 assessment#:#logs_wrong_test_password_provided#:#Teilnehmer hat falsches Testpasswort eingegeben.
 assessment#:#longmenu#:#Longmenu
 assessment#:#longmenu_answeroptions_differ#:#Diese Frage funktioniert nicht richtig, denn sie hat nicht die gleiche Anzahl Lücken im Text wie in den Antwortoptionen.
-assessment#:#longmenu_text#:#‘Long Menu’-Text
-assessment#:#mailnottype#:#Ein Versand findet auch beim Beenden einzelner Testdurchläufe statt
-assessment#:#mailnottype_desc#:#Der Besitzer des Tests wird auch dann benachrichtigt, wenn die Anzahl Durchläufe nicht beschränkt ist.
+assessment#:#longmenu_text#:#„Long Menu“-Text
 assessment#:#mainbar_button_label_questionlist#:#Fragenliste
 assessment#:#maintenance#:#Wartung
 assessment#:#manscoring#:#Bewertung
@@ -1372,10 +1370,12 @@ assessment#:#tst_activate_skill_service_desc#:#Erlaubt die Zuordnung von Fragen 
 assessment#:#tst_activation_limited_visibility_info#:#Außerhalb des angegebenen Zeitraums wird der Testtitel angezeigt. Der Test kann aber nicht gestartet werden. Der weitere Zugriff, auch auf bereits laufende Tests, wird zum Ende des Zeitraums unterbunden.
 assessment#:#tst_activation_online_info#:#Nur wenn der Test online geschaltet ist, können Benutzer am Test teilnehmen.
 assessment#:#tst_add_quest_cont_edit_mode#:#Editor
-assessment#:#tst_add_quest_cont_edit_mode_IPE#:#Unformatierter Text für Fragen und Antworten und ILIAS-Seiteneditor für Rückmeldungen und Lösungshinweise
-assessment#:#tst_add_quest_cont_edit_mode_IPE_info#:#Bietet keine Formatierung von Text in Fragen und Antworten, erlaubt aber Gestaltung der Rückmeldungen und Lösungshinweise mit ILIAS-Seiteneditor und Wiederverwendung bei Fragen in ILIAS-Lernmodulen.
-assessment#:#tst_add_quest_cont_edit_mode_RTE#:#Rich-Text-Editor (TinyMCE) für das Editieren der Fragen, Antworten, Rückmeldungen und Lösungshinweisen
-assessment#:#tst_add_quest_cont_edit_mode_RTE_info#:#Erlaubt formatierten Text für Fragen, Antworten, Rückmeldungen und Lösungshinweise. Rückmeldungen und Lösungshinweise werden aber beim Einbinden von Fragen in ILIAS-Lernmodule nicht übernommen.
+assessment#:#tst_add_quest_cont_edit_mode_IPE#:#Unformatierter Text für Fragen und Antworten und ILIAS-Seiteneditor für Rückmeldungen
+assessment#:#tst_add_quest_cont_edit_mode_IPE_info#:#Bietet keine Formatierung von Text in Fragen und Antworten, erlaubt aber Gestaltung der Rückmeldungen mit ILIAS-Seiteneditor und Wiederverwendung bei Fragen in ILIAS-Lernmodulen.
+assessment#:#tst_add_quest_cont_edit_mode_RTE#:#Rich-Text-Editor (TinyMCE) für das Editieren der Fragen, Antworten und Rückmeldungen
+assessment#:#tst_add_quest_cont_edit_mode_RTE_info#:#Erlaubt formatierten Text für Fragen, Antworten und Rückmeldungen. Rückmeldungen werden aber beim Einbinden von Fragen in ILIAS-Lernmodule nicht übernommen.
+assessment#:#tst_add_quest_cont_edit_mode_plain#:#Unformatierter Text
+assessment#:#tst_add_quest_cont_edit_mode_plain_info#:#Bietet keine Formatierung von Text in Fragen, Antworten und Rückmeldungen.
 assessment#:#tst_addit_passes_blocked_after_passed_msg#:#Sie haben den Test bestanden. Der Test kann nicht noch einmal gestartet werden.
 assessment#:#tst_all_test_competences#:#Alle Test-Kompetenzen
 assessment#:#tst_all_user_data_deleted#:#Die Daten aller Testteilnehmer wurden gelöscht!
@@ -1441,7 +1441,7 @@ assessment#:#tst_corr_answ_stat_tbl_header_frequency#:#Häufigkeit
 assessment#:#tst_corrections_answers_tbl#:#Antwortstatistik
 assessment#:#tst_corrections_answers_tbl_subindex#:#Antwortstatistik für %s
 assessment#:#tst_corrections_incompatible_question_set_type#:#Eine Nachkorrektur ist nur möglich, wenn der Test eine fest definierte Fragenauswahl verwendet.
-assessment#:#tst_corrections_manscore_reset_warning#:#Es liegen %s manuelle Bewertungen für die Frage "%s (ID: %s)" vor. Alle manuellen Bewertungen werden zurückgesetzt wenn die Frage gespeichert wird.
+assessment#:#tst_corrections_manscore_reset_warning#:#Es liegen %s Bewertungen für die Frage „%s (ID: %s)” vor. Alle Bewertungen werden zurückgesetzt wenn die Frage gespeichert wird.
 assessment#:#tst_corrections_qst_form#:#Korrektur der Punkte
 assessment#:#tst_corrections_tab_question#:#Frage
 assessment#:#tst_corrections_tab_solution#:#Lösung
@@ -1511,12 +1511,6 @@ assessment#:#tst_finish_confirm_button#:#Ja, ich will den Test beenden
 assessment#:#tst_finish_confirm_cancel_button#:#Nein, ich will zur letzten Antwort zurückgehen
 assessment#:#tst_finish_confirmation_question#:#Sie sind dabei, diesen Test zu beenden. Danach werden Sie nicht mehr in der Lage sein, den Test erneut aufzurufen, um Ihre Antworten zu ändern. Wollen Sie den Test wirklich beenden?
 assessment#:#tst_finish_confirmation_question_no_attempts_left#:#Sie sind dabei, diesen Test zu beenden und die maximale Anzahl erlaubter Testdurchläufe zu erreichen. Danach werden Sie nicht mehr in der Lage sein, den Test erneut aufzurufen, um Ihre Antworten zu ändern. Wollen Sie den Test wirklich beenden?
-assessment#:#tst_finish_notification#:#Benachrichtigung
-assessment#:#tst_finish_notification_advanced#:#Komplettes Testergebnis pro Benutzer
-assessment#:#tst_finish_notification_content_type#:#Inhalt der Benachrichtigung
-assessment#:#tst_finish_notification_desc#:#Für jede Person, die einen Test beendet, wird eine Mail versendet. Die Mail wird an den Benutzer versendet, welcher im Reiter „Rechte“ unter „Im Besitz von“ eingetragen ist. Die Mail enthält die folgenden Informationen:###Modified as part of gender mainstreaming activities for ILIAS 8
-assessment#:#tst_finish_notification_no#:#Keine Benachrichtigung
-assessment#:#tst_finish_notification_simple#:#Nur Anmeldename und Datum des Beendens
 assessment#:#tst_finished#:#Beendet
 assessment#:#tst_form_dynamic_question_set_config#:#Fortlaufende Fragenauswahl
 assessment#:#tst_gap_analysis#:#Gap-Analyse
@@ -1527,10 +1521,9 @@ assessment#:#tst_header_solution#:#Bestmögliche Lösung:
 assessment#:#tst_hide_info_tab#:#Info-Tab ausblenden
 assessment#:#tst_hide_info_tab_desc#:#Blendet den Tab „Info“ des Tests aus.
 assessment#:#tst_hide_pagecontents#:#Seiteninhalte ausblenden
-assessment#:#tst_hide_pagecontents_desc#:#ILIAS-Inhalte, die über den Button "Seite bearbeiten" vor und hinter dem eigentlichen Fragentext platziert wurden, werden in den Ergebnisansichten und der Druckausgabe nicht angezeigt.
-assessment#:#tst_hide_side_list#:#Fragenliste aus
-assessment#:#tst_highscore_achieved_ts#:#Datum
-assessment#:#tst_highscore_achieved_ts_description#:#Es wird eine zusätzliche Spalte mit dem Zeitpunkt des Tests eingeblendet.
+assessment#:#tst_hide_pagecontents_desc#:#Inhalte, die über den Button „Seite bearbeiten" vor und hinter dem eigentlichen Fragentext platziert wurden, werden in den Ergebnisansichten und der Druckausgabe nicht angezeigt.
+assessment#:#tst_highscore_achieved_ts#:#Datum / Uhrzeit
+assessment#:#tst_highscore_achieved_ts_description#:#Es wird eine zusätzliche Spalte eingeblendet, die anzeigt, wann der Test beendet wurde.
 assessment#:#tst_highscore_all_tables#:#Eigener Rang und Bestenliste
 assessment#:#tst_highscore_all_tables_description#:#Zeigt sowohl eine Tabelle mit der eigenen Platzierung als auch eine Tabelle mit den besten Platzierungen.
 assessment#:#tst_highscore_anon#:#Keine Namen anzeigen
@@ -1696,8 +1689,7 @@ assessment#:#tst_notify_manscoring_done_body_msg_subject#:#Bewertung für Test �
 assessment#:#tst_notify_manscoring_done_body_msg_topic#:#Die Bewertung für folgenden Test wurde eingereicht:
 assessment#:#tst_nr_of_passes#:#Anzahl der Testdurchläufe
 assessment#:#tst_nr_of_tries#:#Maximale Anzahl von Testdurchläufen
-assessment#:#tst_nr_of_tries_desc#:#Maximale Anzahl der Testdurchläufe, die ein Teilnehmer absolvieren kann.
-assessment#:#tst_nr_of_tries_of_user#:#Bereits durchgeführte Testdurchläufe
+assessment#:#tst_nr_of_tries_desc#:#Die maximale Anzahl der Testdurchläufe, die ein Teilnehmer absolvieren kann. Wenn diese Option nicht ausgewählt ist, kann der Test unbegrenzt wiederholt werden, solange er verfügbar ist.
 assessment#:#tst_num_all_questions#:#Anzahl aller Fragen
 assessment#:#tst_num_correct_answered_questions#:#Richtig beantwortet
 assessment#:#tst_num_non_answered_questions_notseen#:#Noch nicht angesehen
@@ -1717,8 +1709,8 @@ assessment#:#tst_participant_fullname_pattern#:#%2$s, %1$s
 assessment#:#tst_participant_status#:#Teilnehmerstatus
 assessment#:#tst_participating_users#:#Teilnehmende Benutzer
 assessment#:#tst_pass_best_pass#:#Besten Durchlauf des Tests bewerten
-assessment#:#tst_pass_best_pass_desc#:#Es wird der Durchlauf bewertet, bei dem die höchste Punktezahl erreicht wurde.
-assessment#:#tst_pass_deletion#:#Durchläufe löschen
+assessment#:#tst_pass_best_pass_desc#:#Wenn multiple Durchläufe erlaubt werden, wird der Durchlauf bewertet, bei dem die höchste Punktezahl erreicht wurde.
+assessment#:#tst_pass_deletion#:#Vorherige Durchläufe
 assessment#:#tst_pass_deletion_allowed#:#Durchläufe, die nicht zur Bewertung verwendet werden, können gelöscht werden.
 assessment#:#tst_pass_details#:#Detaillierte Ergebnisse
 assessment#:#tst_pass_details_header_lo_initial#:#Einstiegsergebnisse zu den Lernzielen<br />%s - %s
@@ -1878,15 +1870,11 @@ assessment#:#tst_score_cutting#:#Negative Punkte
 assessment#:#tst_search_users#:#Teilnehmer suchen
 assessment#:#tst_select_questionpool#:#Bitte wählen Sie einen Fragenpool aus, in dem Sie die erstellte Frage ablegen!
 assessment#:#tst_selected_user_data_deleted#:#Die Testdaten der ausgewählten Benutzer wurden erfolgreich gelöscht.
-assessment#:#tst_sequence#:#Reihenfolge
-assessment#:#tst_sequence_fixed#:#Die Reihenfolge der Fragen muss eingehalten werden.
-assessment#:#tst_sequence_postpone#:#Fragen können an das Ende eines Testdurchlaufs zurückgestellt werden.
 assessment#:#tst_sequence_properties#:#Durchführung: Funktionen für Teilnehmer
 assessment#:#tst_set_offline_due_to_switched_question_set_type_setting#:#Der Test wurde offline gesetzt, da sich die Einstellung zur Auswahl der Testfragen geändert hat. Weisen Sie dem Test wieder Fragen zu. Anschließend können Sie den Test wieder online setzen.
-assessment#:#tst_setting_offer_hints_info#:#Teilnehmer können Lösungshinweise anfordern, um eine Frage zu beantworten. Pro gegebenem Lösungshinweis verringern sich die Punkte für die richtige Antwort.
-assessment#:#tst_setting_offer_hints_label#:#Lösungshinweise
-assessment#:#tst_settings_conflict_postpone_and_lock#:#"Nicht beantwortete Fragen werden ans Testende geschoben" kann nicht zusammen mit "Antworten bei Anzeige der Folgefrage festschreiben" verwendet werden.
-assessment#:#tst_settings_conflict_shuffle_and_lock#:#"Fragen mischen" kann nicht zusammen mit "Antworten bei Anzeige der Folgefrage festschreiben" verwendet werden.
+assessment#:#tst_settings_conflict_postpone_and_lock#:#„Nicht beantwortete Fragen werden ans Testende geschoben“ kann nicht zusammen mit „Antworten bei Anzeige der Folgefrage festschreiben“ verwendet werden.
+assessment#:#tst_settings_conflict_shuffle_and_lock#:#„Fragen mischen“ kann nicht zusammen mit „Antworten bei Anzeige der Folgefrage festschreiben“ verwendet werden.
+assessment#:#tst_settings_form_reload_needed#:#Das Formular musste neu geladen werden, da sich die verfügbaren Einstellungen durch das Löschen aller Ergebnisse geändert haben.
 assessment#:#tst_settings_header_additional#:#Zusätzliche Funktionen
 assessment#:#tst_settings_header_execution#:#Durchführung: Zugang
 assessment#:#tst_settings_header_intro#:#Informationen zum Einstieg
@@ -1895,18 +1883,12 @@ assessment#:#tst_settings_not_found#:#Fehlende Testeinstellungen
 assessment#:#tst_settings_not_found_msg#:#Die Testeinstellungen wurden nicht gefunden. Möglicherweise fehlt ein Migrationsschritt. Wenden Sie sich an die technische Betreuung.
 assessment#:#tst_show_answer_sheet#:#Antwortenübersicht anzeigen
 assessment#:#tst_show_cancel#:#"Test unterbrechen" anzeigen
-assessment#:#tst_show_cancel_description#:#Zeigt während der Durchführung des Tests einen Button an, mit der der Test unterbrochen werden kann. Achtung: Das Unterbrechen des Tests hält nicht die unter 'Maximale Bearbeitungsdauer' festgelegte Bearbeitungszeit an.
-assessment#:#tst_show_comp_results#:#Kompetenz-Ergebnisse
-assessment#:#tst_show_pass_details#:#Show ‘Table of Detailed Test Results’ for each Test Attempt upon Selected Point in Time###26 08 2024 new variable
-assessment#:#tst_show_pass_details_desc#:#The summary of results will be appended at the point in time indicated in the setting above: A ‘Table of Detailed Test Results’ will show the title of the questions and the points scored in a particular test attempt. <br> Other than that the table will be displayed after the last test attempt possible (setting in link ‘General’, option ‘Limit Number of Test Attempts) or after the test is officially finished (setting in link ‘General’, option ‘Finishing Time’). <br> Further settings about the content of the ‘Table of Detailed Test Results’ can be made in the section ‘Further Details to be Included in Test Results’ of this form.###26 08 2024 new variable
+assessment#:#tst_show_cancel_description#:#Zeigt während der Durchführung des Tests einen Button an, mit der der Test unterbrochen werden kann. Achtung: Das Unterbrechen des Tests hält nicht die unter „Maximale Bearbeitungsdauer“ festgelegte Bearbeitungszeit an.
+assessment#:#tst_show_comp_results#:#Kompetenzergebnisse
 assessment#:#tst_show_results#:#Testergebnisse
 assessment#:#tst_show_side_list#:#Fragenliste an
 assessment#:#tst_show_solution_answers_only#:#Druckausgabe der Ergebnisse (nur Antworten)
-assessment#:#tst_show_solution_answers_only_desc#:#Wenn "Druckausgabe der Ergebnisse (nur Antworten)" ausgewählt ist, werden ILIAS-Inhalte, die Sie über den "Inhalt bearbeiten"-Reiter der Fragen vor und hinter dem eigentlichen Fragentext platzieren können, in einem Ausdruck nicht angezeigt.
-assessment#:#tst_show_solution_compare#:#Zeige bestmögliche Lösung in 'Tabelle mit detaillierten Testergebnissen'
-assessment#:#tst_show_solution_compare_desc#:#Teilnehmern wird als Teil der 'Tabelle mit detaillierten Testergebnissen' eine Übersicht präsentiert, welche ihre eigenen Antworten und die bestmögliche Lösung gegenüberstellt. <br> Diese Übersicht wird nicht im Unterreiter 'Bewertete Antworten' des 'Ergebnisse'-Reiters angezeigt, auch wenn diese Einstellung hier vorgenommen wird.
-assessment#:#tst_show_solution_details#:#Bewertete Antworten als Liste
-assessment#:#tst_show_solution_details_desc#:#Die Tabelle "Detallierte Testergebnisse" wird um eine Liste der eigenen Antworten ergänzt.
+assessment#:#tst_show_solution_answers_only_desc#:#Wenn „Druckausgabe der Ergebnisse (nur Antworten)“ ausgewählt ist, werden ILIAS-Inhalte, die Sie über den „Inhalt bearbeiten“-Reiter der Fragen vor und hinter dem eigentlichen Fragentext platzieren können, in einem Ausdruck nicht angezeigt.
 assessment#:#tst_show_solution_details_singlepage#:#Bewertete Antworten auf Einzelseiten
 assessment#:#tst_show_solution_details_singlepage_desc#:#Teilnehmerinnen und Teilnehmer können jede Frage einzeln aufrufen und sehen, ob ihre Antworten richtig waren und wie viele Punkte sie damit erreicht haben.
 assessment#:#tst_show_solution_feedback#:#Rückmeldungen
@@ -2155,7 +2137,7 @@ auth#:#auth_saml_idp_settings#:#IDP Einstellungen
 auth#:#auth_saml_idps#:#SAML IDP Liste
 auth#:#auth_saml_idps_info#:#Bitte kontrollieren Sie vor dem Hinzufügen eines Identity-Providers die SimpleSAMLphp Konfiguration in den Dateien '<strong>%s</strong>' und '<strong>%s</strong>' (externes Datenverzeichnis) und passen Sie diese an. Bitte denken Sie vor allem daran, die Serverpfade für Ihren privaten Schlüssel und das Zertifikat in der Datei authsources.php zu konfigurieren. Lesen Sie dazu auch die folgende Dokumentation: %s.<br />Federation Metadata URL: %s
 auth#:#auth_saml_login_form#:#Anzeige im Anmeldeformular
-auth#:#auth_saml_login_form_info#:#Falls aktiviert und es mindestens einen aktiven IDP gibt, wird auf der Anmeldeseite von ILIAS ein Button angezeigt, der bei Klick einen SAML-Request initiert.
+auth#:#auth_saml_login_form_info#:#Falls aktiviert und es mindestens einen aktiven IDP gibt, wird auf der Anmeldeseite von ILIAS ein Button angezeigt, der bei Klick einen SAML-Request iniitiert.
 auth#:#auth_saml_migration#:#Account-Migration:
 auth#:#auth_saml_migration_info#:#Aktivieren Sie diese Einstellung, um neuen Benutzern die Möglichkeit zu bieten, eventuell vorhandene ILIAS Anmeldekonten auf SAML-Authentifizierung umzustellen.
 auth#:#auth_saml_role_select#:#Rolle:
@@ -2279,6 +2261,14 @@ badge#:#badge_select_one#:#Sie müssen mindestens einen Badge auswählen
 badge#:#badge_service_activate#:#Service aktivieren
 badge#:#badge_service_activate_info#:#Aktiveren Sie den Service, um Badges verfügbar zu machen
 badge#:#badge_settings#:#Badge Einstellungen
+badge#:#badge_sort_active_badges_first#:#Aktive Badges zuerst
+badge#:#badge_sort_active_badges_last#:#Aktive Badges zuletzt
+badge#:#badge_sort_activity_badges_first#:#Automatisch vergebene Badges zuerst
+badge#:#badge_sort_activity_badges_last#:#Automatisch vergebene Badges zuletzt
+badge#:#badge_sort_added_to_profile_last#:#Dem Profil zugeordnete zuerst
+badge#:#badge_sort_excluded_from_profile_first#:#Vom Profil ausgeklammerte zuerst
+badge#:#badge_sort_manual_awarding_first#:#Badges mit manueller Vergabe zuerst
+badge#:#badge_sort_manual_awarding_last#:#Badges mit manueller Vergabe zuletzt
 badge#:#badge_subtype_auto#:#automatisch
 badge#:#badge_subtype_manual#:#manuell
 badge#:#badge_template_deletion_confirmation#:#Wollen Sie wirklich die folgenden Bildvorlagen löschen?
@@ -2575,6 +2565,7 @@ book#:#book_bulk_creation#:#Massenerstellung
 book#:#book_bulk_data#:#Daten zu Angeboten
 book#:#book_cal_entry#:#Buchung:
 book#:#book_confirm_booking#:#Buchung vornehmen
+book#:#book_confirm_booking_for_users#:#Sind Sie sicher, dass Sie dieses Angebot für die folgenden Personen buchen wollen?
 book#:#book_confirm_booking_no_schedule#:#Sind Sie sicher, dass Sie das folgende Angebot buchen wollen?
 book#:#book_confirm_booking_schedule_number_of_objects#:#Buchungsbestätigung
 book#:#book_confirm_booking_schedule_number_of_objects_info#:#Bitte wählen Sie die Anzahl der zu buchenden Angebote.
@@ -2714,7 +2705,7 @@ book#:#book_schedule_type_fixed#:#Buchung nach festem Zeitplan
 book#:#book_schedule_type_fixed_info#:#Geeignet für Buchungen von Dingen für einen bestimmten Zeitraum, wie Räume, Dienstleistungen oder Geräte.
 book#:#book_schedule_type_none#:#Ohne Zeitplan
 book#:#book_schedule_type_none_direct#:#Buchung ohne Termine
-book#:#book_schedule_type_none_direct_info#:#Teilnehmer können direkt buchen. Der Modus ist geeignet für Referatsthemen oder Seminarplätze, die ohne Termin vergeben werden.
+book#:#book_schedule_type_none_direct_info#:#Personen können direkt buchen. Der Modus ist geeignet für Referatsthemen oder Seminarplätze, die ohne Termin vergeben werden.
 book#:#book_schedule_type_none_info#:#Dieser Buchungsmodus ist geeignet für die Vergabe von Referatsthemen, Seminarplätzen oder vergleichbaren Angeboten.
 book#:#book_schedule_type_none_preference#:#Automatisch nach Präferenzen verteilen
 book#:#book_schedule_type_none_preference_info#:#Personen benennen zunächst Präferenzen. Zu einem gewählten Enddatum werden die Buchungen automatisch vorgenommen. Der Buchungsmodus ist geeignet für Referatsthemen oder Seminarplätze, die ohne Termin vergeben werden.
@@ -3152,12 +3143,10 @@ cmix#:#btn_change_registration#:#Absenden
 cmix#:#btn_create_lrs_type#:#LRS-Typ hinzufügen
 cmix#:#btn_create_registration#:#Absenden
 cmix#:#change_registration#:#E-Mail-Adresse für die Registrierung
-cmix#:#cmiexit#:#Sie können nun das Fenster schließen.
 cmix#:#cmix_add#:#xAPI/cmi5-Objekt anlegen
 cmix#:#cmix_add_cmi5_lm#:#cmi5 Lernmodul
 cmix#:#cmix_add_cmi5_lm_info#:#Diese Option sollte verwendet werden, wenn es sich bei den Inhalten um ein cmi5 konformes Lernmodul handelt. Verwandte Funktionen wie geeignete Berichte sind ohne weitere Konfigurationen verfügbar.
 cmix#:#cmix_add_lrs_type#:#LRS-Typ
-cmix#:#cmix_add_lrs_type_info#:#Diese Typen von Learning Record Stores wurden in der ILIAS-Administration verfügbar gemacht.
 cmix#:#cmix_add_source#:#Quelle
 cmix#:#cmix_add_source_external_app#:#Nicht von ILIAS gestartete Ressource
 cmix#:#cmix_add_source_external_app_info#:#Verwenden Sie diese Option für separat gestartete Ressourcen wie z.B. Apps oder Simulationen. Benutzer müssen durch Angabe ihrer verwendeten E-Mail-Adresse dem Abruf der Daten zustimmen.
@@ -3363,7 +3352,6 @@ cmix#:#launch_url#:#URL der Ressource
 cmix#:#launch_url_info#:#Geben Sie hier die Internetadresse ein und fügen Sie http:// oder https:// hinzu. Optionen zum Datenschutz sind auch für externe Ressourcen relevant.
 cmix#:#log_options#:#Optionen zur Anzeige der übertragenen Daten
 cmix#:#lrs_authentication#:#Authentifizierung
-cmix#:#lrs_type_not_avail_msg#:#Dieser LRS-Typ ist nicht verfügbar.
 cmix#:#no_substatements_info#:#Mit dieser Option, die nur für den ILIAS LRS-Proxy zur Verfügung steht, kann die Speicherung von untergeordneten Statements unterdrückt werden. Dies kann z.B. die Beantwortung einzelner Aufgaben in einem Test beeinflussen. Dem Content wird mitgeteilt, dass die Statements gespeichert worden wären.
 cmix#:#no_substatements_label#:#Substatements nicht speichern
 cmix#:#online_info#:#Dadurch wird das Objekt für die Benutzer sichtbar und nutzbar.
@@ -3626,13 +3614,6 @@ common#:#attachments#:#Anhänge
 common#:#attempts#:#Versuche
 common#:#auth_active_roles#:#Verfügbare globale Rollen auf dem Registrierformular
 common#:#auth_allow_local#:#Erlaube lokale Authentifizierung
-common#:#auth_cas#:#CAS
-common#:#auth_cas_allow_local_desc#:#Erlaubt Personen mit CAS-Konten, sich mit ihrem lokalen ILIAS-Anmeldenamen und -Passwort anzumelden.
-common#:#auth_cas_auth#:#Konfiguriere CAS-Authentifizierung
-common#:#auth_cas_auth_desc#:#CAS erfordert PHP 4.3.1 oder höher mit CURL-Unterstützung (7.5 oder höher)
-common#:#auth_cas_port_desc#:#Zum Beispiel "443" bei einer CAS-Server-URI "https://auth.yourserver.com:443/cas/"
-common#:#auth_cas_server_desc#:#Zum Beispiel "auth.yourserver.com" bei einer CAS-Server-URI "https://auth.yourserver.com:443/cas/"
-common#:#auth_cas_uri_desc#:#Lokale URI, zum Beispiel "cas" bei einer CAS-Server-URI "https://auth.yourserver.com:443/cas/"
 common#:#auth_configure#:#konfigurieren...
 common#:#auth_create_users#:#Lege noch nicht eingetragene Benutzer automatisch an.
 common#:#auth_default#:#Standardeinstellung
@@ -3779,7 +3760,7 @@ common#:#check_languages#:#Alle Sprachen überprüfen
 common#:#check_link#:#Externe Links überprüfen
 common#:#check_link_desc#:#Wenn eingeschaltet, werden alle ILIAS-Lernmodule auf ungültige externe Links überprüft.
 common#:#check_user_accounts#:#ILIAS-Konten überprüfen
-common#:#check_user_accounts_desc#:#Personen, deren ILIAS-Konten zeitlich begrenzt sind, werden zwei Wochen vor Fristende per E-Mail informiert, dass ihr Konto abläuft. Außerdem löscht der Cronjob alle ILIAS-Konten, bei denen der E-Mail-Bestätigungslink nicht fristgerecht angeklickt wurde.
+common#:#check_user_accounts_desc#:#Personen, deren ILIAS-Konten zeitlich begrenzt sind, werden zwei Wochen vor Fristende per E-Mail informiert, dass ihr Konto abläuft.
 common#:#check_web_resources#:#Weblinks überprüfen
 common#:#check_web_resources_desc#:#Wenn eingeschaltet, werden alle Weblinks auf ungültige externe Links überprüft und gegebenenfalls deaktiviert.
 common#:#checked#:#Ausgewählt
@@ -3888,7 +3869,7 @@ common#:#cron_forum_notification_crob_desc#:#Wenn aktiviert, sendet ILIAS tägli
 common#:#cron_forum_notification_disabled#:#Kann nicht deaktiviert werden, wenn der Cron-Job aktiv ist.
 common#:#cron_jobs#:#Cron-Jobs
 common#:#cron_lucene_index#:#Lucene-Suchindex aktualisieren
-common#:#cron_lucene_index_info#:#Wenn eingeschaltet, wird der Lucene-Suchindex aktualisiert. Bitte konfigurieren Sie vorher den Lucene-Server in der Administration unter „Suchen und finden » Suche“, Reiter „Lucene“.
+common#:#cron_lucene_index_info#:#Startet die Aktualisierung des Lucene-Suchindexes, der neue Inhalte erfasst. Achtung: Dies erzeugt Serverlast und kann abhängig von der Installationsgröße mehrere Stunden dauern. Bitte konfigurieren Sie den Lucene-Server unter Administration > Suchen und finden > Suche > Lucene. Prüfen Sie am Fuß der Seite unter „Letzte Indexerstellung“, ob der Index einen aktuellen Zeitstempel hat.
 common#:#cron_mail_notification#:#E-Mail-Benachrichtigungen für neue Nachrichten versenden
 common#:#cron_mail_notification_cron#:#Regelmäßig per Cron-Job
 common#:#cron_mail_notification_desc#:#ILIAS verschickt auf Wunsch E-Mail-Benachrichtigungen über neue Mails. Im Gegensatz zur sofortigen Weiterleitung aller Mails sammelt dieser Cronjob die Mails eines Tages und stellt diese als Paket zu. Bitte aktivieren Sie die Option „%s“, um diese Funktion zu nutzen. Zusätzlich müssen die E-Mail-Benachrichtigungen für jedes ILIAS-Konto in den persönlichen Mail-Einstellungen aktiviert werden.
@@ -4420,8 +4401,9 @@ common#:#il_lso_admin#:#Lernsequenzadministration
 common#:#il_lso_member#:#Lernsequenzmitglied
 common#:#il_lti_instructor#:#LTI Instructor
 common#:#il_lti_learner#:#LTI Learner
-common#:#il_orgu_employee#:#Mitarbeiter
-common#:#il_orgu_superior#:#Vorgesetzte Führungskraft###Modified as part of gender mainstreaming activities for ILIAS 8
+common#:#il_lti_user#:#LTI User
+common#:#il_orgu_employee#:#Team
+common#:#il_orgu_superior#:#Vorgesetzte Führungskraft
 common#:#ilias_version#:#ILIAS-Version
 common#:#image#:#Bild
 common#:#import#:#Importieren
@@ -4615,7 +4597,7 @@ common#:#login_data#:#Anmeldedaten
 common#:#login_exists#:#Dieser Anmeldename ist bereits vergeben. Bitte wählen Sie einen anderen.
 common#:#login_invalid#:#Ihr Anmeldename muss mindestens drei Zeichen lang sein und darf nur folgende Zeichen enthalten: A-Z a-z 0-9 _.-+*@!$%~
 common#:#login_to_ilias#:#Bei ILIAS anmelden
-common#:#login_to_ilias_via_cas#:#Bei ILIAS über zentrales Authentifizierungssystem anmelden
+common#:#login_to_ilias_via_login_form#:#Bei ILIAS anmelden
 common#:#login_to_ilias_via_saml#:#Bei ILIAS via SAML-Authentifizierung anmelden
 common#:#login_to_ilias_via_shibboleth#:#Bei ILIAS anmelden über
 common#:#loginname_already_exists#:#Dieser Anmeldename ist bereits vergeben. Bitte wählen Sie einen anderen Anmeldenamen.
@@ -4677,7 +4659,7 @@ common#:#mails#:#Mails
 common#:#mails_at_the_ilias_installation#:#Auf der ILIAS-Installation %2$s haben Sie %1$s neue Mail(s) erhalten
 common#:#mails_pl#:#Mail(s)
 common#:#main_menu#:#Hauptmenü
-common#:#mainbar_aria_label#:#Hauptnavigationsleiste###01 02 2026 changed content
+common#:#mainbar_aria_label#:#Hauptleiste
 common#:#mainbar_more_label#:#Mehr
 common#:#manage_members#:#Mitglieder verwalten
 common#:#marked_entries#:#Markierte Einträge
@@ -5862,8 +5844,8 @@ common#:#tos_withdraw_consent_description#:#Widerrufen Sie hier die Zustimmung z
 common#:#tos_withdraw_consent_description_external#:#Bitte kehren Sie zu Ihrer Herkunftsinstallation zurück, und loggen Sie sich erneut ein, um den Widerrufsvorgang abzuschließen.
 common#:#tos_withdraw_consent_description_internal#:#Bitte loggen Sie sich wieder ein, um den Widerrufsvorgang abzuschließen.
 common#:#tos_withdraw_consent_header#:#Einverständnis zur Nutzungsvereinbarung widerrufen
-common#:#tos_withdraw_consent_info#:#Widerrufen der Zustimmung zu den Nutzungsvereinbarungen
-common#:#tos_withdraw_consent_info_external#:#Bitte benachrichtigen Sie den zuständigen Administrator Ihres Autorisierungssystems, und teilen Sie Ihre Absicht mit.
+common#:#tos_withdraw_consent_info#:#Zustimmung zur Nutzungsvereinbarung widerrufen
+common#:#tos_withdraw_consent_info_external#:#Benachrichtigen Sie die zuständige Administration Ihres Autorisierungssystems, dass Ihr Konto gelöscht werden soll.
 common#:#total#:#Gesamt
 common#:#tracking_settings#:#Einstellungen
 common#:#translation#:#Übersetzung
@@ -8200,7 +8182,10 @@ dash#:#dash_item_removed#:#Der Eintrag wurde aus der Liste entfernt.
 dash#:#dash_learning_sequences#:#Meine Lernsequenzen
 dash#:#dash_list#:#Liste
 dash#:#dash_main_panel#:#Hauptbereich
-dash#:#dash_make_favourite#:#Zu Favoriten hinzufügen
+dash#:#dash_manual_new_item_pos#:#Position von neuen Objekten
+dash#:#dash_manual_new_item_pos_bot#:#Unten
+dash#:#dash_manual_new_item_pos_top#:#Oben
+dash#:#dash_manual_sorting_title#:#Manuelles Sortieren von Favoriten
 dash#:#dash_member_main_alt#:#Eine Ansicht der Mitgliedschaften kann auch direkt im Haupmenü eingebunden werden.
 dash#:#dash_memberships#:#Meine Kurse und Gruppen
 dash#:#dash_no_items_to_manage#:#Keine Objekte zum Entfernen verfügbar.
@@ -8209,10 +8194,14 @@ dash#:#dash_presentation#:#Präsentation
 dash#:#dash_recommended_content#:#Empfohlene Inhalte
 dash#:#dash_remove_from_list#:#Aus Liste entfernen
 dash#:#dash_side_panel#:#Seitenbereich
-dash#:#dash_sort_by_alphabet#:#Nach Alphabet sortieren
-dash#:#dash_sort_by_location#:#Nach Ort sortieren
-dash#:#dash_sort_by_start_date#:#Nach Veranstaltungszeitraum sortieren
-dash#:#dash_sort_by_type#:#Nach Typ sortieren
+dash#:#dash_sort_by_alphabet#:#Alphabet
+dash#:#dash_sort_by_location#:#Ort
+dash#:#dash_sort_by_manually#:#Manuell
+dash#:#dash_sort_by_start_date#:#Veranstaltungszeitraum
+dash#:#dash_sort_by_type#:#Typ
+dash#:#dash_sort_option_bot#:#Unten
+dash#:#dash_sort_option_top#:#Oben
+dash#:#dash_sort_options#:#Postition von neuen Objekten
 dash#:#dash_sortation#:#Sortierung
 dash#:#dash_study_programmes#:#Meine Studienprogramme
 dash#:#dash_tile#:#Kacheln
@@ -8693,6 +8682,9 @@ dcl#:#dcl_confirm_delete_table#:#Wollen Sie diese Tabelle einschließlich Inhalt
 dcl#:#dcl_confirm_storing_records#:#Bitte überprüfen Sie die Angaben vor dem Speichern.
 dcl#:#dcl_confirm_storing_records_no_permission#:#Achtung: Wegen der gegenwärtigen Einstellungen werden Sie ihren Eintrag nach dem Speichern nicht mehr bearbeiten können.
 dcl#:#dcl_copy#:#Datensammlung kopieren
+dcl#:#dcl_copy_field#:#Kopie
+dcl#:#dcl_copy_field_desc#:#Ein Feld, in dem eine Kopie eines Eintrags oder von Einträgen aus einem anderen Feld erstellt werden kann. Dieses andere Feld kann sich in einer anderen Tabelle befinden. Änderungen am Originaleintrag wirken sich nicht auf die Kopie aus.
+dcl#:#dcl_copy_title#:#Kopie von Tabelle und Feld
 dcl#:#dcl_create_date#:#Erstellungsdatum
 dcl#:#dcl_create_entry_rules#:#Eintragserstellung
 dcl#:#dcl_create_field#:#Feld hinzufügen
@@ -8704,9 +8696,10 @@ dcl#:#dcl_date#:#Datumseingabe
 dcl#:#dcl_date_desc#:#Datum wird eingegeben oder im Kalender ausgewählt.
 dcl#:#dcl_date_selection#:#Datum per Auswahl
 dcl#:#dcl_date_selection_desc#:#Aus vorgegebenen Optionen kann ein Datum ausgewählt werden.
-dcl#:#dcl_datetime#:#Datum per Eingabe
-dcl#:#dcl_datetime_desc#:#Datum wird eingegeben oder im Kalender ausgewählt.
-dcl#:#dcl_deactivate_view#:#Vorlage für Einzelansicht deaktivieren
+dcl#:#dcl_datetime#:#Datumseingabe mit Uhrzeit
+dcl#:#dcl_datetime_desc#:#Datum und Uhrzeit wird eingegeben oder im Kalender ausgewählt.
+dcl#:#dcl_datetime_selection#:#Datum mit Uhrzeit per Auswahl
+dcl#:#dcl_datetime_selection_desc#:#Aus vorgegebenen Optionen kann ein Datum mit Uhrzeit ausgewählt werden.
 dcl#:#dcl_default_sort_field#:#Sortierung
 dcl#:#dcl_default_sort_field_order#:#Sortierrichtung
 dcl#:#dcl_default_sort_field_order_desc#:#Tabelle wird standardmässig nach dem ausgewählten Feld sortiert.
@@ -8714,10 +8707,7 @@ dcl#:#dcl_delete_fields#:#Felder löschen
 dcl#:#dcl_delete_fields_no_selection#:#Zum Löschen muss mindestens ein Feld ausgewählt werden.
 dcl#:#dcl_delete_perm#:#Einträge löschen
 dcl#:#dcl_delete_records#:#Datensätze löschen
-dcl#:#dcl_delete_tables#:#Tabellen löschen
-dcl#:#dcl_delete_tables_no_selection#:#Zum Löschen muss mindestens eine Tabelle ausgewählt werden.
-dcl#:#dcl_delete_views#:#Ansichten löschen
-dcl#:#dcl_delete_views_no_selection#:#Zum Löschen muss mindestens eine Ansicht ausgewählt werden.
+dcl#:#dcl_deleted_entries#:#Gelöschte Einträge
 dcl#:#dcl_deleted_records#:#Es wurden %s Datensätze gelöscht.
 dcl#:#dcl_deprecated_copy#:#(Veraltet)
 dcl#:#dcl_desc#:#Absteigend ↓
@@ -8726,13 +8716,13 @@ dcl#:#dcl_detailed_view#:#Einzelansicht
 dcl#:#dcl_display_action_menu#:#Kopieren
 dcl#:#dcl_display_action_menu_desc#:#Das Objekt kann von dem Eintrag aus kopiert werden.
 dcl#:#dcl_display_record_alt#:#Diesen Eintrag anzeigen
-dcl#:#dcl_duplicate_non_unique_entries_exist#:#Es kann sich auch um bereits vorhandene Einträge handeln.###23 02 2024 new variable
+dcl#:#dcl_duplicate_non_unique_entries_exist#:#Diese Regel ist nicht vereinbar mit den bereits vorhandenen Einträgen.
 dcl#:#dcl_edit#:#Einstellungen der Datensammlung
 dcl#:#dcl_edit_entry_rules#:#Eintragsbearbeitung
 dcl#:#dcl_edit_field#:#Feld bearbeiten
 dcl#:#dcl_edit_perm#:#Einträge bearbeiten
-dcl#:#dcl_edit_record#:#Eintrag bearbeiten
-dcl#:#dcl_edit_table#:#Einstellungen der Tabelle
+dcl#:#dcl_edit_table#:#Einstellungen der Tabelle "%s"
+dcl#:#dcl_edit_view#:#Einstellungen der Ansicht "%s"
 dcl#:#dcl_editable_in_table_gui#:#Ein Eintrag kann nur über die Tabellenansicht bewertet werden.
 dcl#:#dcl_err_formula_field_not_found#:#Feld mit dem Titel „%s“ existiert nicht.
 dcl#:#dcl_error_parsing_expression#:#Fehler beim Evaluieren des Ausdrucks
@@ -8740,7 +8730,7 @@ dcl#:#dcl_export_enabled#:#Tabelle exportieren
 dcl#:#dcl_export_enabled_desc#:#Die Daten dieser Tabelle können exportiert werden. Achtung: In dem Export tauchen nur Felder auf, für die im Reiter "Felder" dieser Tabelle die Checkbox "Exportierbar" aktiviert wurde.
 dcl#:#dcl_field_datatype#:#Feldtyp
 dcl#:#dcl_field_description#:#Beschreibung
-dcl#:#dcl_field_required#:#Verpflichtend
+dcl#:#dcl_field_description_desc#:#Wird ein Eintrag hinzugefügt, erscheint der Text unterhalb des Feldes.
 dcl#:#dcl_field_title_change_warning#:#Sie haben den Titel des Feldes geändert. Dadurch funktioniert der entsprechende Platzhalter in der Vorlage zur Einzelansicht nicht mehr. Sie müssen diesen noch manuell angepassen.
 dcl#:#dcl_field_title_unique#:#Es existiert bereits ein Feld mit diesem Titel. Titel muss eindeutig sein.
 dcl#:#dcl_field_visible#:#Sichtbar
@@ -8807,15 +8797,16 @@ dcl#:#dcl_new#:#Neue Datensammlung anlegen
 dcl#:#dcl_new_entries#:#Neue Einträge
 dcl#:#dcl_new_field#:#Neues Feld
 dcl#:#dcl_new_table#:#Neue Tabelle
-dcl#:#dcl_next_record#:#Nächster Eintrag
-dcl#:#dcl_no_content_warning#:#Achtung: die Datensammlung ist bereits online, hat aber noch keinen Felder
+dcl#:#dcl_new_view#:#Neue Ansicht
+dcl#:#dcl_no_entries#:#Keine Einträge
 dcl#:#dcl_no_entry#:#Kein Eintrag
-dcl#:#dcl_no_export_content_available#:#Keine Daten für den Export verfügbar.
+dcl#:#dcl_no_export_async_config#:#Keine SOAP-Konfiguration für asyncrone Exporte verfügbar.
 dcl#:#dcl_no_export_data_available#:#Keine Daten oder Felder für den Export verfügbar.
 dcl#:#dcl_no_fields_yet#:#Es wurden noch keine Felder für diese Tabelle erstellt. Daher können noch keine Einträge eingefügt werden. Klicken Sie im Reiter "Tabellen" auf eine Tabelle und erstellen Sie mithilfe des Buttons "Feld hinzufügen" neue Felder.
 dcl#:#dcl_no_search_results_found_for#:#Es wurden keine Module gefunden mit:
 dcl#:#dcl_no_such_reference#:#Der folgende Wert ist in der Referenztabelle nicht vorhanden:
-dcl#:#dcl_no_warnings#:#Der Import wurde reibungslos abgeschlossen.
+dcl#:#dcl_no_table_found#:#Keine Tabelle verfügbar.
+dcl#:#dcl_no_tableview_found#:#Keine Tabellenansicht verfügbar.
 dcl#:#dcl_not_checked#:#Nicht ausgewählt
 dcl#:#dcl_not_supported_in_import#:#Dieser Feldtyp wird beim Import nicht unterstützt.
 dcl#:#dcl_notification_activate#:#Benachrichtigungen aktivieren
@@ -8823,7 +8814,7 @@ dcl#:#dcl_notification_activated#:#Benachrichtigungen aktiv
 dcl#:#dcl_notification_deactivate#:#Benachrichtigungen deaktivieren
 dcl#:#dcl_notification_deactivated#:#Benachrichtigungen inaktiv
 dcl#:#dcl_notification_info#:#Jede Person kann Benachrichtigungen für sich aktivieren.
-dcl#:#dcl_notimage_exception#:#Die Datei muss ein Bild sein.
+dcl#:#dcl_notification_settings#:#Benachrichtigungseinstellungen
 dcl#:#dcl_noturl_exception#:#Bitte geben Sie einen Link (beginnend mit http:// oder www.) oder eine E-Mail-Adresse ein.
 dcl#:#dcl_number#:#Ganze Zahlen
 dcl#:#dcl_number_desc#:#Eingabe ganzer Zahlen mit bis zu 9 Ziffern. Nicht erlaubt sind Brüche und Dezimalzahlen.
@@ -8837,28 +8828,22 @@ dcl#:#dcl_owner#:#Eingetragen von
 dcl#:#dcl_owner_description#:#Eigene Einträge bleiben stets sichtbar.
 dcl#:#dcl_owner_name#:#Im Besitz von (Name)
 dcl#:#dcl_page_type_dclf#:#Detailansicht
-dcl#:#dcl_permissions_form#:#Erlaubte Aktionen für diese Tabelle
+dcl#:#dcl_placeholder_info#:#Um Daten aus Einträgen dieser Tabelle in deren Einzelansicht zu verwenden, nutzen Sie bitte die entsprechenden Platzhalter. Diese sind in den Tools für die Elemente „Text“ und „Datentabelle“ verfügbar.
 dcl#:#dcl_please_select#:#--- Bitte wählen ---
-dcl#:#dcl_plugin#:#Plugin
-dcl#:#dcl_plugin_desc#:#DataCollection-Feld Erweiterungen
-dcl#:#dcl_plugin_hooks#:#Verfügbare Erweiterungen
-dcl#:#dcl_plugin_no_hooks_available#:#Keine aktiven Field-Type Plugins gefunden.
-dcl#:#dcl_prev_record#:#Vorheriger Eintrag
 dcl#:#dcl_prop_expression#:#Ausdruck
-dcl#:#dcl_prop_expression_info#:#Gültige Operatoren: <b>%s</b><br>Unterstützte Funktionen: <b>%s</b><br>Ausdrücke gruppieren mit Klammern: ( )<br>Zeichenketten und Platzhalter verbinden mit &: <b>"Das Resultat ist " & [[Int 1]] * [[Int 2]]</b><br>Verwenden der Funktionen: <b>SUM([[Int 1]];[[Int 2]])</b><br>Achtung: Einträge in Datums- und Zahlenfeldern in einer Formel sind als Sekunden dimensioniert und müssen beispielsweise mit 86.400 multipliziert werden.<br><br>Folgende Platzhalter können im Ausdruck eingefügt werden:<br>%s
-dcl#:#dcl_public_comments#:#Kommentare
-dcl#:#dcl_public_comments_desc#:#Benutzer können Datensätze dieser Tabelle kommentieren.
+dcl#:#dcl_prop_expression_info#:#Gültige Operatoren: <b>%s</b><br>Unterstützte Funktionen: <b>%s</b><br>Verwenden Sie Klammern <b>"(", ")"</b> zum Gruppieren von Ausdrücken.<br>Zeichenketten und Platzhalter verbinden mit &: <b>"Das Resultat ist " & [[Int 1]] * [[Int 2]]</b><br>Verwenden der Funktionen: <b>SUM([[Int 1]];[[Int 2]])</b><br><br>Gültige Felder (auf den Titel klicken um als Platzhalter in Ausdruck einzufügen):<br>%s<br><b>(Erlaubte Felder sind Checkbox, Zahl, Text und Datum die keine Formular-sensitiven Zeichen im Titel enthalten)</b>
 dcl#:#dcl_rating#:#Bewertung
 dcl#:#dcl_rating_desc#:#Bestehende Einträge mit ein bis fünf Sternen bewerten.
 dcl#:#dcl_record#:#Eintrag
 dcl#:#dcl_record_deleted#:#Eintrag gelöscht.
-dcl#:#dcl_record_from_total#:#%d von %d
+dcl#:#dcl_record_settings#:#Eintragseinstellungen
 dcl#:#dcl_reference#:#Referenz
 dcl#:#dcl_reference_desc#:#Ein Feld, das ausgewählte Einträge aus einem anderen Feld anzeigt. Dieses andere Feld kann sich in einer anderen Tabelle befinden. Änderungen, die am ursprünglichen Eintrag vorgenommen wurden, wirken sich auf die in diesem Feld angezeigten Werte aus.
 dcl#:#dcl_reference_link#:#Referenzierten Eintrag verlinken
-dcl#:#dcl_reference_link_info#:#Achtung: Aktivieren Sie die Vorlage der Einzelansicht in der referenzierten Tabelle.
-dcl#:#dcl_reference_title#:#Feld auswahLen
-dcl#:#dcl_regex#:#Texteingabe einschranken
+dcl#:#dcl_reference_link_info#:#Achtung: Sie müssen in der Tabelle, in der sich der referenzierte Eintrag befindet, die Vorlage der Einzelansicht eingerichtet und aktiviert haben.
+dcl#:#dcl_reference_title#:#Referenziertes Feld
+dcl#:#dcl_reference_title_desc#:#Eingaben aus dem ausgewählten Feld werden Auswahloptionen für dieses Feld.
+dcl#:#dcl_regex#:#Texteingabe einschränken
 dcl#:#dcl_regex_info#:#Es kann ein regulärer Ausdruck ohne Delimiter eingegeben werden. Automatisch werden dann bestimmte Einträge zurückgewiesen.
 dcl#:#dcl_row_not_found#:# - Dieses Feld wurde in der Tabelle nicht gefunden.
 dcl#:#dcl_save_confirmation#:#Eingabe zusätzlich bestätigen
@@ -8878,10 +8863,8 @@ dcl#:#dcl_supported_filetypes#:#Erlaubte Dateiendungen
 dcl#:#dcl_supported_filetypes_desc#:#Sie können hier kommagetrennt Dateiendungen angeben. Zum Beispiel: pdf, docx
 dcl#:#dcl_table#:#Tabelle
 dcl#:#dcl_table_id#:#Tabellen ID
-dcl#:#dcl_table_info#:#Nachfolgend legen Sie fest, was Personen in dieser Tabelle tun dürfen, die für die Datensammlung das Recht „Eintragen“ besitzen.
-dcl#:#dcl_table_list_fields#:#Felder der ausgewählten Tabelle
-dcl#:#dcl_table_list_tables#:#Verfügbare Tabellen
-dcl#:#dcl_table_settings_saved#:#Tabellen Einstellungen wurden gespeichert.
+dcl#:#dcl_table_settings#:#Tabelleneinstellungen
+dcl#:#dcl_table_settings_saved#:#Tabelleneinstellungen wurden gespeichert.
 dcl#:#dcl_table_title_not_matching#:#Die Titel des Excel-Arbeitsblatts und der Tabelle in der Datensammlung stimmen nicht überein. Benennen Sie das Arbeitsblatt um, um einen korrekten Import zu gewährleisten.
 dcl#:#dcl_table_title_unique#:#Es existiert bereits eine Tabelle mit diesem Titel. Der Titel muss eindeutig sein.
 dcl#:#dcl_tables#:#Tabellen
@@ -8920,7 +8903,7 @@ dcl#:#dcl_update_record#:#Eintrag aktualisieren
 dcl#:#dcl_updated_entries#:#Bearbeitete Einträge
 dcl#:#dcl_url#:#Obligatorische URL oder E-Mail
 dcl#:#dcl_view_own_records_perm#:#Nur eigene Einträge anzeigen
-dcl#:#dcl_view_settings#:#Ansichtseinstellungen
+dcl#:#dcl_view_own_records_perm_desc#:#Einträge von anderen Personen werden nicht angezeigt.
 dcl#:#dcl_view_viewdefinition#:#Vorlage für Einzelansicht
 dcl#:#dcl_visible#:#Für alle Benutzer sichtbar
 dcl#:#dcl_visible_desc#:#Benutzer haben Zugriff auf diese Tabelle.
@@ -9500,11 +9483,11 @@ exc#:#exc_msg_new_message_from_pf_recipient#:#Es wurde eine neue Mitteilung zur 
 exc#:#exc_msg_new_message_from_pf_recipient2#:#Eine Person, die von Ihnen Feedback erhalten hat, hat folgende Mitteilung an Sie:
 exc#:#exc_msg_participants_removed#:#Die Personen wurden aus der Übung entfernt.
 exc#:#exc_msg_public_submission#:#Alle Lösungsabgaben werden nach dem Abgabetermin veröffentlicht.
-exc#:#exc_msg_saved_grades#:#Die Änderungen wurden gespeichert.###Modified as part of gender mainstreaming activities for ILIAS 8
-exc#:#exc_msg_sure_to_deassign_participant#:#Wollen Sie wirklich die folgenden Teilnehmer aus allen Übungseinheiten der Übung entfernen? Alle Lösungsabgaben aus allen Übungseinheiten der Teilnehmer werden gelöscht.
-exc#:#exc_multi_feedb_info#:#Auf dieser Seite können Sie die Feedback-Dateien für mehrere Übungsteilnehmer auf einmal hochladen.<br /> <br />Klicken Sie zunächst unten auf den Button "ZIP-Verzeichnisstruktur herunterladen" und speichern Sie die ZIP-Datei auf Ihrem Computer. Dort öffnen Sie im nächsten Schritt die ZIP-Datei, um die Verzeichnisstruktur zu entpacken. Legen Sie nun die Feedback-Dateien in die entsprechenden Ordner der Übungsteilnehmer und komprimieren abschließend das Verzeichnis wieder als ZIP-Datei. Wählen Sie nun auf dieser Seite unten diese ZIP-Datei als Multi-Feedback-Datei aus und laden diese hoch. Die Bestätigungsseite führt alle hochgeladenen Dateien auf. <br /> <br /><b>Wichtig</b>: Vermeiden Sie auf jeden Fall Umlaute und Sonderzeichen in den Dateinamen, da hierdurch Probleme bei der Zuordnung der Dateien entstehen.
-exc#:#exc_multi_feedback#:#Rückmeldung an mehrere Teilnehmer
-exc#:#exc_multi_feedback_file#:#Multi-Feedback-Datei
+exc#:#exc_msg_saved_grades#:#Die Änderungen wurden gespeichert.
+exc#:#exc_msg_sure_to_deassign_participant#:#Wollen Sie die folgenden Personen wirklich aus allen Übungseinheiten der Übung entfernen? Sämtliche Abgaben dieser Personen werden gelöscht.
+exc#:#exc_multi_feedb_info#:#Hier können Sie Dateien mit Rückmeldungen für mehrere Personen auf einmal hochladen. <b>Wichtig</b>: Vermeiden Sie unbedingt Umlaute und Sonderzeichen im Dateinamen. Das erzeugt Probleme bei der Zuordnung der Dateien.<br /><ol><li>Klicken Sie unten auf den Button „ZIP-Verzeichnisstruktur herunterladen“, und speichern Sie die ZIP-Datei auf Ihrem Computer.</li><li>Entpacken Sie die ZIP-Datei auf Ihrem Computer.</li><li>Öffnen Sie den Ordner. Jede Person, die an der Übung teilnimmt, hat darin einen eigenen Ordner.</li><li>Legen Sie die Dateien mit den Rückmeldungen in die entsprechenden Ordner.</li><li>Komprimieren Sie das Verzeichnis wieder als ZIP-Datei.</li><li>Wählen Sie unten auf dieser Seite unter „ZIP-Datei mit Rückmeldungen“ Ihre ZIP-Datei aus und laden diese hoch.</li><li>ILIAS zeigt eine Tabelle mit allen Namen und zugehörigen Dateien.</li><li>Prüfen Sie die Zuordnung und klicken Sie abschließend auf „Speichern“.</li></ol>
+exc#:#exc_multi_feedback#:#Rückmeldung an mehrere Personen
+exc#:#exc_multi_feedback_file#:#ZIP-Datei mit Rückmeldungen
 exc#:#exc_multi_feedback_files#:#Multi-Feedback-Dateien
 exc#:#exc_needs_deadline#:#Diese Option benötigt einen Abgabetermin.
 exc#:#exc_needs_fixed_deadline#:#Diese Funktion benötigt ein festes Abgabedatum.
@@ -9632,7 +9615,7 @@ exc#:#exc_reminder_feedback_start#:#Start vor Peer-Feedback-Termin
 exc#:#exc_reminder_frequency#:#Häufigkeit
 exc#:#exc_reminder_grade_body#:#Die folgende Übungseinheit wurde noch nicht bewertet
 exc#:#exc_reminder_grade_setting#:#Erinnerung an notwendige Bewertung
-exc#:#exc_reminder_grade_subject#:#Übungseinheit „%s“ wurde nicht bewertet
+exc#:#exc_reminder_grade_subject#:#Übungseinheit „%s“ wurde nicht berwertet
 exc#:#exc_reminder_link#:#URL
 exc#:#exc_reminder_mail_no_tpl#:#Keine Mail-Vorlage verwenden
 exc#:#exc_reminder_mail_template#:#Mail-Vorlage
@@ -9762,9 +9745,9 @@ exc#:#exc_team_member_add#:#Team-Mitglied hinzufügen (Suche)
 exc#:#exc_team_member_container_add#:#Team-Mitglied aus Kurs/Gruppe hinzufügen
 exc#:#exc_team_member_remove_sure#:#Wollen Sie wirklich die folgenden Mitglieder Ihres Teams entfernen? Bitte beachten Sie, dass auch die jeweiligen hochgeladenen Dateien aus dem Team entfernt werden.
 exc#:#exc_team_members#:#Team-Mitglieder
-exc#:#exc_team_min_big_than_max#:#Die maximale Anzahl von Teilnehmern kann nicht kleiner als die minimale Anzahl sein.
-exc#:#exc_team_min_small_than_members#:#Die minimale Anzahl von Teilnehmern kann nicht auf %s gesetzt werden, da einige Teams %s Teilnehmer erhalten müssen.
-exc#:#exc_team_minimal_too_big#:#Die minimale Anzahl von Teilnehmern %s ist zu groß, bitte verringern Sie den Wert.
+exc#:#exc_team_min_big_than_max#:#Die maximale Anzahl teilnehmender Personen kann nicht kleiner als die Mindestanzahl sein.
+exc#:#exc_team_min_small_than_members#:#Die Mindestanzahl teilnehmender Personen kann nicht auf %s gesetzt werden, da einige Teams %s Personen enthalten müssen.
+exc#:#exc_team_minimal_too_big#:#Die Mindestanzahl teilnehmender Personen beträgt %s und ist damit zu groß. Tragen Sie eine kleinere Zahl ein.
 exc#:#exc_team_multi_create#:#Team erstellen
 exc#:#exc_team_multi_dissolve#:#Team(s) auflösen
 exc#:#exc_team_notification_body_add#:#Sie wurden zu einer Team-Upload-Übungseinheit hinzugefügt.
@@ -9830,6 +9813,7 @@ exercise#:#exc_your_submission#:#Ihre Einreichung
 exp#:#exp_create_file#:#Exportdatei erzeugen
 exp#:#exp_error_disabled#:#Der Export von Container-Objekten ist deaktiviert. Bei Fragen wenden Sie sich bitte an die technische Betreuung.
 exp#:#exp_error_too_many_objects#:#Der Export überschreitet die maximal erlaubte Zahl an Objekten (%1). Bitte wählen Sie eine kleinere Anzahl an Objekten.
+exp#:#exp_export_dropdown#:#Export
 exp#:#exp_export_files#:#Exportdateien
 exp#:#exp_export_single_option#:#Export %s
 exp#:#exp_file_created#:#Eine Exportdatei wurde erstellt.
@@ -9851,7 +9835,7 @@ exp#:#export_files_deleted#:#Die ausgewählten Exportdateien wurden gelöscht.
 exp#:#export_options#:#Export Optionen
 exp#:#export_type#:#Export Typ
 export#:#exp_file#:#Dateiname
-export#:#exp_public_access#:#Im Reiter „Info“ verfügbar
+export#:#exp_public_access#:#Öffentlicher Zugriff aktiv
 export#:#exp_size#:#Dateigröße (MB)
 export#:#exp_timestamp#:#Erstellungsdatum
 export#:#exp_toggle_public_access#:#Öffentlichen Zugriff (de-)aktivieren
@@ -10192,7 +10176,7 @@ forum#:#frm_revoke_censorship#:#Zensur aufheben
 forum#:#frm_search#:#Suche
 forum#:#frm_selected_merge_src#:#Gewähltes Thema für die Zusammenführung: %s
 forum#:#frm_settings_form_header#:#Einstellungen des Forums
-forum#:#frm_settings_mod_functions_header#:#Funktionen für Moderation###Modified as part of gender mainstreaming activities for ILIAS 8
+forum#:#frm_settings_mod_functions_header#:#Moderation
 forum#:#frm_settings_privacy_header#:#Datenschutz
 forum#:#frm_settings_user_functions_header#:#Beiträge und Themen
 forum#:#frm_statistics#:#Statistik
@@ -11055,7 +11039,6 @@ ldoc#:#ldoc_form_edit_doc_head#:#Dokument bearbeiten
 ldoc#:#ldoc_form_new_doc_head#:#Dokument erstellen
 ldoc#:#ldoc_last_modified#:#Letzte Änderung
 ldoc#:#ldoc_ldoc_settings#:#Einstellungen
-ldoc#:#ldoc_order_invalid#:#Bitte geben Sie eine Zahl für die Sortierung ein
 ldoc#:#ldoc_period#:#Zeitraum
 ldoc#:#ldoc_period_from#:#Von
 ldoc#:#ldoc_period_until#:#Bis
@@ -11279,12 +11262,16 @@ lti#:#activity_id#:#Activity-ID
 lti#:#activity_id_info#:#Diese Activity-ID wird vom LTI-Provider verwendet, um Statements zu identifizieren.
 lti#:#auth_lti#:#LTI Auth
 lti#:#conf_privacy_ident#:#Identifikation der Person
-lti#:#conf_privacy_ident_il_uuid_SHA256#:#Hash kombiniert mit einer eindeutigen ILIAS-Plattform-ID, die als E-Mail-Adresse formatiert ist
-lti#:#conf_privacy_ident_il_uuid_SHA256_info#:#Die Identifikation ist identisch bei jedem Aufruf, aber lässt keine direkten Rückschlüsse auf das ILIAS-Konto und die zugehörige Person zu.
 lti#:#conf_privacy_ident_il_uuid_ext_account#:#Die externe Konten-ID wird kombiniert mit einer eindeutigen ID der ILIAS-Plattform und als E-Mail-Adresse formatiert.
 lti#:#conf_privacy_ident_il_uuid_ext_account_info#:#Die Identifikation ist identisch bei jedem Aufruf und lässt direkte Rückschlüsse auf das ILIAS-Konto und die zugehörige Person zu.
 lti#:#conf_privacy_ident_il_uuid_login#:#ILIAS-Anmeldename kombiniert mit einer eindeutigen ILIAS-Plattform-ID, die als E-Mail-Adresse formatiert ist.
 lti#:#conf_privacy_ident_il_uuid_login_info#:#Sendet den Anmeldenamen. Dies ist identisch mit jedem Aufruf, kann aber direkte Rückschlüsse auf den ILIAS-Benutzer zulassen.
+lti#:#conf_privacy_ident_il_uuid_random#:#Zufalls-ID@ILIAS-Plattform-ID.ilias###04 12 2025 new variable
+lti#:#conf_privacy_ident_il_uuid_random_info#:#Pro ILIAS-Objekt und ILIAS-Konto wird eine Zufalls-ID erzeugt, die bei jedem Aufruf identisch bleibt. Die E-Mail-Adresse setzt sich zusammen aus der Zufalls-ID und einer eigens###04 12 2025 new variable
+lti#:#conf_privacy_ident_il_uuid_sha256#:#Hash@ILIAS-Plattform-ID.ilias###04 12 2025 new variable
+lti#:#conf_privacy_ident_il_uuid_sha256_info#:#Die E-Mail-Adresse setzt sich zusammen aus einem Hash-Wert und einer eigens generierten Plattform-ID. Ohne Zugriff auf die ILIAS-Datenbank ermöglicht diese Option keine direkten Rückschlüsse auf ein ILIAS-Konto.###04 12 2025 new variable
+lti#:#conf_privacy_ident_il_uuid_sha256url#:#Hash@ILIAS-Domain###04 12 2025 new variable
+lti#:#conf_privacy_ident_il_uuid_sha256url_info#:#Die E-Mail-Adresse setzt sich zusammen aus einem Hash-Wert und einer ILIAS-Domain. Diese Option ist mit maximal 80 Zeichen deutlich kürzer als die mit ILIAS-Plattform-ID. Ohne Zugriff auf die ILIAS-Datenbank ermöglicht diese Option sind nur sehr eingeschränkte Rückschlüsse auf ein ILIAS-Konto.###04 12 2025 new variable
 lti#:#conf_privacy_ident_il_uuid_user_id#:#ID des ILIAS-Kontos kombiniert mit einer eindeutigen ILIAS-Plattform-ID, die als E-Mail-Adresse formatiert ist
 lti#:#conf_privacy_ident_il_uuid_user_id_info#:#Die interne numerische ID ist bei jedem Aufruf identisch und ermöglicht Rückschlüsse auf das ILIAS-Konto.
 lti#:#conf_privacy_ident_info#:#Standard ist häufig die E-Mail-Adresse. Die eindeutige ILIAS-Plattform-ID lautet:
@@ -11370,13 +11357,16 @@ lti#:#launched#:#Die Ressource wurde bereits gestartet.
 lti#:#learning_progress_options#:#Optionen für den Lernfortschritt
 lti#:#lm_only_one_download_per_type#:#Es kann nur eine Datei je Typ (XML, HTML, SCORM) zum Download bereitgestellt werden.
 lti#:#lti13_hints#:#Hinweise
+lti#:#lti_13_authentication_url#:#URL für die Authentifizierungsanfrage###04 12 2025 new variable
 lti#:#lti_13_client_id#:#Client-ID
 lti#:#lti_13_deployment_id#:#Deployment-ID
+lti#:#lti_13_keyset_url#:#URL für den öffentlichen Schlüsselsatz###04 12 2025 new variable
 lti#:#lti_13_platform_id#:#Plattform-ID
 lti#:#lti_13_step1#:#Schritt 1
 lti#:#lti_13_step1_info#:#Tragen Sie bei der initiierenden Plattform (Consumer) die folgende Adresse für Launch URL, Initiate Login URL, Redirection URI und Registration URL ein:
 lti#:#lti_13_step2#:#Schritt 2
-lti#:#lti_13_step2_info#:#Von der initierenden Plattform (Consumer) erhalten Sie Angaben, die Sie in den folgenden Feldern eintragen müssen. Nach dem Speichern stehen die LTI 1.3-Funktionalitäten zur Verfügung.
+lti#:#lti_13_step2_info#:#Von der initiierenden Plattform (Consumer) erhalten Sie Angaben, die Sie in den folgenden Feldern eintragen müssen. Nach dem Speichern stehen die LTI 1.3-Funktionalitäten zur Verfügung.
+lti#:#lti_13_token_url#:#URL für den Zugriffstoken###04 12 2025 new variable
 lti#:#lti_action_accept_provider_as_global#:#Den Provider als globalen Provider für alle Benutzer übernehmen.
 lti#:#lti_action_accept_providers_as_global#:#Provider als globalen Provider übernehmen
 lti#:#lti_action_delete_providers#:#Provider löschen
@@ -11390,6 +11380,8 @@ lti#:#lti_at_least_one_prov_has_usages#:#Mindestens ein Provider konnte nicht ge
 lti#:#lti_auth_failed_invalid_key#:#Authentifizierung nicht möglich. Es wurde kein gültiger Consumer-Key übermittelt.
 lti#:#lti_con_content_item#:#Unterstützung für Deep Linking
 lti#:#lti_con_content_item_url#:#Inhalts-URL
+lti#:#lti_con_grade_synchronization#:#Assignment and Grade Services###04 12 2025 new variable
+lti#:#lti_con_grade_synchronization_info#:#Das LTI-Tool muss 'Assignment and Grade Services' anbieten.###04 12 2025 new variable
 lti#:#lti_con_initiate_login_url#:#Initiate Login URL
 lti#:#lti_con_key_type#:#Typ des öffentlichen Schlüssels
 lti#:#lti_con_key_type_jwk#:#URL (Json Web Token)
@@ -11409,6 +11401,10 @@ lti#:#lti_con_prov_category_info#:#Kategorie, um Einträge zu filtern, wenn ein 
 lti#:#lti_con_prov_custom_params#:#Definition der Parameter für diesen spezifischen Provider
 lti#:#lti_con_prov_custom_params_info#:#Bitte geben Sie diese in der Form ein: param1=value1; param2=value2
 lti#:#lti_con_prov_description#:#Beschreibung
+lti#:#lti_con_prov_dyn_reg_params#:#Optionale Parameter###04 12 2025 new variable
+lti#:#lti_con_prov_dyn_reg_params_info#:#Hier können z.B. Verweise auf Zielobjekte im Tool angegeben werden.###04 12 2025 new variable
+lti#:#lti_con_prov_dyn_reg_url#:#Registrierungs-URL des Tools###04 12 2025 new variable
+lti#:#lti_con_prov_dyn_reg_url_info#:#Hinweis: Nicht jedes Tool unterstützt die dynamische Registrierung.###04 12 2025 new variable
 lti#:#lti_con_prov_external_provider#:#Externer Provider
 lti#:#lti_con_prov_external_provider_info#:#Bei der Zusammenarbeit mit einem externen Provider bzw. Tool wird ein Hinweis angezeigt. Die Rechte zum Löschen persönlicher Daten durch die ILIAS-Administration sind bei externen Providern in der Regel nicht gegeben.
 lti#:#lti_con_prov_group_options#:#Optionen zum Gruppieren und Filtern von Providern
@@ -11474,13 +11470,16 @@ lti#:#lti_create_lti_user_role#:#Empfohlene globale Rolle für LTI-User anlegen
 lti#:#lti_cron_title#:#LTI Outcome Service
 lti#:#lti_cron_title_desc#:#Überträgt den Lernfortschritt von LTI-Benutzern an die aufrufende Plattform. Dieser Cron-Job wird nur in den Fällen benötigt, wenn der Lernfortschritt aufgrund von Einstellungsänderungen neu berechnet werden muss.
 lti#:#lti_custom_new#:#Eigene Provider-Einstellungen anlegen
+lti#:#lti_deep_linking_not_available_for_admin_objects#:#In der Administration angelegte Konsumenten erlauben keine Inhaltsauswahl
 lti#:#lti_delete_consume_provider#:#Provider löschen
 lti#:#lti_delete_consume_providers#:#Provider löschen
 lti#:#lti_delete_provider#:#Provider löschen
+lti#:#lti_dynamic_registration#:#Eigene Tool-Einstellungen mit dynamischer Registrierung anlegen (LTI 1.3)###04 12 2025 new variable
 lti#:#lti_edit_consumer#:#LTI-Konsument bearbeiten
 lti#:#lti_exit#:#LTI-Sitzung beenden
 lti#:#lti_exited#:#LTI-Sitzung beendet
 lti#:#lti_exited_info#:#Die LTI-Sitzung wurde erfolgreich beendet.
+lti#:#lti_form_provider_content_selection#:#Inhaltsauswahl
 lti#:#lti_form_provider_create#:#Provider-Einstellungen anlegen
 lti#:#lti_form_provider_edit#:#Provider-Einstellungen bearbeiten
 lti#:#lti_form_section_appearance#:#Optionen für den Start
@@ -11504,6 +11503,7 @@ lti#:#lti_object_consumer#:#LTI-Konsumenten
 lti#:#lti_object_release_settings_form#:#LTI-Freigaben bearbeiten
 lti#:#lti_provider#:#LTI-Freigaben
 lti#:#lti_provider_not_avail_msg#:#LTI-Provider ist auf „Nicht verfügbar“ gesetzt.
+lti#:#lti_provider_not_set_msg#:#LTI-Provider/-tool ist noch nicht vollständig konfiguriert.
 lti#:#lti_providing_tab#:#ILIAS als LTI-Provider
 lti#:#lti_released_objects#:#Objekt-Freigaben
 lti#:#lti_select_provider#:#Provider auswählen
@@ -11531,6 +11531,7 @@ lti#:#subtab_certificate#:#Zertifikat
 lti#:#subtab_object_settings#:#Objekteinstellungen
 lti#:#subtab_provider_settings#:#LTI-Provider-Einstellungen
 lti#:#tab_content#:#Inhalt
+lti#:#tab_grade_synchronization#:#Gradebook
 lti#:#tab_info#:#Info
 lti#:#tab_scoring#:#Platzierungen
 lti#:#tab_settings#:#Einstellungen
@@ -11672,7 +11673,7 @@ mail#:#mail_filter_show_without_attachment#:#Mails ohne Anhang
 mail#:#mail_filter_subject#:#Betreff
 mail#:#mail_filter_txt#:#Suchen in
 mail#:#mail_first_email#:#Erste E-Mail-Adresse
-mail#:#mail_firstname_last_name_superior#:#Kommagetrennte Liste mit den Vor- und Nachnamen der vorgesetzten Führungskraft einer Person###Modified as part of gender mainstreaming activities for ILIAS 8
+mail#:#mail_firstname_last_name_superior#:#Kommagetrennte Liste mit den Vor- und Nachnamen der vorgesetzten Führungskraft oder Führungskräfte einer Person
 mail#:#mail_folder_created#:#Ein neuer Ordner wurde angelegt
 mail#:#mail_folder_deleted#:#Der Ordner wurde gelöscht
 mail#:#mail_folder_exists#:#Ein Ordner mit diesem Namen existiert bereits
@@ -11742,7 +11743,7 @@ mail#:#mail_nacc_title#:#Titel
 mail#:#mail_nacc_use_placeholder#:#Im Feld 'Inhalt' können folgende Platzhalter verwendet werden
 mail#:#mail_nacc_user_fullname#:#Nachname, Vorname [Anmeldename]
 mail#:#mail_nacc_user_login#:#Anmeldename
-mail#:#mail_nacc_user_name#:#Benutzername
+mail#:#mail_new#:#Neue Nachricht
 mail#:#mail_new_template#:#Neue Textvorlage
 mail#:#mail_no_mail_items#:#Keine ungelesenen Mails.
 mail#:#mail_no_permissions_write_smtp#:#Sie haben keine Berechtigung externe E-Mails zu versenden.
@@ -11784,7 +11785,7 @@ mail#:#mail_serial_letter_placeholders#:#Platzhalter für Serienbrief
 mail#:#mail_settings_external_frm_head#:#Externe E-Mails
 mail#:#mail_settings_external_tab#:#Extern
 mail#:#mail_settings_general_tab#:#Allgemein
-mail#:#mail_settings_incoming_type_see_also#:#Eine weitere Möglichkeit, die Empfangsart für die Benutzer zu ändern, haben Sie <a href="%s">hier</a>.
+mail#:#mail_settings_incoming_type_see_also#:#Eine weitere Möglichkeit, die Empfangsart für die Benutzer zu ändern, haben Sie <a href=„%s“>hier</a>.
 mail#:#mail_settings_system_frm_head#:#System E-Mails
 mail#:#mail_settings_user_frm_head#:#Benutzer E-Mails
 mail#:#mail_smtp_encryption#:#Verschlüsselung
@@ -11816,13 +11817,13 @@ mail#:#mail_system_sys_from_addr_info#:#Damit die automatisch aus ILIAS versende
 mail#:#mail_system_sys_from_name#:#„FROM”-Name
 mail#:#mail_system_sys_general_signature#:#Signatur
 mail#:#mail_system_sys_reply_to_addr#:#Reply-To
-mail#:#mail_system_usr_env_from_addr#:#Technische Absendeadresse („SENDER“)###Modified as part of gender mainstreaming activities for ILIAS 8
-mail#:#mail_system_usr_env_from_addr_info#:#Tragen Sie hier die technische Absendeadresse („SENDER”-Header) ein. Lassen Sie das Feld leer, wird bei externem Versand die E-Mail-Adresse der absendenden Person („FROM“-Header) genutzt. Andernfalls ist es die Aufgabe der Server-Administration, den Header zu konfigurieren.###Modified as part of gender mainstreaming activities for ILIAS 8
-mail#:#mail_system_usr_from_addr#:#„FROM”-Adresse für manuell versendete E-Mails###Modified as part of gender mainstreaming activities for ILIAS 8
-mail#:#mail_system_usr_from_addr_info#:#Damit die manuell aus ILIAS versendeten E-Mails nicht als Spam abgelehnt werden, muss hier eine absendende Adresse (technisch: „FROM”-Header) eingetragen werden. Bei manuell verschickten E-Mails wird die zu einem ILIAS-Konto gehörige Adresse als Antwortadresse (technisch: „REPLY-TO”-Header) übernommen. <br /><br />Beispiele: <span style="font-style: italic">info@institution.de</span> oder <span style="font-style: italic">no-reply@institution.de</span>###Modified as part of gender mainstreaming activities for ILIAS 8
-mail#:#mail_system_usr_from_name#:#„FROM”-Name und Format###Modified as part of gender mainstreaming activities for ILIAS 8
-mail#:#mail_system_usr_from_name_info#:#Dieser Name wird üblicherweise im E-Mail-Client in der Spalte „Von“ angezeigt. Als Platzhalter können &lbrace;&lbrace;FULLNAME&rbrace;&rbrace;, &lbrace;&lbrace;FIRSTNAME&rbrace;&rbrace; und &lbrace;&lbrace;LASTNAME&rbrace;&rbrace; genutzt werden. Diese werden dann durch die jeweiligen Daten der Person ersetzt, die eine manuelle E-Mail versendet hat.###Modified as part of gender mainstreaming activities for ILIAS 8
-mail#:#mail_system_usr_general_signature#:#Benutzer Signatur
+mail#:#mail_system_usr_env_from_addr#:#Technische Absendeadresse („SENDER“)
+mail#:#mail_system_usr_env_from_addr_info#:#Tragen Sie hier die technische Absendeadresse („SENDER”-Header) ein. Lassen Sie das Feld leer, wird bei externem Versand die E-Mail-Adresse der absendenden Person („FROM“-Header) genutzt. Andernfalls ist es die Aufgabe der Server-Administration, den Header zu konfigurieren.
+mail#:#mail_system_usr_from_addr#:#„FROM”-Adresse für manuell versendete E-Mails
+mail#:#mail_system_usr_from_addr_info#:#Damit die manuell aus ILIAS versendeten E-Mails nicht als Spam abgelehnt werden, muss hier eine absendende Adresse (technisch: „FROM”-Header) eingetragen werden. Bei manuell verschickten E-Mails wird die zu einem ILIAS-Konto gehörige Adresse als Antwortadresse (technisch: „REPLY-TO”-Header) übernommen. <br /><br />Beispiele: <span style="font-style: italic">info@institution.de</span> oder <span style="font-style: italic">no-reply@institution.de</span>
+mail#:#mail_system_usr_from_name#:#„FROM”-Name und Format
+mail#:#mail_system_usr_from_name_info#:#Dieser Name wird üblicherweise im E-Mail-Client in der Spalte „Von“ angezeigt. Als Platzhalter können &lbrace;&lbrace;FULLNAME&rbrace;&rbrace;, &lbrace;&lbrace;FIRSTNAME&rbrace;&rbrace; und &lbrace;&lbrace;LASTNAME&rbrace;&rbrace; genutzt werden. Diese werden dann durch die jeweiligen Daten der Person ersetzt, die eine manuelle E-Mail versendet hat.
+mail#:#mail_system_usr_general_signature#:#Signatur
 mail#:#mail_tbl_head_attachments#:#Anhang
 mail#:#mail_template_client#:#Textvorlage
 mail#:#mail_template_client_info#:#Wählen Sie zwischen einer der verfügbaren Textvorlagen. Sie haben die Möglichkeit, die durch die Textvorlage angebotenen Platzhalter zu nutzen. Bei der Wahl einer Textvorlage wird der Inhalt dieser Nachricht ersetzt und etwaige Änderungen die schon vorgenommen wurden, gehen verloren. Der Betreff ändert sich nicht und muss manuell angepasst werden.
@@ -11855,7 +11856,8 @@ mail#:#only_inbox_trash#:#Nur Posteingang/Papierkorb berücksichtigen
 mail#:#only_inbox_trash_info#:#Falls aktiviert, werden ausschließlich Mails gelöscht, die sich zum Zeitpunkt der Cron-Job-Ausführung im Posteingang und Papierkorb der jeweiligen Person befinden. Ansonsten werden alle Mails unabhängig vom Ordner gelöscht.
 mail#:#orphaned_mail_body#:#Es existieren alte oder verwaiste Mails in den folgenden Ordnern. Beachten Sie, dass diese Mails in kürze automatisch gelöscht werden.
 mail#:#orphaned_mail_subject#:#Benachrichtigung über alte Mails
-mail#:#placeholders_advise#:#Persönliche Platzhalter werden nur für Personen im „An”-Feld ersetzt. Personen im „CC”-Feld und „BCC”-Feld erhalten die Mail mit nicht-ersetzten Platzhaltern.###Modified as part of gender mainstreaming activities for ILIAS 8
+mail#:#placeholders_advise#:#Persönliche Platzhalter werden nur für Personen im „An”-Feld ersetzt. Personen im „CC”-Feld und „BCC”-Feld erhalten die Mail mit nicht-ersetzten Platzhaltern.
+mail#:#regular_mail#:#Persönliche Mail
 mail#:#search_content#:#Suchergebnis
 mail#:#search_recipients#:#Personen suchen
 mail#:#second_email_missing_info#:#Auswahl nicht möglich, da keine zweite E-Mail-Adresse eingetragen wurde
@@ -11873,8 +11875,7 @@ maps#:#configure_geolocation#:#Um nach Adressen suchen zu können, schließen Si
 maps#:#maps_custom_geolocation_server_info#:#URL des Servers, über den die Geolocation-Daten mithilfe des Nominatim-Dienstes bereitgestellt werden. Der Eintrag muss den Platzhalter [QUERY] enthalten, um die Anfrageposition festzulegen. Beispiel: https://nominatim.example.com/search?q=[QUERY]&format=json
 maps#:#maps_custom_tile_server_info#:#URL des Servers für die Bereitstellung der Kacheln. Mehrere Einträge müssen mit Leerzeichen getrennt werden. Standardeingabe ist „%s“.
 maps#:#maps_enable_maps#:#Karten aktivieren
-maps#:#maps_enable_maps_info#:#Karten können systemweit in Profilen, Kursen und Gruppen angezeigt werden.###Modified as part of gender mainstreaming activities for ILIAS 8
-maps#:#maps_extt_maps#:#Karten
+maps#:#maps_enable_maps_info#:#Karten können systemweit in Profilen, Kursen und Gruppen angezeigt werden.
 maps#:#maps_geolocation_server#:#Server für Reverse Geolocation
 maps#:#maps_google_maps#:#Google Maps
 maps#:#maps_https_for_reverse_lookup#:#Https für Reverse Lookup
@@ -11888,39 +11889,6 @@ maps#:#maps_std_location#:#Standardposition
 maps#:#maps_std_location_desc#:#Klicken Sie auf die Karte, um die eigene Position anzugeben.
 maps#:#maps_tile_server#:#Server für Kacheln
 maps#:#maps_zoom_level#:#Vergrößerungsstufe
-mathjax#:#mathjax_enable_client#:#MathJax im Browser aktivieren
-mathjax#:#mathjax_enable_client_info#:#Aktiviert die Darstellung von TeX im Browser durch Einbindung des MathJax-Skripts. MathJax 3 wird unterstützt, aber MathJax 2 empfohlen.
-mathjax#:#mathjax_enable_server#:#MathJax im Server aktivieren
-mathjax#:#mathjax_enable_server_info#:#Aktiviert die serverseitige Umwandlung von TeX in Grafiken.
-mathjax#:#mathjax_home_link#:# ➜ MathJax-Webseite
-mathjax#:#mathjax_limiter#:#Trennzeichen
-mathjax#:#mathjax_limiter_info#:#Wählen Sie die Trennzeichen, die ILIAS für das MathJax-Skript produzieren soll
-mathjax#:#mathjax_mathjax#:#MathJax
-mathjax#:#mathjax_polyfill_url#:#Url eines Polyfills
-mathjax#:#mathjax_polyfill_url_desc_line1#:#Für MathJax 2 und MathJax 3 mit aktuellen Browsern nicht benötigt.
-mathjax#:#mathjax_polyfill_url_desc_line2#:#Bitte entfernen Sie die Einbindung von polyfill.io! Siehe https://sansec.io/research/polyfill-supply-chain-attack
-mathjax#:#mathjax_script_url#:#URL des MathJax-Skripts
-mathjax#:#mathjax_script_url_desc_line1#:#Für MathJax 2 z.B. %s
-mathjax#:#mathjax_script_url_desc_line2#:#Bitte verwenden Sie den Safe Mode, um XSS-Angriffe durch MathJax-Code mit Javascript zu vermeiden. Für MathJax 2 kann er an die CDN-Url als Parameter angefügt werden (s.o). Für MathJax 3 müssen Sie ein Skript einbinden, dass ihn konfiguriert, bevor MathJax geladen wird. Verwenden Sie z.B. %s
-mathjax#:#mathjax_server_address#:#Server-Adresse
-mathjax#:#mathjax_server_address_info#:#z.B. http://localhost:8003
-mathjax#:#mathjax_server_cache_cleared#:#Der MathJax-Cache wurde geleert.
-mathjax#:#mathjax_server_cache_size#:#Cache-Größe
-mathjax#:#mathjax_server_cache_size_info#:#Festplattenspeicher, der zur Speicherung der Grafiken verbraucht wird.
-mathjax#:#mathjax_server_clear_cache#:# ➜ Jetzt Cache leeren
-mathjax#:#mathjax_server_for_browser#:#Für den Browser verwenden
-mathjax#:#mathjax_server_for_browser_info#:#TeX wird als SVG-Grafik eingebunden. Damit ist die Aktivierung von MathJax im Browser überflüssig.
-mathjax#:#mathjax_server_for_export#:#Für HTML-Exporte verwenden
-mathjax#:#mathjax_server_for_export_info#:#TeX wird in HTML-Exporten von Lernmodulen als SVG-Grafik exportiert.
-mathjax#:#mathjax_server_for_pdf#:#Für die PDF-Erzeugung verwenden
-mathjax#:#mathjax_server_for_pdf_info#:#Der Server wird zur Darstellung von TeX in PDF-Dokumenten verwendet.
-mathjax#:#mathjax_server_installation#:# ➜ Installationsanleitung
-mathjax#:#mathjax_server_timeout#:#Antwortzeit
-mathjax#:#mathjax_server_timeout_info#:#Maximale Wartezeit auf eine Antwort des MathJax-Servers in Sekunden
-mathjax#:#mathjax_settings#:#MathJax-Einstellungen
-mathjax#:#mathjax_test_expression#:#Test-Ausdruck
-mathjax#:#mathjax_test_expression_info_client#:#Dieser Ausdruck wird mit dem Skript im Browser dargestellt
-mathjax#:#mathjax_test_expression_info_server#:#Dieser Ausdruck wird auf dem Server in eine Grafik umgewandelt
 mcst#:#mcst_add_new_item#:#Neuen Mediacast-Beitrag hinzufügen
 mcst#:#mcst_audio_files#:#Audiodateien
 mcst#:#mcst_audioportable_settings_info#:#Kommagetrennte Liste von Dateiendungen
@@ -12156,13 +12124,12 @@ meta#:#md_copyright_image_is_link#:#URL eingeben
 meta#:#md_copyright_image_link#:#URL
 meta#:#md_copyright_link#:#URL
 meta#:#md_copyright_link_info#:#Link zu der Lizenz
-meta#:#md_copyright_preview#:#Copyright (Vorschau)
-meta#:#md_copyright_selection#:#Copyright-Vorgaben
-meta#:#md_copyright_settings#:#Einstellungen
-meta#:#md_copyright_value#:#Copyright
-meta#:#md_copyrights_deleted#:#Die ausgewählten Vorgaben wurden entfernt.
+meta#:#md_copyright_preview#:#Vorschau
+meta#:#md_copyright_selection#:#Lizenzen
+meta#:#md_copyright_value#:#Lizenz
+meta#:#md_copyrights_deleted#:#Die ausgewählten Lizenzen wurden entfernt.
 meta#:#md_days#:#Tage:
-meta#:#md_delete_cp_sure#:#Möchten Sie wirklich die ausgewählten Lizenzen entfernen?
+meta#:#md_delete_cp_sure#:#Möchten Sie wirklich die ausgewählten Vorgaben entfernen?
 meta#:#md_delimiter#:#Trennzeichen
 meta#:#md_delimiter_info#:#Das Trennzeichen wird in der Schnellbearbeitung der Metadaten verwendet, um mehrere Angaben zu trennen. Standardzeichen ist „'“.
 meta#:#md_editor_custom_input#:#Eigene Angabe
@@ -12866,7 +12833,7 @@ mmbr#:#mmbr_awrn_my_groups_courses#:#Meine Kurse und Gruppen
 mmbr#:#mmbr_awrn_my_groups_courses_info#:#Alle Mitglieder von Gruppen und Kursen eines Benutzers werden aufgelistet.
 mmbr#:#mmbr_btn_mail_selected_users#:#Mail verschicken
 mmbr#:#mmbr_memberships#:#Mitgliedschaften
-mmbr#:#mmbr_selected_users#:#Ausgewählte Teilnehmer
+mmbr#:#mmbr_role_error#:#Mitglieder müssen mindestens eine Rolle haben.
 mmbr#:#mmbr_unsubscribed_from_objs#:#Sie wurden von den ausgewählten Objekten abgemeldet.
 mme#:#add_languages#:#Sprache hinzufügen
 mme#:#additional_langs#:#Zusätzliche Sprachen
@@ -13193,8 +13160,14 @@ notifications_adm#:#osd_interval_desc#:#Abfrageintervall für Nachrichten in Mil
 notifications_adm#:#osd_play_sound#:#Ton abspielen
 notifications_adm#:#osd_play_sound_desc#:#Ton abspielen bei Erhalt einer neuen Benachrichtigung.
 notifications_adm#:#osd_settings#:#Pop-up-Benachrichtigungen
-notifications_adm#:#osd_vanish#:#Anzeigedauer
-notifications_adm#:#osd_vanish_desc#:#Dauer der Anzeige von Benachrichtigungen in Millisekunden
+notifications_adm#:#push_client_already_used#:#Push-Benachrichtigungen für diesen Browser werden bereits von einem anderen Nutzer genutzt.
+notifications_adm#:#push_client_edge_case#:#Möglicherweise hat der Edge Browser ihre Benachrichtigungen automatisch deaktiviert. Gehen Sie in die Browsereinstellungen um diese zu reaktivieren.
+notifications_adm#:#push_client_inactive#:#Push-Benachrichtigungen für diese Webseite sind deaktiviert. Öffnen sie die Browsereinstellungen um sie zu aktivieren.
+notifications_adm#:#push_client_ios_case#:#Wenn sie IOS (IPhone, IPad, IPod) nutzen werden keine Benachrichtigungen durch Webseiten unterstützt. Erstellen sie einen Web App Zugriff um Benachrichtigungen nutzen zu können.
+notifications_adm#:#push_settings#:#Push-Benachrichtigungen
+notifications_adm#:#push_subscription_successfull#:#Aktivierung der Push-Benachrichtigungen erfolgreich
+notifications_adm#:#push_subscription_successfull_desc#:#Dies ist eine Test Benachrichtigungen um die erfolgreiche Aktivierung der Push Benachrichtigungen zu bestätigen.
+notifications_adm#:#user_settings#:#Benutzereinstellungen
 obj#:#activation_visible_when_disabled#:#Sichtbarkeit
 obj#:#activation_visible_when_disabled_info#:#Die gewählten Objekte sind auch außerhalb des gewählten Zeitraums sichtbar, können aber nicht geöffnet werden.
 obj#:#availability_period_changed#:#Die zeitliche Verfügbarkeit wurde für die ausgewählten Objekte erfolgreich angepasst.
@@ -13210,6 +13183,10 @@ obj#:#default_base_lang_not_deletable#:#Die Basis- und die Standardsprache könn
 obj#:#edit_availability_period#:#Zeitliche Verfügbarkeit
 obj#:#edit_language#:#Sprache bearbeiten
 obj#:#edit_questions#:#Fragen bearbeiten
+obj#:#make_default_language#:#Zur Standardsprache machen
+obj#:#missing_migration#:#Sie können die Informationen auf dieser Seite nicht bearbeiten, da nicht alle Migrationen auf dem System durchgeführt wurden. Bitte kontaktieren Sie Ihre*n Systemadministator*in.
+obj#:#multiple_reference_deletion_info#:#Für die folgenden Objekte existieren weitere Referenzen.
+obj#:#multiple_selection#:#Mehrfachauswahl
 obj#:#no_objects_selected#:#Es muss mindestens ein Objekt ausgewählt werden.
 obj#:#obj_activate_content_lang#:#Mehrsprachigkeit für die Bearbeitung aktivieren
 obj#:#obj_activate_multilang#:#Mehrsprachigkeit aktivieren
@@ -13221,8 +13198,12 @@ obj#:#obj_base_lang#:#Basissprache
 obj#:#obj_conf_delete_lang#:#Wollen Sie die Anzeige von Titel und Beschreibung für diese Sprachen wirklich beenden?
 obj#:#obj_cont_transl_deactivated#:#Die Unterstützung für mehrsprachige Inhalte wurde deaktiviert.
 obj#:#obj_copy_progress#:#Fortschritt des Kopierens
-obj#:#obj_deactivate_content_lang#:#Mehrsprachigkeit für Seiteneditor deaktivieren.
-obj#:#obj_deactivate_content_transl_conf#:#Wollen Sie die Unterstützung für mehrsprachige Inhalte im Seiteneditor wirklich deaktivieren? Nur die Inhalte der Standardsprache werden verfügbar bleiben.
+obj#:#obj_copy_progress_estimate#:#Dauer wird geschätzt...
+obj#:#obj_copy_progress_failure#:#Kopieren fehlgeschlagen.
+obj#:#obj_copy_progress_success#:#Erfolgreich kopiert.
+obj#:#obj_copy_progress_to#:#Kopieren nach %s
+obj#:#obj_deactivate_content_lang#:#Mehrsprachigkeit für die Bearbeitung deaktivieren
+obj#:#obj_deactivate_content_transl_conf#:# Wollen Sie die Unterstützung für mehrsprachige Inhalte im Seiteneditor wirklich deaktivieren? Nur die Inhalte der Standardsprache bleiben verfügbar.
 obj#:#obj_deactivate_multilang#:#Mehrsprachigkeit deaktivieren
 obj#:#obj_deactivate_multilang_conf#:#Wollen Sie die Unterstützung für mehrsprachige Inhalte wirklich deaktivieren? Nur die Inhalte der Standardsprache werden verfügbar bleiben.
 obj#:#obj_fallback_lang#:#Standardsprache
@@ -13463,7 +13444,7 @@ poll#:#poll_max_number_of_answers#:#Maximale Anzahl pro Person
 poll#:#poll_max_number_of_answers_info#:#Sie dürfen bis zu %s Antworten auswählen.
 poll#:#poll_mode#:#Modus
 poll#:#poll_mode_anonymous#:#Ohne Namen / Anonym
-poll#:#poll_mode_anonymous_info#:#Im Tab "Abstimmungsergebnisse" werden Namen der Teilnehmenden nicht aufgeführt.
+poll#:#poll_mode_anonymous_info#:#Im Reiter „Abstimmungsergebnisse“ werden keine Namen aufgeführt. Systeminterne IDs der teilnehmenden Personen werden in der Datenbank gespeichert.
 poll#:#poll_mode_personal#:#Mit Namen
 poll#:#poll_mode_personal_info#:#Im Reiter „Abstimmungsergebnisse“ werden die Namen der teilnehmenden Personen mit ihren Antworten aufgeführt. Personen, die Zugriff auf diesen Reiter haben, können sehen, wer welche Antwort gegeben hat.
 poll#:#poll_new#:#Neue Abstimmung anlegen
@@ -14025,7 +14006,7 @@ ps#:#ps_grp_user_fields#:#Persönliche Angaben zu dieser Gruppe
 ps#:#ps_login_max_attempts#:#Maximale Anzahl von Anmeldeversuchen
 ps#:#ps_login_max_attempts_info#:# Bestimmt wie viele Anmeldeversuche eines Benutzer höchstens fehlschlagen dürfen. Schlagen mehr Anmeldeversuche fehl, wird dieser Benutzer auf 'inaktiv' gesetzt und muss im 'Benutzer Management' wieder aktiviert werden, bevor er die Plattform benutzen kann. Wird kein Wert eingetragen, ist die Funktion deaktiviert und ILIAS zählt die fehlgeschlagenen Anmeldeversuche nicht.
 ps#:#ps_not_accepted#:#Nicht zugestimmt
-ps#:#ps_participants_list_courses#:#Aktivierung von Teilnehmerlisten in der Mitgliedergalerie der Kurse erlauben
+ps#:#ps_participants_list_courses#:#Aktivierung der Teilnahmeliste in Galerien von Kursen erlauben
 ps#:#ps_passwd_policy_change_force_user_reset_succ#:#Die Aktion wurde erfolgreich durchgeführt.
 ps#:#ps_passwd_policy_changed_force_user_reset#:#Die Änderungen wurden erfolgreich übernommen. Sie haben mindestens eine Änderung bzgl. der Passwortrichtlinie vorgenommen. Möchten Sie, dass lokale Anmeldekonten nach der nächsten erfolgreichen Anmeldung ein neues Passwort vergeben müssen?
 ps#:#ps_password_change_on_first_login_enabled#:#Passwort ändern bei Erstanmeldung
@@ -14057,8 +14038,8 @@ ps#:#ps_type_select#:#Auswahlliste
 ps#:#ps_type_select_long#:#Auswahlliste (feste Werte)
 ps#:#ps_type_text#:#Textfeld
 ps#:#ps_type_txt_long#:#Textfeld (beliebige Werte)
-ps#:#ps_user_selection#:#Benutzerauswahl
-ps#:#ps_warning_modify#:#Achtung: mindestens ein Benutzer hat der Nutzungsvereinbarung bereits zugestimmt. Das Ändern der Einstellungen bewirkt, dass diese Nutzungsvereinbarungen zurückgesetzt werden.
+ps#:#ps_user_selection#:#Personenkreis
+ps#:#ps_warning_modify#:#Achtung: mindestens ein Benutzer hat der Nutzungsvereinbarung bereits zugestimmt. Das Ändern der Einstellungen bewirkt, dass die Nutzungsvereinbarung zurückgesetzt wird.
 ps#:#rbac_log#:#Rechteeinstellungs-Log
 ps#:#rbac_log_age#:#Log-Einträge vorhalten
 ps#:#rbac_log_age_info#:#Maximales Alter der Log-Einträge in Monaten
@@ -14431,10 +14412,6 @@ rbac#:#grps_edit_permission#:#Rechteeinstellungen für die Gruppen-Administratio
 rbac#:#grps_read#:#Lesezugriff auf Gruppen-Administration
 rbac#:#grps_visible#:#Gruppen-Administration ist sichtbar
 rbac#:#grps_write#:#Einstellungen in Gruppen-Administration bearbeiten
-rbac#:#gsfo_edit_permission#:#Rechteeinstellungen für die Administration der Fußzeile ändern
-rbac#:#gsfo_read#:#Lesezugriff auf Administration der Fußzeile
-rbac#:#gsfo_visible#:#Administration der Fußzeile ist sichtbar
-rbac#:#gsfo_write#:#Einstellungen der Administration der Fußzeile bearbeiten
 rbac#:#hlps_edit_permission#:#Rechteeinstellungen für die Administration.der Online-Hilfe ändern
 rbac#:#hlps_read#:#Lesezugriff auf die Administration der Online-Hilfe
 rbac#:#hlps_visible#:#Administration der Online-Hilfe ist sichtbar.
@@ -15587,13 +15564,11 @@ search#:#lucene_or#:#ODER
 search#:#lucene_port#:#Port
 search#:#lucene_prefix_wildcard#:#Platzhalter am Wortbeginn
 search#:#lucene_prefix_wildcard_info#:#Erlaubt die Nutzung von Platzhaltern auch am Beginn eines Suchbegriffes: "*LIAS" findet "ILIAS"
-search#:#lucene_relevance#:#Relevanz der Suchergebnisse
+search#:#lucene_settings_index_section#:#Index-Backup einspielen
 search#:#lucene_settings_tab#:#Lucene
-search#:#lucene_settings_title#:#Einstellungen zur Lucene-Suche
-search#:#lucene_show_relevance#:#Relevanz anzeigen
-search#:#lucene_show_relevance_info#:#Suchergebnisse werden nach ihrer Relevanz sortiert ausgegeben. Die Relevanz des jeweiligen Suchergebnisses wird als zusätzliche Information für alle Treffer angezeigt.
-search#:#lucene_show_sub_relevance#:#Relevanz von Unterobjekten anzeigen
-search#:#lucene_size_frag_info#:#Bitte bestimmen Sie die maximale Länge der Textabschnitte, die zur Hervorhebung der Suchtreffer ausgegeben werden. Geben Sie dazu die Anzahl der Zeichen einschließlich Leerzeichen ein.
+search#:#lucene_settings_text_section#:#Präsentation der Suchergebnisse
+search#:#lucene_settings_title#:#Volltextsuche mit Lucene
+search#:#lucene_size_frag_info#:#Maximale Anzahl der Zeichen je Textabschnitt, der zur Hervorhebung des Suchbegriffs ausgegeben wird
 search#:#lucene_size_fragments#:#Länge der Textabschnitte
 search#:#lucene_tbl_create_ini#:#Konfigurationsdatei für Java-Server erstellen
 search#:#search_add_members_from_container_crs#:#Benutzer aus aktuellem Kurs hinzufügen
@@ -15654,11 +15629,12 @@ search#:#search_results_show_subitems#:#Detaillierte Ergebnisse anzeigen
 search#:#search_results_too_many_subitems#:#Mehr Ergebnisse sind vorhanden, bitte präzisieren Sie ihre Suche.
 search#:#search_role_title#:#Rollenname
 search#:#search_select_search_area#:#Suchbereich ändern
-search#:#search_show_inactive_user#:#Inaktive Benutzer anzeigen
-search#:#search_show_inactive_user_info#:#In der Benutzersuche werden auch Benutzer angezeigt, deren Konto nicht aktiv ist.
-search#:#search_show_limited_user#:#Zeitlich begrenzte Benutzer anzeigen
-search#:#search_show_limited_user_info#:#In der Benutzersuche werden auch Benutzer mit zeitlichem begrenztem Zugang angezeigt, die entweder noch nicht oder nicht mehr auf ILIAS zugreifen können.
-search#:#search_sort_by#:#Sortierung: %s
+search#:#search_server_further_information#:#Weitere Informationen zur Konfiguration des Lucene-Servers finden Sie in der Readme-Datei.
+search#:#search_show_inactive_user#:#Inaktive Konten anzeigen
+search#:#search_show_inactive_user_info#:#In der Personensuche werden auch inaktive Konten angezeigt.
+search#:#search_show_limited_user#:#Zeitlich begrenzte Konten anzeigen
+search#:#search_show_limited_user_info#:#In der Personensuche werden auch Konten mit zeitlichem begrenztem Zugang angezeigt, die entweder noch nicht oder nicht mehr auf ILIAS zugreifen können.
+search#:#search_sort_by#:#Sortierung:
 search#:#search_sort_creation_date_asc#:#Ältestes
 search#:#search_sort_creation_date_desc#:#Neuestes
 search#:#search_sort_generic_asc#:#%s, aufst.
@@ -15674,14 +15650,15 @@ search#:#search_tst_svy#:#Tests/Umfragen
 search#:#search_type#:#Suchart
 search#:#search_user#:#Benutzer
 search#:#search_user_extended#:#Erweiterte Benutzersuche
-search#:#search_user_search_form#:#Globale Benutzersuche
-search#:#search_user_search_info_form#:#Anmeldekonten können in der globalen Suche gefunden werden. Sofern die Lucene-Volltextsuche aktiviert ist, werden auch Profildaten in den Index aufgenommen.
-search#:#search_users#:#Benutzer suchen
+search#:#search_user_search_form#:#Systemweite Personensuche
+search#:#search_user_search_info_form#:#Anmeldekonten werden in der Suche gefunden. Die Lucene-Volltextsuche indexiert auch freigegebene Profildaten.
+search#:#seas_search_type#:#Art der Suche
 search#:#select_orgu#:#Organisationseinheiten auswählen
 search#:#until#:#bis
+search#:#user_search_settings_section#:#Personensuche im Reiter „Mitglieder“
 sess#:#il_sess_participant#:#Teilnahme an Sitzung
 sess#:#il_sess_status_open#:#Offene Sitzung
-sess#:#mail_sess_roles#:#alle Personen mit folgenden lokalen Rollen###Modified as part of gender mainstreaming activities for ILIAS 8. Label is now generalised for all components that support ‘mail to members‘
+sess#:#mail_sess_roles#:#alle Personen mit folgenden lokalen Rollen ###Label is now generalised for all components that support ‘mail to members‘
 sess#:#notification#:#Benachrichtigung
 sess#:#objs_crs_role#:#Kursrollen
 sess#:#objs_grp_role#:#Gruppenrollen
@@ -16006,6 +15983,38 @@ skmg#:#skmg_usage_type_info_prof#:#Nutzung in Kompetenzprofilen
 skmg#:#skmg_usage_type_info_res#:#Zuordnung zu Magazinobjekten
 skmg#:#skmg_usage_type_info_user#:#Zuordnung zu Benutzern
 skmg#:#skmg_your_self_evaluation#:#Ihre Selbsteinschätzung
+stus#:#stus_action_delete#:#Löschen
+stus#:#stus_action_edit#:#Bearbeiten
+stus#:#stus_action_toggle#:#De-/Aktivieren
+stus#:#stus_active#:#Aktiv
+stus#:#stus_alias#:#Kurz-URL
+stus#:#stus_alias_already_exists#:#Die Kurz-URL ist bereits vergeben. Bitte wählen Sie eine andere.
+stus#:#stus_alias_invalid#:#Die Kurz-URL enthält ungültige Zeichen. Erlaubte Zeichen: A-Z, a-z, 0-9, - und _
+stus#:#stus_confirm_delete#:#Einträge löschen
+stus#:#stus_create_shortlink#:#Kurz-URL anlegen
+stus#:#stus_delete#:#Löschen
+stus#:#stus_delete_shortlink#:#Löschen
+stus#:#stus_delete_shortlink_msg#:#Kurz-URL gelöscht
+stus#:#stus_index#:#Verwalten
+stus#:#stus_info#:#Informationen
+stus#:#stus_info_active#:#Inaktive Kurz-URLs werden nicht weitergeleitet, wenn sie aufgerufen werden.
+stus#:#stus_info_alias#:#Darf nur die folgenden Zeichen enthalten: A-Z, a-z, 0-9, - und _
+stus#:#stus_info_target_ref_id#:#Ziel-Objekt
+stus#:#stus_order_saved#:#Reihenfolge gespeichert
+stus#:#stus_prefix#:#Präfix
+stus#:#stus_rbac_permissions#:#Rechte
+stus#:#stus_shortlink#:#Kurz-URL
+stus#:#stus_shortlinks#:#Kurz-URLs
+stus#:#stus_shortlinks_deleted#:#Kurz-URLs wurden gelöscht
+stus#:#stus_shortlinks_toggled#:#Kurz-URLs wurden de-/aktiviert
+stus#:#stus_stus_stored_sucessfully#:#Kurz-URL erfolgreich gespeichert
+stus#:#stus_stus_toggle#:#De-/Aktivieren
+stus#:#stus_target_link#:#Ziel-Objekt
+stus#:#stus_target_ref_id#:#Ziel-Objekt
+stus#:#stus_target_ref_id_required#:#Wählen Sie ein Ziel-Objekt aus.
+stus#:#stus_toggle#:#De-/Aktivieren
+stus#:#stus_toggle_shortlink#:#Status ändern
+stus#:#stus_toggle_shortlink_msg#:#Möchten Sie den Aktiv-Status der folgenden Einträge ändern?
 style#:#Style#:#Style
 style#:#adapt_icon#:#Anpassung der Icons
 style#:#adapt_icon_description#:#Passe die Iconfarbe oder das Icon an.
@@ -16797,14 +16806,14 @@ survey#:#survey_360_self_appraisee#:#Offenes Feedback
 survey#:#survey_360_self_appraisee_info#:#Über den Reiter „Info“ der Umfrage können Sie einen Link zur Verfügung stellen, über den sie sich als Feedback-Nehmer hinzufügen und Feedback erhalten können.
 survey#:#survey_360_self_evaluation#:#Selbsteinschätzung
 survey#:#survey_360_self_evaluation_info#:#Feedback-Nehmer können anhand der Fragen eine Selbsteinschätzung vornehmen.
-survey#:#survey_360_self_raters#:#Feedback-Geber auswählen
-survey#:#survey_360_self_raters_info#:#Feedback-Nehmer wählen die Personen, welche ihnen eine Rückmeldung geben sollen selbst aus. Sie laden diese Personen auch selbstständig ein.
-survey#:#survey_360_sure_appraisee_close#:#Wollen Sie wirklich die Umfrage für alle Feedback-Geber schließen?
-survey#:#survey_360_sure_appraisee_close_admin#:#Wollen Sie wirklich die Umfrage für die folgenden Feedback-Nehmer schließen?
-survey#:#survey_360_sure_delete_appraises#:#Wollen Sie wirklich die folgenden Feedback-Nehmer entfernen?
-survey#:#survey_360_sure_delete_raters#:#Wollen Sie wirklich die folgenden Feedback-Geber für %s entfernen?
-survey#:#survey_access_codes#:#Authentifizierung mit Zugangsschlüsseln
-survey#:#survey_access_codes_info#:#Im Reiter „Info“ muss ein Zugangsschlüssel eingegeben werden, um Zugang zur Umfrage zu erhalten. Diese Zugangsschlüssel werden erzeugt im Reiter „Befragte » Zugangsschlüssel“.
+survey#:#survey_360_self_raters#:#Eigene Feedback-Geber auswählen
+survey#:#survey_360_self_raters_info#:#Die Feedback-Nehmer wählen die Personen aus, die ihnen Feedback geben sollen, und laden sie selbstständig ein.
+survey#:#survey_360_sure_appraisee_close#:#Sind Sie sicher, dass Sie die Umfrage für alle Ihre Feedback-Geber schließen möchten?
+survey#:#survey_360_sure_appraisee_close_admin#:#Sind Sie sicher, dass Sie die Umfragen für die folgenden Feedback-Nehmer schließen möchten?
+survey#:#survey_360_sure_delete_appraises#:#Sind Sie sicher, dass Sie die folgenden Feedback-Nehmer entfernen möchten?
+survey#:#survey_360_sure_delete_raters#:#Sind Sie sicher, dass Sie die folgenden Feedback-Geber für %s entfernen möchten?
+survey#:#survey_access_code#:#Authentifizierung mit Zugangscode
+survey#:#survey_access_codes_info#:#Registrierte Personen erhalten Zugriff auf die Umfrage, indem sie einen Code nach dem Starten der Umfrage eingeben. Diese Zugangscodes können in der Unterregisterkarte „Zugangscodes“ der Registerkarte „Befragten“ generiert werden.
 survey#:#survey_activate_skill_service#:#Kompetenz-Service aktivieren
 survey#:#survey_activate_skill_service_info#:#Es wird ein weiterer Reiter „Kompetenzen“ eingeblendet. Anschließend können Schwellenwerte festgelegt werden, die erforderlich sind, um ein bestimmtes Kompetenzniveau zu erreichen.
 survey#:#survey_add_new_question#:#Frage erstellen
@@ -16837,12 +16846,12 @@ survey#:#survey_execution_exit_360#:#Zurück
 survey#:#survey_execution_sure_finish#:#Möchten Sie die Umfrage wirklich beenden? Danach können Sie Ihre Antworten nicht mehr bearbeiten.
 survey#:#survey_finish#:#Umfrage beenden →
 survey#:#survey_finished#:#Die Umfrage ist beendet. Vielen Dank für Ihre Teilnahme!
-survey#:#survey_has_datasets_warning#:#Die Umfrage enthält bereits Ergebnisse. Sie können die Fragen erst wieder bearbeiten, wenn Sie die Datensätze aller Befragten löschen.
-survey#:#survey_has_datasets_warning_page_view#:#Die Umfrage enthält bereits Ergebnisse. Sie können die Fragen erst wieder bearbeiten, wenn Sie die Datensätze aller Befragten löschen.
-survey#:#survey_has_datasets_warning_page_view_link#:#Datensätze anzeigen
-survey#:#survey_introduction_info#:#Dieser Text wird dauerhaft auf dem Reiter „Info“ angezeigt.
-survey#:#survey_is_offline#:#Sie können die Umfrage nicht starten! Die Umfrage ist offline (nicht aktiviert).
-survey#:#survey_new_pool#:#Neuen Fragenpool anlegen
+survey#:#survey_from_x_points#:#Ab X Punkten
+survey#:#survey_has_datasets_warning#:#Diese Umfrage enthält bereits Datensätze. Sie können die Fragen erst synchronisieren, wenn Sie diese Datensätze über die Reiter „Befragten“ bzw. "Feedback-Nehmer" der Umfrage löschen. Dazu müssen Sie alle entfernen, die mit der Umfrage begonnen und dadurch einen Datensatz erstellt haben.
+survey#:#survey_has_datasets_warning_page_view#:#Diese Umfrage enthält bereits Datensätze. Sie können die Umfrage erst bearbeiten, wenn Sie diese Datensätze gelöscht haben. Dazu müssen Sie alle Personen entfernen, die mit der Umfrage begonnen und dadurch einen Datensatz erstellt haben.
+survey#:#survey_has_datasets_warning_page_view_link#:#Teilnehmende Personen bearbeiten
+survey#:#survey_introduction_info#:#Dieser Text wird dauerhaft im Reiter „Info“ angezeigt.
+survey#:#survey_is_offline#:#Die Umfrage ist offline und kann somit nicht gestartet werden.
 survey#:#survey_next#:#Weiter →
 survey#:#survey_not_available#:#n.a.
 survey#:#survey_notification_finished_introduction#:#Eine teilnehmende Person has die folgende Umfrage beendet:
@@ -16855,7 +16864,7 @@ survey#:#survey_notification_target_group_parent_course_inactive#:#Wenn diese Um
 survey#:#survey_notification_tutor_body#:#die folgende Umfrage ist von allen Befragten beendet worden
 survey#:#survey_notification_tutor_link#:#Link zur Umfrage
 survey#:#survey_notification_tutor_recipients#:#Mail senden an (Anmeldename)
-survey#:#survey_notification_tutor_recipients_invalid#:#Bitte geben Sie den Anmeldenamen einer Person mit Schreibrechten an.###Modified as part of gender mainstreaming activities for ILIAS 8
+survey#:#survey_notification_tutor_recipients_invalid#:#Bitte geben Sie den Anmeldenamen einer Person mit der Berechtigung „Einstellungen Bearbeiten“ an
 survey#:#survey_notification_tutor_salutation#:#Hallo %s,
 survey#:#survey_notification_tutor_setting#:#Eine E-Mail nachdem alle Befragten die Umfrage beendet haben
 survey#:#survey_notification_tutor_subject#:#Alle Befragten haben die Umfrage „%s“ beendet
@@ -16865,11 +16874,6 @@ survey#:#survey_question_editor#:#Listenansicht
 survey#:#survey_question_obligatory#:#(Diese Frage ist eine Pflichtfrage. Sie muss beantwortet werden!)
 survey#:#survey_question_pool#:#Fragenpool
 survey#:#survey_question_pool_title#:#Pool-Titel
-survey#:#survey_question_pool_usage#:#Fragenpool verwenden
-survey#:#survey_question_pool_usage_active#:#Fragen können optional in einem Fragenpool angelegt werden
-survey#:#survey_question_pool_usage_active_info#:#Beim Anlegen einer Fragen muss jeweils entschieden werden, ob ein Fragenpool verwendet werden soll.
-survey#:#survey_question_pool_usage_inactive#:#Fragen werden direkt in der Umfrage angelegt.
-survey#:#survey_question_pool_usage_inactive_info#:#Die Frage wird zuerst nur für diese Umfrage erstellt und kann später manuell zu einem Fragenpool hinzugefügt werden.
 survey#:#survey_question_title#:#Fragetitel
 survey#:#survey_questions#:#Fragen
 survey#:#survey_questions_to_clipboard_copy#:#Es wurden Fragen in die Zwischenablage kopiert. Wählen Sie ein Ziel oder leeren Sie die Zwischenablage.
@@ -16909,9 +16913,8 @@ survey#:#survey_sure_delete_questions#:#Wollen Sie wirklich die folgenden Fragen
 survey#:#survey_sync_insufficient_permissions#:#Keine ausreichende Berechtigungen.
 survey#:#survey_sync_question_copies#:#Fragenkopien synchronisieren
 survey#:#survey_sync_question_copies_info#:#Alle ausgewählten Fragen werden auf den aktuellen Stand der Poolfrage gebracht.
-survey#:#survey_sync_success#:#Die gewählten Fragen wurden aktualisiert.
-survey#:#survey_up_to_x_points#:#Bis zu x Punkten
-survey#:#survey_use_start_button#:#Sie dürfen eine Umfrage nur über die Schaltfläche "Umfrage beginnen" starten!
+survey#:#survey_sync_success#:#Die ausgewählten Fragen wurden aktualisiert.
+survey#:#survey_use_start_button#:#Die Umfrage kann ausschließlich durch durch den Button „Umfrage beginnen“ gestartet werden.
 survey#:#svy_activation_limited_visibility_info#:#Außerhalb des angegebenen Zeitraums wird nur der Titel der Umfrage angezeigt, die Fragen sind nicht zugänglich.
 survey#:#svy_activation_online_info#:#Nur wenn die Umfrage online ist, können Personen an dieser teilnehmen.
 survey#:#svy_add_internal_user#:#Feedback-Geber manuell hinzufügen
@@ -17205,17 +17208,17 @@ tbl#:#tbl_template_delete#:#Gespeicherte Ansicht löschen
 tbl#:#tbl_template_deleted#:#Die gespeicherte Ansicht wurde gelöscht.
 tbl#:#tbl_templates#:#Ansicht
 tos#:#tos_accept_usr_agreement_anonymous#:#Nutzungsvereinbarung
-tos#:#tos_accept_usr_agreement_anonymous_intro#:#Bevor Sie zu ILIAS wechseln, akzeptieren Sie die folgenden Nutzungsvereinbarungen.
-tos#:#tos_account_reg_not_possible#:#Eine Selbstregistrierung ist aktuell nicht möglich, da keine Nutzungsvereinbarung angeboten wird. Bitte kontaktieren Sie Ihre <a href="%1$s">ILIAS-Administration</a> für weitere Informationen.
-tos#:#tos_agree_date#:#Nutzungsvereinbarungen zugestimmt am
-tos#:#tos_agreement#:#Nutzungsvereinbarungen
-tos#:#tos_disabled_no_docs_left#:#Die Nutzungsvereinbarungen wurden deaktiviert, da alle Dokumente gelöscht wurden. Erstellen Sie mindestens ein Dokument, bevor Sie die Nutzungsvereinbarungen wieder aktivieren.
-tos#:#tos_last_reset_date#:#Die Nutzungsvereinbarungen wurden zuletzt am %s zurückgesetzt. Setzen Sie die Nutzungsvereinbarungen nur zurück, wenn sich diese in der Zwischenzeit geändert haben und eine Zustimmung zu dieser geänderten Vereinbarung gewünscht ist.
-tos#:#tos_never_reset#:#Die Nutzungsvereinbarungen wurden bisher noch nicht zurückgesetzt. Setzen Sie die Nutzungsvereinbarungen nur zurück, wenn sich diese in der Zwischenzeit geändert haben und eine Zustimmung zu dieser geänderten Vereinbarung gewünscht ist.
-tos#:#tos_no_documents_exist#:#Aktuell liegen keine Nutzungsvereinbarungsdokumente vor.
-tos#:#tos_no_documents_exist_cant_save#:#Aktuell liegen keine Nutzungsvereinbarungen vor. Bitte erstellen Sie mindestens ein Dokument um den Service zu aktivieren.
-tos#:#tos_reset_for_all_users#:#Nutzungsvereinbarungen zurücksetzen
-tos#:#tos_reset_successful#:#Die Nutzungsvereinbarungen wurden erfolgreich zurückgesetzt.
+tos#:#tos_accept_usr_agreement_anonymous_intro#:#Bevor Sie zu ILIAS wechseln, akzeptieren Sie die folgende Nutzungsvereinbarung.
+tos#:#tos_account_reg_not_possible#:#Eine Selbstregistrierung ist aktuell nicht möglich, da keine Nutzungsvereinbarung angeboten wird. Bitte kontaktieren Sie die <a href="%1$s">technische Betreuung</a> für weitere Informationen.
+tos#:#tos_agree_date#:#Nutzungsvereinbarung zugestimmt am
+tos#:#tos_agreement#:#Nutzungsvereinbarung
+tos#:#tos_disabled_no_docs_left#:#Die Nutzungsvereinbarung wurde deaktiviert, da alle Dokumente gelöscht wurden. Erstellen Sie mindestens ein Dokument, bevor Sie die Nutzungsvereinbarung wieder aktivieren.
+tos#:#tos_last_reset_date#:#Die Nutzungsvereinbarung wurde zuletzt am %s zurückgesetzt. Setzen Sie die Nutzungsvereinbarung nur zurück, wenn sich die Dokumente in der Zwischenzeit geändert haben und eine Zustimmung zu dieser geänderten Vereinbarung gewünscht ist.
+tos#:#tos_never_reset#:#Die Nutzungsvereinbarung wurde bisher noch nicht zurückgesetzt. Setzen Sie die Nutzungsvereinbarung nur zurück, wenn sich die Dokumente in der Zwischenzeit geändert haben und eine Zustimmung zu dieser geänderten Vereinbarung gewünscht ist.
+tos#:#tos_no_documents_exist#:#Aktuell liegen keine Dokumente für die Nutzungsvereinbarung vor.
+tos#:#tos_no_documents_exist_cant_save#:#Aktuell liegt keine Nutzungsvereinbarung vor. Bitte erstellen Sie mindestens ein Dokument um den Service zu aktivieren.
+tos#:#tos_reset_for_all_users#:#Nutzungsvereinbarung zurücksetzen
+tos#:#tos_reset_successful#:#Die Nutzungsvereinbarung wurde erfolgreich zurückgesetzt.
 tos#:#tos_status_desc#:#Benutzer werden zum Unterzeichnen der Nutzungsvereinbarung aufgefordert, bevor sie ILIAS nutzen können.
 tos#:#tos_status_enable#:#Nutzungsvereinbarung aktivieren
 tos#:#tos_sure_reset_tos#:#Sind Sie sicher, dass die Nutzungsvereinbarung für alle Benutzer im System zurückgesetzt werden soll? Dies betrifft auch jene Anmeldekonten, die z.B. für die SOAP-Web-Services genutzt werden.
@@ -17565,6 +17568,12 @@ ui#:#ui_select_dropdown_label#:#Bitte auswählen
 ui#:#ui_table_no_records#:#Keine Einträge
 ui#:#ui_table_order#:#Reihenfolge
 ui#:#ui_transcription#:#Abschrift
+ui#:#unselect_node#:#Knoten %s von der Auswahl entfernen
+ui#:#vc_sort#:#Sortiert nach:
+ui#:#warning_url_too_long_msg#:#Die Anzahl der ausgewählten Zeilen führt zu einer zu großen Datenmenge, die nicht übertragen werden kann. Wählen Sie weniger Zeilen aus oder führen Sie die Aktion für die gesamte Tabelle durch (Sammelaktionen).
+user#:#account_not_flagged_for_deletion#:#Das Konto ist nicht zum Löschen markiert.
+user#:#activate_in_profile_fields#:#Das Ändern des Anmeldenamens muss unter Profil > Profile aktiviert werden, bevor diese Einstellung angepasst werden kann.
+user#:#administrative_settings#:#Administrative Einstellungen
 user#:#all_roles_has_starting_point#:#Alle Rollen mit definierter Startseite
 user#:#back_to_starting_points_list#:#Zurück zu Startseiten
 user#:#change_email_email_confirmation_body#:#Die E-Mail-Adresse des Kontos %s wurde geändert. Bitte klicken Sie auf diesen Link %s , um die Änderung zu bestätigen. Der Link ist für %s Minuten gültig.
@@ -17584,7 +17593,7 @@ user#:#confirm_logout_for_email_change#:#Sie haben Ihre E-Mail-Adresse geändert
 user#:#confirm_logout_for_email_change_with_confirmation#:#Im Anschluss wird Ihnen eine E-Mail auf die neue E-Mail gesendet, um zu bestätigen, dass diese Adresse Ihnen gehört. Erst nachdem Sie den Link in der E-Mail angeklickt haben, wird die Adresse in Ihrem Profil geändert.
 user#:#create_starting_point#:#Regel erstellen
 user#:#criteria#:#Kriterium
-user#:#del_mail_body#:#Hallo %1$s, %2$s Sie haben sich seit längerer Zeit nicht mehr auf %3$s angemeldet. Daher wird ihr ILIAS-Konto voraussichtlich am %4$s gelöscht. Um Ihr ILIAS-Konto zu behalten, müssen Sie sich vor dem genannten Tag erneut einloggen.
+user#:#del_mail_body#:#Hallo %1$s, %2$s Sie haben sich seit längerer Zeit nicht mehr auf %3$s angemeldet. Daher wird Ihr ILIAS-Konto %5$s voraussichtlich am %4$s gelöscht. Um Ihr ILIAS-Konto zu behalten, müssen Sie sich vor dem genannten Tag erneut einloggen.
 user#:#del_mail_subject#:#Ihr ILIAS-Konto wird bald gelöscht
 user#:#delete_inactive_user_accounts_frequency#:#Intervall
 user#:#delete_inactive_user_accounts_frequency_desc#:#Intervall, mit welchem auf Löschung sowie auf E-Mail-Versand getestet wird.
@@ -17984,8 +17993,8 @@ wopi#:#msg_error_wopi_invalid_discorvery_url#:#Die eingegebene Discovery-URL ist
 wopi#:#msg_wopi_settings_modified#:#Einstellungen gespeichert
 wopi#:#open_external_editor#:#In externem Editor öffnen
 wopi#:#open_external_viewer#:#Inhalt anzeigen
-wopi#:#saving_interval#:#Speicherintervall
-wopi#:#saving_interval_byline#:#Standardmässig fügt ILIAS alle durch einen Externen Editor erhaltenen Änderungen in einer Entwurfs-Version hinzu, bis diese Version manuell veröffentlicht wird. Durch das Aktivieren des Speicherintervall wird nach Möglichkeit nach der festgelegten Sekundenanzahl eine neue Verison veröffentlicht. Bitte beachten Sie, dass eine tiefer Wert zu sehr vielen Dateiversionen führen kann und damit ein Vielfaches des Festplattenspeichers beansprucht.
+wopi#:#saving_interval#:#Neue Version nach … Sekunden
+wopi#:#saving_interval_byline#:#Nach der festgelegten Bearbeitungszeit wird von ILIAS automatisch eine neue Version der Datei veröffentlicht, wenn der externe Editor Änderungen meldet. Standardmässig fügt ILIAS alle durch den Editor erhaltenen Änderungen lediglich als Entwurf hinzu, bis eine neue Dateiversion manuell veröffentlicht wird. Bitte beachten Sie, dass bei Verwendung dieser Option mit einem niedrigen Wert mitunter sehr viele Dateiversionen erstellt werden. Dadurch wird viel Speicherplatz belegt.
 wopi#:#wopi_crawler_cronjob_description#:#Aktualisiert die Informationen des angebundenen WOPI-Dienstes.
 wopi#:#wopi_crawler_cronjob_no_apps#:#Es wurden keine WOPI-Apps in der Discovery gefunden.
 wopi#:#wopi_crawler_cronjob_not_activated#:#WOPI ist nicht aktiviert.

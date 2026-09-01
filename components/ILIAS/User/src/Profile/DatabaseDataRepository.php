@@ -173,6 +173,9 @@ class DatabaseDataRepository implements DataRepository
                 'profile_incomplete' => [\ilDBConstants::T_INTEGER, $system_information['profile_incomplete']],
                 'auth_mode' => [\ilDBConstants::T_TEXT, $system_information['auth_mode']],
                 'ext_account' => [\ilDBConstants::T_TEXT, $system_information['ext_account']],
+                // fau: samlChange - add idle_ext_account to system information
+                'idle_ext_account' => [\ilDBConstants::T_TEXT, $system_information['idle_ext_account']],
+                // fau.
                 'is_self_registered' => [\ilDBConstants::T_INTEGER, $system_information['is_self_registered'] ? 1 : 0],
                 'last_update' => [\ilDBConstants::T_TIMESTAMP, date('Y-m-d H:i:s')],
                 'create_date' => [\ilDBConstants::T_TIMESTAMP, $system_information['create_date']],
@@ -382,6 +385,9 @@ class DatabaseDataRepository implements DataRepository
             'profile_incomplete' => $base_data->profile_incomplete === 1,
             'auth_mode' => $base_data->auth_mode,
             'ext_account' => $base_data->ext_account,
+            // fau: samlChange - add idle_ext_account to system information
+            'idle_ext_account' => $base_data->idle_ext_account,
+            // fau.
             'is_self_registered' => $base_data->is_self_registered === 1,
             'last_update' => $base_data->last_update ?? '',
             'create_date' => $base_data->create_date ?? '',

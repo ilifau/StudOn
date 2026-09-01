@@ -29,6 +29,9 @@ class ilAuthFrontend implements ilAuthFrontendInterface
     private ilLogger $logger;
     private ilSetting $settings;
     private ilLanguage $lng;
+    // fau: loginLog - class variable for database
+    private ilDBInterface $db;
+    // fau.
 
     private ilAuthCredentials $credentials;
     private ilAuthStatus $status;
@@ -49,6 +52,9 @@ class ilAuthFrontend implements ilAuthFrontendInterface
         $this->settings = $DIC->settings();
         $this->lng = $DIC->language();
         $this->ilAppEventHandler = $DIC->event();
+        // fau: loginLog - set variable for database
+        $this->db = $DIC->database();
+        // fau.
 
         $this->auth_session = $session;
         $this->credentials = $credentials;
@@ -155,6 +161,12 @@ class ilAuthFrontend implements ilAuthFrontendInterface
                 case ilAuthStatus::STATUS_AUTHENTICATED:
                     return $this->handleAuthenticationSuccess($provider);
 
+                // fau: samlChange - handle change request
+                case ilAuthStatus::STATUS_SSO_CHANGE_REQUIRED:
+                    $this->logger->notice("Account migration required.");
+                    return false;
+                // fau.
+                                    
                 case ilAuthStatus::STATUS_ACCOUNT_MIGRATION_REQUIRED:
                     $this->logger->notice('Account migration required.');
                     if ($provider instanceof ilAuthProviderAccountMigrationInterface) {
@@ -305,6 +317,10 @@ class ilAuthFrontend implements ilAuthFrontendInterface
             );
         }
 
+        // fau: loginLog - write the auth log
+        $this->writeAuthLog('login', $user->getLogin());
+        // fau.
+
         // finally raise event
         $this->ilAppEventHandler->raise(
             'components/ILIAS/Authentication',
@@ -319,6 +335,40 @@ class ilAuthFrontend implements ilAuthFrontendInterface
         return true;
     }
 
+    // fau: loginLog - new function writeAuthLog()
+    /**
+     * Write an authentication log to the table ut_auth
+     * @param string	$a_action	e.g. 'login'
+     * @param string 	$a_username
+     */
+    protected function writeAuthLog($a_action, $a_username = null)
+    {
+        if (empty($a_username) or $a_username == 'anonymous') {
+            return;
+        }
+
+        $date = getdate();
+        $auth_id = $this->db->nextId('ut_auth');
+        $this->db->insert(
+            'ut_auth',
+            array(
+                'auth_id' => array('integer', $auth_id),
+                'auth_time' => array('timestamp', date('Y-m-d H:i:s', time())),
+                'auth_year' => array('integer', $date['year']),
+                'auth_month' => array('integer', $date['mon']),
+                'auth_day' => array('integer', $date['mday']),
+                'auth_action' => array('text', $a_action),
+                'auth_mode' => array('text', $this->getCredentials()->getAuthMode()),
+                'username' => array('text', $a_username),
+                'remote_addr' => array('text', $_SERVER['REMOTE_ADDR'] ?? NULL),
+                'server_addr' => array('text', $_SERVER['SERVER_ADDR'] ?? NULL),
+                'user_agent' => array('text', $_SERVER['HTTP_USER_AGENT'] ?? NULL)
+            )
+        );
+    }
+    // fau.
+    
+    
     protected function checkActivation(ilObjUser $user): bool
     {
         return $user->getActive();
