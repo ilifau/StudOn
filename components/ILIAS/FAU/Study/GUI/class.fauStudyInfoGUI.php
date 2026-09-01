@@ -239,7 +239,7 @@ class fauStudyInfoGUI extends BaseGUI implements \ilCtrlBaseClassInterface
     protected function getEventProperties(Event $event, Term $term, int $ref_id, bool $with_groups, bool $in_modal) : array
     {
         $props = [];
-        $import_id = new ImportId($term->toString(), $event->getEventId());
+        $import_id = new ImportId($term->toString(), $event->getEventId(), $this->dic->fau()->staging()->repo()->getStudOnCourseIdFromRefId($ref_id)?->getCourseId());
 
         $title = $event->getTitle();
         if ($term->isValid()) {
