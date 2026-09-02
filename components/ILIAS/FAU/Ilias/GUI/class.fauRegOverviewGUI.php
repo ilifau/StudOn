@@ -24,7 +24,7 @@ class fauRegOverviewGUI extends BaseGUI implements \ilCtrlBaseClassInterface
     {
         $this->tpl->loadStandardTemplate();
         $this->tpl->setTitle($this->lng->txt('fau_reg_overview'));
-        $this->tpl->setTitleIcon(ilUtil::getImagePath('icon_cal.svg'));
+        $this->tpl->setTitleIcon(ilUtil::getImagePath('standard/icon_cal.svg'));
 
         $cmd = $this->ctrl->getCmd('show');
         $next_class = $this->ctrl->getNextClass();
