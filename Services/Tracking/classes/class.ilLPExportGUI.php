@@ -22,9 +22,9 @@ class ilLPExportGUI extends ilLearningProgressBaseGUI
     }
 
     /**
-    * execute command
-    */
-    public function executeCommand()
+     * execute command
+     */
+    protected function handleCommand()
     {
         switch ($this->ctrl->getNextClass()) {
             default:
