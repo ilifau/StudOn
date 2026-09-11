@@ -131,7 +131,7 @@ class ilFAUAppEventListener implements ilAppEventListener
                 }
                 break;
 
-            case 'components/ILIAS/User':
+            case 'Services/User':
                 switch ($a_event) {
                     case 'deleteUser':
                         self::getInstance()->handleUserDelete((int) $a_parameter['usr_id']);

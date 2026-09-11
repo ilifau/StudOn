@@ -35,7 +35,7 @@
 		<event type="listen" id="components/ILIAS/Membership" />
 		<event type="listen" id="components/ILIAS/AccessControl" />
 		<event type="listen" id="components/ILIAS/Object" />
-		<event type="listen" id="components/ILIAS/User" />
+		<event type="listen" id="Services/User" /> <!-- this is intended as it is not changed in ilias core -->
 	</events>
 	<logging />
 </service>
