@@ -351,7 +351,9 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
                 switch ($type) {
                     case "PageObject":
                     case "StructureObject":
-                        $lm_id = ilLMObject::_lookupContObjID($target_id);
+                        // fau: lmBrokenIntLink - cast target id, a malformed link target must not break the page
+                        $lm_id = ilLMObject::_lookupContObjID((int) $target_id);
+                        // fau.
                         if ($lm_id == $this->lm->getId() ||
                             ($targetframe != "None" && $targetframe != "New")) {
                             $ltarget = $a_layoutframes[$targetframe]["Frame"] ?? "";
