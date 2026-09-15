@@ -204,7 +204,9 @@ class ilLMPageObjectGUI extends ilLMObjectGUI
             $lcontent = "";
             if (substr($target, 0, 4) == "il__") {
                 $target_arr = explode("_", $target);
-                $target_id = $target_arr[count($target_arr) - 1];
+                // fau: lmBrokenIntLink - cast target id, a malformed link target must not break the page editor
+                $target_id = (int) $target_arr[count($target_arr) - 1];
+                // fau.
                 $type = $int_link["Type"];
                 $targetframe = ($int_link["TargetFrame"] != "")
                     ? $int_link["TargetFrame"]
@@ -253,9 +255,11 @@ class ilLMPageObjectGUI extends ilLMObjectGUI
                             }
                             $ltarget = "ilContObj" . $lm_id;
                         }
-                        if ($lm_id == "") {
+                        // fau: lmBrokenIntLink - _lookupContObjID() returns int, so the empty string check never matched
+                        if ($lm_id === 0) {
                             $href = "";
                         }
+                        // fau.
                         break;
 
                     case "GlossaryItem":

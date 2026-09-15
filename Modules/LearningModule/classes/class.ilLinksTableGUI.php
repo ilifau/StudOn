@@ -86,7 +86,10 @@ class ilLinksTableGUI extends ilTable2GUI
             $target = $link["Target"];
             if (substr($target, 0, 4) == "il__") {
                 $target_arr = explode("_", $target);
-                $target_id = $target_arr[count($target_arr) - 1];
+                // fau: lmBrokenIntLink - cast target id, a malformed link target must not break the links table
+                $target_id = (int) $target_arr[count($target_arr) - 1];
+                $missing_id = htmlspecialchars($target_arr[count($target_arr) - 1]);
+                // fau.
                 $type = $link["Type"];
 
                 switch ($type) {
@@ -105,7 +108,9 @@ class ilLinksTableGUI extends ilTable2GUI
                         } else {
                             $this->tpl->setVariable(
                                 "TXT_MISSING",
-                                "<strong>" . $lng->txt("cont_target_missing") . " [" . $target_id . "]" . "</strong>"
+                                // fau: lmBrokenIntLink - show the stored target id, not the cast one
+                                "<strong>" . $lng->txt("cont_target_missing") . " [" . $missing_id . "]" . "</strong>"
+                                // fau.
                             );
                         }
                         $this->tpl->parseCurrentBlock();
@@ -126,7 +131,9 @@ class ilLinksTableGUI extends ilTable2GUI
                         } else {
                             $this->tpl->setVariable(
                                 "TXT_MISSING",
-                                "<strong>" . $lng->txt("cont_target_missing") . " [" . $target_id . "]" . "</strong>"
+                                // fau: lmBrokenIntLink - show the stored target id, not the cast one
+                                "<strong>" . $lng->txt("cont_target_missing") . " [" . $missing_id . "]" . "</strong>"
+                                // fau.
                             );
                         }
                         $this->tpl->parseCurrentBlock();
@@ -143,7 +150,9 @@ class ilLinksTableGUI extends ilTable2GUI
                         } else {
                             $this->tpl->setVariable(
                                 "TXT_MISSING",
-                                "<strong>" . $lng->txt("cont_target_missing") . " [" . $target_id . "]" . "</strong>"
+                                // fau: lmBrokenIntLink - show the stored target id, not the cast one
+                                "<strong>" . $lng->txt("cont_target_missing") . " [" . $missing_id . "]" . "</strong>"
+                                // fau.
                             );
                         }
                         $this->tpl->parseCurrentBlock();
@@ -160,7 +169,9 @@ class ilLinksTableGUI extends ilTable2GUI
                         } else {
                             $this->tpl->setVariable(
                                 "TXT_MISSING",
-                                "<strong>" . $lng->txt("cont_target_missing") . " [" . $target_id . "]" . "</strong>"
+                                // fau: lmBrokenIntLink - show the stored target id, not the cast one
+                                "<strong>" . $lng->txt("cont_target_missing") . " [" . $missing_id . "]" . "</strong>"
+                                // fau.
                             );
                         }
                         $this->tpl->parseCurrentBlock();
@@ -181,7 +192,9 @@ class ilLinksTableGUI extends ilTable2GUI
                         } else {
                             $this->tpl->setVariable(
                                 "TXT_MISSING",
-                                "<strong>" . $lng->txt("cont_target_missing") . " [" . $target_id . "]" . "</strong>"
+                                // fau: lmBrokenIntLink - show the stored target id, not the cast one
+                                "<strong>" . $lng->txt("cont_target_missing") . " [" . $missing_id . "]" . "</strong>"
+                                // fau.
                             );
                         }
                         $this->tpl->parseCurrentBlock();

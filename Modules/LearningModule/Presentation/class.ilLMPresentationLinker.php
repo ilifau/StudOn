@@ -335,7 +335,9 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
             $target = $int_link["Target"];
             if (substr($target, 0, 4) == "il__") {
                 $target_arr = explode("_", $target);
-                $target_id = $target_arr[count($target_arr) - 1];
+                // fau: lmBrokenIntLink - cast target id, a malformed link target must not break the page
+                $target_id = (int) $target_arr[count($target_arr) - 1];
+                // fau.
                 $type = $int_link["Type"];
                 $targetframe = ($int_link["TargetFrame"] != "")
                     ? $int_link["TargetFrame"]
@@ -351,9 +353,7 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
                 switch ($type) {
                     case "PageObject":
                     case "StructureObject":
-                        // fau: lmBrokenIntLink - cast target id, a malformed link target must not break the page
-                        $lm_id = ilLMObject::_lookupContObjID((int) $target_id);
-                        // fau.
+                        $lm_id = ilLMObject::_lookupContObjID($target_id);
                         if ($lm_id == $this->lm->getId() ||
                             ($targetframe != "None" && $targetframe != "New")) {
                             $ltarget = $a_layoutframes[$targetframe]["Frame"] ?? "";
@@ -401,6 +401,11 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
                             if ($targetframe == "New" || $this->embed_mode) {
                                 $ltarget = "_blank";
                             }
+                            // fau: lmBrokenIntLink - do not link to a goto target that does not exist
+                            if ($lm_id === 0) {
+                                $href = "";
+                            }
+                            // fau.
                         }
                         break;
 
