@@ -335,8 +335,9 @@ class ilLMPresentationLinker implements \ILIAS\COPage\PageLinker
             $target = $int_link["Target"];
             if (substr($target, 0, 4) == "il__") {
                 $target_arr = explode("_", $target);
-                // fau: lmBrokenIntLink - cast target id, a malformed link target must not break the page
-                $target_id = (int) $target_arr[count($target_arr) - 1];
+                // fau: lmBrokenIntLink - only accept a numeric target id, a malformed link must not break the page
+                $raw_target_id = $target_arr[count($target_arr) - 1];
+                $target_id = ctype_digit($raw_target_id) ? (int) $raw_target_id : 0;
                 // fau.
                 $type = $int_link["Type"];
                 $targetframe = ($int_link["TargetFrame"] != "")
