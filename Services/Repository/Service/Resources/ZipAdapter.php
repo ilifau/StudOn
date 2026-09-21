@@ -98,7 +98,9 @@ class ZipAdapter
         }
 
         foreach (explode('/', rtrim($normalized_path, '/')) as $segment) {
-            if ($segment === '' || $segment === '.' || $segment === '..') {
+            // fau: fix Zip contains an unsafe path for version 9, see mantis 48212
+            if ($segment === '' || $segment === '..') {
+            // fau.
                 throw new ilException('Zip contains an unsafe path.');
             }
         }
