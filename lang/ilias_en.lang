@@ -566,7 +566,7 @@ assessment#:#change_adm_categories_not_allowed#:#You do not have any permissions
 assessment#:#checkbox_checked#:#Checked
 assessment#:#checkbox_unchecked#:#Unchecked
 assessment#:#circle#:#Circle
-assessment#:#circle_click_center#:#Please click on center of the desired area.
+assessment#:#circle_click_center#:#Please click on centre of the desired area.
 assessment#:#circle_click_circle#:#Please click on a circle point of the desired area.
 assessment#:#client_ip_range#:#Client IP Range
 assessment#:#clientip#:#Client IP
@@ -802,9 +802,9 @@ assessment#:#lacex_assClozeTest_NumberOfResultExpression_d#:#The fourth answer o
 assessment#:#lacex_assClozeTest_NumberOfResultExpression_e#:#R[4] = +2+
 assessment#:#lacex_assClozeTest_NumericResultExpression_d#:#The second answer option is a numeric gap and was answered with the numeric value 5
 assessment#:#lacex_assClozeTest_NumericResultExpression_e#:#R[2] = #5#
-assessment#:#lacex_assClozeTest_StringResultExpression_1_d#:#The first answer option is a text gap and was answered with „Monday“
+assessment#:#lacex_assClozeTest_StringResultExpression_1_d#:#The first answer option is a text gap and was answered with "Monday"
 assessment#:#lacex_assClozeTest_StringResultExpression_1_e#:#R[1] = ~Monday~
-assessment#:#lacex_assClozeTest_StringResultExpression_2_d#:#The fourth answer option is a select gap and the option labeled as „Green“ was selected
+assessment#:#lacex_assClozeTest_StringResultExpression_2_d#:#The fourth answer option is a select gap and the option labelled as "Green" was selected
 assessment#:#lacex_assClozeTest_StringResultExpression_2_e#:#R[4] = ~Green~
 assessment#:#lacex_assErrorText_ExclusiveResultExpression_d#:#Exactly the answer options 1, 3 and 4 were chosen while answering the question
 assessment#:#lacex_assErrorText_ExclusiveResultExpression_e#:#R = *1,3,4*
@@ -886,7 +886,7 @@ assessment#:#logs_test_run_finished#:#Test Run Finished
 assessment#:#logs_test_run_of_participant_closed#:#Run of Participant Closed
 assessment#:#logs_test_run_started#:#Test Run Started
 assessment#:#logs_wrong_test_password_provided#:#Participant entered wrong test password.
-assessment#:#longmenu#:#Longmenu
+assessment#:#longmenu#:#Long Menu
 assessment#:#longmenu_answeroptions_differ#:#This question does not work correctly, as there are not the same amount of gaps in the text as in the correction options.
 assessment#:#longmenu_text#:#Long Menu Text
 assessment#:#mainbar_button_label_questionlist#:#Question List
@@ -1099,8 +1099,8 @@ assessment#:#qpl_qst_inp_matching_mode_all_on_all#:#One or More Terms match One 
 assessment#:#qpl_qst_inp_matching_mode_one_on_one#:#One Term Matches One Definition (1:1)
 assessment#:#qpl_qst_skl_assign_properties_modified#:#The assignment's properties has been modified.
 assessment#:#qpl_qst_skl_assign_synced_to_orig#:#The competence assignments has been synchronised to the questions original.
-assessment#:#qpl_qst_skl_assigns_updated#:#The competence assignments has been updated.
-assessment#:#qpl_qst_skl_selection_for_question_header#:#Compence Assignments for Question: %s
+assessment#:#qpl_qst_skl_assigns_updated#:#Competence assignments updated.
+assessment#:#qpl_qst_skl_selection_for_question_header#:#Competence Assignments for Question: %s
 assessment#:#qpl_qst_skl_usg_numq_col#:#Number of Questions in Pool adressing this competence
 assessment#:#qpl_qst_skl_usg_skill_col#:#Competence
 assessment#:#qpl_qst_skl_usg_sklpnt_col#:#Total Sum of Competence-Points per Competence
@@ -1145,7 +1145,7 @@ assessment#:#qst_lifecycle_rejected#:#Rejected
 assessment#:#qst_lifecycle_review#:#To be Reviewed
 assessment#:#qst_lifecycle_sharable#:#Shareable
 assessment#:#qst_nested_nested_answers_off#:#No indents, just order
-assessment#:#qst_nested_nested_answers_on#:#Use indents in anwers
+assessment#:#qst_nested_nested_answers_on#:#Use indents in answers
 assessment#:#qst_nr_of_tries#:#Number of Tries
 assessment#:#qst_preview_reset_msg#:#The preview has been reset.
 assessment#:#qst_use_nested_answers#:#Nested answers
@@ -1165,7 +1165,7 @@ assessment#:#question_summary#:#Test Attempt Overview
 assessment#:#question_summary_btn#:#Test Attempt Overview
 assessment#:#question_title#:#Question Title
 assessment#:#question_type#:#Question Type
-assessment#:#questionlist_cannot_be_altered#:#The questionlist cannot be altered as the test already contains participant data sets.
+assessment#:#questionlist_cannot_be_altered#:#The question list cannot be altered as the test already contains participant data sets.
 assessment#:#questionpool_not_entered#:#Please enter a name for a question pool!
 assessment#:#questionpool_not_selected#:#Please select a question pool!
 assessment#:#questions#:#Questions
@@ -1361,10 +1361,12 @@ assessment#:#tst_activate_skill_service_desc#:#Allow questions to be assigned to
 assessment#:#tst_activation_limited_visibility_info#:#Before and after the period during which the test is available,  the test's title will be displayed, but participants won’t be able to take the test. Access, including to tests already in progress, will be prevented once the period of availability has ended.
 assessment#:#tst_activation_online_info#:#Participants can take the test if it is ‘Online’.
 assessment#:#tst_add_quest_cont_edit_mode#:#Editor
-assessment#:#tst_add_quest_cont_edit_mode_IPE#:#Use plain text for questions and answers and ILIAS page editor for feedback and hints
-assessment#:#tst_add_quest_cont_edit_mode_IPE_info#:#No formatting of text in question and answers. No use of LaTex either. But feedback and hints can be reused when question is embedded in ILIAS learning module.
-assessment#:#tst_add_quest_cont_edit_mode_RTE#:#Use Rich-Text-Editor (TinyMCE) for editing questions and answers, feedbacks and hints
-assessment#:#tst_add_quest_cont_edit_mode_RTE_info#:#Allows text formatting of questions, answers, feedbacks and hints. But feedback and hints cannot be reused when question is embedded in ILIAS learning module.
+assessment#:#tst_add_quest_cont_edit_mode_IPE#:#Use plain text when creating questions and answer options
+assessment#:#tst_add_quest_cont_edit_mode_IPE_info#:#When creating or editing questions and answer options, the text cannot be formatted. Feedback however, can be formatted using the ILIAS page editor and also reused if the question is embedded in an ILIAS learning module.
+assessment#:#tst_add_quest_cont_edit_mode_RTE#:#Use Rich-Text-Editor (TinyMCE) for editing questions, answers options and feedback
+assessment#:#tst_add_quest_cont_edit_mode_RTE_info#:#When creating or editing questions, answer options, and feedback, the text can be formatted. However, feedback will not be carried across if the question is embedded in an ILIAS learning module.
+assessment#:#tst_add_quest_cont_edit_mode_plain#:#Use plain text
+assessment#:#tst_add_quest_cont_edit_mode_plain_info#:#No formatting of text in question, answers and feedback.
 assessment#:#tst_addit_passes_blocked_after_passed_msg#:#You have passed the test. The test cannot be started again.
 assessment#:#tst_all_test_competences#:#All Test Competence
 assessment#:#tst_all_user_data_deleted#:#All user data for this test has been removed!
@@ -1577,9 +1579,9 @@ assessment#:#tst_instant_feedback_solution#:#Best Possible Answer
 assessment#:#tst_instant_feedback_solution_desc#:#Participants will be shown the best possible answer to the question. Please select below how the feedback should be triggered.
 assessment#:#tst_instant_feedback_trigger#:#Feedback Trigger
 assessment#:#tst_instant_feedback_trigger_forced#:#Answering a question
-assessment#:#tst_instant_feedback_trigger_forced_desc#:#Feedback is available, but is only displayed when a participant triggers it manually.
-assessment#:#tst_instant_feedback_trigger_manual#:#Participants can Trigger the Feedback Manually
-assessment#:#tst_instant_feedback_trigger_manual_desc#:#The feedback is availble but will only be shown when a participant triggers the presentation manually.
+assessment#:#tst_instant_feedback_trigger_forced_desc#:#Feedback is shown automatically when a question is answered.
+assessment#:#tst_instant_feedback_trigger_manual#:#Manual trigger
+assessment#:#tst_instant_feedback_trigger_manual_desc#:#Feedback is available, but is only displayed when a participant triggers it manually.
 assessment#:#tst_introduction#:#Introductory Message
 assessment#:#tst_introduction_desc#:#Display an introductory message in the ‘Test’ tab. This message can be edited in the 'Edit Introduction' sub tab of these settings and is already accessible to users before starting the test.
 assessment#:#tst_introduction_text#:#Introductory Message
@@ -2012,7 +2014,7 @@ assessment#:#use_previous_solution_advice#:#The solution shown is your solution 
 assessment#:#user_has_finished_a_test#:#A participant has finished a test.
 assessment#:#user_ip_outside_range#:#You are not allowed to access the test from this IP.
 assessment#:#user_not_invited#:#You are not supposed to take this test.
-assessment#:#usr_manscoring_complete#:#Marke as 'scored'
+assessment#:#usr_manscoring_complete#:#Marked as 'scored'
 assessment#:#value_between_x_and_y#:#The value should be between %s and %s
 assessment#:#values#:#Values
 assessment#:#variable#:#Variable
@@ -11267,8 +11269,6 @@ lti#:#activity_id#:#Activity ID
 lti#:#activity_id_info#:#This Activity ID is used by the LTI Provider to identify Statements.
 lti#:#auth_lti#:#LTI Auth
 lti#:#conf_privacy_ident#:#User identification
-lti#:#conf_privacy_ident_il_uuid_SHA256#:#Hash combined with a unique ILIAS platform id formatted as an E-Mail address
-lti#:#conf_privacy_ident_il_uuid_SHA256_info#:#This is identical to each call, but does not permit any direct conclusions about the ILIAS user.
 lti#:#conf_privacy_ident_il_uuid_ext_account#:#External User ID combined with a unique ILIAS platform id formatted as an E-Mail address
 lti#:#conf_privacy_ident_il_uuid_ext_account_info#:#This is identical to each call, but may allow a direct conclusion about the user.
 lti#:#conf_privacy_ident_il_uuid_login#:#ILIAS Login combined with a unique ILIAS platform id formatted as an E-Mail address
@@ -11378,6 +11378,8 @@ lti#:#lti_at_least_one_prov_has_usages#:#At least one provider could not be dele
 lti#:#lti_auth_failed_invalid_key#:#Authentication failed, no valid consumer key given.
 lti#:#lti_con_content_item#:#Support for Deep Linking
 lti#:#lti_con_content_item_url#:#Content URL
+lti#:#lti_con_grade_synchronization#:#Assignment and Grade Services###04 12 2025 new variable
+lti#:#lti_con_grade_synchronization_info#:#The LTI tool must offer 'Assignment and Grade Services'.###04 12 2025 new variable
 lti#:#lti_con_initiate_login_url#:#Initiate Login URL
 lti#:#lti_con_key_type#:#Public Key Type
 lti#:#lti_con_key_type_jwk#:#URL (Json Web Token)
@@ -11462,6 +11464,7 @@ lti#:#lti_create_lti_user_role#:#Create recommended global role for LTI users
 lti#:#lti_cron_title#:#LTI Outcome Service
 lti#:#lti_cron_title_desc#:#Synchronizes the learning progress of LTI users with the LTI consumer, if it supports the outcome service. This cron job is only required to transfer status updates after Learning progress settings updates.
 lti#:#lti_custom_new#:#Create Own Provider Settings
+lti#:#lti_deep_linking_not_available_for_admin_objects#:#Consumers created in Administration do not allow content selection
 lti#:#lti_delete_consume_provider#:#Delete Provider
 lti#:#lti_delete_consume_providers#:#Delete Providers
 lti#:#lti_delete_provider#:#Delete Provider
@@ -11469,6 +11472,7 @@ lti#:#lti_edit_consumer#:#Edit LTI Consumer
 lti#:#lti_exit#:#Close LTI Session
 lti#:#lti_exited#:#LTI Session closed
 lti#:#lti_exited_info#:#LTI Session successfully closed
+lti#:#lti_form_provider_content_selection#:#Content Selection
 lti#:#lti_form_provider_create#:#Create Provider Settings
 lti#:#lti_form_provider_edit#:#Edit Provider Settings
 lti#:#lti_form_section_appearance#:#Options for launch
@@ -11520,6 +11524,7 @@ lti#:#subtab_certificate#:#Certificate
 lti#:#subtab_object_settings#:#Object Settings
 lti#:#subtab_provider_settings#:#LTI Provider Settings
 lti#:#tab_content#:#Content
+lti#:#tab_grade_synchronization#:#Gradebook
 lti#:#tab_info#:#Info
 lti#:#tab_scoring#:#Ranking
 lti#:#tab_settings#:#Settings
