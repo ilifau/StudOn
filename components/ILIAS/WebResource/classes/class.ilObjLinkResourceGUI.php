@@ -165,6 +165,15 @@ class ilObjLinkResourceGUI extends ilObject2GUI
                 if (!$cmd) {
                     $cmd = 'view';
                 }
+
+                // fau: fixWebLinkSecurity - add permission check
+                if ($cmd != "infoScreen") {
+                    $this->checkPermission("read");
+                } else {
+                    $this->checkPermission("visible");
+                }
+                // fau.
+
                 $this->prepareOutput();
                 $this->$cmd();
         }
