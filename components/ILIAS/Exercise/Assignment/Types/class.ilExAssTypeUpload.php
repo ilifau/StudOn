@@ -48,6 +48,13 @@ class ilExAssTypeUpload implements ilExAssignmentTypeInterface
         return false;
     }
 
+    // fau: exAssHook - new function hasFiles()
+    public function hasFiles(): bool
+    {
+        return true;
+    }
+    // fau.
+
     public function usesFileUpload(): bool
     {
         return true;

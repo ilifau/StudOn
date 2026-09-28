@@ -31,6 +31,13 @@ class ilExAssignmentTypesGUI
         protected \ILIAS\Exercise\InternalDomainService $domain,
         protected \ILIAS\Exercise\InternalGUIService $gui
     ) {
+        // fau: exAssHook - add plugins to the class names
+        foreach (ilExAssignmentTypes::getActivePlugins() as $plugin) {
+            foreach ($plugin->getAssignmentTypeGuiClassNames() as $id => $name) {
+                $this->class_names[$id] = $name;
+            }
+        }
+        // fau.
     }
 
     /**
@@ -79,10 +86,21 @@ class ilExAssignmentTypesGUI
                     $this->domain,
                     $this->gui
                 );
+
+            // fau: exAssHook - return the type gui of a plugin for the id
+            default:
+                foreach (ilExAssignmentTypes::getActivePlugins() as $plugin) {
+                    if (in_array($a_id, $plugin->getAssignmentTypeIds())) {
+                        return $plugin->getAssignmentTypeGuiById($a_id);
+                    }
+                }
+                return new ilExAssTypeInactiveGUI();
+            // fau.
         }
 
-        // we should throw some exception here
-        throw new ilExcUnknownAssignmentTypeException("Unkown Assignment Type ($a_id).");
+        // fau: exAssHook - code not reachable
+        // throw new ilExcUnknownAssignmentTypeException("Unkown Assignment Type ($a_id).");
+        // fau.
     }
 
     /**
