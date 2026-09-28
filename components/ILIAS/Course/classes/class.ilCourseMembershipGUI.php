@@ -24,17 +24,106 @@ use ILIAS\User\Profile\Profile;
  * Member-tab content
  * @author       Stefan Meyer <smeyer.ilias@gmx.de>
  * @ilCtrl_Calls ilCourseMembershipGUI: ilMailMemberSearchGUI, ilUsersGalleryGUI, ilRepositorySearchGUI
+ * @ilCtrl_Calls ilCourseMembershipGUI: ilRepositorySelectorExplorerGUI // fau: uiHooksCourseGroup
  * @ilCtrl_Calls ilCourseMembershipGUI: ilCourseParticipantsGroupsGUI, ilObjectCustomuserFieldsGUI
  * @ilCtrl_Calls ilCourseMembershipGUI: ilSessionOverviewGUI
  * @ilCtrl_Calls ilCourseMembershipGUI: ilMemberExportGUI
  */
 class ilCourseMembershipGUI extends ilMembershipGUI
 {
+    // fau: uiHooksCourseGroup - allow plugins to handle course membership commands
+    public function executeCommand(): void
+    {
+        foreach ($this->getCourseMembershipUIHookGUIs() as $hook_gui) {
+            if (
+                method_exists($hook_gui, 'handleCourseMembershipCommand') &&
+                $hook_gui->handleCourseMembershipCommand($this)
+            ) {
+                return;
+            }
+        }
+
+        parent::executeCommand();
+    }
+    // fau.
+
     protected function getMailMemberRoles(): ?ilAbstractMailMemberRoles
     {
         return new ilMailMemberCourseRoles();
     }
 
+    // fau: uiHooksCourseGroup - allow plugins to extend the membership toolbar
+    protected function showParticipantsToolbar(): void
+    {
+        parent::showParticipantsToolbar();
+
+        foreach ($this->getCourseMembershipUIHookGUIs() as $hook_gui) {
+            if (method_exists($hook_gui, 'getCourseMembershipToolbarButtons')) {
+                foreach ($hook_gui->getCourseMembershipToolbarButtons($this) as $button) {
+                    $this->toolbar->addButton($button['title'], $button['command']);
+                }
+            }
+        }
+    }
+
+    // fau.
+
+    // fau: uiHooksCourseGroup - allow plugins to add membership commands
+    /**
+     * @return array<int, array{title: string, command: string}>
+     */
+    public function getCourseMembershipMultiCommands(): array
+    {
+        $commands = [];
+        foreach ($this->getCourseMembershipUIHookGUIs() as $hook_gui) {
+            if (method_exists($hook_gui, 'getCourseMembershipMultiCommands')) {
+                $commands = array_merge($commands, $hook_gui->getCourseMembershipMultiCommands($this));
+            }
+        }
+        return $commands;
+    }
+
+    // fau: uiHooksCourseGroup - allow plugins to add waiting list commands
+    /**
+     * @return array<int, array{title: string, command: string}>
+     */
+    public function getCourseWaitingListMultiCommands(): array
+    {
+        $commands = [];
+        foreach ($this->getCourseMembershipUIHookGUIs() as $hook_gui) {
+            if (method_exists($hook_gui, 'getCourseWaitingListMultiCommands')) {
+                $commands = array_merge($commands, $hook_gui->getCourseWaitingListMultiCommands($this));
+            }
+        }
+        return $commands;
+    }
+    // fau.
+
+    // fau: uiHooksCourseGroup - expose active UI hook plugins to course membership
+    /**
+     * @return ilUIHookPluginGUI[]
+     */
+    protected function getCourseMembershipUIHookGUIs(): array
+    {
+        global $DIC;
+
+        $hooks = [];
+        $errorMessage = null;
+        foreach ($DIC['component.factory']->getActivePluginsInSlot('uihk') as $plugin) {
+            $hook_gui = $plugin->getUIClassInstance();
+            if (!in_array($plugin->getId(), ['cwla'])) {
+                $errorMessage .= "The plugin " . $plugin->getId() . " is potenially not compatible with StudOn. Please contact the StudOn team.<br>";
+            }
+            if ($hook_gui instanceof ilUIHookPluginGUI) {
+                $hooks[] = $hook_gui;
+            }
+        }
+        
+        $this->tpl->setOnScreenMessage('failure', $errorMessage, true); 
+        return $hooks;
+    }
+    // fau.
+    
     /**
      * Filter user ids by access
      * @param int[] $a_user_ids

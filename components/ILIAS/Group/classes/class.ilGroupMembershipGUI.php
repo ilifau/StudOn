@@ -45,6 +45,73 @@ class ilGroupMembershipGUI extends ilMembershipGUI
         $this->http = $DIC->http();
     }
 
+    // fau: uiHooksCourseGroup - allow plugins to handle group membership commands
+    public function executeCommand(): void
+    {
+        foreach ($this->getGroupMembershipUIHookGUIs() as $hook_gui) {
+            if (
+                method_exists($hook_gui, 'handleGroupMembershipCommand') &&
+                $hook_gui->handleGroupMembershipCommand($this)
+            ) {
+                return;
+            }
+        }
+
+        parent::executeCommand();
+    }
+
+    protected function showParticipantsToolbar(): void
+    {
+        parent::showParticipantsToolbar();
+
+        foreach ($this->getGroupMembershipUIHookGUIs() as $hook_gui) {
+            if (method_exists($hook_gui, 'getGroupMembershipToolbarButtons')) {
+                foreach ($hook_gui->getGroupMembershipToolbarButtons($this) as $button) {
+                    $this->toolbar->addButton($button['title'], $button['command']);
+                }
+            }
+        }
+    }
+
+    // fau: uiHooksCourseGroup - allow plugins to add group membership commands
+    /**
+     * @return array<int, array{title: string, command: string}>
+     */
+    public function getGroupMembershipMultiCommands(): array
+    {
+        $commands = [];
+        foreach ($this->getGroupMembershipUIHookGUIs() as $hook_gui) {
+            if (method_exists($hook_gui, 'getGroupMembershipMultiCommands')) {
+                $commands = array_merge($commands, $hook_gui->getGroupMembershipMultiCommands($this));
+            }
+        }
+        return $commands;
+    }
+
+    /**
+     * @return ilUIHookPluginGUI[]
+     */
+    protected function getGroupMembershipUIHookGUIs(): array
+    {
+        global $DIC;
+
+        $hooks = [];
+        $errorMessage = null;
+        foreach ($DIC['component.factory']->getActivePluginsInSlot('uihk') as $plugin) {
+            $hook_gui = $plugin->getUIClassInstance();
+            if (!in_array($plugin->getId(), ['cwla'])) {
+                $errorMessage .= "The plugin " . $plugin->getId() . " is potenially not compatible with StudOn. Please contact the StudOn team.<br>";
+            }
+            if ($hook_gui instanceof ilUIHookPluginGUI) {
+                $hooks[] = $hook_gui;
+            }
+        }
+        
+        $this->tpl->setOnScreenMessage('failure', $errorMessage, true);         
+        return $hooks;
+    }
+    // fau.
+
     /**
      * @return ilAbstractMailMemberRoles | null
      */

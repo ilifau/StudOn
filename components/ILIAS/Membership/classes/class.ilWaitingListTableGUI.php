@@ -118,6 +118,14 @@ class ilWaitingListTableGUI extends ilTable2GUI
         $this->addMultiCommand('confirmRefuseFromList', $this->lng->txt('sub_remove_waiting'));
         $this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('crs_mem_send_mail'));
 
+        // fau: uiHooksCourseGroup - allow plugins to add waiting list commands
+        if ($a_parent_obj instanceof ilCourseMembershipGUI) {
+            foreach ($a_parent_obj->getCourseWaitingListMultiCommands() as $command) {
+                $this->addMultiCommand($command['command'], $command['title']);
+            }
+        }
+        // fau.
+
         $this->addToDos();
         // fau.      
     }

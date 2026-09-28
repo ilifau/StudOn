@@ -137,6 +137,13 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
         $preloader->preLoadDownloadableCertificates($this->getRepositoryObject()->getId());
         $this->addMultiCommand('editParticipants', $this->lng->txt('edit'));
         $this->addMultiCommand('confirmDeleteParticipants', $this->lng->txt('remove'));
+        // fau: uiHooksCourseGroup - allow plugins to add membership commands
+        if ($this->getParentObject() instanceof ilCourseMembershipGUI) {
+            foreach ($this->getParentObject()->getCourseMembershipMultiCommands() as $command) {
+                $this->addMultiCommand($command['command'], $command['title']);
+            }
+        }
+        // fau.
         $this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('mmbr_btn_mail_selected_users'));
         // fau: setPassedFlag - add multi command if grading is allowed
         if ($DIC->access()->checkAccess("grade", "", $this->getRepositoryObject()->getRefId())) {

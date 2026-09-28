@@ -108,6 +108,13 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 
         $this->addMultiCommand('editParticipants', $this->lng->txt('edit'));
         $this->addMultiCommand('confirmDeleteParticipants', $this->lng->txt('remove'));
+        // fau: uiHooksCourseGroup - allow plugins to add group membership commands
+        if ($this->getParentObject() instanceof ilGroupMembershipGUI) {
+            foreach ($this->getParentObject()->getGroupMembershipMultiCommands() as $command) {
+                $this->addMultiCommand($command['command'], $command['title']);
+            }
+        }
+        // fau.
         $this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('mmbr_btn_mail_selected_users'));
         // fau: setPassedFlag - add multiCommand
         if ($this->getRepositoryObject()->isManualLPStatusSettingAllowed()) {
