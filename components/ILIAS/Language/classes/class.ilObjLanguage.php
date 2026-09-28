@@ -86,16 +86,13 @@ class ilObjLanguage extends ilObject
     }
 
 
-    /**
-     * Return the language keys of the installed languages
-     *
-     * @return array
-     */
     public static function getLangKeysOfInstalledLanguages(): array
     {
         $lang_keys = [];
         foreach (ilObject::_getObjectsByType("lng") as $lang) {
-            if ($lang['desc'] === 'installed') {
+// fau: temporary fix for mantis #48411            
+             if (str_starts_with($lang['desc'], 'installed')) {
+// fau.
                 $lang_keys[] = $lang['title'];
             }
         }
