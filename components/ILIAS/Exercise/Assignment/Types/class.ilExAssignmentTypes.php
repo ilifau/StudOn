@@ -28,6 +28,34 @@ class ilExAssignmentTypes
 {
     protected Exercise\InternalService $service;
 
+    // fau: exAssHook - load the plugins
+    /** @var ilAssignmentHookPlugin[]|null */
+    protected static ?array $plugins = null;
+
+    /**
+     * Get the active plugins
+     * @return ilAssignmentHookPlugin[]
+     */
+    public static function getActivePlugins(): array
+    {
+        global $DIC;
+
+        if (self::$plugins === null) {
+            self::$plugins = [];
+            try {
+                foreach ($DIC['component.factory']->getActivePluginsInSlot(ilAssignmentHookPlugin::SLOT_ID) as $plugin) {
+                    if ($plugin instanceof ilAssignmentHookPlugin) {
+                        self::$plugins[] = $plugin;
+                    }
+                }
+            } catch (Throwable $e) {
+                $DIC->logger()->exc()->warning('exAssHook: could not load assignment hook plugins: ' . $e->getMessage());
+            }
+        }
+        return self::$plugins;
+    }
+    // fau.
+
     protected function __construct(?Exercise\InternalService $service = null)
     {
         global $DIC;
@@ -44,7 +72,8 @@ class ilExAssignmentTypes
 
     public function getAllIds(): array
     {
-        return [
+        // fau: exAssHook - add the type ids of the active plugins
+        $ids = [
             ilExAssignment::TYPE_UPLOAD,
             ilExAssignment::TYPE_UPLOAD_TEAM,
             ilExAssignment::TYPE_TEXT,
@@ -52,11 +81,21 @@ class ilExAssignmentTypes
             ilExAssignment::TYPE_PORTFOLIO,
             ilExAssignment::TYPE_WIKI_TEAM
         ];
+
+        foreach (self::getActivePlugins() as $plugin) {
+            $ids = array_merge($ids, $plugin->getAssignmentTypeIds());
+        }
+
+        return $ids;
+        // fau.
     }
 
     public function isValidId($a_id): bool
     {
-        return in_array($a_id, $this->getAllIds());
+        // fau: exAssHook - allow type ids of inactive plugins
+        return true;
+        // return in_array($a_id, $this->getAllIds());
+        // fau.
     }
 
 
@@ -142,9 +181,21 @@ class ilExAssignmentTypes
 
             case ilExAssignment::TYPE_WIKI_TEAM:
                 return new ilExAssTypeWikiTeam();
+
+            // fau: exAssHook - return the type of a plugin for the id
+            default:
+                foreach (self::getActivePlugins() as $plugin) {
+                    if (in_array($a_id, $plugin->getAssignmentTypeIds())) {
+                        return $plugin->getAssignmentTypeById($a_id);
+                    }
+                }
+                return new ilExAssTypeInactive();
+            // fau.
         }
 
-        throw new ilExcUnknownAssignmentTypeException("Unknown Assignment Type ($a_id).");
+        // fau: exAssHook - code not reachable
+        // throw new ilExcUnknownAssignmentTypeException("Unknown Assignment Type ($a_id).");
+        // fau.
     }
 
     /**

@@ -610,6 +610,14 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
             );
         }
 
+        // fau: exAssHook - add action items to submissions table
+        global $DIC;
+        $type_gui = $DIC->exercise()->internal()->gui()->assignment()->types()->getById($a_ass->getType());
+        if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface) {
+            $type_gui->modifySubmissionTableActions($a_row['submission_obj'], $items);
+        }
+        // fau.
+
         $actions = $this->ui_factory->dropdown()->standard($items);
 
         $this->tpl->setVariable("ACTIONS", $this->ui_renderer->render($actions));

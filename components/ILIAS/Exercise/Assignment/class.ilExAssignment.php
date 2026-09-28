@@ -42,6 +42,9 @@ class ilExAssignment
     public const TYPE_UPLOAD_TEAM = 4;
     public const TYPE_TEXT = 5;
     public const TYPE_WIKI_TEAM = 6;
+    // fau: exAssHook - dummy type id for inactive type
+    public const TYPE_INACTIVE = -1;
+    // fau.
 
     public const FEEDBACK_DATE_DEADLINE = 1;
     public const FEEDBACK_DATE_SUBMISSION = 2;
