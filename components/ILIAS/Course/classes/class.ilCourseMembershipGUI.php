@@ -119,7 +119,9 @@ class ilCourseMembershipGUI extends ilMembershipGUI
             }
         }
         
-        $this->tpl->setOnScreenMessage('failure', $errorMessage, true); 
+        if ($errorMessage) {
+            $this->tpl->setOnScreenMessage('failure', $errorMessage, true);
+        }
         return $hooks;
     }
     // fau.
