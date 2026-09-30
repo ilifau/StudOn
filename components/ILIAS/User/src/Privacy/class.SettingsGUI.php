@@ -61,6 +61,11 @@ class SettingsGUI
     public function showCmd(
         ?StandardForm $form = null
     ): void {
+        // fau: awrnLegal - add legal text on user privacy settings page
+        $this->lng->loadLanguageModule('awrn');
+        $this->tpl->setOnScreenMessage('info', $this->lng->txt('legal_visibility'));
+        // fau.
+        
         $this->tpl->setContent(
             $this->buildPrivacySettingsForm($form)
                 . $this->buildPublicProfilePresentation()
