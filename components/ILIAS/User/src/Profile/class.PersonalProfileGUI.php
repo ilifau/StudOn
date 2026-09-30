@@ -35,6 +35,9 @@ use ILIAS\User\Profile\Fields\Standard\Alias;
 use ILIAS\User\Profile\Fields\Standard\OrganisationalUnits;
 use ILIAS\User\Profile\Fields\Standard\Roles;
 use ILIAS\User\Profile\Fields\Standard\Email;
+// fau: reduceProfile 
+use ILIAS\User\Profile\Fields\Standard\Matriculation;
+// fau.
 use ILIAS\User\Settings\Settings as UserSettings;
 use ILIAS\Language\Language;
 use ILIAS\FileUpload\FileUpload;
@@ -625,7 +628,11 @@ class PersonalProfileGUI
             Context::User,
             null,
             [],
-            [FirstName::class, LastName::class, Alias::class, OrganisationalUnits::class, Roles::class]
+            [FirstName::class, LastName::class, Alias::class, OrganisationalUnits::class, Roles::class, 
+            // fau: reduceProfile - don't add matriculation to the public profile fields
+            Matriculation::class,
+            // fau.
+            ]
         ) as $field) {
             $value = $field->retrieveValueFromUser($this->user);
             if (!$anonymized && ($value === '' || $value === '-' || $value === null)) {
