@@ -94,6 +94,11 @@ class ilIniFilesLoadedObjective implements Setup\Objective
                 ->withResource(Setup\Environment::RESOURCE_CLIENT_INI, $client_ini);
         }
 
+
+        // fau: customSettings - initialize the custom settings in the setup
+        \FAU\Tools\Cust::getInstance()->loadSettings($environment->getResource(Setup\Environment::RESOURCE_CLIENT_INI));
+        // fau.      
+          
         return $environment;
     }
 

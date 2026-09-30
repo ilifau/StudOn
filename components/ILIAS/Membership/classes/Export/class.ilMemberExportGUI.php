@@ -22,6 +22,9 @@ use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
 use ILIAS\User\Profile\Profile;
 use ILIAS\User\Context;
+// fau: fauService - use Cust class
+use FAU\Tools\Cust;
+// fau.
 
 /**
  * @author  Stefan Meyer <meyer@leifos.com>
@@ -114,7 +117,7 @@ class ilMemberExportGUI
 
         // fau: regLog - check admin permission for registration log export
         global $DIC;
-        if ($cmd == 'exportLog' && !ilCust::administrationIsVisible()) {
+        if ($cmd == 'exportLog' && !Cust::administrationIsVisible()) {
             $DIC->ui()->mainTemplate()->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
             $this->ctrl->returnToParent($this);
         }
@@ -306,7 +309,7 @@ class ilMemberExportGUI
         );
 
         // fau: regLog - add button to export the registration log
-        if (ilCust::administrationIsVisible()) {
+        if (Cust::administrationIsVisible()) {
             $this->toolbar->addSeparator();
             
             $this->toolbar->addButton(

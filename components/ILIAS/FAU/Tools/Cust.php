@@ -7,7 +7,7 @@
 * Settings are looked up in the following ini files:
 *
 * 1. [customize] section in data/<client>/client.ini.php
-* 2. [default]   section in Customizing/customize.ini.php
+* 2. [default]   section in public/Customizing/customize.ini.php
 *
 * Each setting should have at least a definition
 * in the default section of customize.ini.php (last lookup).
@@ -83,7 +83,7 @@ class Cust
 		if (!$this->default_settings_loaded)
 		{
 			// read the default settings
-			$ini = new \ilIniFile("./Customizing/customize.ini.php");
+			$ini = new \ilIniFile("./public/Customizing/customize.ini.php");
 			$ini->read();
 			$this->default_settings = $ini->readGroup("default");
 			$this->default_settings_loaded = true;

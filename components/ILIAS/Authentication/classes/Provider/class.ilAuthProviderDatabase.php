@@ -19,6 +19,9 @@
 declare(strict_types=1);
 
 use ILIAS\Authentication\Password\LocalUserPasswordManager;
+// fau: fauService - use Cust class
+use FAU\Tools\Cust;
+// fau.
 
 class ilAuthProviderDatabase extends ilAuthProvider
 {
@@ -49,7 +52,7 @@ class ilAuthProviderDatabase extends ilAuthProvider
             // fau: loginFallback - try for login with matriculation as password
             // this setting must be restricted to installations where only admins have access
             // this must be done before the check if local auth is enabled for an account
-            if (\ilCust::get('local_auth_matriculation') && $this->getCredentials()->getPassword() != '') {
+            if (Cust::get('local_auth_matriculation') && $this->getCredentials()->getPassword() != '') {
                 // take the user that is already found
                 if ($user instanceof ilObjUser) {
                     $this->getLogger()->debug('Trying to authenticate with matriculation as password for: ' . $user->getLogin());
@@ -81,7 +84,7 @@ class ilAuthProviderDatabase extends ilAuthProvider
         }
 
         // fau: loginFallback - check password from a remote account with same login
-        if (ilCust::get('local_auth_remote')) {
+        if (Cust::get('local_auth_remote')) {
             // take the user that is already found
             if ($user instanceof ilObjUser) {
                 $this->getLogger()->debug('Trying to authenticate with remote account: ' . $user->getLogin());

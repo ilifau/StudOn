@@ -2,6 +2,7 @@
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use FAU\Staging\Data\Identity;
+use FAU\Tools\Cust;
 
 /**
  * fau: samlAuth - new class for saml authentication in studon
@@ -45,9 +46,9 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
             }
 
             // optionally switch the identity to another user for testing purposes
-            if ($this->uid == ilCust::get('shib_switch_uid_from') 
-                && !empty(ilCust::get('shib_switch_uid_to'))) {
-                $this->uid = ilCust::get('shib_switch_uid_to');
+            if ($this->uid == Cust::get('shib_switch_uid_from') 
+                && !empty(Cust::get('shib_switch_uid_to'))) {
+                $this->uid = Cust::get('shib_switch_uid_to');
             }
 
             // get the idm data for the identity
@@ -89,7 +90,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
             }
             else {
                 // check general possibility for creating accounts
-                if (!ilCust::get('shib_allow_create')) {
+                if (!Cust::get('shib_allow_create')) {
                     $this->getLogger()->warning('Creation of new users from SAML authentication is prevented.');
                     $this->handleAuthenticationFail($status, 'shib_user_not_found');
                     $factory = new ilSamlAuthFactory();
@@ -161,10 +162,10 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
         $userObj->setExternalAccount($this->identity->getPkPersistentId());
 
         // can be used in test platform for limited access
-        if (ilCust::get('shib_create_limited')) {
+        if (Cust::get('shib_create_limited')) {
             $userObj->setTimeLimitUnlimited(0);
             $userObj->setTimeLimitFrom(time() - 10);
-            $userObj->setTimeLimitUntil($DIC->fau()->tools()->convert()->dbDateToUnix(ilCust::get('shib_create_limited')));
+            $userObj->setTimeLimitUntil($DIC->fau()->tools()->convert()->dbDateToUnix(Cust::get('shib_create_limited')));
         } else {
             $userObj->setTimeLimitUnlimited(1);
             $userObj->setTimeLimitFrom(time());
@@ -237,7 +238,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
      */
     protected function debugLogin()
     {
-        if ($log_accounts = ilCust::get('shib_log_accounts')) {
+        if ($log_accounts = Cust::get('shib_log_accounts')) {
             $log_accounts = explode(',', $log_accounts);
             foreach ($log_accounts as $log_account) {
                 if ($this->uid == trim($log_account)) {
