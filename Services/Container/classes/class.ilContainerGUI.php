@@ -1019,6 +1019,12 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             $all_node_data[] = $node_data;
             $all_subtree_nodes[] = $subtree_nodes;
 
+            // fau: preventCampoDelete - apply the object specific check (e.g. campo groups) to the selected items
+            if (!$this->access->checkAccess('delete', 'cut', (int) $ref_id)) {
+                $no_cut[] = $ref_id;
+            }
+            // fau.
+
             // CHECK DELETE PERMISSION OF ALL OBJECTS IN ACTUAL SUBTREE
             foreach ($subtree_nodes as $node) {
                 if ($node['type'] === 'rolf') {
