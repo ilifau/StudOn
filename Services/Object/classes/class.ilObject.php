@@ -1837,7 +1837,10 @@ class ilObject
         ilConditionHandler::cloneDependencies($this->getRefId(), $target_id, $copy_id);
 
         $tpl_id = ilDidacticTemplateObjSettings::lookupTemplateId($this->getRefId());
-        if ($tpl_id) {
+        // fau: campoAdoptContent: content-only copy: an existing root target keeps its own template
+        $keep_target_template = ilCopyWizardOptions::_getInstance($copy_id)->isRootNode($this->getRefId())
+            && ilDidacticTemplateObjSettings::lookupTemplateId($target_id) > 0;
+        if ($tpl_id && !$keep_target_template) { // fau.
             $factory = new ilObjectFactory();
             $obj = $factory->getInstanceByRefId($target_id, false);
             if ($obj instanceof ilObject) {
