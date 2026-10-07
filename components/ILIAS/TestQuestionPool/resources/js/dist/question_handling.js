@@ -677,9 +677,6 @@ ilias.questions.initClozeTest = function(a_id) {
 	var parsed=jQuery("div#"+a_id).get(0).innerHTML.replace(/\[gap[\s\S\d]*?\](.*?)\[\/gap\]/g,
         () => {return _initClozeTestCallBack();});
 	jQuery("div#"+a_id).html(parsed);
-
-	const el = document.getElementById("div#"+a_id);
-	il.Util.renderMathJax([el]);
 };
 
 ilias.questions.initLongMenu = function(a_id) {

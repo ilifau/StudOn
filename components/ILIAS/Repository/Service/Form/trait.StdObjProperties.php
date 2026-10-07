@@ -225,7 +225,7 @@ trait StdObjProperties
             );
         }
 
-        if (\in_array(\ilObjectServiceSettingsGUI::ORGU_POSITION_ACCESS, $services, true)) {
+        if (in_array(\ilObjectServiceSettingsGUI::ORGU_POSITION_ACCESS, $services, true)) {
             $position_settings = \ilOrgUnitGlobalSettings::getInstance()->getObjectPositionSettingsByType(
                 \ilObject::_lookupType($obj_id)
             );
@@ -251,6 +251,18 @@ trait StdObjProperties
         $key = \ilObjectServiceSettingsGUI::CUSTOM_METADATA;
         if (in_array($key, $services)) {
             \ilContainer::_writeContainerSetting($obj_id, $key, (string) $this->getData($key));
+        }
+
+        $key = \ilObjectServiceSettingsGUI::ORGU_POSITION_ACCESS;
+        if (in_array($key, $services)) {
+            $position_settings = \ilOrgUnitGlobalSettings::getInstance()->getObjectPositionSettingsByType(
+                \ilObject::_lookupType($obj_id)
+            );
+            if ($position_settings->isActive() && $position_settings->isChangeableForObject()) {
+                $object_setting = new \ilOrgUnitObjectPositionSetting($obj_id);
+                $object_setting->setActive((bool) $this->getData($key));
+                $object_setting->update();
+            }
         }
         // taxonomies
         $key = \ilObjectServiceSettingsGUI::TAXONOMIES;

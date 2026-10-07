@@ -258,9 +258,11 @@ class ilLocalUserPasswordSettingsGUI
                 $items
             )
             ->withSubmitLabel($this->lng->txt('save'))
+            // fau: pwChangeForm
             ->withAdditionalFormAction($this->ctrl->getLinkTarget($this, 'confirmPasswordAssistance'),
                 $this->lng->txt('forgot_password')
             )
+            // fau.
             ->withAdditionalTransformation(
                 $this->refinery->custom()->transformation(static function (array $values): array {
                     return array_merge(...$values);

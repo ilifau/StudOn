@@ -225,7 +225,6 @@ class ilObjContentObjectGUI extends ilObjectGUI
                 $this->addHeaderAction();
                 $this->addLocations();
                 $this->setTabs("learning_progress");
-
                 $new_gui = new ilLearningProgressGUI(ilLearningProgressGUI::LP_CONTEXT_REPOSITORY, $this->lm->getRefId());
                 $this->ctrl->forwardCommand($new_gui);
 
@@ -1215,7 +1214,7 @@ class ilObjContentObjectGUI extends ilObjectGUI
             $ilCtrl->setParameter($a_gui_class, "lang_switch_mode", "");
         }
 
-        return $ml_head;
+        return "<div class='ilClearFloat'>" . $ml_head . "</div>";
     }
 
     public function pages(): void

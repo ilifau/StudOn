@@ -29,6 +29,8 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
     protected ilCtrl $ctrl;
     protected string $cmd_gui;
     protected \ILIAS\StaticURL\Services $static_url;
+    protected ?\ILIAS\Wiki\Page\PageManager $wiki_page_manager = null;
+    protected string $wiki_language = "-";
 
     public function __construct(
         string $cmd_gui_class,
@@ -46,6 +48,16 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
             ? $DIC->ctrl()
             : $ctrl;
         $this->static_url = $DIC["static_url"];
+
+        if (!$offline && $cmd_gui_class === \ilWikiPageGUI::class) {
+            $wiki_request = $DIC->wiki()->internal()->gui()->request();
+            $this->wiki_language = $wiki_request->getTranslation();
+            $this->wiki_page_manager = $DIC->wiki()
+                ->internal()
+                ->domain()
+                ->page()
+                ->page($wiki_request->getRefId());
+        }
     }
 
     public function setOffline(bool $offline = true): void
@@ -89,7 +101,7 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
             $target = $int_link["Target"];
             if (substr($target, 0, 4) == "il__") {
                 $target_arr = explode("_", $target);
-                $target_id = $target_arr[count($target_arr) - 1];
+                $target_id = (int) $target_arr[count($target_arr) - 1];
                 $type = $int_link["Type"];
 
                 $targetframe = ($int_link["TargetFrame"] != "")
@@ -127,7 +139,7 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
                                 [$target_id]
                             ) . $anc_add;
                         }
-                        if ($lm_id == "") {
+                        if ($lm_id === 0) {
                             $href = "";
                         }
                         break;
@@ -164,7 +176,18 @@ class ilPageLinker implements \ILIAS\COPage\PageLinker
                         if (($int_link["Anchor"] ?? "") != "") {
                             $wiki_anc = "#" . rawurlencode("copganc_" . $int_link["Anchor"]);
                         }
-                        $href = ilWikiPage::getGotoForWikiPageTarget($target_id) . $wiki_anc;
+                        if (!$this->offline &&
+                            $this->cmd_gui === ilWikiPageGUI::class &&
+                            $this->wiki_page_manager !== null
+                        ) {
+                            $wiki_language = $this->wiki_language;
+                            if (!$this->wiki_page_manager->exists($target_id, $wiki_language)) {
+                                $wiki_language = "-";
+                            }
+                            $href = $this->wiki_page_manager->getPermaLink($target_id, $wiki_language) . $wiki_anc;
+                        } else {
+                            $href = ilWikiPage::getGotoForWikiPageTarget($target_id, $this->offline) . $wiki_anc;
+                        }
                         break;
 
                     case "PortfolioPage":

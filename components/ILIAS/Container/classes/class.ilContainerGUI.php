@@ -23,6 +23,7 @@ use ILIAS\Repository\Clipboard\ClipboardManager;
 use ILIAS\Container\StandardGUIRequest;
 use ILIAS\Container\Content\ModeManager;
 use ILIAS\ILIASObject\Properties\Translations\TranslationGUI;
+use ILIAS\UI\Component\Card\RepositoryObject;
 
 /**
  * Class ilContainerGUI
@@ -984,6 +985,12 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     // as they don't have the possibility to use the multi-download-capability of the manage-tab
     public function enableMultiDownloadObject(): void
     {
+        if ($this->user->isAnonymous()) {
+            $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE, $this->lng->txt('permission_denied'), true);
+            $this->ctrl->returnToParent($this);
+            return;
+        }
+
         $this->multi_download_enabled = true;
         $this->renderObject();
     }
@@ -1144,7 +1151,9 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
     public function downloadObject(): void
     {
-        if (in_array($this->user->getId(), [ANONYMOUS_USER_ID, 0], true)) {
+        if ($this->user->isAnonymous() || $this->user->getId() === 0) {
+            $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE, $this->lng->txt('permission_denied'), true);
+            $this->ctrl->returnToParent($this);
             return;
         }
 
@@ -1548,12 +1557,14 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
                 $suffix = 's';
             }
 
-            $mbox = $ui->factory()->messageBox()->success(
-                $this->lng->txt('mgs_objects_linked_to_the_following_folders_' . $suffix)
-            )
-                       ->withLinks($links);
+            $list = $ui->factory()->listing()->unordered($links);
 
-            $this->tpl->setOnScreenMessage('success', $ui->renderer()->render($mbox), true);
+            $this->tpl->setOnScreenMessage(
+                'success',
+                $this->lng->txt('mgs_objects_linked_to_the_following_folders_' . $suffix) .
+                $ui->renderer()->render($list),
+                true
+            );
         } // END LINK
 
         // clear clipboard
@@ -1665,6 +1676,10 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $is_child = [];
         $not_allowed_subobject = [];
 
+        if (!$this->clipboard->hasEntries()) {
+            $ilCtrl->returnToParent($this);
+            return;
+        }
 
         if (!in_array($this->clipboard->getCmd(), ["cut", "link", "copy"])) {
             $message = get_class(
@@ -2197,6 +2212,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
         $item_data = $this->object->getSubItems(false, false, $child_ref_id);
         $container_view = $this->getContentGUI();
+        $item_group_list_presentation = $this->getListPresentationForRedraw($parent_ref_id);
 
         // see #41377 (material not redrawn, when not a direct child)
         $sess_data = [];
@@ -2216,10 +2232,10 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
                 foreach ($items as $event_item) {
                     if ($event_item["child"] == $child_ref_id) {
                         // sessions
-                        if ($parent_ref_id > 0) {
+                        if ($parent_ref_id !== 0) {
                             $event_item["parent"] = $parent_ref_id;
                         }
-                        $html = $container_view->renderItem($event_item);
+                        $html = $container_view->renderItem($event_item, 0, false, "", $item_group_list_presentation);
                     }
                 }
             }
@@ -2229,12 +2245,22 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         if (!$html) {
             foreach (($this->object->items["_all"] ?? []) as $id) {
                 if ($id["child"] == $child_ref_id) {
-                    $html = $container_view->renderItem($id);
+                    $id_with_block = $id;
+                    if ($parent_ref_id !== 0) {
+                        $id_with_block["parent"] = $parent_ref_id;
+                    }
+                    if ($parent_ref_id > 0 && ilObject::_lookupType($parent_ref_id, true) === "itgr") {
+                        $id_with_block["block_parent"] = $parent_ref_id;
+                    }
+                    $html = $container_view->renderItem($id_with_block, 0, false, "", $item_group_list_presentation);
                 }
             }
         }
 
         if ($html) {
+            if ($html instanceof RepositoryObject) {
+                $html = $this->ui->renderer()->renderAsync($html);
+            }
             echo $html;
 
             // we need to add onload code manually (rating, comments, etc.)
@@ -2242,6 +2268,21 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         }
 
         exit;
+    }
+
+    protected function getListPresentationForRedraw(int $parent_ref_id): string
+    {
+        if ($parent_ref_id > 0 && ilObject::_lookupType($parent_ref_id, true) === "itgr") {
+            $item_group = new \ilObjItemGroup($parent_ref_id, true);
+            $presentation = $item_group->getListPresentation();
+            if ($presentation === "tile" || $presentation === "list") {
+                return $presentation;
+            }
+        }
+        $list_presentation = ilContainer::_lookupContainerSetting($this->object->getId(), "list_presentation");
+        return ($list_presentation === "tile" && !$this->isActiveAdministrationPanel() && !$this->isActiveItemOrdering())
+            ? "tile"
+            : "list";
     }
 
     protected function initEditForm(): ilPropertyFormGUI

@@ -326,7 +326,6 @@ class ilObjWikiGUI extends ilObjectGUI
                 $this->addHeaderAction();
                 $ilTabs->activateTab("settings");
                 $this->setSettingsSubTabs("general_settings");
-                $this->getTabs();
                 $gui = $this->gui->settings()->settingsGUI(
                     $this->object->getId(),
                     $this->object->getRefId()
@@ -577,7 +576,7 @@ class ilObjWikiGUI extends ilObjectGUI
         if (in_array(strtolower($ilCtrl->getNextClass($this)), [strtolower(SettingsGUI::class), strtolower(ilMediaObjectOverviewGUI::class)]) ||
             in_array(
                 strtolower($ilCtrl->getCmdClass()),
-                array("", "ilobjectcontentstylesettingsgui", "ilobjwikigui",
+                array("", "ilobjectcontentstylesettingsgui", "ilobjwikigui", "illtiproviderobjectsettinggui",
             "ilinfoscreengui", "ilpermissiongui", "ilexportgui", "ilratingcategorygui", "ilobjnotificationsettingsgui", "iltaxmdgui",
             "ilwikistatgui", "ilwikipagetemplategui", "iladvancedmdsettingsgui", "ilmdeditorgui", "ilsettingspermissiongui", 'ilrepositoryobjectsearchgui')
             ) || in_array($ilCtrl->getNextClass(), ["ilpermissiongui", strtolower(TranslationGUI::class)])) {
@@ -1369,7 +1368,8 @@ class ilObjWikiGUI extends ilObjectGUI
             $this->lng,
             $this->ctrl,
             $this->object->getRefId(),
-            $page_ids
+            $page_ids,
+            $this->edit_request->getTranslation()
         );
 
         return new \ILIAS\Export\PrintProcessGUI(

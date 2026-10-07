@@ -125,7 +125,7 @@ class ilLMNavigationRendererGUI
                 $b = $this->ui->factory()->button()->standard(
                     "<span class=\"glyphicon glyphicon-chevron-left \" aria-hidden=\"true\"></span>",
                     $back_href
-                );
+                )->withAriaLabel($this->lng->txt("back"));
                 $this->toolbar->addStickyItem($b);
             }
         } else {
@@ -177,7 +177,7 @@ class ilLMNavigationRendererGUI
                     $b = $this->ui->factory()->button()->standard(
                         "<span class=\"glyphicon glyphicon-chevron-left \" aria-hidden=\"true\"></span>",
                         $prev_href
-                    );
+                    )->withAriaLabel($this->lng->txt("previous"));
                     $this->toolbar->addStickyItem($b);
                 }
             } else {
@@ -185,7 +185,8 @@ class ilLMNavigationRendererGUI
                     $b = $this->ui->factory()->button()->standard(
                         "<span class=\"glyphicon glyphicon-chevron-left \" aria-hidden=\"true\"></span>",
                         "#"
-                    )->withUnavailableAction();
+                    )->withAriaLabel($this->lng->txt("previous"))
+                        ->withUnavailableAction();
                     $this->toolbar->addStickyItem($b);
                 }
             }
@@ -248,7 +249,7 @@ class ilLMNavigationRendererGUI
                     $b = $this->ui->factory()->button()->standard(
                         "<span class=\"glyphicon glyphicon-chevron-right \" aria-hidden=\"true\"></span>",
                         $succ_href
-                    );
+                    )->withAriaLabel($this->lng->txt("next"));
                     $this->toolbar->addStickyItem($b);
                 }
             } else {
@@ -256,7 +257,8 @@ class ilLMNavigationRendererGUI
                     $b = $this->ui->factory()->button()->standard(
                         "<span class=\"glyphicon glyphicon-chevron-right \" aria-hidden=\"true\"></span>",
                         "#"
-                    )->withUnavailableAction();
+                    )->withAriaLabel($this->lng->txt("next"))
+                        ->withUnavailableAction();
                     $this->toolbar->addStickyItem($b);
                 }
             }
@@ -341,7 +343,8 @@ class ilLMNavigationRendererGUI
                 $text .= " (" . $this->lng->txt("cont_no_access") . ")";
             }
 
-            $href = $this->linker->getLink("layout", $node["obj_id"]);
+            $type = $node["type"] === "st" ? "StructureObject" : "";
+            $href = $this->linker->getLink("layout", $node["obj_id"], "", $type);
 
             if ($text !== "") {
                 if ($this->lm->getTOCMode() === "pages" && $this->current_page == $node["obj_id"]) {

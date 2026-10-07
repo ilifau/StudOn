@@ -107,6 +107,7 @@ abstract class ilPageObject
     protected \ILIAS\COPage\Page\PageManagerInterface $page_manager;
     protected \ILIAS\COPage\Style\StyleManager $style_manager;
     protected \ILIAS\COPage\PC\DomainService $pc_service;
+    protected \ILIAS\COPage\History\HistoryManager $history_manager;
 
     final public function __construct(
         int $a_id = 0,
@@ -166,6 +167,7 @@ abstract class ilPageObject
             ->contentIds($this);
         $this->page_manager = $domain->page();
         $this->pc_service = $domain->pc();
+        $this->history_manager = $domain->history();
         $this->pc_definition = $domain->pc()->definition();
         $this->link = $domain->link();
         $this->style_manager = $domain->style();
@@ -1658,6 +1660,13 @@ s     */
             "WHERE page_id = " . $this->db->quote($this->getId(), "integer") .
             " AND parent_type= " . $this->db->quote($this->getParentType(), "text") . $and);
 
+        // delete page history entries
+        $this->history_manager->deleteHistoryEntries(
+            $this->getParentType(),
+            $this->getId(),
+            $this->getLanguage()
+        );
+
         // delete media objects
         foreach ($mobs as $mob_id) {
             $copg_logger->debug("ilPageObject: ... processing mob " . $mob_id . ".");
@@ -3062,7 +3071,8 @@ s     */
         array $targets,
         string $char_par,
         string $char_sec,
-        string $char_med
+        string $char_med,
+        string $char_tab = ""
     ): array|bool {
         if (is_array($targets)) {
             foreach ($targets as $t) {
@@ -3076,6 +3086,13 @@ s     */
                 }
                 if (is_object($cont_obj) && $cont_obj->getType() == "media") {
                     $cont_obj->setClass($char_med);
+                }
+                if (is_object($cont_obj) && in_array($cont_obj->getType(), ["tab", "dtab"])) {
+                    $table_format = explode(":", $char_tab, 3);
+                    if (count($table_format) === 3 && $table_format[0] === "t") {
+                        $cont_obj->setTemplate($table_format[2]);
+                        $cont_obj->setClass("");
+                    }
                 }
             }
             return $this->update();

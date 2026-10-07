@@ -71,6 +71,7 @@ class assClozeTestImport extends assQuestionImport
         );
 
         $clozetext_array = [];
+        $shuffle = 0;
         $gaps = [];
         foreach ($presentation->order as $entry) {
             switch ($entry['type']) {
