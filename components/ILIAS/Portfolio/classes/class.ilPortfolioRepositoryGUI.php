@@ -274,6 +274,23 @@ class ilPortfolioRepositoryGUI
 
             // properties
             $props = [];
+            
+            // fau: visibilityHints - add better messages about public visibility
+            $visibility_hint = null;
+
+            if ($access_handler->hasGlobalPermission((int) $port["id"])) {
+                $visibility_hint = $lng->txt("privacy_portfolio_visible_to_public");
+            } elseif ($access_handler->hasGlobalPasswordPermission((int) $port["id"])) {
+                $visibility_hint = $lng->txt("privacy_portfolio_visible_with_password");
+            } elseif (in_array($port["id"], $shared_objects)) {
+                $visibility_hint = $lng->txt("wsp_status_shared");
+            }
+
+            if ($visibility_hint !== null) {
+                $props[$lng->txt("visibility")] = $visibility_hint;
+            }
+            // fau.
+
             // ... online
             $props[$lng->txt("online")] = ($port["is_online"])
                 ? $lng->txt("yes")

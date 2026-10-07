@@ -996,3 +996,4 @@ crs#:#crs_selected_members_set_to_passed#:#Selected members set to Passed.###fau
 crs#:#crs_bulk_set_passed_flag#:#Set to Passed###fau: PassedFlagCG - Bulk set members to passed
 grp#:#grp_selected_members_set_to_passed#:#Selected members set to Passed.###fau: PassedFlagCG - Bulk set members to passed
 grp#:#grp_bulk_set_passed_flag#:#Set to Passed###fau: PassedFlagCG - Bulk set members to passed
+common#:#visibility#:#Visiblity

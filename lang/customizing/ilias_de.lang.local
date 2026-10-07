@@ -1002,3 +1002,4 @@ crs#:#crs_selected_members_set_to_passed#:#Ausgewählte Mitglieder wurden auf Be
 crs#:#crs_bulk_set_passed_flag#:#Auf Bestanden setzen###fau: PassedFlagCG - Mitglieder auf bestanden setzen
 grp#:#grp_selected_members_set_to_passed#:#Ausgewählte Mitglieder wurden auf Bestanden gesetzt.###fau: PassedFlagCG - Mitglieder auf bestanden setzen
 grp#:#grp_bulk_set_passed_flag#:#Auf Bestanden setzen###fau: PassedFlagCG - Mitglieder auf bestanden setzen
+common#:#visibility#:#Sichtbarkeit
