@@ -184,7 +184,8 @@ class ilExportFieldsInfo
     {
         $type = $this->getType();
         $this->possible_fields = array_reduce(
-            $this->profile->getFields(),
+            // fau: extendedAccess - use only the allowed profile fields
+            $this->profile->getAllowedStandardFields(),//fau.
             function (array $c, ProfileField $v) use ($type): array {
                 if ($v->isCustom()) {
                     return $c;

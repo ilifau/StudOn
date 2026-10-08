@@ -1019,7 +1019,7 @@ class ilLPTableBaseGUI extends ilTable2GUI
         } elseif ($a_in_group > 0) {
             $ufs = $this->profile->getVisibleFields(Context::Group, null, [AvailableSections::Interests]);
         } else {
-            $ufs = $this->profile->getFields();
+            $ufs = $this->profile->getAllowedStandardFields(["preferences", "settings", "interests"]);
         }
 
         // default fields

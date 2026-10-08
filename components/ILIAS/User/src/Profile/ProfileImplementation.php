@@ -59,6 +59,37 @@ class ProfileImplementation implements Profile
         );
     }
 
+    // fau: extendedAccess - new function getAllowedStandardFields()
+    /**
+     * Get standard fields that are allowed to be viewed for other users
+     * - Users with extended access can see all standard fields
+     * - Other users can see only username, firstname ans lastname
+     */
+    public function getAllowedStandardFields(
+        array $sections_to_skip = [],
+        array $fields_to_skip = []
+    ): array
+    {
+        if (\ilPrivacySettings::_checkExtendedAccess()) {
+            return $this->getFields($sections_to_skip, $fields_to_skip);
+        } else {
+            $fields = array();
+            $user_fields_index = array();
+            foreach ($this->user_fields as $field) {
+                $user_fields_index[$field->getIdentifier()] = $field;
+            }
+            if (!in_array("personal_data", $sections_to_skip)) {
+                foreach (array('username','firstname','lastname') as $f) {
+                    if (!in_array($f, $fields_to_skip)) {
+                        $fields[$f] = $user_fields_index[$f];
+                    }
+                }
+            }
+            return $fields;
+        }
+    }
+    // fau.
+
     public function getVisibleFields(
         Context $context,
         ?\ilObjUser $user = null,
