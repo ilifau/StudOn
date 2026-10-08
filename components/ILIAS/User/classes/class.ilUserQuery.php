@@ -505,23 +505,25 @@ class ilUserQuery
         $add_waitinglists = false;
         
         // remove the special fields from the additional fields array and set flags to add them later
-        if(in_array("educations", $a_additional_fields)) {
-            $a_additional_fields = array_diff($a_additional_fields, ["educations"]);
-            $add_educations = true;
+        if (isset($a_additional_fields)) {                    
+            if(in_array("educations", $a_additional_fields)) {
+                $a_additional_fields = array_diff($a_additional_fields, ["educations"]);
+                $add_educations = true;
+            }
+            if(in_array("studydata", $a_additional_fields)) {
+                $a_additional_fields = array_diff($a_additional_fields, ["studydata"]);
+                $add_study_data = true;
+            }
+            if(in_array("memberships", $a_additional_fields)) {
+                $a_additional_fields = array_diff($a_additional_fields, ["memberships"]);
+                $add_memberships = true;
+            }
+            if(in_array("waitinglists", $a_additional_fields)) {
+                $a_additional_fields = array_diff($a_additional_fields, ["waitinglists"]);
+                $add_waitinglists = true;
+            }
         }
-        if(in_array("studydata", $a_additional_fields)) {
-            $a_additional_fields = array_diff($a_additional_fields, ["studydata"]);
-            $add_study_data = true;
-        }
-        if(in_array("memberships", $a_additional_fields)) {
-            $a_additional_fields = array_diff($a_additional_fields, ["memberships"]);
-            $add_memberships = true;
-        }
-        if(in_array("waitinglists", $a_additional_fields)) {
-            $a_additional_fields = array_diff($a_additional_fields, ["waitinglists"]);
-            $add_waitinglists = true;
-        }
-
+        
         $query = new ilUserQuery();
         $query->setOrderField($a_order_field);
         $query->setOrderDirection($a_order_dir);
