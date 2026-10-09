@@ -228,7 +228,11 @@ class ilUserTableGUI extends ilTable2GUI
                 'org_units' => null,
                 // fau: userData - add studydata and educations to selectable columns
                 'studydata' => null,
-                'educations' => null
+                'educations' => null,
+                // fau.
+                // fau: userData - add memberships and waiting lists to selectable columns
+                'memberships' => null,
+                'waitinglists' => null
                 // fau.
             ]
         );
@@ -296,7 +300,9 @@ class ilUserTableGUI extends ilTable2GUI
             $additional_fields['org_units'],
             // fau: userData  
             $additional_fields['studydata'],
-            $additional_fields['educations']
+            $additional_fields['educations'],
+            $additional_fields['memberships'],
+            $additional_fields['waitinglists']
             // fau.
         );
 
@@ -329,7 +335,7 @@ class ilUserTableGUI extends ilTable2GUI
                 $usr_data['set'][$k]['org_units'] = ilObjUser::lookupOrgUnitsRepresentation($user['usr_id']);
             }
 
-            // fau: userData - query studydata and educations 
+            // fau: userData - query studydata, educations, memberships and waiting lists for selected users 
             global $DIC;
             if (in_array('studydata', $this->getSelectedColumns())) {
                 $usr_data['set'][$k]['studydata'] = $DIC->fau()->user()->getStudiesAsText($user['usr_id']);
@@ -337,6 +343,13 @@ class ilUserTableGUI extends ilTable2GUI
 
             if (in_array('educations', $this->getSelectedColumns())) {
                 $usr_data['set'][$k]['educations'] = $DIC->fau()->user()->getEducationsAsText($user['usr_id']);
+            }
+
+            if (in_array('memberships', $this->getSelectedColumns())) {
+                $usr_data['set'][$k]['memberships'] = $DIC->fau()->user()->getMembershipsAsText($user['usr_id']);
+            }
+            if (in_array('waitinglists', $this->getSelectedColumns())) {
+                $usr_data['set'][$k]['waitinglists'] = $DIC->fau()->user()->getWaitingListsAsText($user['usr_id']);
             }
             // fau.
 

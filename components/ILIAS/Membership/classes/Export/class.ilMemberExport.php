@@ -520,6 +520,27 @@ class ilMemberExport
                             $this->addCol('', $row, $col++);
                         }
                         break;
+                    case 'memberships':
+                        global $DIC;
+                        if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
+                            $memberships = $DIC->fau()->user()->getMembershipsAsText((int) $usr_id);
+                            $memberships = $DIC->fau()->tools()->convert()->quoteForExport($memberships);
+                            $this->addCol($memberships, $row, $col++);
+                        } else {
+                            $this->addCol('', $row, $col++);
+                        }
+                        break;
+
+                    case 'waitinglists':
+                        global $DIC;
+                        if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
+                            $waitinglists = $DIC->fau()->user()->getWaitinglistsAsText((int) $usr_id, (int) $this->getRefId());
+                            $waitinglists = $DIC->fau()->tools()->convert()->quoteForExport($waitinglists);
+                            $this->addCol($waitinglists, $row, $col++);
+                        } else {
+                            $this->addCol('', $row, $col++);
+                        }
+                        break;                        
                     // fau.
 
                     default:

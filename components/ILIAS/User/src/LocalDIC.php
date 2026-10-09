@@ -158,6 +158,12 @@ class LocalDIC extends PimpleContainer
                     // fau: userData - add educations to profile fields
                     new Standard\Educations(),
                     //  fau.
+                    // fau: userData - add memberships to profile fields
+                    new Standard\Memberships(),
+                    //  fau.
+                    // fau: userData - add waiting lists to profile fields
+                    new Standard\WaitingLists(),
+                    //  fau.
                     new Standard\ClientIP(),
                     \ilMapUtil::isActivated() ? new Standard\Location() : null
                 ])
