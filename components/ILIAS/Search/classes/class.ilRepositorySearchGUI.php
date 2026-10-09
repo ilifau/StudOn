@@ -778,7 +778,6 @@ class ilRepositorySearchGUI
         $kind->addOption($users);
 
         // fau: extendedAccess - search for roles, courses and groups only with extended access
-        include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
         if (ilPrivacySettings::_checkExtendedAccess()) {
             // Role
             $roles = new ilRadioOption($this->lng->txt('search_for_role_members'), 'role');
