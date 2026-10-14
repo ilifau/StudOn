@@ -461,7 +461,9 @@ class ilObjLanguage extends ilObject
                     // get the modification date of the local file
                     // get the newer local changes for a local file
                     $min_date = gmdate("Y-m-d H:i:s", filemtime($lang_file));
-                    $local_changes = $this->getLocalChanges($min_date);
+                    // fau: keepAllLocalChanges - import local file without change date, find local changes without restriction
+                    $local_changes = $this->getLocalChanges();
+                    // fau.
                 }
                 $dbAccess = new ilObjLanguageDBAccess($ilDB, $this->key, $content, $local_changes, $scope);
                 $lang_array = $dbAccess->insertLangEntries($lang_file);

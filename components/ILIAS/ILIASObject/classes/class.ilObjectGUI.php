@@ -1162,7 +1162,8 @@ class ilObjectGUI implements ImplementsCreationCallback
      */
     public function getDidacticTemplateVar(string $type): int
     {
-        $create_form = $this->initCreateForm($this->type);
+        // fau: updateDidacticTemplateRole  - temporary fix for mantis 48380 - In edit mode the legacy 'didactic_type' post var is used instead of the create form
+        $create_form = $this->getCreationMode() ? $this->initCreateForm($this->type) : null;
         if ($create_form instanceof StandardForm) {
             try {
                 $data = $create_form->withRequest($this->request)->getData();
