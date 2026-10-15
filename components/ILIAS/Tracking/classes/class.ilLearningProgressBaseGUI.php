@@ -583,8 +583,16 @@ abstract class ilLearningProgressBaseGUI
         }
     }
 
+    // fau: lmQStat - provide static version of the legend    
     public function __getLegendHTML(int $variant = ilLPStatusIcons::ICON_VARIANT_LONG): string
     {
+        return ilLearningProgressBaseGUI::__getLegendHTMLStatic($variant);
+    }
+
+    public static function __getLegendHTMLStatic(int $variant = ilLPStatusIcons::ICON_VARIANT_LONG) : string
+    {
+        global $DIC;
+        $lng = $DIC['lng'];
         $icons = ilLPStatusIcons::getInstance($variant);
 
         $tpl = new ilTemplate(
@@ -611,28 +619,30 @@ abstract class ilLearningProgressBaseGUI
         );
         $tpl->setVariable(
             "TXT_NOT_ATTEMPTED",
-            $this->lng->txt("trac_not_attempted")
+            $DIC['lng']->txt("trac_not_attempted")
         );
         $tpl->setVariable(
             "TXT_IN_PROGRESS",
-            $this->lng->txt("trac_in_progress")
+            $DIC['lng']->txt("trac_in_progress")
         );
         $tpl->setVariable(
             "TXT_COMPLETED",
-            $this->lng->txt("trac_completed")
+            $DIC['lng']->txt("trac_completed")
         );
         $tpl->setVariable(
             "TXT_FAILED",
-            $this->lng->txt("trac_failed")
+            $DIC['lng']->txt("trac_failed")
         );
 
-        $panel = $this->ui_factory->panel()->secondary()->legacy(
+        $factory = $DIC->ui()->factory();
+        $panel = $factory->panel()->secondary()->legacy(
             '',
-            $this->ui_factory->legacy()->content($tpl->get())
+            $factory->legacy()->content($tpl->get())
         );
 
-        return $this->ui_renderer->render($panel);
+        return $DIC->ui()->renderer()->render($panel);
     }
+// fau.
 
     protected function initEditUserForm(
         int $a_user_id,
