@@ -112,6 +112,23 @@ class ilLPListOfSettingsGUI extends ilLearningProgressBaseGUI
                      )->withValue($this->obj_settings->getVisits());
                 }
 
+                // fau: lpQuestionsPercent - form input for percent
+                if ($mode_key == ilLPObjSettings::LP_MODE_QUESTIONS) {
+                    $mode_config_inputs['questions_percent'] = $this->ui_factory->input()->field()->numeric(
+                        $this->lng->txt('trac_mode_questions_percent')
+                    )->withRequired(true)
+                     ->withAdditionalTransformation(
+                         $this->refinery->in()->series([
+                             $this->refinery->custom()->transformation(static fn($v) => (float) $v),
+                             $this->refinery->custom()->constraint(
+                                 static fn(float $v): bool => $v >= 0 && $v <= 100,
+                                 $this->lng->txt('err_check_input')
+                             )
+                         ])
+                     )->withValue($this->obj_settings->getQuestionsPercent());
+                }
+                // fau.
+
                 if ($mode_key == ilLPObjSettings::LP_MODE_COLLECTION) {
                     $mode_config_inputs['show_block'] = $this->ui_factory->input()->field()->checkbox(
                         $this->lng->txt('trac_show_progress_block'),
@@ -180,6 +197,17 @@ class ilLPListOfSettingsGUI extends ilLearningProgressBaseGUI
                 $visits_changed = ($old_visits != $new_visits);
             }
 
+            // fau: lpQuestionsPercent - check change of questions percent
+            // questions percent
+            $new_questions_percent = null;
+            $questions_percent_changed = null;
+            if ($new_mode == ilLPObjSettings::LP_MODE_QUESTIONS) {
+                $new_questions_percent = (float) $mode_data['questions_percent'];
+                $old_questions_percent = $this->obj_settings->getQuestionsPercent();
+                $questions_percent_changed = ($new_questions_percent != $old_questions_percent);
+            }
+            // fau.
+
             // progress block
             if ($new_mode == ilLPObjSettings::LP_MODE_COLLECTION) {
                 $this->progress_block_settings->setShowBlockForObject(
@@ -202,12 +230,20 @@ class ilLPListOfSettingsGUI extends ilLearningProgressBaseGUI
                 }
             }
 
-
+            // fau: lpQuestionsPercent - refresh lp if questions percent have changed
+            $refresh_lp = ($mode_changed || $visits_changed || $questions_percent_changed);
+            // fau.  
+            
             // has to be done before LP refresh!
             $this->obj_lp->resetCaches();
 
             $this->obj_settings->setMode($new_mode);
             $this->obj_settings->setVisits((int) $new_visits);
+            // fau: lpQuestionsPercent - save questions percent
+            if ($new_questions_percent !== null) {
+                $this->obj_settings->setQuestionsPercent($new_questions_percent);
+            }
+            // fau.
             $this->obj_settings->update(true);
 
             if ($mode_changed &&
