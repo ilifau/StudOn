@@ -251,13 +251,22 @@ class Objects
             if ($show_hidden_notice) {
                 $limits[] = $this->dic->language()->txt("mem_max_users_hidden");
             }
-            $limits[] = $this->refHasParallelGroups($ref_id) ? "" : $lng->txt("mem_max_users") . $max_members;
-            $limits[] = $this->refHasParallelGroups($ref_id) ? "" : $lng->txt("mem_free_places") . ': ' . $free_places;
+            if(!$this->refHasParallelGroups($ref_id))
+            {
+                $limits[] = $lng->txt("mem_max_users") . $max_members;
+                $limits[] = $lng->txt("mem_free_places") . ': ' . $free_places;
+            }
             if ($waiting > 0) {
                 $limits[] = $lng->txt("subscribers_or_waiting_list") . ': ' . (string) ($waiting);
             }
-            $info['reg_info_list_prop_limit']['property'] = '';
-            $info['reg_info_list_prop_limit']['value'] = implode(' &nbsp; ', $limits);
+            if(sizeof($limits) == 1 && $limits[0] == $this->dic->language()->txt("mem_max_users_hidden")) {
+                $limits = []; // avoid mem_max_users_hidden (= "Info für Admins:") as only property
+            } 
+            if(sizeof($limits) > 0)
+            {
+                $info['reg_info_list_prop_limit']['property'] = '';
+                $info['reg_info_list_prop_limit']['value'] = implode(' &nbsp; ', $limits);
+            }
         }
 
         // add one property with own registration status
