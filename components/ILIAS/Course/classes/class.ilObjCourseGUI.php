@@ -3468,6 +3468,9 @@ class ilObjCourseGUI extends ilContainerGUI
     {
         return
             ilCourseParticipant::_getInstanceByObjId($this->object->getId(), $this->user->getId())->isAdmin() ||
+            // fau: tweakCourseAdminPermission - allow access to course administrators if write and manage_members permission is given
+            ($this->checkPermissionBool('write') && $this->checkPermissionBool('manage_members')) ||
+            // fau.            
             $this->checkPermissionBool('edit_permission');
     }
 
