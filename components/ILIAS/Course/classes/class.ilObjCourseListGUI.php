@@ -194,7 +194,6 @@ class ilObjCourseListGUI extends ilObjectListGUI
         ?int $obj_id = null
     ): bool {
         // Only check cmd access for cmd 'register' and 'unregister'
-        // fau: joinAsGuest - add 'join_as_guest' as possible command
         // fau: preventCampoDelete - add 'cut' command to distinct cut from delete in modified ilObjCourseAccess
         // moving courses with campo connection should be allowed
         // normally just the delete permission is checked for moving objects        

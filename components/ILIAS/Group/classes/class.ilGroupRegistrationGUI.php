@@ -72,7 +72,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
         }
 
         // fau: changeSub - do the permission check with a fitting command
-        // fau: joinAsGuest - do the permission check with a fitting command
         $cmd = $this->ctrl->getCmd("show");
         switch ($cmd) {
              // action buttons on registration screen
