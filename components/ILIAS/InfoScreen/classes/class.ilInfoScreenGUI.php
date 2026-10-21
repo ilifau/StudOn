@@ -505,6 +505,15 @@ class ilInfoScreenGUI
                 }*/
                 // fau.
 
+                // fau: relativeLink - show link on infoscreen of repository object
+                if ($ilAccess->checkAccess("write", "", $ref_id) ||
+                    $ilAccess->checkAccess("edit_permissions", "", $ref_id)) {
+                    $rlink = new ilRelativeLinkGUI();
+                    $rlink->setTarget(ilRelativeLink::TYPE_REP_OBJECT, $a_obj->getId());
+                    $this->addProperty($lng->txt("relative_link_label"), $rlink->getHTML(false), "");
+                }
+                // fau.
+                                
                 if (!$is_workspace_object) {
                     $this->tpl->setPermanentLink($type, $ref_id);
                 }
