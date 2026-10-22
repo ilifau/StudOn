@@ -120,15 +120,17 @@ final class ilFooterStandardGroupsProvider extends AbstractStaticFooterProvider
     #[\Override]
     public function getAdditionalTexts(): array
     {
-        $ilias_version = ILIAS_VERSION;
-        $text = "powered by ILIAS (v{$ilias_version})";
-
+        // fau: removeVersionDisplay - remove version display in footer
+        // $ilias_version = ILIAS_VERSION;   
+        // $text = "powered by ILIAS (v{$ilias_version})";
+        $text = $this->dic->language()->txt('footer_server') . ' ' . current(explode('.', gethostbyaddr($_SERVER['SERVER_ADDR']))); 
+        // fau.
         return [
             $this->item_factory->text(
                 $this->id_factory->identifier('ilias_version'),
                 $text
-            )
-        ];
+                )
+            ];
     }
 
     public function getPermanentURI(): ?Permanent
