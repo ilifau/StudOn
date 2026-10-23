@@ -129,8 +129,8 @@ final class ilFooterStandardGroupsProvider extends AbstractStaticFooterProvider
             $this->item_factory->text(
                 $this->id_factory->identifier('ilias_version'),
                 $text
-                )
-            ];
+            )
+        ];
     }
 
     public function getPermanentURI(): ?Permanent
