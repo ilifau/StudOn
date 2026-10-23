@@ -1297,6 +1297,13 @@ class ilExerciseManagementGUI
         $tpl = $this->tpl;
         $lng = $this->lng;
 
+        // fau: exMemDelete - check edit permission
+        if (!$this->exercise->isMemberDeleteAllowed()) {
+            $tpl->setOnScreenMessage('failure', $this->lng->txt("exc_mem_delete_perm_failure"), true);
+            $this->ctrl->redirect($this, "members");
+        }
+        // fau.
+
         $members = $this->getMultiActionUserIds();
 
         $cgui = new ilConfirmationGUI();
@@ -1324,6 +1331,13 @@ class ilExerciseManagementGUI
     {
         $ilCtrl = $this->ctrl;
         $lng = $this->lng;
+
+        // fau: exMemDelete - check edit permission
+        if (!$this->exercise->isMemberDeleteAllowed()) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("exc_mem_delete_perm_failure"), true);
+            $this->ctrl->redirect($this, "members");
+        }
+        // fau.
 
         $member_ids = $this->request->getMemberIds();
 
