@@ -131,6 +131,12 @@ class ilParticipantsPerAssignmentTableGUI extends ilExerciseSubmissionTableGUI
 
                 $tmp[$team_id]["team"][$item["usr_id"]] = $item["name"];
 
+                // fau: exTeamSort - provide name field for team
+                $team_names = array_values($tmp[$team_id]["team"]);
+                sort($team_names);
+                $tmp[$team_id]['name'] = implode('|', $team_names);
+                // fau.
+
                 if (is_numeric($team_id)) {
                     $idl_team_id = "t" . $team_id;
                     if (array_key_exists($idl_team_id, $idl)) {
@@ -303,7 +309,9 @@ class ilParticipantsPerAssignmentTableGUI extends ilExerciseSubmissionTableGUI
             $cols["name"] = array($this->lng->txt("name"), "name");
             $cols["login"] = array($this->lng->txt("login"), "login");
         } else {
-            $cols["name"] = array($this->lng->txt("exc_tbl_team"));
+            // fau: exTeamSort - make team column sortable
+            $cols["name"] = array($this->lng->txt("exc_tbl_team"), 'name');
+            // fau.
         }
 
         if ($this->ass->hasActiveIDl()) {
