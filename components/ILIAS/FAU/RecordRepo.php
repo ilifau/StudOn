@@ -313,7 +313,7 @@ abstract class RecordRepo
                 echo $entry . "\n";
             }
         }
-
+/*
         if ($this->logger->isHandling(\ilLogLevel::DEBUG)) {
             $entry = $action . ' ' . get_class($record) . ' | ' . $record->debug();
             //$this->logger->debug($entry);
@@ -322,5 +322,6 @@ abstract class RecordRepo
             $entry = $action . ' '. get_class($record) . ' | ' . $record->info();
             //$this->logger->info($entry);
         }
+*/             
     }
-}
+}   
