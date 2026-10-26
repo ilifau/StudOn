@@ -2,6 +2,9 @@
 // fau: videoPortal - new class ilVideoPortalServer
 use Slim\Http\Request;
 use Slim\Http\Response;
+// fau: fauService - use Cust class
+use FAU\Tools\Cust;
+// fau.
 
 /**
  * Video portal functions
@@ -44,7 +47,7 @@ class ilVideoPortalServer extends Slim\App
 
         parent::__construct($container);
 
-        $this->token = ilCust::get('videoportal_token');
+        $this->token = Cust::get('videoportal_token');
         $this->externalContentPlugin = $this->getExternalContentPlugin();
     }
 

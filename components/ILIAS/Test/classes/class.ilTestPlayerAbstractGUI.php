@@ -30,6 +30,10 @@ use ILIAS\TestQuestionPool\Questions\QuestionPartiallySaveable;
 use ILIAS\Test\Presentation\WorkingTime;
 use ILIAS\UI\Component\Modal\Interruptive as InterruptiveModal;
 use ILIAS\UI\Component\Signal;
+// fau: fauService - use Cust class
+use FAU\Tools\Cust;
+// fau.
+
 
 /**
  * @author		Björn Heyser <bheyser@databay.de>
@@ -2213,6 +2217,14 @@ JS;
             'tpl.il_as_tst_output.html',
             'components/ILIAS/Test'
         );
+
+        // fau: preventImageDrag - prevent dragging of images into text boxes during test (would display the image name which could be a hint)
+        if (Cust::get("tst_prevent_image_drag")) {
+            iljQueryUtil::initjQuery();
+            $this->tpl->addOnLoadCode("$('img').bind('dragstart', function(event) { event.preventDefault(); });");
+            $this->tpl->addOnLoadCode("$('a').bind('dragstart', function(event) { event.preventDefault(); });");
+        }
+        // fau.             
     }
 
     protected function handlePasswordProtectionRedirect()
