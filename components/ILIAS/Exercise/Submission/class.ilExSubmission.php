@@ -34,6 +34,10 @@ class ilExSubmission
     // fau: exAssHook - add inactive submission type
     public const TYPE_INACTIVE = "Inactive";
     // fau.
+    // fau: exAssTest - add test result submission type
+    public const TYPE_TEST_RESULT = "TestResult";
+    public const TYPE_TEST_RESULT_TEAM = "TestResultTeam";
+    // fau.
     protected \ILIAS\Exercise\Submission\SubmissionManager $sub_manager;
     protected \ILIAS\Exercise\InternalDomainService $domain;
 

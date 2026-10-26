@@ -24,7 +24,11 @@ class ilExAssignmentTypesGUI
         ilExAssignment::TYPE_PORTFOLIO => "ilExAssTypePortfolioGUI",
         ilExAssignment::TYPE_UPLOAD_TEAM => "ilExAssTypeUploadTeamGUI",
         ilExAssignment::TYPE_TEXT => "ilExAssTypeTextGUI",
-        ilExAssignment::TYPE_WIKI_TEAM => "ilExAssTypeWikiTeamGUI"
+        // fau: exAssTest - add test result type gui
+        ilExAssignment::TYPE_WIKI_TEAM => "ilExAssTypeWikiTeamGUI",
+        ilExAssignment::TYPE_TEST_RESULT => "ilExAssTypeTestResultGUI",
+        ilExAssignment::TYPE_TEST_RESULT_TEAM => "ilExAssTypeTestResultTeamGUI"
+        // fau.
     );
 
     public function __construct(
@@ -86,6 +90,20 @@ class ilExAssignmentTypesGUI
                     $this->domain,
                     $this->gui
                 );
+
+            // fau: exAssTest - get instance for type test result gui
+            case ilExAssignment::TYPE_TEST_RESULT:
+                return new ilExAssTypeTestResultGUI(
+                    $this->domain,
+                    $this->gui
+                );
+
+            case ilExAssignment::TYPE_TEST_RESULT_TEAM:
+                return new ilExAssTypeTestResultTeamGUI(
+                    $this->domain,
+                    $this->gui
+                );
+            // fau.
 
             // fau: exAssHook - return the type gui of a plugin for the id
             default:

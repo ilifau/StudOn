@@ -58,6 +58,9 @@ class ilExcAssMemberState
     protected ?int $member_id;
     protected ?int $team_id = 0;
     protected bool $is_team = false;
+    // fau: exAssTest - class variable for team
+    protected ?ilExAssignmentTeam $team = null;
+    // fau.
     protected ilExcIndividualDeadline $idl;
 
     protected function __construct(
@@ -78,7 +81,10 @@ class ilExcAssMemberState
 
         // check team status
         $this->is_team = false;
-        if ($this->assignment->getType() == ilExAssignment::TYPE_UPLOAD_TEAM) {
+        // fau: exAssTest - newer check for teams, set team property
+        if ($this->assignment->getAssignmentType()->usesTeams() && isset($a_team)) {
+            $this->team = $a_team;
+            // fau.
             if ($a_team->getId()) {
                 $this->member_id = $a_team->getId();
                 $this->team_id = $a_team->getId();
@@ -106,7 +112,9 @@ class ilExcAssMemberState
         $member_id = $user->getId();
         $is_team = false;
         $team = null;
-        if ($ass->getType() == ilExAssignment::TYPE_UPLOAD_TEAM) {		// better move this to ilExcIndividualDeadline
+        // fau: exAssTest - newer check for teams
+        if ($ass->getAssignmentType()->usesTeams()) {		// better move this to ilExcIndividualDeadline
+        // fau.
             $team = ilExAssignmentTeam::getInstanceByUserId($a_ass_id, $user->getId());
             if ($team->getId()) {
                 $member_id = $team->getId();
@@ -138,6 +146,18 @@ class ilExcAssMemberState
     {
         return $this->idl;
     }
+
+    // fau: exAssTest - new functions to get the team from the member state
+    public function isInTeam(): bool
+    {
+        return !empty($this->team_id);
+    }
+
+    public function getTeamObject(): ?ilExAssignmentTeam
+    {
+        return $this->team;
+    }
+    // fau.
 
     public function getGeneralStart(): ?int
     {

@@ -76,6 +76,11 @@ class TestScoring
                     $question_id
                 );
                 \ilLPStatusWrapper::_updateStatus($this->test->getId(), $userdata->getUserID());
+
+                // fau: exAssTest - update the result of connected exercise assignments
+                $session_factory = new \ilTestSessionFactory($this->test, $this->db, $this->scorer);
+                \ilExAssTypeTestResultAssignment::updateAssignments($this->test, $session_factory->getSession($active_id));
+                // fau.
             }
         }
 

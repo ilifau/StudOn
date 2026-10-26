@@ -240,6 +240,10 @@ class PropertyAndActionBuilderUI
 
     protected function buildHead(): void
     {
+        // fau: exAssTest - Auto-Publish & SCRUB FIRST (before Head Properties!)
+        $this->handleTestResultVisibilityAndReload();
+        // fau.
+
         $state = $this->state;
         $lng = $this->lng;
 
@@ -375,7 +379,8 @@ class PropertyAndActionBuilderUI
         }
 
         // submission property
-        if ($this->submission->hasSubmitted()) {
+        // fau: exAssTest - submission time of test results
+        if ($this->submission->hasSubmitted() && !$this->isSubmissionTypeTestResult()) {
             $last_sub = $this->submission->getLastSubmission();
             if ($last_sub) {
                 $last_sub = \ilDatePresentation::formatDate(new \ilDateTime($last_sub, IL_CAL_DATETIME));
@@ -385,7 +390,14 @@ class PropertyAndActionBuilderUI
                     $last_sub
                 );
             }
+        } elseif ($this->isSubmissionTypeTestResult() && $this->ex_ass->getMemberStatus($this->user_id)->getReturned()) {
+            $this->setHeadProperty(
+                self::PROP_SUBMISSION,
+                $this->lng->txt("exc_last_submission"),
+                \ilDatePresentation::formatDate(new \ilDateTime($this->ex_ass->getMemberStatus($this->user_id)->getSentTime(), IL_CAL_DATETIME))
+            );
         } else {
+            // fau.
             $this->setHeadProperty(
                 self::PROP_SUBMISSION,
                 $this->lng->txt("exc_last_submission"),
@@ -709,8 +721,9 @@ class PropertyAndActionBuilderUI
         $type_gui->setExercise($this->exc);
         $type_gui->buildSubmissionPropertiesAndActions($this);
 
+        // fau: exAssTest - submission time of test results
         $last_sub = null;
-        if ($this->submission->hasSubmitted()) {
+        if ($this->submission->hasSubmitted() && !$this->isSubmissionTypeTestResult()) {
             $last_sub = $this->submission->getLastSubmission();
             if ($last_sub) {
                 $last_sub = \ilDatePresentation::formatDate(new \ilDateTime($last_sub, IL_CAL_DATETIME));
@@ -720,7 +733,14 @@ class PropertyAndActionBuilderUI
                     $last_sub
                 );
             }
+        } elseif ($this->isSubmissionTypeTestResult() && $this->ex_ass->getMemberStatus($this->user_id)->getReturned()) {
+            $this->addProperty(
+                self::SEC_SUBMISSION,
+                $this->lng->txt("exc_last_submission"),
+                \ilDatePresentation::formatDate(new \ilDateTime($this->ex_ass->getMemberStatus($this->user_id)->getSentTime(), IL_CAL_DATETIME))
+            );
         } else {
+            // fau.
             $this->addProperty(
                 self::SEC_SUBMISSION,
                 $this->lng->txt("exc_last_submission"),
@@ -784,6 +804,10 @@ class PropertyAndActionBuilderUI
 
         $feedback_file_manager = $this->domain->assignment()->tutorFeedbackFile($ass->getId());
         $cnt_files = $feedback_file_manager->count($this->user_id);
+
+        // fau: exAssTest - Auto-Publish & SCRUB for test result assignments (before reading member status)
+        $this->handleTestResultVisibilityAndReload();
+        // fau.
 
 
         $lpcomment = $ass->getMemberStatus()->getComment();
@@ -923,4 +947,113 @@ class PropertyAndActionBuilderUI
                 );
         }
     }
+
+    // fau: exAssTest - new functions for test result assignments
+    protected function isSubmissionTypeTestResult(): bool
+    {
+        return in_array(
+            $this->submission->getSubmissionType(),
+            [\ilExSubmission::TYPE_TEST_RESULT, \ilExSubmission::TYPE_TEST_RESULT_TEAM]
+        );
+    }
+
+    /**
+     * Run Auto-Publish & SCRUB and reload the page if results are just published
+     * (cached state from build() would still show old data)
+     */
+    protected function handleTestResultVisibilityAndReload(): void
+    {
+        if ($this->isSubmissionTypeTestResult()
+            && $this->handleTestResultEvaluationVisibility($this->ex_ass, $this->submission)) {
+            $this->ctrl->redirectByClass($this->ctrl->getCmdClass(), $this->ctrl->getCmd());
+        }
+    }
+
+    /**
+     * Handle evaluation visibility for test result assignments (Auto-Publish & SCRUB)
+     * - Auto-Publish: Write evaluation AFTER all deadlines are reached
+     * - SCRUB: Delete evaluation BEFORE deadline (e.g. if deadline is extended)
+     * @return bool True if Auto-Publish happened (triggers reload)
+     */
+    protected function handleTestResultEvaluationVisibility(\ilExAssignment $ass, \ilExSubmission $sub): bool
+    {
+        try {
+            $affected_user_ids = [];
+            if ($ass->hasTeam()) {
+                $team = $sub->getTeam();
+                if ($team) {
+                    $affected_user_ids = $team->getMembers();
+                }
+            } else {
+                $affected_user_ids = [$this->user_id];
+            }
+            if (empty($affected_user_ids)) {
+                return false;
+            }
+
+            $is_tutor = \ilObjExerciseAccess::checkExtendedGradingAccess($this->exc->getId(), false);
+            $all_deadlines_reached = $this->checkAllDeadlinesReached($ass, $affected_user_ids);
+
+            // STEP 1: Auto-Publish (write after deadline)
+            if ($all_deadlines_reached) {
+                $assTest = \ilExAssTypeTestResultAssignment::findOrGetInstance($ass->getId());
+                if (!empty($assTest->getTestRefId())) {
+                    $test_ref_id = $assTest->getTestRefId();
+                    $current_status = $ass->getMemberStatus($affected_user_ids[0]);
+
+                    // mark can be "0", so compare with empty string
+                    if ($current_status->getStatus() === 'notgraded' || $current_status->getMark() === '') {
+                        try {
+                            global $DIC;
+                            $test = new \ilObjTest($test_ref_id, true);
+                            $session_factory = new \ilTestSessionFactory($test, $DIC->database(), $DIC->user());
+                            foreach ($affected_user_ids as $uid) {
+                                $active_id = $test->getActiveIdOfUser($uid);
+                                if ($active_id > 0) {
+                                    $assTest->storeResult($test, $session_factory->getSession($active_id));
+                                    return true;
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            // test not available - skip silently
+                            $this->domain->logger()->exc()->warning('ExAssTest: Could not load test ' . $test_ref_id . ': ' . $e->getMessage());
+                        }
+                    }
+                }
+            }
+
+            // STEP 2: SCRUB (delete before deadline)
+            if (!$all_deadlines_reached && !$is_tutor) {
+                foreach ($affected_user_ids as $uid) {
+                    $status = new \ilExAssignmentMemberStatus($ass->getId(), $uid);
+                    $status->setStatus('notgraded');
+                    $status->setMark('');
+                    $status->setNotice('');
+                    $status->update();
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->domain->logger()->exc()->error('ExAssTest: handleTestResultEvaluationVisibility failed: ' . $e->getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Check if all deadlines are reached for given users
+     * Supports general deadline, personal deadlines, and no deadline
+     */
+    protected function checkAllDeadlinesReached(\ilExAssignment $ass, array $user_ids): bool
+    {
+        $now = time();
+        foreach ($user_ids as $uid) {
+            $personal_deadline = $ass->getPersonalDeadline((int) $uid);
+            $general_deadline = (int) $ass->getDeadline();
+            $effective_deadline = $personal_deadline > 0 ? $personal_deadline : $general_deadline;
+            if ($effective_deadline > 0 && $now < $effective_deadline) {
+                return false;
+            }
+        }
+        return true;
+    }
+    // fau.
 }
