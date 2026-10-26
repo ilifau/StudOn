@@ -42,6 +42,9 @@ class ilRTESettings
         'hr',
         'img',
         'li',
+        // fau: nobrElement - enable nobr tag for advanced editing
+        'nobr',
+        // fau.
         'object',
         'ol',
         'p',
@@ -94,7 +97,10 @@ class ilRTESettings
         'sub',
         'sup',
         'u',
-        'ul'
+        'ul',
+        // fau: nobrElement - enable nobr tag for advanced editing
+        'nobr'
+        // fau.
     ];
 
     private const DEFAULT_FORUM_AND_EXERCISE_TAGS = [
