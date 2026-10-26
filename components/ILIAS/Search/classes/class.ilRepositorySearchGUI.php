@@ -777,6 +777,17 @@ class ilRepositorySearchGUI
         }
         $kind->addOption($users);
 
+        // fau: searchMatriculations - allow to search users by a list of matriculation numbers
+        if (ilPrivacySettings::_checkExtendedAccess()) {
+            // Matriculations
+            $matr = new ilRadioOption($this->lng->txt('search_for_matriculations'), 'matr');
+            $numbers = new ilTextAreaInputGUI($this->lng->txt('search_matriculations'), 'rep_query[matr][numbers]');
+            $numbers->setInfo($this->lng->txt('search_matriculations_info'));
+            $matr->addSubItem($numbers);
+            $kind->addOption($matr);
+        }
+        // fau.
+
         // fau: extendedAccess - search for roles, courses and groups only with extended access
         if (ilPrivacySettings::_checkExtendedAccess()) {
             // Role
@@ -889,6 +900,11 @@ class ilRepositorySearchGUI
                     $post_rep_query_orgu
                 );
                 return $this->listUsers($selected_objects);
+            // fau: searchMatriculations - treat the search type
+            case 'matr':
+                $this->__performMatriculationSearch();
+                break;
+            // fau.                
             default:
                 echo 'not defined';
         }
@@ -898,7 +914,9 @@ class ilRepositorySearchGUI
         $this->result_obj->filter(ROOT_FOLDER_ID, true);
 
         // User access filter
-        if ($this->search_type == 'usr') {
+        // fau: searchMatriculations - 	treat the search result
+        if ($this->search_type == 'usr' || $this->search_type == 'matr') {
+            // fau.
             $callable_name = '';
             if (is_callable($this->user_filter, true, $callable_name)) {
                 $result_ids = call_user_func_array($this->user_filter, [$this->result_obj->getResultIds()]);
@@ -993,6 +1011,25 @@ class ilRepositorySearchGUI
         }
         return true;
     }
+
+    // fau: searchMatriculations - new function __performMatriculationSearch()
+    /**
+     * Search by a list of matriculation numbers
+     */
+    public function __performMatriculationSearch()
+    {
+        if (ilPrivacySettings::_checkExtendedAccess()) {
+            $queryParserDummy = new ilQueryParser('');
+            $matrSearch = new ilListMatriculationSearch($queryParserDummy);
+            $matrSearch->parseMatriculationList($_SESSION['rep_query']['matr']['numbers']);
+            $this->__storeEntries($matrSearch->performSearch());
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+    // fau.  
 
     public function __performGroupSearch(): bool
     {
@@ -1167,7 +1204,11 @@ class ilRepositorySearchGUI
             case "usr":
                 $this->showSearchUserTable($rep_search['usr'] ?? [], 'showSearchResults');
                 break;
-
+// fau: searchMatriculations - show the search result
+            case "matr":
+                $this->showSearchUserTable($_SESSION['rep_search']['matr'], 'showSearchResults');
+                break;
+// fau.
             case 'grp':
                 $this->showSearchGroupTable($rep_search['grp'] ?? []);
                 break;
