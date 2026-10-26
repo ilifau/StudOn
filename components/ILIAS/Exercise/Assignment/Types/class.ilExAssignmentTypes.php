@@ -79,7 +79,11 @@ class ilExAssignmentTypes
             ilExAssignment::TYPE_TEXT,
             ilExAssignment::TYPE_BLOG,
             ilExAssignment::TYPE_PORTFOLIO,
-            ilExAssignment::TYPE_WIKI_TEAM
+            // fau: exAssTest - add type for test results
+            ilExAssignment::TYPE_WIKI_TEAM,
+            ilExAssignment::TYPE_TEST_RESULT,
+            ilExAssignment::TYPE_TEST_RESULT_TEAM
+            // fau.
         ];
 
         foreach (self::getActivePlugins() as $plugin) {
@@ -181,6 +185,14 @@ class ilExAssignmentTypes
 
             case ilExAssignment::TYPE_WIKI_TEAM:
                 return new ilExAssTypeWikiTeam();
+
+            // fau: exAssTest - get assignment type instance
+            case ilExAssignment::TYPE_TEST_RESULT:
+                return new ilExAssTypeTestResult();
+
+            case ilExAssignment::TYPE_TEST_RESULT_TEAM:
+                return new ilExAssTypeTestResultTeam();
+            // fau.
 
             // fau: exAssHook - return the type of a plugin for the id
             default:

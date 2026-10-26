@@ -26,6 +26,9 @@ use ILIAS\Exercise\GUIRequest;
  * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTeamGUI, ilExSubmissionFileGUI
  * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTextGUI, ilExSubmissionObjectGUI
  * @ilCtrl_Calls ilExSubmissionGUI: ilExPeerReviewGUI
+ * fau: exAssTest - add GUI to control structure
+ * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTestResultGUI, ilExSubmissionTestResultTeamGUI
+ * fau.
  */
 class ilExSubmissionGUI
 {
@@ -115,9 +118,12 @@ class ilExSubmissionGUI
                 );
 
                 // forward to type gui
+                // fau: exAssTest - don't show submission tab for test results
                 // fau: exAssHook - get an own submission tab
                 if ($this->submission->getSubmissionType() != ilExSubmission::TYPE_REPO_OBJECT
-                    && $this->submission->getSubmissionType() != ilExSubmission::TYPE_INACTIVE) {
+                    && $this->submission->getSubmissionType() != ilExSubmission::TYPE_INACTIVE
+                    && $this->submission->getSubmissionType() != ilExSubmission::TYPE_TEST_RESULT
+                    && $this->submission->getSubmissionType() != ilExSubmission::TYPE_TEST_RESULT_TEAM) {
                     $type_gui = $this->type_guis->getById($this->assignment->getType());
                     if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface
                         && $type_gui->hasOwnSubmissionScreen()) {
@@ -134,6 +140,7 @@ class ilExSubmissionGUI
                         );
                     }
                 }
+                // fau.
                 // fau.
 
                 $gui = $this->gui->getTeamSubmissionGUI($this->exercise, $this->submission);
@@ -154,6 +161,18 @@ class ilExSubmissionGUI
                 $gui = new ilExSubmissionObjectGUI($this->exercise, $this->submission);
                 $ilCtrl->forwardCommand($gui);
                 break;
+
+            // fau: exAssTest - forward to submission gui
+            case "ilexsubmissiontestresultgui":
+                $gui = new ilExSubmissionTestResultGUI($this->exercise, $this->submission);
+                $ilCtrl->forwardCommand($gui);
+                break;
+
+            case "ilexsubmissiontestresultteamgui":
+                $gui = new ilExSubmissionTestResultTeamGUI($this->exercise, $this->submission);
+                $ilCtrl->forwardCommand($gui);
+                break;
+            // fau.
 
             case "ilexpeerreviewgui":
                 /*

@@ -45,6 +45,10 @@ class ilExAssignment
     // fau: exAssHook - dummy type id for inactive type
     public const TYPE_INACTIVE = -1;
     // fau.
+    // fau: exAssTest - type for test results
+    public const TYPE_TEST_RESULT = 11;
+    public const TYPE_TEST_RESULT_TEAM = 12;
+    // fau.
 
     public const FEEDBACK_DATE_DEADLINE = 1;
     public const FEEDBACK_DATE_SUBMISSION = 2;
@@ -891,6 +895,13 @@ class ilExAssignment
         // delete resource collections and resources
         $this->domain->assignment()->instructionFiles($this->getId())
             ->deleteCollection();
+
+        // fau: exAssTest - cleanup test relationship
+        if ($this->getType() == self::TYPE_TEST_RESULT || $this->getType() == self::TYPE_TEST_RESULT_TEAM) {
+            $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($this->getId());
+            $assTest->delete();
+        }
+        // fau.
     }
 
 
