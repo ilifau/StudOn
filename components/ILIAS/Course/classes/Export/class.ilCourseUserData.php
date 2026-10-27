@@ -54,7 +54,7 @@ class ilCourseUserData
         foreach (ilCourseDefinedFieldDefinition::_getFields($a_obj_id) as $field_obj) {
             $data[] = array(
                 'field' => $field_obj,
-                'value' => $ud[$a_usr_id][$field_obj->getId()]
+                'value' => $ud[$a_usr_id][$field_obj->getId()] ?? ''
             );
         }
         return $data;

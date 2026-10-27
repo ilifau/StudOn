@@ -2,7 +2,6 @@
 
 namespace FAU\Ilias\Helper;
 use ilCourseUserData;
-use ilMailMimeSenderUserById;
 use ilObjUser;
 use ilUtil;
 use ilMimeMail;
@@ -47,7 +46,7 @@ trait ParticipantsHelper
      */
     public function sendExternalNotifications($a_object, $a_user, $a_changed = false)
     {
-        global $ilSetting, $DIC;
+        global $DIC;
 
         $user_data = ilCourseUserData::getFieldsWithData($a_object->getId(), $a_user->getId());
         $notifications = array();
@@ -66,7 +65,7 @@ trait ParticipantsHelper
         }
 
         // prepare common data
-        $sender = new ilMailMimeSenderUserById($ilSetting, $a_user->getId(), $DIC->mail()->mustacheFactory());
+        $sender = $DIC->mail()->mime()->senderFactory()->user($a_user->getId());
 
         $sender_address = $sender->getReplyToAddress();
         $cc_address = '';

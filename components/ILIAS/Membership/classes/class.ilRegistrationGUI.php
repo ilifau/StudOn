@@ -367,6 +367,9 @@ abstract class ilRegistrationGUI
         ilMemberAgreementGUI::addExportFieldInfo($this->form, $this->obj_id, $this->type);
 
         ilMemberAgreementGUI::addCustomFields($this->form, $this->obj_id, $this->type);
+        // fau: courseUdf - fill already existing course defined when registration is changed
+        ilMemberAgreementGUI::setCourseDefinedFieldValues($this->form, $this->obj_id);
+        // fau.
 
         // Checkbox agreement
         if ($this->privacy->confirmationRequired($this->type)) {
@@ -548,6 +551,10 @@ abstract class ilRegistrationGUI
             $this->show($form);
             return;
         }
+
+        // fau: courseUdf - save fields needed?
+        ilMemberAgreementGUI::saveCourseDefinedFields($this->form, $this->obj_id, $this->user->getId());
+        // fau.        
         $this->add();
     }
 

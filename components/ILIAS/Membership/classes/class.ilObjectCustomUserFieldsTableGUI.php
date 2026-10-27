@@ -24,6 +24,11 @@ declare(strict_types=1);
  */
 class ilObjectCustomUserFieldsTableGUI extends ilTable2GUI
 {
+    // fau: courseUdf
+    /** @var ilCourseDefinedFieldDefinition[] (indexed by field_id) */
+    private $fields = [];
+    // fau.
+
     /**
      * Constructor
      */
@@ -38,9 +43,12 @@ class ilObjectCustomUserFieldsTableGUI extends ilTable2GUI
         ));
 
         $this->addColumn('', '', "1");
-        $this->addColumn($this->lng->txt('ps_cdf_name'), 'name', '30%');
-        $this->addColumn($this->lng->txt('ps_cdf_type'), 'type', '30%');
+        // fau: courseUdf - add column for parent field
+        $this->addColumn($this->lng->txt('ps_cdf_name'), 'name', '20%');
+        $this->addColumn($this->lng->txt('ps_cdf_type'), 'type', '20%');
         $this->addColumn($this->lng->txt('ps_cdf_required'), '', '20%');
+        $this->addColumn($this->lng->txt('ps_cdf_parent_field'), '', '20%');
+        // fau.
         $this->addColumn('', '', '20%');
 
         $this->setDefaultOrderField('name');
@@ -67,6 +75,10 @@ class ilObjectCustomUserFieldsTableGUI extends ilTable2GUI
         $this->tpl->setVariable('VAL_ID', $a_set['field_id']);
         $this->tpl->setVariable('VAL_NAME', $a_set['name']);
         $this->tpl->setVariable('VAL_TYPE', $a_set['type']);
+        // fau: courseUdf - fill parent name in field row
+        $this->tpl->setVariable('VAL_PARENT_NAME', $a_set['parent_name'] ?? '');
+        $this->tpl->setVariable('VAL_PARENT_VALUE', $a_set['parent_value'] ?? '');
+        // fau.        
         $this->tpl->setVariable('REQUIRED_CHECKED', $a_set['required'] ? 'checked="checked"' : '');
 
         $this->ctrl->setParameter($this->getParentObject(), 'field_id', $a_set['field_id']);
@@ -92,8 +104,26 @@ class ilObjectCustomUserFieldsTableGUI extends ilTable2GUI
                 case ilCourseDefinedFieldDefinition::IL_CDF_TYPE_TEXT:
                     $rows[$def->getId()]['type'] = $this->lng->txt('ps_type_text');
                     break;
+                // fau: courseUdf - show email and checkbox types in field list
+                case ilCourseDefinedFieldDefinition::IL_CDF_TYPE_EMAIL:
+                    $rows[$def->getId()]['type'] = $this->lng->txt('ps_type_email');
+                    break;
+
+                case ilCourseDefinedFieldDefinition::IL_CDF_TYPE_CHECKBOX:
+                    $rows[$def->getId()]['type'] = $this->lng->txt('ps_type_checkbox');
+                    break;
+                // fau.
             }
 
+            // fau: courseUdf - add parent name to field data
+            /** @var ilCourseDefinedFieldDefinition $parent */
+            if(isset($this->fields[$def->getParentFieldId()]))
+            {
+                $parent = $this->fields[$def->getParentFieldId()];
+                $rows[$def->getId()]['parent_name'] = isset($parent) ? $parent->getName() :'';
+                $rows[$def->getId()]['parent_value'] = isset($parent) ? $parent->getValueById((int) $def->getParentValueId()) : '';
+            }
+            // fau.             
             $rows[$def->getId()]['required'] = $def->isRequired();
         }
         $this->setData($rows);
