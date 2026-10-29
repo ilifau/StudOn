@@ -458,6 +458,12 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         bool $show_question_text = true,
         bool $show_inline_feedback = true
     ): string {
+
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.
+
         $solutions = [];
         if (($active_id > 0) && (!$show_correct_solution)) {
             $solutions = $this->object->getSolutionValues($active_id, $pass);
@@ -662,7 +668,12 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         $this->initializePlayerJS();
 
         $solutions = $this->getPreviewSession()?->getParticipantsSolution() ?? [];
-
+      
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.
+      
         // shuffle output
         $terms = $this->object->getTerms();
         $definitions = $this->object->getDefinitions();
@@ -889,6 +900,10 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         array|bool $user_post_solutions = false,
         bool $show_specific_inline_feedback = false
     ): string {
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.        
         $template = new ilTemplate('tpl.il_as_qpl_matching_output.html', true, true, 'components/ILIAS/TestQuestionPool');
         $this->initializePlayerJS();
 

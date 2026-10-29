@@ -376,6 +376,10 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
         bool $show_question_only = false,
         bool $show_inline_feedback = false
     ): string {
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.
         $keys = $this->getChoiceKeys();
 
         $template = new ilTemplate('tpl.il_as_qpl_mc_sr_output.html', true, true, 'components/ILIAS/TestQuestionPool');
@@ -453,6 +457,10 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
         array|bool $user_post_solutions = false,
         bool $show_specific_inline_feedback = false
     ): string {
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.
         $keys = $this->getChoiceKeys();
 
         $user_solution = '';

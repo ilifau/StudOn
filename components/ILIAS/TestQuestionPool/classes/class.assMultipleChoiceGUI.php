@@ -443,6 +443,11 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
         bool $show_question_only = false,
         bool $show_inline_feedback = false
     ): string {
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.
+
         $user_solution = is_object($this->getPreviewSession()) ? (array) $this->getPreviewSession()->getParticipantsSolution() : [];
         // shuffle output
         $keys = $this->getChoiceKeys();
@@ -534,6 +539,10 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
         array|bool $user_post_solutions = false,
         bool $show_specific_inline_feedback = false
     ): string {
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.        
         // shuffle output
         $keys = $this->getChoiceKeys();
 

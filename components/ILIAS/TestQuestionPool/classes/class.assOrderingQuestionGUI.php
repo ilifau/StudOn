@@ -531,6 +531,10 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         bool $show_question_only = false,
         bool $show_inline_feedback = false
     ): string {
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.        
         if ($this->getPreviewSession() && $this->getPreviewSession()->hasParticipantSolution()) {
             $solutionOrderingElementList = unserialize(
                 $this->getPreviewSession()->getParticipantsSolution(),
@@ -567,6 +571,10 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         array|bool $user_post_solutions = false,
         bool $show_specific_inline_feedback = false
     ): string {
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.        
         $user_post_solutions = is_array($user_post_solutions) ? $user_post_solutions : [];
 
         $ordering_gui = $this->object->buildNestedOrderingElementInputGui();

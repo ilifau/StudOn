@@ -359,6 +359,12 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         array|bool $user_post_solutions = false,
         bool $show_specific_inline_feedback = false
     ): string {
+
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.
+
         // shuffle output
         $keys = $this->getParticipantsAnswerKeySequence();
 
@@ -454,6 +460,10 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         bool $show_question_only = false,
         bool $show_inline_feedback = false
     ): string {
+        // fau: imageBox - init lightbox
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initLightbox2();
+        // fau.        
         $user_solution = is_object($this->getPreviewSession()) ? (array) $this->getPreviewSession()->getParticipantsSolution() : [];
         // shuffle output
         $keys = $this->getParticipantsAnswerKeySequence();
