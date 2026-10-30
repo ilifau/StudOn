@@ -69,9 +69,18 @@ class ImageFileRepo
         bool $include_legacy_dir = true
     ): Generator {
         $has_images = false;
+        // fau: customCss - a container without stored content has no stream yet
+        $unzip = null;
         if ($rid !== "") {
-            $unzip = $this->irss->getContainerZip($rid);
-            $uri = $this->irss->stream($rid)->getMetadata("uri");
+            try {
+                $unzip = $this->irss->getContainerZip($rid);
+                $uri = $this->irss->stream($rid)->getMetadata("uri");
+            } catch (\Throwable $e) {
+                $unzip = null;
+            }
+        }
+        // fau.
+        if ($unzip !== null) {
             $zip_archive = new \ZipArchive();
             $zip_archive->open($uri, \ZipArchive::RDONLY);
 

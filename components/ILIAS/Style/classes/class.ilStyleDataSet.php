@@ -101,10 +101,13 @@ class ilStyleDataSet extends ilDataSet
                 case "5.1.0":
                 case "8.0":
                     return array(
+// fau: customCss - add custom css to data set definition
                         "Id" => "integer",
                         "Title" => "text",
                         "Description" => "text",
-                        "ImagesDir" => "directory"
+                        "ImagesDir" => "directory",
+                        "CustomCss" => "text"
+// fau.
                     );
                 case "10.0":
                     return array(
@@ -112,7 +115,10 @@ class ilStyleDataSet extends ilDataSet
                         "Title" => "text",
                         "Description" => "text",
                         "OwnerObj" => "integer",
-                        "StyleContainer" => "rscontainer"
+                        "StyleContainer" => "rscontainer",
+                        // fau: customCss - include CSS in current style exports
+                        "CustomCss" => "text"
+                        // fau.
                     );
             }
         }
@@ -282,6 +288,10 @@ class ilStyleDataSet extends ilDataSet
     {
         if ($a_entity == "sty") {
             $a_set["StyleContainer"] = serialize($this->style_domain->style((int) $a_set["Id"])->getResourceIdentification());
+            // fau: customCss - export the custom css
+            $custom_css = ilObjStyleSheet::lookupCustomCss($a_set["Id"]);
+            $a_set["CustomCss"] = $custom_css;
+            // fau.
         }
 
         return $a_set;
@@ -563,8 +573,14 @@ class ilStyleDataSet extends ilDataSet
                     $newObj->create(0, true);
                 }
 
+                /** @var ilObjStyleSheet $newObj */
                 $newObj->setTitle($a_rec["Title"]);
                 $newObj->setDescription($a_rec["Description"]);
+// fau: customCss - import custom css
+                if (isset($a_rec["CustomCss"])) {
+                    $newObj->setCustomCss($a_rec["CustomCss"]);
+                }
+// fau.
                 $newObj->update(true);
 
                 $owner_obj_id = (int) $a_mapping->getMapping(

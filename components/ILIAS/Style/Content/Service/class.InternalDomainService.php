@@ -136,10 +136,14 @@ class InternalDomainService
         \ilObjStyleSheet $style,
         string $image_dir = ""
     ): CSSBuilder {
+        // fau: customCss - use the current style image repository
+        $image_manager = $this->image($style->getId(), $this->access());
         return new CSSBuilder(
             $style,
-            $image_dir
+            $image_dir,
+            $image_manager
         );
+        // fau.
     }
 
     public function style($style_id): StyleManager

@@ -20,11 +20,18 @@ declare(strict_types=1);
 
 namespace ILIAS\Style\Content\Style;
 
+// fau: customCss - access current style images in the CSS builder
+use ILIAS\Style\Content\ImageManager;
+// fau.
+
 class CSSBuilder
 {
     public function __construct(
         protected \ilObjStyleSheet $style,
-        protected string $image_dir
+        protected string $image_dir,
+        // fau: customCss - provide ILIAS 11's image manager for custom CSS
+        protected ?ImageManager $image_manager = null
+        // fau.
     ) {
 
     }
@@ -183,6 +190,45 @@ class CSSBuilder
                 $css .= "}\n";
             }
         }
+
+        // fau: customCss - append custom CSS and resolve style references
+        $custom_css = $this->style->getCustomCss() ?? "";
+        $image_path = $this->image_dir === ""
+            ? "images/"
+            : rtrim($this->image_dir, "/") . "/";
+        if (!str_contains($custom_css, "!")) {
+            $images = [];
+        } else {
+            $images = $this->image_manager?->getImages();
+            if ($images === null) {
+                $images = $this->style->getImages();
+            }
+        }
+        foreach ($images as $image) {
+            $image_name = $image instanceof \ILIAS\Style\Content\Image
+                ? $image->getFilename()
+                : $image["entry"];
+            $custom_css = str_replace(
+                "!" . $image_name,
+                $image_path . $image_name,
+                $custom_css
+            );
+        }
+        foreach ($this->style->getColors() as $color) {
+            $pattern = '/!' . preg_quote($color["name"], '/') . '(\(-?[0-9]+\))?/';
+            $custom_css = preg_replace_callback(
+                $pattern,
+                fn (array $matches): string => $this->style->getColorCodeForName(
+                    $color["name"] . ($matches[1] ?? "")
+                ),
+                $custom_css
+            ) ?? $custom_css;
+        }
+        if ($custom_css !== "") {
+            $css .= "\n" . $custom_css . "\n";
+        }
+        // fau.
+
         return $css;
     }
 

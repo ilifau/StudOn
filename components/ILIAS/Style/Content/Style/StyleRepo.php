@@ -130,7 +130,14 @@ class StyleRepo
     ): void {
         $rid = $this->readRid($style_id);
         if ($rid !== "") {
-            $this->irss->addStringToContainer($rid, $css, "style.css");
+            // fau: customCss - a cloned container may have no stored file; start a fresh one
+            try {
+                $this->irss->addStringToContainer($rid, $css, "style.css");
+            } catch (\InvalidArgumentException $e) {
+                $rid = $this->createRid($style_id, $stakeholder);
+                $this->irss->addStringToContainer($rid, $css, "style.css");
+            }
+            // fau.
         }
     }
 
@@ -179,7 +186,13 @@ class StyleRepo
         int $to_style_id
     ): void {
         $from_rid = $this->readRid($from_style_id);
-        $to_rid = $this->irss->cloneContainer($from_rid);
+        // fau: customCss - an empty source container cannot be cloned
+        try {
+            $to_rid = $this->irss->cloneContainer($from_rid);
+        } catch (\Throwable $e) {
+            $to_rid = "";
+        }
+        // fau.
         if ($to_rid !== "") {
             $this->db->update(
                 "style_data",

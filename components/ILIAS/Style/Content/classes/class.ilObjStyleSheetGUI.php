@@ -316,6 +316,60 @@ class ilObjStyleSheetGUI extends ilObjectGUI
         $ctrl->redirectByClass("ilStyleCharacteristicGUI", "listCharacteristics");
     }
 
+    // fau: customCss - provide an editor for stylesheet-specific CSS
+    public function editCustomCssObject(): void
+    {
+        $tpl = $this->gui_service->ui()->mainTemplate();
+        $this->initCustomCssForm();
+        $tpl->setContent($this->form_gui->getHTML());
+    }
+
+    protected function initCustomCssForm(): void
+    {
+        $this->form_gui = new ilPropertyFormGUI();
+        $this->form_gui->setTitle($this->lng->txt("sty_custom_css_edit"));
+        $this->form_gui->setFormAction($this->gui_service->ctrl()->getFormAction($this));
+
+        $css = new ilTextAreaInputGUI($this->lng->txt("sty_custom_css"), "custom_css");
+        $css->setRows(24);
+        $css->setCols(100);
+        $css->setValue($this->getStyleSheet()->getCustomCss() ?? "");
+        $css->setInfo(implode(" ", array(
+            $this->lng->txt("sty_custom_css_description"),
+            $this->lng->txt("sty_custom_css_color_info"),
+            $this->lng->txt("sty_custom_css_image_info")
+        )));
+        $this->form_gui->addItem($css);
+
+        if ($this->access_manager->checkWrite()) {
+            $this->form_gui->addCommandButton("updateCustomCss", $this->lng->txt("save"));
+        }
+    }
+
+    public function updateCustomCssObject(): void
+    {
+        if (!$this->access_manager->checkWrite()) {
+            return;
+        }
+
+        $this->initCustomCssForm();
+        if ($this->form_gui->checkInput()) {
+            $style = $this->getStyleSheet();
+            $style->setCustomCss($this->form_gui->getInput("custom_css"));
+            $style->update();
+            $this->gui_service->ui()->mainTemplate()->setOnScreenMessage(
+                "info",
+                $this->lng->txt("msg_obj_modified"),
+                true
+            );
+            $this->gui_service->ctrl()->redirect($this, "editCustomCss");
+        }
+
+        $this->form_gui->setValuesByPost();
+        $this->gui_service->ui()->mainTemplate()->setContent($this->form_gui->getHTML());
+    }
+    // fau.
+
     public function propertiesObject(): void
     {
         $tpl = $this->gui_service->ui()->mainTemplate();
@@ -671,6 +725,15 @@ class ilObjStyleSheetGUI extends ilObjectGUI
             "listTemplates",
             get_class($this)
         );
+
+        // fau: customCss - add the custom CSS editor tab
+        $tabs->addTarget(
+            "sty_custom_css",
+            $this->ctrl->getLinkTarget($this, "editCustomCss"),
+            "editCustomCss",
+            get_class($this)
+        );
+        // fau.
 
         // settings
         $tabs->addTarget(

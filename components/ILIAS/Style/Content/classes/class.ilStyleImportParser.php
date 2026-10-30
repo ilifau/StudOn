@@ -28,6 +28,9 @@ use ILIAS\Style\Content;
 class ilStyleImportParser extends ilSaxParser
 {
     protected string $cdata = "";
+    // fau: customCss - retain exact CSS text from XML CDATA
+    protected bool $preserve_cdata = false;
+    // fau.
     protected array $cur_template_classes;
     protected array $cur_template;
     protected array $current_tags = [];
@@ -91,6 +94,9 @@ class ilStyleImportParser extends ilSaxParser
         string $a_name,
         array $a_attribs
     ): void {
+        // fau: customCss - avoid normal text handling for CSS CDATA
+        $this->preserve_cdata = $a_name === "CustomCss";
+        // fau.
         $a_attribs = $this->trimAndStripAttribs($a_attribs);
         switch ($a_name) {
             case "Style":
@@ -149,6 +155,13 @@ class ilStyleImportParser extends ilSaxParser
         $a_xml_parser,
         string $a_name
     ): void {
+        // fau: customCss - store imported CSS without trimming whitespace
+        if ($a_name === "CustomCss") {
+            $this->style_obj->setCustomCss($this->cdata);
+            $this->preserve_cdata = false;
+            return;
+        }
+        // fau.
         $this->cdata = $this->trimAndStrip($this->cdata);
         switch ($a_name) {
             case "Title":
@@ -177,6 +190,13 @@ class ilStyleImportParser extends ilSaxParser
         $a_xml_parser,
         string $a_data
     ): void {
+        // fau: customCss - preserve CSS CDATA verbatim
+        if ($this->preserve_cdata) {
+            $this->cdata .= $a_data;
+            return;
+        }
+        // fau.
+
         // i don't know why this is necessary, but
         // the parser seems to convert "&gt;" to ">" and "&lt;" to "<"
         // in character data, but we don't want that, because it's the
