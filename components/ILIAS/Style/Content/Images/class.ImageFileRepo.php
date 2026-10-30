@@ -79,8 +79,9 @@ class ImageFileRepo
                 $unzip = null;
             }
         }
-        // fau.
+
         if ($unzip !== null) {
+        // fau.            
             $zip_archive = new \ZipArchive();
             $zip_archive->open($uri, \ZipArchive::RDONLY);
 
