@@ -104,10 +104,7 @@ class ilAuthProviderFactory
                 if ($idp->getEntityId() === "https://www.sso.uni-erlangen.de/simplesaml/saml2/idp/metadata.php") {
                     return new ilAuthProviderSamlStudOn($credentials, $idpId);
                 }
-                if ($idp->getEntityId() === "https://testidp2.aai.dfn.de/idp/shibboleth") {
-                    return new ilAuthProviderSaml($credentials, $idpId);
-                }
-                throw new ilException("Unsupported SAML Identity Provider.");
+                return new ilAuthProviderSaml($credentials, $idpId);
 // fau.
 
             case ilAuthUtils::AUTH_OPENID_CONNECT:

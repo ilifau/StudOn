@@ -123,7 +123,7 @@ class ilAuthProviderSaml extends ilAuthProvider implements ilAuthProviderAccount
             false
         );
 
-        if ((!is_string($internal_account) || $internal_account === '') && $this->idp->getEntityId() !== "https://testidp2.aai.dfn.de/idp/shibboleth") {
+        if (!is_string($internal_account) || $internal_account === '') {
             $update_auth_mode = true;
 
             ilLoggerFactory::getLogger(self::LOG_COMPONENT)->debug(sprintf(
