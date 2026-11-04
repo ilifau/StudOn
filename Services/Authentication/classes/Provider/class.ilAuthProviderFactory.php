@@ -96,7 +96,18 @@ class ilAuthProviderFactory
             case ilAuthUtils::AUTH_SAML:
                 $this->logger->debug('Using apache authentication.');
 // fau: samlAuth - use StudOn Auth provider
-                return new ilAuthProviderSamlStudOn($credentials, ilSamlIdp::getIdpIdByAuthMode($a_authmode));
+                $idpId = ilSamlIdp::getIdpIdByAuthMode($a_authmode);
+                if ($idpId === null || $idpId === 0) {
+                    throw new ilException("No SAML Identity Provider selected.");
+                }
+                $idp = ilSamlIdp::getInstanceByIdpId($idpId);
+                if ($idp->getEntityId() === "https://www.sso.uni-erlangen.de/simplesaml/saml2/idp/metadata.php") {
+                    return new ilAuthProviderSamlStudOn($credentials, $idpId);
+                }
+                if ($idp->getEntityId() === "https://testidp2.aai.dfn.de/idp/shibboleth") {
+                    return new ilAuthProviderSaml($credentials, $idpId);
+                }
+                throw new ilException("Unsupported SAML Identity Provider.");
 // fau.
 
             case ilAuthUtils::AUTH_OPENID_CONNECT:
