@@ -196,10 +196,12 @@ class ilSubscriberTableGUI extends ilTable2GUI
                     case 'educations':
                     case 'memberships':
                     case 'waitinglists':
+                    case 'payment_info':
                         $a_set['studydata'] = nl2br($a_set['studydata']);
                         $a_set['educations'] = nl2br($a_set['educations']);
                         $a_set['memberships'] = nl2br($a_set['memberships']);
-                        $a_set['waitinglists'] = nl2br($a_set['waitinglists']);                        
+                        $a_set['waitinglists'] = nl2br($a_set['waitinglists']);
+                        $a_set['payment_info'] = nl2br($a_set['payment_info'] ?? '');                        
                     // fau.
                     // no break
                 default:

@@ -503,6 +503,7 @@ class ilUserQuery
         $add_study_data = false;
         $add_memberships = false;
         $add_waitinglists = false;
+        $add_payment_info = false;
         
         // remove the special fields from the additional fields array and set flags to add them later
         if (isset($a_additional_fields)) {                    
@@ -521,6 +522,10 @@ class ilUserQuery
             if(in_array("waitinglists", $a_additional_fields)) {
                 $a_additional_fields = array_diff($a_additional_fields, ["waitinglists"]);
                 $add_waitinglists = true;
+            }
+            if(in_array("payment_info", $a_additional_fields)) {
+                $a_additional_fields = array_diff($a_additional_fields, ["payment_info"]);
+                $add_payment_info = true;
             }
         }
         
@@ -559,6 +564,9 @@ class ilUserQuery
             }
             if($add_waitinglists) {
                 $result["set"][$id]['waitinglists'] = $DIC->fau()->user()->getWaitingListsAsText((int) $row["usr_id"]);
+            }
+            if($add_payment_info) {
+                $result["set"][$id]['payment_info'] = $DIC->fau()->user()->getPaymentInfoAsText((int) $row["usr_id"], $a_educations_ref_id);
             }
         }
         return $result;

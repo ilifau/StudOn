@@ -299,6 +299,15 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
                     ));
                     $this->tpl->parseCurrentBlock();
                     break;                    
+                case 'payment_info':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['payment_info'] ?? ''),
+                        $this->lng->txt('fau_payment_info_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
                 // fau.
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');

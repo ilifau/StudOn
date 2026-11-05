@@ -24,6 +24,7 @@ class Settings
     const VIEW_WAITINGLISTS_ROLES = 'fau_view_waitinglists_roles';
     const VIEW_MEMBERHIPS_WAITINGLISTS_TERM = 'fau_view_memberships_waitinglists_term';
     const FAU_INTERNATIONAL_ROLE = 'fau_international_role';
+    const PAYMENT_INFO_ORGUNIT = 'fau_payment_info_orgunit';
 
     protected Container $dic;
 
@@ -222,6 +223,16 @@ class Settings
             return $term->fromString((string) Cust::get(self::VIEW_MEMBERHIPS_WAITINGLISTS_TERM));
         });
     }     
+
+    /**
+     * Get the number of the org unit whose category shows the payment infos (empty if not set)
+     */
+    public function getPaymentInfoOrgUnit() : string
+    {
+        return $this->getCachedValue(self::PAYMENT_INFO_ORGUNIT, function() {
+            return trim((string) Cust::get(self::PAYMENT_INFO_ORGUNIT));
+        });
+    }
 
     /**
      * Get the international role

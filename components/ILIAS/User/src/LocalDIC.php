@@ -164,6 +164,9 @@ class LocalDIC extends PimpleContainer
                     // fau: userData - add waiting lists to profile fields
                     new Standard\WaitingLists(),
                     //  fau.
+                    // fau: userData - add payment info to profile fields
+                    new Standard\PaymentInfo(),
+                    //  fau.
                     new Standard\ClientIP(),
                     \ilMapUtil::isActivated() ? new Standard\Location() : null
                 ])

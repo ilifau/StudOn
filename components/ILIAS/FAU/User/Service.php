@@ -217,6 +217,34 @@ class Service extends SubService
     }
 
     /**
+     * Get the payment infos of a user as text, one line per term and category
+     * @param int|null $ref_id  if given, payment infos are only shown below the category of the configured payment info org unit
+     */
+    public function getPaymentInfoAsText(int $user_id, ?int $ref_id = null) : string
+    {
+        if (!empty($ref_id)) {
+            $orgunit = $this->dic->fau()->tools()->settings()->getPaymentInfoOrgUnit();
+            $category_ref_ids = empty($orgunit) ? [] : $this->dic->fau()->org()->repo()->getRefIdByOrgUnit($orgunit);
+            if (count($category_ref_ids) != 1
+                || !in_array((int) $category_ref_ids[0], $this->dic->repositoryTree()->getPathId($ref_id))) {
+                return '';
+            }
+        }
+
+        $person = $this->repo()->getPersonOfUser($user_id);
+        if (empty($person)) {
+            return '';
+        }
+
+        $lines = [];
+        foreach ($this->repo()->getPaymentInfosOfPerson($person->getPersonId()) as $info) {
+            $term = new Term($info->getTermYear(), $info->getTermTypeId());
+            $lines[] = $this->dic->fau()->study()->getReferenceTermText($term) . ': ' . $info->getCategoryId();
+        }
+        return implode("\n", $lines);
+    }
+
+    /**
      * Get the memberships of a user as text
      * A memberships is given as Title: Text
      * Memberships are separated by newlines

@@ -159,4 +159,21 @@ class FAUUserSteps
         $this->db->manipulate("UPDATE fau_user_members u JOIN fau_study_courses c ON u.obj_id = c.ilias_obj_id SET u.course_id = c.course_id");
     }
 
+    // fau: fauService - add 'fau_paymentinfo' table
+    public function custom_step_133()
+    {
+        $this->createPaymentInfoTable(false);
+    }
+
+    protected function createPaymentInfoTable(bool $drop = false)
+    {
+        $this->db->createTable('fau_user_paymentinfo', [
+            'person_id'     => ['type' => 'integer', 'length' => 4,   'notnull' => true],
+            'term_year' => ['type' => 'integer', 'length' => 4,   'notnull' => true],
+            'term_type_id'  => ['type' => 'integer',    'length' => 4, 'notnull' => true],
+            'category_id'     => ['type' => 'integer',    'length' => 4, 'notnull' => true],
+        ], $drop);
+        $this->db->addPrimaryKey('fau_user_paymentinfo', ['person_id']);
+    }
+    // fau.       
 }
