@@ -555,6 +555,8 @@ exc#:#label_time_transfer#:#Transferred results:
 exercise#:#exc_mark#:#Grade/points
 fau#:#memberships#:#Memberships
 fau#:#waitinglists#:#On waiting lists
+fau#:#payment_info#:#Payment info
+fau#:#fau_payment_info_of#:#Payment info of
 fau#:#fau_memberships_of#:#Memberships of
 fau#:#fau_waitinglists_of#:#Waitinglists of
 fau#:#educations#:#Formations
