@@ -19,6 +19,18 @@ use ilObjRole;
  */
 class Service extends SubService
 {
+    /** Fixed order of the language groups of educations */
+    protected const EDUCATION_LANGUAGES = [
+        'Deutsch',
+        'Englisch (Phil)',
+        'Englisch (EASP)',
+        'Französisch',
+        'Italienisch',
+        'Spanisch und Portugiesisch',
+        'NOAS'
+    ];
+    protected const EDUCATION_NO_LANGUAGE = 'No language assigned';
+
     protected Repository $repository;
     private ?array $coursesOrGroups = null;
     private array $containers = [];
@@ -176,23 +188,54 @@ class Service extends SubService
      */
     public function getEducationsText(array $educations) : string
     {
-        $texts = [];
+        $groups = [];
         foreach ($educations as $education) {
-            $texts[$education->getOrgunit()][] = $education->getExamname()
-                . ' (' . $education->getDateOfWork()
-                . (empty($education->getGrade()) ? '' : ', ' . $this->lng->txt('fau_grade') . ' ' . $education->getGrade())
-                . ')'
-                . (empty($education->getAdditionalText()) ? '' : ' - ' . $education->getAdditionalText());
+            $groups[$this->getEducationLanguage($education) ?? self::EDUCATION_NO_LANGUAGE][] = $education;
         }
+
+        // known languages in fixed order, then unknown ones, then no language
+        $order = array_flip(self::EDUCATION_LANGUAGES);
+        $position = fn($language) => $language === self::EDUCATION_NO_LANGUAGE
+            ? count($order) + 1
+            : ($order[$language] ?? count($order));
+        uksort($groups, fn($a, $b) => $position($a) <=> $position($b));
 
         $alltexts = [];
-        foreach ($texts as $orgunit => $unittexts) {
-            sort($unittexts);
-            $alltexts[] = (count($texts) > 0 ? $orgunit . ": \n" : '')
-                . implode("\n", $unittexts);
+        foreach ($groups as $language => $groupEducations) {
+            // newest first
+            usort($groupEducations, fn(Education $a, Education $b) => strcmp((string) $b->getDateOfWork(), (string) $a->getDateOfWork()));
+
+            $texts = [];
+            foreach ($groupEducations as $education) {
+                $texts[] = $education->getExamname()
+                    . ' (' . $education->getDateOfWork()
+                    . (empty($education->getGrade()) ? '' : ', ' . $this->lng->txt('fau_grade') . ' ' . $education->getGrade())
+                    . ')';
+            }
+
+            $alltexts[] = mb_strtoupper((string) $language) . ": \n" . implode("\n", $texts);
         }
 
-        return implode("\n", $alltexts);
+        return implode("\n\n", $alltexts);
+    }
+
+    /**
+     * Get the language from the JSON data in the additional text of an education
+     */
+    private function getEducationLanguage(Education $education) : ?string
+    {
+        $additional_text = trim((string) $education->getAdditionalText());
+        $data = json_decode($additional_text, true);
+        if (isset($data[0]) && is_array($data[0])) {
+            $data = $data[0];
+        }
+        if (is_array($data) && isset($data['language']) && is_string($data['language']) && trim($data['language']) !== '') {
+            return trim($data['language']);
+        }
+        if (in_array($additional_text, self::EDUCATION_LANGUAGES, true)) {
+            return $additional_text;
+        }
+        return null;
     }
 
 
