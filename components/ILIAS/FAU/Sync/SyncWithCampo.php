@@ -82,7 +82,7 @@ class SyncWithCampo extends SyncBase
         $this->syncInstructors();
         $this->syncIndividualInstructors();
         $this->syncAchievements();
-        $this->syncEducations(); */
+        $this->syncEducations();
         $this->syncPaymentInfo();
     }
 
