@@ -239,7 +239,12 @@ class Service extends SubService
         $lines = [];
         foreach ($this->repo()->getPaymentInfosOfPerson($person->getPersonId()) as $info) {
             $term = new Term($info->getTermYear(), $info->getTermTypeId());
-            $lines[] = $this->dic->fau()->study()->getReferenceTermText($term) . ': ' . $info->getCategoryId();
+            $category = [
+                1 => 'EWR',
+                2 => 'NON-EU without payment',
+                3 => 'NON-EU with payment',
+            ][$info->getCategoryId()] ?? $info->getCategoryId();
+            $lines[] = $this->dic->fau()->study()->getReferenceTermText($term) . ': ' . $category;
         }
         return implode("\n", $lines);
     }
