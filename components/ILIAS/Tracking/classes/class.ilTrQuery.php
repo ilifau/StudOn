@@ -471,6 +471,7 @@ class ilTrQuery
                 $a_result["set"][$idx]['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $row["usr_id"], $a_ref_id);
                 $a_result["set"][$idx]['memberships'] = $DIC->fau()->user()->getMembershipsAsText((int) $row["usr_id"]);
                 $a_result["set"][$idx]['waitinglists'] = $DIC->fau()->user()->getWaitingListsAsText((int) $row["usr_id"]);
+                $a_result["set"][$idx]['payment_info'] = $DIC->fau()->user()->getPaymentInfoAsText((int) $row["usr_id"], $a_ref_id);
             }
             // fau.
 
@@ -1424,6 +1425,7 @@ class ilTrQuery
                         case "educations":
                         case "memberships":
                         case "waitinglists":
+                        case "payment_info":
                             break;
                         // fau.
 

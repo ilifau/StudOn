@@ -540,7 +540,18 @@ class ilMemberExport
                         } else {
                             $this->addCol('', $row, $col++);
                         }
-                        break;                        
+                        break;
+
+                    case 'payment_info':
+                        global $DIC;
+                        if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
+                            $payment_info = $DIC->fau()->user()->getPaymentInfoAsText((int) $usr_id, (int) $this->getRefId());
+                            $payment_info = $DIC->fau()->tools()->convert()->quoteForExport($payment_info);
+                            $this->addCol($payment_info, $row, $col++);
+                        } else {
+                            $this->addCol('', $row, $col++);
+                        }
+                        break;
                     // fau.
 
                     default:

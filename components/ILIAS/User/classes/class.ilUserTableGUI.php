@@ -232,7 +232,10 @@ class ilUserTableGUI extends ilTable2GUI
                 // fau.
                 // fau: userData - add memberships and waiting lists to selectable columns
                 'memberships' => null,
-                'waitinglists' => null
+                'waitinglists' => null,
+                // fau.
+                // fau: userData - add paymentinfo to selectable columns
+                'payment_info' => null
                 // fau.
             ]
         );
@@ -302,7 +305,8 @@ class ilUserTableGUI extends ilTable2GUI
             $additional_fields['studydata'],
             $additional_fields['educations'],
             $additional_fields['memberships'],
-            $additional_fields['waitinglists']
+            $additional_fields['waitinglists'],
+            $additional_fields['payment_info']
             // fau.
         );
 
@@ -350,6 +354,9 @@ class ilUserTableGUI extends ilTable2GUI
             }
             if (in_array('waitinglists', $this->getSelectedColumns())) {
                 $usr_data['set'][$k]['waitinglists'] = $DIC->fau()->user()->getWaitingListsAsText($user['usr_id']);
+            }
+            if (in_array('payment_info', $this->getSelectedColumns())) {
+                $usr_data['set'][$k]['payment_info'] = $DIC->fau()->user()->getPaymentInfoAsText($user['usr_id']);
             }
             // fau.
 

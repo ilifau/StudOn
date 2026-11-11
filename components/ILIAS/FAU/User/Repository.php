@@ -3,6 +3,7 @@
 namespace FAU\User;
 
 use FAU\User\Data\Education;
+use FAU\User\Data\PaymentInfo;
 use FAU\RecordRepo;
 use FAU\RecordData;
 use FAU\User\Data\Achievement;
@@ -109,6 +110,16 @@ class Repository extends RecordRepo
             return $records_filtered_by_orgunits;
         }
         else return $records;
+    }
+
+    /**
+     * Get the payment infos of a person
+     * @return PaymentInfo[]
+     */
+    public function getPaymentInfosOfPerson(?int $person_id) : array
+    {
+        $query = "SELECT * FROM fau_user_paymentinfo WHERE person_id = " . $this->db->quote((int) $person_id, 'integer');
+        return $this->queryRecords($query, PaymentInfo::model());
     }
 
     /**

@@ -123,6 +123,7 @@ class CourseUsersExport extends AbstractExport
             'educations' => $this->lng->txt('fau_educations'),
             'memberships' => $this->lng->txt('member'),
             'waiting_lists' => $this->lng->txt('on_waiting_list'),
+            'payment_info' => $this->lng->txt('payment_info'),
         );
         $mapping = $this->fillHeaderRow($columns);
 
@@ -134,6 +135,7 @@ class CourseUsersExport extends AbstractExport
                 [
                     'memberships' => $this->getContainersAsText($this->users_member[$user->getUserId()] ?? []),
                     'waiting_lists' => $this->getContainersAsText($this->users_waiting[$user->getUserId()] ?? []),
+                    'payment_info' => $this->dic->fau()->user()->getPaymentInfoAsText($user->getUserId(), $this->cat_ref_id),
                 ]
             );
             $this->fillRowData($data, $mapping, $row++);

@@ -8,6 +8,9 @@ use FAU\Study\Data\Module;
 use FAU\Study\Data\ModuleCos;
 use FAU\Study\Data\CourseOfStudy;
 use FAU\User\Data\Education;
+// fau: paymentInfo
+use FAU\User\Data\PaymentInfo;
+// fau.
 use FAU\Study\Data\ModuleEvent;
 use FAU\User\Data\Achievement;
 use FAU\Study\Data\CourseResponsible;
@@ -80,6 +83,7 @@ class SyncWithCampo extends SyncBase
         $this->syncIndividualInstructors();
         $this->syncAchievements();
         $this->syncEducations();
+        $this->syncPaymentInfo();
     }
 
     /**
@@ -496,6 +500,35 @@ class SyncWithCampo extends SyncBase
         // delete existing records that are no longer needed
         foreach ($existing as $entry) {
             $this->study->repo()->delete($entry);
+        }
+    }
+
+    /**
+     * Synchronize data found in the staging table campo_event_paymentinfo
+     * FULL SYNC
+     */
+    public function syncPaymentInfo() : void
+    {
+        $this->info('syncPaymentInfo...');
+        $existing = $this->sync->repo()->getAllForSync(PaymentInfo::model());
+
+        foreach ($this->staging->repo()->getPaymentInfos() as $record) {
+            $entry = new PaymentInfo(
+                $record->getPersonId(),
+                $record->getTermYear(),
+                $record->getTermTypeId(),
+                $record->getCategoryId()
+            );
+            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+                $this->user->repo()->save($entry);
+            }
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->user->repo()->delete($entry);
         }
     }
 
