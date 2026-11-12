@@ -207,10 +207,11 @@ class Service extends SubService
 
             $texts = [];
             foreach ($groupEducations as $education) {
+                $remark = $this->getEducationRemark($education);
                 $texts[] = $education->getExamname()
                     . ' (' . $education->getDateOfWork()
                     . (empty($education->getGrade()) ? '' : ', ' . $this->lng->txt('fau_grade') . ' ' . $education->getGrade())
-                    . ')';
+                    . ')' . ($remark === null ? '' : ' - ' . $remark);
             }
 
             $alltexts[] = mb_strtoupper((string) $language) . ": \n" . implode("\n", $texts);
@@ -225,10 +226,7 @@ class Service extends SubService
     private function getEducationLanguage(Education $education) : ?string
     {
         $additional_text = trim((string) $education->getAdditionalText());
-        $data = json_decode($additional_text, true);
-        if (isset($data[0]) && is_array($data[0])) {
-            $data = $data[0];
-        }
+        $data = $this->getEducationAdditionalData($education);
         if (is_array($data) && isset($data['language']) && is_string($data['language']) && trim($data['language']) !== '') {
             return trim($data['language']);
         }
@@ -236,6 +234,24 @@ class Service extends SubService
             return $additional_text;
         }
         return null;
+    }
+
+    private function getEducationRemark(Education $education) : ?string
+    {
+        $remark = $this->getEducationAdditionalData($education)['remark'] ?? null;
+        if (is_string($remark) && trim($remark) !== '') {
+            return trim($remark);
+        }
+        return null;
+    }
+
+    private function getEducationAdditionalData(Education $education) : array
+    {
+        $data = json_decode(trim((string) $education->getAdditionalText()), true);
+        if (isset($data[0]) && is_array($data[0])) {
+            $data = $data[0];
+        }
+        return is_array($data) ? $data : [];
     }
 
 
