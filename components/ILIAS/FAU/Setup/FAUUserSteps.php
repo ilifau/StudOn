@@ -173,7 +173,7 @@ class FAUUserSteps
             'term_type_id'  => ['type' => 'integer',    'length' => 4, 'notnull' => true],
             'category_id'     => ['type' => 'integer',    'length' => 4, 'notnull' => true],
         ], $drop);
-        $this->db->addPrimaryKey('fau_user_paymentinfo', ['person_id']);
+        $this->db->addPrimaryKey('fau_user_paymentinfo', ['person_id', 'term_year', 'term_type_id']);
     }
     // fau.       
 }

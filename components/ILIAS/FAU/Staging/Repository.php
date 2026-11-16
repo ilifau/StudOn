@@ -24,7 +24,7 @@ use FAU\Staging\Data\Exam;
 use FAU\Staging\Data\ExamExaminer;
 use FAU\Staging\Data\ExamParticipant;
 use FAU\Staging\Data\Orgunit;
-use FAU\Staging\Data\PaymentInfo;
+use FAU\Staging\Data\EventPaymentInfo;
 use FAU\Staging\Data\StudyDegree;
 use FAU\Staging\Data\StudyEnrolment;
 use FAU\Staging\Data\StudyField;
@@ -267,11 +267,11 @@ class Repository extends RecordRepo
     }
 
     /**
-     * @return PaymentInfo[]
+    * @return EventPaymentInfo[]
      */
     public function getPaymentInfos() : array
     {
-        return $this->getAllRecords(PaymentInfo::model());
+        return $this->getAllRecords(EventPaymentInfo::model());
     }
 
     /**

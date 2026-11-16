@@ -4,16 +4,16 @@ namespace FAU\Staging\Data;
 
 use FAU\RecordData;
 
-class PaymentInfo extends RecordData
+class EventPaymentInfo extends RecordData
 {
     protected const tableName = 'campo_event_paymentinfo';
     protected const hasSequence = false;
     protected const keyTypes = [
-        'person_id' => 'integer'
+        'person_id' => 'integer',
+        'term_year' => 'integer',
+        'term_type_id' => 'integer'
     ];
     protected const otherTypes = [
-        'term_year' => 'integer',
-        'term_type_id' => 'integer',
         'category_id' => 'integer' 
     ];
 
