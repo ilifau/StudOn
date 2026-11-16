@@ -9,12 +9,12 @@ class PaymentInfo extends RecordData
     protected const tableName = 'fau_user_paymentinfo';
     protected const hasSequence = false;
     protected const keyTypes = [
-        'person_id' => 'integer',
+        'person_id' => 'integer'
+    ];
+    protected const otherTypes = [
         'term_year' => 'integer',
         'term_type_id' => 'integer',
         'category_id' => 'integer'
-    ];
-    protected const otherTypes = [
     ];
 
     protected int $person_id;
