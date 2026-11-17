@@ -64,6 +64,26 @@ class ilExSubmissionFileGUI extends ilExSubmissionBaseGUI
         $class = $ilCtrl->getNextClass($this);
         $cmd = $ilCtrl->getCmd("submissionScreen");
 
+        // fau: exAssHook - eventually prevent standard submission
+        $type_gui = $this->type_guis->getById($this->assignment->getType());
+        if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface
+            && $type_gui->hasOwnSubmissionScreen()) {
+            if ($class === strtolower(ilRepoStandardUploadHandlerGUI::class)
+                || in_array($cmd, [
+                    'confirmDeleteDelivered',
+                    'deleteDelivered',
+                    'submissionScreen',
+                    'addUpload',
+                    'uploadFile',
+                    'uploadForm',
+                    'uploadZipForm',
+                    'uploadZip'
+                ])) {
+                $this->returnToParentObject();
+            }
+        }
+        // fau.
+
         switch ($class) {
             case strtolower(ilRepoStandardUploadHandlerGUI::class):
                 if ($this->request->getZip()) {

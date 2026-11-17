@@ -18,6 +18,10 @@
 
 trait ilExAssignmentTypeGUIBase
 {
+    // fau: exAssHook - add assignment to trait
+    protected ilExAssignment $assignment;
+    // fau.
+
     protected ilExSubmission $submission;
     protected ilObjExercise $exercise;
 
@@ -50,4 +54,26 @@ trait ilExAssignmentTypeGUIBase
     {
         return $this->exercise;
     }
+
+    // fau: exAssHook - setter and getter for assignment
+    public function getAssignment(): ilExAssignment
+    {
+        return $this->assignment;
+    }
+
+    public function setAssignment(ilExAssignment $assignment): void
+    {
+        $this->assignment = $assignment;
+    }
+    // fau.
+
+    // fau: exAssHook - add tab manipulation
+    /**
+     * Manipulate the assignment editor tabs
+     */
+    public function handleEditorTabs(ilTabsGUI $tabs): void
+    {
+        // add or remove tabs
+    }
+    // fau.
 }

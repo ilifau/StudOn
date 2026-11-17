@@ -26,6 +26,9 @@ use ILIAS\Exercise\GUIRequest;
  * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTeamGUI, ilExSubmissionFileGUI
  * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTextGUI, ilExSubmissionObjectGUI
  * @ilCtrl_Calls ilExSubmissionGUI: ilExPeerReviewGUI
+ * fau: exAssTest - add GUI to control structure
+ * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTestResultGUI, ilExSubmissionTestResultTeamGUI
+ * fau.
  */
 class ilExSubmissionGUI
 {
@@ -115,13 +118,30 @@ class ilExSubmissionGUI
                 );
 
                 // forward to type gui
-                if ($this->submission->getSubmissionType() != ilExSubmission::TYPE_REPO_OBJECT) {
-                    $this->tabs_gui->addTab(
-                        "submission",
-                        $this->lng->txt("exc_submission"),
-                        $this->ctrl->getLinkTargetByClass("ilexsubmission" . $this->submission->getSubmissionType() . "gui", "")
-                    );
+                // fau: exAssTest - don't show submission tab for test results
+                // fau: exAssHook - get an own submission tab
+                if ($this->submission->getSubmissionType() != ilExSubmission::TYPE_REPO_OBJECT
+                    && $this->submission->getSubmissionType() != ilExSubmission::TYPE_INACTIVE
+                    && $this->submission->getSubmissionType() != ilExSubmission::TYPE_TEST_RESULT
+                    && $this->submission->getSubmissionType() != ilExSubmission::TYPE_TEST_RESULT_TEAM) {
+                    $type_gui = $this->type_guis->getById($this->assignment->getType());
+                    if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface
+                        && $type_gui->hasOwnSubmissionScreen()) {
+                        $this->tabs_gui->addTab(
+                            "submission",
+                            $this->lng->txt("exc_submission"),
+                            $type_gui->getSubmissionScreenLinkTarget()
+                        );
+                    } else {
+                        $this->tabs_gui->addTab(
+                            "submission",
+                            $this->lng->txt("exc_submission"),
+                            $this->ctrl->getLinkTargetByClass("ilexsubmission" . $this->submission->getSubmissionType() . "gui", "")
+                        );
+                    }
                 }
+                // fau.
+                // fau.
 
                 $gui = $this->gui->getTeamSubmissionGUI($this->exercise, $this->submission);
                 $ilCtrl->forwardCommand($gui);
@@ -141,6 +161,18 @@ class ilExSubmissionGUI
                 $gui = new ilExSubmissionObjectGUI($this->exercise, $this->submission);
                 $ilCtrl->forwardCommand($gui);
                 break;
+
+            // fau: exAssTest - forward to submission gui
+            case "ilexsubmissiontestresultgui":
+                $gui = new ilExSubmissionTestResultGUI($this->exercise, $this->submission);
+                $ilCtrl->forwardCommand($gui);
+                break;
+
+            case "ilexsubmissiontestresultteamgui":
+                $gui = new ilExSubmissionTestResultTeamGUI($this->exercise, $this->submission);
+                $ilCtrl->forwardCommand($gui);
+                break;
+            // fau.
 
             case "ilexpeerreviewgui":
                 /*
@@ -191,7 +223,9 @@ class ilExSubmissionGUI
         $submission_type = $a_submission->getSubmissionType();
         // old handling -> forward to submission type gui class
         // @todo migrate everything to new concept
-        if ($submission_type != ilExSubmission::TYPE_REPO_OBJECT) {
+        // fau: exAssHook - treat inactive submission type like repo object
+        if ($submission_type != ilExSubmission::TYPE_REPO_OBJECT && $submission_type != ilExSubmission::TYPE_INACTIVE) {
+            // fau.
             $class = "ilExSubmission" . $submission_type . "GUI";
             /** @var ilExSubmissionFileGUI|ilExSubmissionTextGUI|ilExSubmissionTeamGUI $class */
             $class::getOverviewContent($a_info, $a_submission);

@@ -68,7 +68,22 @@ class ilTestPassFinishTasks
         $this->test_pass_result_repository->updateTestResultCache($this->test_session->getActiveId(), null);
 
         $this->updateLearningProgressAfterPassFinishedIsWritten();
+
+        // fau: exAssTest - call update of exercise submissions
+        $this->updateExerciseSubmissionsAfterPassFinishedIsWritten();
+        // fau.
     }
+
+    // fau: exAssTest - new function updateExerciseSubmissionsAfterPassFinishedIsWritten()
+    /**
+     * Update exercise submissions assigned to this test
+     */
+    protected function updateExerciseSubmissionsAfterPassFinishedIsWritten(): void
+    {
+        $test = new ilObjTest($this->obj_test->getId(), false);
+        ilExAssTypeTestResultAssignment::updateAssignments($test, $this->test_session);
+    }
+    // fau.
 
     protected function updateLearningProgressAfterPassFinishedIsWritten()
     {

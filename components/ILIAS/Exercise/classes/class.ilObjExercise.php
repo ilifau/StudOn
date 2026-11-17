@@ -732,6 +732,16 @@ class ilObjExercise extends ilObject
         return $this;
     }
 
+    // fau: exMemDelete - new function isMemberDeleteAllowed()
+    /**
+     * Check if delete of members and their submissions is allowed
+     */
+    public function isMemberDeleteAllowed(): bool
+    {
+        return ilObjExerciseAccess::checkExtendedGradingAccess($this->getRefId(), true);
+    }
+    // fau.
+
     /**
      * @throws ilExcUnknownAssignmentTypeException
      */

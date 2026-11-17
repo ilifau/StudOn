@@ -69,7 +69,11 @@ class SettingsGUI
         $form = $this->gui
             ->form([self::class], "save")
             ->section("general", $lng->txt('exc_edit_exercise'))
-            ->addStdTitleAndDescription($this->obj_id, "exc")
+            // fau: editDidacticTemplateChoice - add the form properties for didactic templates
+            ->addStdTitleAndDescription($this->obj_id, "exc");
+        $form = $this->addDidacticTemplate($form);
+        $form = $form
+            // fau.
             ->section("avail", $lng->txt('rep_activation_availability'))
             ->addOnline($this->obj_id, "exc")
             ->section("pres", $lng->txt('obj_presentation'))
@@ -207,6 +211,9 @@ class SettingsGUI
         if ($form->isValid()) {
 
             $form->saveStdTitleAndDescription($this->obj_id, "exc");
+            // fau: editDidacticTemplateChoice - switch the didactic template without confirmation
+            $this->saveDidacticTemplate($form);
+            // fau.
             $form->saveStdTile($this->obj_id, "exc");
             $form->saveOnline($this->obj_id, "exc");
 
@@ -255,4 +262,68 @@ class SettingsGUI
             $mt->setContent($form->render());
         }
     }
+
+    // fau: editDidacticTemplateChoice - new functions addDidacticTemplate(), saveDidacticTemplate()
+    /**
+     * Get the didactic templates that can be chosen for the exercise
+     * @return array<string, array{0: string, 1: string}>
+     * @see \ilObjectGUI::buildDidacticTemplateOptions()
+     */
+    protected function getDidacticTemplateOptions(int $ref_id): array
+    {
+        $lng = $this->domain->lng();
+        $lng->loadLanguageModule('didactic');
+        $options = [
+            'dtpl_0' => [
+                $lng->txt('didactic_default_type'),
+                sprintf($lng->txt('didactic_default_type_info'), $lng->txt('objs_exc'))
+            ]
+        ];
+        $exclusive = false;
+        foreach (\ilDidacticTemplateSettings::getInstanceByObjectType('exc')->getTemplates() as $template) {
+            if ($template->isEffective($ref_id)) {
+                $options['dtpl_' . $template->getId()] = [
+                    $template->getPresentationTitle(),
+                    $template->getPresentationDescription()
+                ];
+                $exclusive = $exclusive || $template->isExclusive();
+            }
+        }
+        if ($exclusive) {
+            unset($options['dtpl_0']);
+        }
+        return $options;
+    }
+
+    protected function addDidacticTemplate(FormAdapterGUI $form): FormAdapterGUI
+    {
+        $ref_id = $this->gui->request()->getRefId();
+        $options = $this->getDidacticTemplateOptions($ref_id);
+        if (count($options) < 2) {
+            return $form;
+        }
+        $current = 'dtpl_' . \ilDidacticTemplateObjSettings::lookupTemplateId($ref_id);
+        if (!isset($options[$current])) {
+            $options[$current] = [$this->domain->lng()->txt('not_available'), ''];
+        }
+        $form = $form->radio('didactic_type', $this->domain->lng()->txt('type'), '', $current);
+        foreach ($options as $value => $option) {
+            $form = $form->radioOption((string) $value, $option[0], $option[1]);
+        }
+        return $form;
+    }
+
+    protected function saveDidacticTemplate(FormAdapterGUI $form): void
+    {
+        $ref_id = $this->gui->request()->getRefId();
+        $value = $form->getData('didactic_type');
+        if (!is_string($value) || !isset($this->getDidacticTemplateOptions($ref_id)[$value])) {
+            return;
+        }
+        $new_tpl_id = (int) substr($value, strlen('dtpl_'));
+        if ($new_tpl_id !== \ilDidacticTemplateObjSettings::lookupTemplateId($ref_id)) {
+            \ilDidacticTemplateUtils::switchTemplate($ref_id, $new_tpl_id);
+        }
+    }
+    // fau.
 }

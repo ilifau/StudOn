@@ -24,13 +24,24 @@ class ilExAssignmentTypesGUI
         ilExAssignment::TYPE_PORTFOLIO => "ilExAssTypePortfolioGUI",
         ilExAssignment::TYPE_UPLOAD_TEAM => "ilExAssTypeUploadTeamGUI",
         ilExAssignment::TYPE_TEXT => "ilExAssTypeTextGUI",
-        ilExAssignment::TYPE_WIKI_TEAM => "ilExAssTypeWikiTeamGUI"
+        // fau: exAssTest - add test result type gui
+        ilExAssignment::TYPE_WIKI_TEAM => "ilExAssTypeWikiTeamGUI",
+        ilExAssignment::TYPE_TEST_RESULT => "ilExAssTypeTestResultGUI",
+        ilExAssignment::TYPE_TEST_RESULT_TEAM => "ilExAssTypeTestResultTeamGUI"
+        // fau.
     );
 
     public function __construct(
         protected \ILIAS\Exercise\InternalDomainService $domain,
         protected \ILIAS\Exercise\InternalGUIService $gui
     ) {
+        // fau: exAssHook - add plugins to the class names
+        foreach (ilExAssignmentTypes::getActivePlugins() as $plugin) {
+            foreach ($plugin->getAssignmentTypeGuiClassNames() as $id => $name) {
+                $this->class_names[$id] = $name;
+            }
+        }
+        // fau.
     }
 
     /**
@@ -79,10 +90,35 @@ class ilExAssignmentTypesGUI
                     $this->domain,
                     $this->gui
                 );
+
+            // fau: exAssTest - get instance for type test result gui
+            case ilExAssignment::TYPE_TEST_RESULT:
+                return new ilExAssTypeTestResultGUI(
+                    $this->domain,
+                    $this->gui
+                );
+
+            case ilExAssignment::TYPE_TEST_RESULT_TEAM:
+                return new ilExAssTypeTestResultTeamGUI(
+                    $this->domain,
+                    $this->gui
+                );
+            // fau.
+
+            // fau: exAssHook - return the type gui of a plugin for the id
+            default:
+                foreach (ilExAssignmentTypes::getActivePlugins() as $plugin) {
+                    if (in_array($a_id, $plugin->getAssignmentTypeIds())) {
+                        return $plugin->getAssignmentTypeGuiById($a_id);
+                    }
+                }
+                return new ilExAssTypeInactiveGUI();
+            // fau.
         }
 
-        // we should throw some exception here
-        throw new ilExcUnknownAssignmentTypeException("Unkown Assignment Type ($a_id).");
+        // fau: exAssHook - code not reachable
+        // throw new ilExcUnknownAssignmentTypeException("Unkown Assignment Type ($a_id).");
+        // fau.
     }
 
     /**
