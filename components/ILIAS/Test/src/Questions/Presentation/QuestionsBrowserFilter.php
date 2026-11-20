@@ -36,7 +36,10 @@ class QuestionsBrowserFilter
         private readonly ilLanguage $lng,
         private readonly UIFactory $ui_factory,
         private readonly string $filter_id,
-        private readonly string $parent_title
+        // fau: testQuestionBrowserRoot - options for the search area
+        private readonly string $parent_title,
+        private readonly array $area_options = []
+        // fau.
     ) {
     }
 
@@ -89,6 +92,10 @@ class QuestionsBrowserFilter
             'taxonomy_title' => [$input->text($this->lng->txt('taxonomy_title')), true],
             'taxonomy_node_title' => [$input->text($this->lng->txt('taxonomy_node_title')), true],
             'feedback' => [$input->select($this->lng->txt('tst_feedback'), $yes_no_all_options), false],
+            // fau: testQuestionBrowserRoot - search area as selection or ref id
+            'area_root' => [$input->select($this->lng->txt('tst_question_browse_area'), $this->area_options), true],
+            'area_ref_id' => [$input->numeric($this->lng->txt('tst_question_browse_area_ref_id')), true],
+            // fau.
         ];
     }
 

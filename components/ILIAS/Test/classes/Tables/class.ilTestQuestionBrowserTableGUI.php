@@ -101,14 +101,25 @@ class ilTestQuestionBrowserTableGUI
         $parent_title = ($mode === self::MODE_BROWSE_TESTS ? 'test_title' : 'tst_source_question_pool');
 
         $filter = $this->getQuestionsBrowserFilterComponent($parent_title, $action);
-        $question_browser_table = $this->getQuestionsBrowserTable($parent_title);
+        // fau: testQuestionBrowserRoot - search only in the selected area
+        $filter_data = $this->ui_service->filter()->getData($filter);
+        $area_root = $this->resolveAreaRoot($filter_data, true);
+        unset($filter_data['area_root'], $filter_data['area_ref_id']);
+        $this->main_tpl->setOnScreenMessage('info', sprintf(
+            $this->lng->txt('tst_question_browse_root_message'),
+            $area_root === self::REPOSITORY_ROOT_NODE_ID
+                ? $this->lng->txt('tst_question_browse_area_all')
+                : ilObject::_lookupTitle(ilObject::_lookupObjId($area_root))
+        ));
+        $question_browser_table = $this->getQuestionsBrowserTable($parent_title, $area_root);
 
         $this->main_tpl->setContent(
             $this->ui_renderer->render([
                 $filter,
-                $question_browser_table->getComponent($this->http_state->request(), $this->ui_service->filter()->getData($filter))
+                $question_browser_table->getComponent($this->http_state->request(), $filter_data)
             ])
         );
+        // fau.
 
         return true;
     }
@@ -120,14 +131,53 @@ class ilTestQuestionBrowserTableGUI
             $this->lng,
             $this->ui_factory,
             "question_browser_filter_{$this->testrequest->getRefId()}",
-            $parent_title
+            // fau: testQuestionBrowserRoot - options for the search area
+            $parent_title,
+            $this->getAreaOptions()
+            // fau.
         ))->getComponent($action, $this->http_state->request());
     }
 
-    private function getQuestionsBrowserTable(string $parent_title = ''): QuestionsBrowserTable
+    // fau: testQuestionBrowserRoot - search area from filter, default is the container of the test
+    private function getAreaOptions(): array
+    {
+        $options = [];
+        foreach (array_reverse($this->tree->getPathFull($this->tree->getParentId($this->test_obj->getRefId()))) as $node) {
+            if ((int) $node['child'] === self::REPOSITORY_ROOT_NODE_ID) {
+                continue;
+            }
+            $options[(string) $node['child']] = $node['title'];
+        }
+        $options[(string) self::REPOSITORY_ROOT_NODE_ID] = $this->lng->txt('tst_question_browse_area_all');
+        return $options;
+    }
+
+    private function resolveAreaRoot(?array $filter_data, bool $show_messages = false): int
+    {
+        $ref_id = (int) ($filter_data['area_ref_id'] ?? 0);
+        if ($ref_id > 0) {
+            if ($this->tree->isInTree($ref_id) && $this->access->checkAccess('read', '', $ref_id)) {
+                return $ref_id;
+            }
+            if ($show_messages) {
+                $this->main_tpl->setOnScreenMessage('failure', $this->lng->txt('tst_question_browse_area_ref_id_invalid'));
+            }
+        }
+
+        $selected = (int) ($filter_data['area_root'] ?? 0);
+        if (array_key_exists((string) $selected, $this->getAreaOptions())) {
+            return $selected;
+        }
+        return $this->tree->getParentId($this->test_obj->getRefId());
+    }
+    // fau.
+
+    // fau: testQuestionBrowserRoot - search only in the selected area
+    private function getQuestionsBrowserTable(string $parent_title = '', int $area_root = self::REPOSITORY_ROOT_NODE_ID): QuestionsBrowserTable
     {
         $question_list = new ilAssQuestionList($this->db, $this->lng, $this->refinery, $this->component_repository);
-        $question_list = $this->addModeParametersToQuestionList($question_list);
+        $question_list = $this->addModeParametersToQuestionList($question_list, $area_root);
+        // fau.
 
         return new QuestionsBrowserTable(
             (string) $this->test_obj->getId(),
@@ -160,11 +210,14 @@ class ilTestQuestionBrowserTableGUI
         }
 
         if (in_array('ALL_OBJECTS', $selected_array, true)) {
+            // fau: testQuestionBrowserRoot - search only in the selected area
+            $filter_data = $this->ui_service->filter()->getData($this->getQuestionsBrowserFilterComponent()) ?? [];
+            $area_root = $this->resolveAreaRoot($filter_data);
+            unset($filter_data['area_root'], $filter_data['area_ref_id']);
             $selected_array = array_keys(
-                $this->getQuestionsBrowserTable()->loadRecords(
-                    $this->ui_service->filter()->getData($this->getQuestionsBrowserFilterComponent()) ?? []
-                )
+                $this->getQuestionsBrowserTable('', $area_root)->loadRecords($filter_data)
             );
+            // fau.
         }
 
         array_map(
@@ -216,16 +269,21 @@ class ilTestQuestionBrowserTableGUI
         ))->getQuestionSetConfig();
     }
 
-    private function addModeParametersToQuestionList(ilAssQuestionList $question_list): ilAssQuestionList
+    // fau: testQuestionBrowserRoot - search only in the selected area
+    private function addModeParametersToQuestionList(ilAssQuestionList $question_list, int $area_root): ilAssQuestionList
     {
         if ($this->testrequest->raw(self::MODE_PARAMETER) === self::MODE_BROWSE_TESTS) {
             $question_list->setParentObjectType('tst');
+            $question_list->setParentObjIdsFilter($this->getTestParentObjIds($area_root) ?: [0]);
+            // fau.
             $question_list->setQuestionInstanceTypeFilter(\ilAssQuestionList::QUESTION_INSTANCE_TYPE_ALL);
             $question_list->setExcludeQuestionIdsFilter($this->test_obj->getQuestions());
             return $question_list;
         }
 
-        $question_list->setParentObjIdsFilter($this->getQuestionParentObjIds(self::REPOSITORY_ROOT_NODE_ID));
+        // fau: testQuestionBrowserRoot - search only in the selected area
+        $question_list->setParentObjIdsFilter($this->getQuestionParentObjIds($area_root) ?: [0]);
+        // fau.
         $question_list->setQuestionInstanceTypeFilter(\ilAssQuestionList::QUESTION_INSTANCE_TYPE_ORIGINALS);
         $question_list->setExcludeQuestionIdsFilter($this->test_obj->getExistingQuestions());
         return $question_list;
@@ -251,6 +309,23 @@ class ilTestQuestionBrowserTableGUI
 
         $parentIds = array_map('intval', array_values($parentIds));
         $available_pools = array_map('intval', array_keys(\ilObjQuestionPool::_getAvailableQuestionpools(true)));
-        return array_intersect($parentIds, $available_pools);
+        // fau: testQuestionBrowserRoot - search only in the selected area
+        return array_values(array_intersect($parentIds, $available_pools));
+        // fau.
     }
+
+    // fau: testQuestionBrowserRoot - tests in the selected area with write access
+    private function getTestParentObjIds(int $area_root): array
+    {
+        $obj_ids = [];
+        foreach ($this->tree->getSubTree($this->tree->getNodeData($area_root), true, ['tst']) as $node) {
+            $obj_id = (int) $node['obj_id'];
+            if ($obj_id !== $this->test_obj->getId()
+                && $this->access->checkAccess('write', '', (int) $node['child'])) {
+                $obj_ids[$obj_id] = $obj_id;
+            }
+        }
+        return array_values($obj_ids);
+    }
+    // fau.
 }

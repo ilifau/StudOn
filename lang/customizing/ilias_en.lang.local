@@ -73,7 +73,11 @@ assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#No question group
 assessment#:#tst_msg_rand_quest_set_pool_not_available#:#The selected question pool is not available. It is either offline, not readable or contains questions with varying numbers of points.
 assessment#:#tst_msg_rand_quest_set_sync_duration#:#All questions that match the rules are copied into the test during synchronization. This action can take several minutes for large pools.
 assessment#:#tst_password_enter_info#:#IMPORTANT: Please do not change the password while a written examination is taking place. The participants must enter it when changing questions in order to continue. Previous auto saves will fail.
-assessment#:#tst_question_browse_root_message#:#A search is performed as standard in the category or folder that contains this test. This can be changed with the filter settings.
+assessment#:#tst_question_browse_area#:#Search Area###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_area_all#:#All of StudOn###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_area_ref_id#:#or Ref-ID###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_area_ref_id_invalid#:#This Ref-ID does not exist or you have no read permission there. The selected search area is used instead.###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_root_message#:#Questions are searched in "%s". You can change this with the filters "Search Area" or "Ref-ID".###fau: testQuestionBrowserRoot
 assessment#:#tst_recalculate_selected_solutions_confirm#:#The results of the selected participants will be recalculated. Manual evaluations remain intact.
 assessment#:#tst_recalculate_solutions#:#Recalculate results
 assessment#:#tst_recalculate_solutions_confirm#:#The results of all participants will be recalculated. Manual evaluations remain intact. This calculation may take a long time.
