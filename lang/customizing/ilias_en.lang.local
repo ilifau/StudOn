@@ -37,7 +37,7 @@ assessment#:#ass_campo_other_fields#:#Other fields
 assessment#:#ass_campo_test_date#:#Individual examination date
 assessment#:#ass_campo_test_starttime#:#Individual examination start time
 assessment#:#ass_create_export_campo#:#Generate results file for campo
-assessment#:#detailed_output_scoring#:#Entering details with solutions and points
+assessment#:#detailed_output_scoring#:#Detailed output with solutions and points###fau: questionPrint
 assessment#:#err_cloze_not_numeric#:#You have entered text in a space that requires a numeric value.
 assessment#:#fq_err_no_numeric_value#:#Please enter a numeric value or a fraction.
 assessment#:#fq_formula_desc_additional#:#atan2(y;x)' is also supported in StudOn (please separate the parameters using a semicolon).

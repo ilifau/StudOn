@@ -35,7 +35,7 @@ assessment#:#ass_campo_matriculation_numbers_info#:#Exportieren Sie die Liste de
 assessment#:#ass_campo_other_fields#:#Weitere Felder###fau: campoGrades
 assessment#:#ass_campo_test_date#:#individuelles Prüfungsdatum###fau: campoGrades
 assessment#:#ass_campo_test_starttime#:#individieller Prüfungsbeginn###fau: campoGrades
-assessment#:#detailed_output_scoring#:#Detailansgabe mit Lösungen und Punkten
+assessment#:#detailed_output_scoring#:#Detailausgabe mit Lösungen und Punkten###fau: questionPrint
 assessment#:#err_cloze_not_numeric#:#Sie haben Text in eine Lücke eingegeben, die einen Zahlenwert erfordert!
 assessment#:#fq_err_no_numeric_value#:#Bitte geben Sie einen numerischen Wert oder einen Bruch ein.
 assessment#:#fq_formula_desc_additional#:#In StudOn wird auch 'atan2(y;x)' unterstützt (bitte Parameter per Semikolon trennen).
