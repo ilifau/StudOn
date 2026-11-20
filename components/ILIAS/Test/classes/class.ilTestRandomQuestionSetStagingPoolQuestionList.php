@@ -365,6 +365,9 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
         $this->taxFilters = [];
         $this->typeFilter = [];
         $this->poolId = -1;
+        // fau: taxGroupFilter - reset the groups of the previous rule
+        $this->grouped_questions = [];
+        // fau.
     }
 
     // fau: taxGroupFilter - select questions from one random group or from all questions, keeping their order
