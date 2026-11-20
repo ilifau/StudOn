@@ -83,8 +83,18 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
     }
     // hey.
 
-    private function getQuestionIdsForSourcePoolDefinitionIds(ilTestRandomQuestionSetSourcePoolDefinition $definition): array
+    // fau: taxGroupFilter - get a pre-selected set of questions for a source pool definition
+    protected function getQuestionSetForSourcePoolDefinition(ilTestRandomQuestionSetSourcePoolDefinition $definition): ilTestRandomQuestionSetQuestionCollection
     {
+        $question_ids = $this->getQuestionIdsForSourcePoolDefinitionIds($definition, true);
+        return $this->buildSetQuestionCollection($definition, $question_ids);
+    }
+    // fau.
+
+    // fau: taxGroupFilter - add parameter to select questions from a group
+    private function getQuestionIdsForSourcePoolDefinitionIds(ilTestRandomQuestionSetSourcePoolDefinition $definition, bool $select = false): array
+    {
+    // fau.
         $this->stagingPoolQuestionList->resetQuestionList();
 
         $this->stagingPoolQuestionList->setPoolId($definition->getPoolId());
@@ -105,8 +115,22 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
         }
         // fau.
 
+        // fau: taxGroupFilter - set the grouping information
+        $this->stagingPoolQuestionList->setGroupTaxId($definition->getMappedGroupTaxId());
+        $this->stagingPoolQuestionList->setSelectSize((int) $definition->getQuestionAmount());
+        // fau.
+
+        // fau: randomSetOrder - set order information
+        $this->stagingPoolQuestionList->setOrderBy($definition->getOrderBy());
+        // fau.
+
         $this->stagingPoolQuestionList->loadQuestions();
 
+        // fau: taxGroupFilter - select questions from a group
+        if ($select) {
+            return $this->stagingPoolQuestionList->getSelectedQuestions();
+        }
+        // fau.
         return $this->stagingPoolQuestionList->getQuestions();
     }
 

@@ -251,6 +251,13 @@ class ilTestRandomQuestionSetStagingPoolBuilder
         foreach ($source_pool_definition_list as $definition) {
             if ($definition->getPoolId() === $source_pool_id) {
                 $definition->mapTaxonomyFilter($taxonomies_keys_map);
+                // fau: taxGroupFilter - map the grouping taxonomy
+                $definition->setMappedGroupTaxId(
+                    $definition->getOriginalGroupTaxId()
+                        ? $taxonomies_keys_map->getMappedTaxonomyId($definition->getOriginalGroupTaxId())
+                        : null
+                );
+                // fau.
             }
         }
     }

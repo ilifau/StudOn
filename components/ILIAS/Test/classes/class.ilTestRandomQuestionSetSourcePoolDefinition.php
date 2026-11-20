@@ -50,6 +50,15 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 
     private ?int $sequence_position = null;
 
+    // fau: taxGroupFilter - taxonomy for group selection
+    private ?int $original_group_tax_id = null;
+    private ?int $mapped_group_tax_id = null;
+    // fau.
+
+    // fau: randomSetOrder - order of the questions in a random set
+    private ?string $order_by = null;
+    // fau.
+
     public function __construct(
         protected ilDBInterface $db,
         protected ilObjTest $test_obj
@@ -293,6 +302,40 @@ class ilTestRandomQuestionSetSourcePoolDefinition
         return $this->sequence_position;
     }
 
+    // fau: taxGroupFilter - setters and getters
+    public function setOriginalGroupTaxId(?int $original_group_tax_id): void
+    {
+        $this->original_group_tax_id = $original_group_tax_id ?: null;
+    }
+
+    public function getOriginalGroupTaxId(): ?int
+    {
+        return $this->original_group_tax_id;
+    }
+
+    public function setMappedGroupTaxId(?int $mapped_group_tax_id): void
+    {
+        $this->mapped_group_tax_id = $mapped_group_tax_id ?: null;
+    }
+
+    public function getMappedGroupTaxId(): ?int
+    {
+        return $this->mapped_group_tax_id;
+    }
+    // fau.
+
+    // fau: randomSetOrder - setters and getters ('random', 'title', 'description' or null)
+    public function setOrderBy(?string $order_by): void
+    {
+        $this->order_by = $order_by ?: null;
+    }
+
+    public function getOrderBy(): ?string
+    {
+        return $this->order_by;
+    }
+    // fau.
+
     // -----------------------------------------------------------------------------------------------------------------
 
     public function initFromArray(array $data_array): void
@@ -336,6 +379,19 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                 case 'sequence_pos':
                     $this->setSequencePosition($value);
                     break;
+                // fau: taxGroupFilter - read from db
+                case 'origin_group_tax_fi':
+                    $this->setOriginalGroupTaxId($value !== null ? (int) $value : null);
+                    break;
+                case 'mapped_group_tax_fi':
+                    $this->setMappedGroupTaxId($value !== null ? (int) $value : null);
+                    break;
+                // fau.
+                // fau: randomSetOrder - read from db
+                case 'order_by':
+                    $this->setOrderBy($value);
+                    break;
+                // fau.
             }
         }
     }
@@ -397,7 +453,14 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                 'type_filter' => ['text', $this->getTypeFilterForDbValue()],
                 'lifecycle_filter' => ['text', $this->getLifecycleFilterForDbValue()],
                 'quest_amount' => ['integer', $this->getQuestionAmount()],
-                'sequence_pos' => ['integer', $this->getSequencePosition()]
+                // fau: taxGroupFilter - save in db
+                'sequence_pos' => ['integer', $this->getSequencePosition()],
+                'origin_group_tax_fi' => ['integer', $this->getOriginalGroupTaxId()],
+                'mapped_group_tax_fi' => ['integer', $this->getMappedGroupTaxId()],
+                // fau.
+                // fau: randomSetOrder - save in db
+                'order_by' => ['text', $this->getOrderBy()]
+                // fau.
             ],
             [
                 'def_id' => ['integer', $this->getId()]
@@ -422,7 +485,14 @@ class ilTestRandomQuestionSetSourcePoolDefinition
                 'type_filter' => ['text', $this->getTypeFilterForDbValue()],
                 'lifecycle_filter' => ['text', $this->getLifecycleFilterForDbValue()],
                 'quest_amount' => ['integer', $this->getQuestionAmount()],
-                'sequence_pos' => ['integer', $this->getSequencePosition()]
+                // fau: taxGroupFilter - save in db
+                'sequence_pos' => ['integer', $this->getSequencePosition()],
+                'origin_group_tax_fi' => ['integer', $this->getOriginalGroupTaxId()],
+                'mapped_group_tax_fi' => ['integer', $this->getMappedGroupTaxId()],
+                // fau.
+                // fau: randomSetOrder - save in db
+                'order_by' => ['text', $this->getOrderBy()]
+                // fau.
         ]);
 
         $this->setId($next_id);

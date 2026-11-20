@@ -135,6 +135,27 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
                 $this->addItem($taxCheckbox);
             }
             // fau.
+
+            // fau: taxGroupFilter - add option for group selection
+            $group_filter = new ilCheckboxInputGUI($this->lng->txt('tst_group_filter'), 'tst_group_filter');
+            $group_filter->setInfo($this->lng->txt('tst_group_filter_info'));
+            $group_filter->setChecked((bool) $sourcePool->getOriginalGroupTaxId());
+            $this->addItem($group_filter);
+
+            $group_filter_tax = new ilSelectInputGUI($this->lng->txt('tst_group_filter_tax'), 'tst_group_filter_tax');
+            $group_filter_tax->setInfo($this->lng->txt('tst_group_filter_tax_info'));
+            $options = [];
+            foreach ($available_taxonomy_ids as $tax_id) {
+                $options[$tax_id] = (new ilObjTaxonomy($tax_id))->getTitle();
+            }
+            $group_filter_tax->setOptions($options);
+            $group_filter_tax->setValue((string) $sourcePool->getOriginalGroupTaxId());
+            $group_filter->addSubItem($group_filter_tax);
+
+            $warning = new ilNonEditableValueGUI();
+            $warning->setInfo($this->lng->txt('tst_group_filter_info_warning'));
+            $group_filter->addSubItem($warning);
+            // fau.
         } else {
             $hiddenNoTax = new ilHiddenInputGUI('filter_tax');
             $hiddenNoTax->setValue('0');
@@ -195,8 +216,28 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
             }
 
             $this->addItem($questionAmountPerSourcePool);
+
+            // fau: randomSetOrder - add order of the questions
+            $order_by = new ilSelectInputGUI($this->lng->txt('tst_filter_order_by'), 'tst_filter_order_by');
+            $order_by->setInfo($this->lng->txt('tst_filter_order_by_info'));
+            $order_by->setOptions($this->getOrderByOptions());
+            $order_by->setValue((string) $sourcePool->getOrderBy());
+            $this->addItem($order_by);
+            // fau.
         }
     }
+
+    // fau: randomSetOrder - options for the order of the questions
+    private function getOrderByOptions(): array
+    {
+        return [
+            '' => $this->lng->txt('tst_filter_order_undefined'),
+            'random' => $this->lng->txt('tst_filter_order_random'),
+            'title' => $this->lng->txt('tst_filter_order_title'),
+            'description' => $this->lng->txt('tst_filter_order_description'),
+        ];
+    }
+    // fau.
 
     public function applySubmit(
         ilTestRandomQuestionSetSourcePoolDefinition $source_pool_definition,
@@ -231,10 +272,33 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
 
         // fau.
 
+        // fau: taxGroupFilter - submit group setting, the group taxonomy must be used in the filter
+        if ($available_taxonomy_ids !== []) {
+            $group_tax_id = (int) $this->getItemByPostVar('tst_group_filter_tax')->getValue();
+            if ($this->getItemByPostVar('tst_group_filter')->getChecked()
+                && array_key_exists($group_tax_id, $taxonomy_filter)) {
+                $source_pool_definition->setOriginalGroupTaxId($group_tax_id);
+            } else {
+                $source_pool_definition->setOriginalGroupTaxId(null);
+            }
+            $log_array['tst_group_filter_tax'] = $source_pool_definition->getOriginalGroupTaxId()
+                ? (new ilObjTaxonomy($source_pool_definition->getOriginalGroupTaxId()))->getTitle()
+                : '';
+        }
+        // fau.
+
         if ($this->questionSetConfig->isQuestionAmountConfigurationModePerPool()) {
             $question_amount = $this->getItemByPostVar('question_amount_per_pool')->getValue();
             $source_pool_definition->setQuestionAmount(intval($question_amount));
             $log_array[AdditionalInformationGenerator::KEY_QUESTION_AMOUNT_PER_POOL] = $question_amount;
+
+            // fau: randomSetOrder - submit order of the questions
+            $order_by = (string) $this->getItemByPostVar('tst_filter_order_by')->getValue();
+            $source_pool_definition->setOrderBy(
+                array_key_exists($order_by, $this->getOrderByOptions()) && $order_by !== '' ? $order_by : null
+            );
+            $log_array['tst_filter_order_by'] = $this->getOrderByOptions()[(string) $source_pool_definition->getOrderBy()];
+            // fau.
         }
 
         return [

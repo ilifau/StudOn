@@ -240,6 +240,16 @@ class ilTestImporter extends ilXmlImporter
                     $mapped_taxonomy_filter
                 )
             );
+            // fau: taxGroupFilter - remap the group filter
+            if ($definition->getMappedGroupTaxId()) {
+                $new_group_tax_id = $mapping->getMapping(
+                    'components/ILIAS/Taxonomy',
+                    'tax',
+                    (string) $definition->getMappedGroupTaxId()
+                );
+                $definition->setMappedGroupTaxId($new_group_tax_id !== null ? (int) $new_group_tax_id : null);
+            }
+            // fau.
             $definition->saveToDb();
         }
     }

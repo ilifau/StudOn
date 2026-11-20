@@ -77,6 +77,15 @@ class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingRetrieva
                 'type_filter' => $this->taxonomy_translator->getTypeFilterLabel($qp['type_filter']),
                 'question_amount' => (int) $qp['question_amount']
             ];
+            // fau: taxGroupFilter - show the group taxonomy
+            if (!empty($qp['group_tax_id'])) {
+                $record['taxonomy_filter'] .= '<br />' . $this->lng->txt('tst_group_filter') . ': '
+                    . \ilObject::_lookupTitle((int) $qp['group_tax_id']);
+            }
+            // fau.
+            // fau: randomSetOrder - show the order of the questions
+            $record['order_by'] = !empty($qp['order_by']) ? $this->lng->txt('tst_filter_order_' . $qp['order_by']) : '';
+            // fau.
             yield $row_builder->buildOrderingRow((string) $qp['def_id'], $record);
         }
     }
@@ -97,6 +106,14 @@ class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingRetrieva
             $set['taxonomy_filter'] = $taxonomie_filter;
             $set['lifecycle_filter'] = $source_pool_definition->getLifecycleFilter();
             $set['type_filter'] = $source_pool_definition->getTypeFilter();
+            // fau.
+            // fau: taxGroupFilter - group taxonomy, original or mapped like the taxonomy filter
+            $set['group_tax_id'] = $source_pool_definition->getOriginalTaxonomyFilter() !== []
+                ? $source_pool_definition->getOriginalGroupTaxId()
+                : $source_pool_definition->getMappedGroupTaxId();
+            // fau.
+            // fau: randomSetOrder - order of the questions
+            $set['order_by'] = $source_pool_definition->getOrderBy();
             // fau.
             $set['question_amount'] = $source_pool_definition->getQuestionAmount();
             $set['pool_id'] = $source_pool_definition->getPoolId();
@@ -147,6 +164,9 @@ class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingRetrieva
             ),
             'lifecycle_filter' => $column_factory->text($this->lng->txt('qst_lifecycle')),
             'type_filter' => $column_factory->text($this->lng->txt('tst_filter_question_type')),
+            // fau: randomSetOrder - column for the order of the questions
+            'order_by' => $column_factory->text($this->lng->txt('tst_filter_order_by')),
+            // fau.
             'question_amount' => $column_factory->number($this->lng->txt('tst_question_amount')),
         ];
 

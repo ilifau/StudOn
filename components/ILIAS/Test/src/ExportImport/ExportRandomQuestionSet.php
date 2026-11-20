@@ -114,6 +114,17 @@ class ExportRandomQuestionSet extends Export
                 'typeFilter' => implode(',', $definition->getTypeFilterAsTypeTags()),
             ];
 
+            // fau: taxGroupFilter - export group filter
+            if ($definition->getMappedGroupTaxId()) {
+                $attributes['GroupTaxId'] = $definition->getMappedGroupTaxId();
+            }
+            // fau.
+            // fau: randomSetOrder - export order
+            if ($definition->getOrderBy()) {
+                $attributes['orderBy'] = $definition->getOrderBy();
+            }
+            // fau.
+
 
             // #21330
             $mappedTaxFilter = $definition->getMappedTaxonomyFilter();

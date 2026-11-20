@@ -37,6 +37,18 @@ class ilTestRandomQuestionSetBuilderWithAmountPerPool extends ilTestRandomQuesti
 
         $is_buildable = true;
         foreach ($this->sourcePoolDefinitionList as $definition) {
+            // fau: taxGroupFilter - get a sample group and check its size (conflicts with other rules are not checked)
+            if ($definition->getOriginalGroupTaxId()) {
+                $group = $this->getQuestionSetForSourcePoolDefinition($definition);
+                if ($group->isSmallerThan($definition->getQuestionAmount())) {
+                    $this->checkMessages[] = sprintf(
+                        $this->lng->txt('tst_msg_rand_quest_set_pass_not_buildable_group'),
+                        $definition->getSequencePosition()
+                    );
+                    $is_buildable = false;
+                }
+            }
+            // fau.
             $quantityCalculation = $quantitiesDistribution->calculateQuantities($definition);
             if ($quantityCalculation->isRequiredAmountGuaranteedAvailable()) {
                 continue;
@@ -57,7 +69,13 @@ class ilTestRandomQuestionSetBuilderWithAmountPerPool extends ilTestRandomQuesti
 
             $requiredQuestionAmount = $definition->getQuestionAmount();
 
-            $potentialQuestionStage = $this->getSrcPoolDefRelatedQuestCollection($definition);
+            // fau: taxGroupFilter - draw a question group randomly
+            if (!empty($definition->getMappedGroupTaxId())) {
+                $potentialQuestionStage = $this->getQuestionSetForSourcePoolDefinition($definition);
+            } else {
+                $potentialQuestionStage = $this->getSrcPoolDefRelatedQuestCollection($definition);
+            }
+            // fau.
 
             $actualQuestionStage = $potentialQuestionStage->getRelativeComplementCollection($questionSet);
 
