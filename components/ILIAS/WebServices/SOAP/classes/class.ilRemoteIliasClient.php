@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 use FAU\Tools\Cust;
 
-// fau: sendSimpleResults - SOAP client to call the StudOn main installation from the exam installation
+// fau: sendSimpleResults - SOAP client for the StudOn main installation
 class ilRemoteIliasClient extends ilSoapClient
 {
     private string $remote_user;

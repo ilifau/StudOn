@@ -447,12 +447,8 @@ class ilSoapUtils extends ilSoapAdministration
         return $new_ref_id;
     }
 
-    /**
-     * Method for soap webservice: deleteExpiredDualOptInUserObjects
-     * This service will run in background. The client has not to wait for response.
-     */
-    // fau: sendSimpleResults - send system mails, only allowed for administrators
-    public function sendUserMail(string $sid, string $to, string $cc, string $bcc, string $subject, string $message)
+    // fau: sendSimpleResults - system mail to one recipient, administrators only
+    public function sendUserMail(string $sid, string $to, string $subject, string $message)
     {
         $this->initAuth($sid);
         $this->initIlias();
@@ -466,16 +462,25 @@ class ilSoapUtils extends ilSoapAdministration
             return $this->raiseError('Check access failed.', 'Server');
         }
 
-        $errors = (new ilMail(ANONYMOUS_USER_ID))->enqueue($to, $cc, $bcc, $subject, $message, []);
+        $to = trim($to);
+        if ($to === '' || preg_match('/[,;\s]/', $to)) {
+            return $this->raiseError('Exactly one recipient is allowed.', 'Client');
+        }
+
+        $errors = (new ilMail(ANONYMOUS_USER_ID))->enqueue($to, '', '', $subject, $message, []);
         if ($errors !== []) {
             return $this->raiseError($errors[0]->getLanguageVariable(), 'Server');
         }
 
-        $DIC->logger()->wsrv()->info('SOAP: sendUserMail(): ' . $to . ', ' . $cc . ', ' . $bcc);
+        $DIC->logger()->wsrv()->info('SOAP: sendUserMail(): ' . $to);
         return true;
     }
     // fau.
 
+    /**
+     * Method for soap webservice: deleteExpiredDualOptInUserObjects
+     * This service will run in background. The client has not to wait for response.
+     */
     public function deleteExpiredDualOptInUserObjects(string $sid, int $usr_id_to_prioritize): bool
     {
         $this->initAuth($sid);
