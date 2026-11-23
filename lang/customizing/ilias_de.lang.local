@@ -72,9 +72,8 @@ assessment#:#tst_msg_rand_quest_set_pool_not_available#:#Der ausgewählte Fragen
 assessment#:#tst_msg_rand_quest_set_sync_duration#:#Bei der Synchronisation werden alle Fragen die zu den Regeln passen in den Test kopiert. Diese Aktion kann bei großen Pools einige Minuten dauern.
 assessment#:#tst_password_enter_info#:#WICHTIG: Änden Sie das Passwort nicht während einer laufenden Klausur! Die Teilnehmer müssen es beim Fragenwechsel eingeben, um fortzufahren. Vorherige Auto-Speicherungen schlagen fehl!
 assessment#:#tst_question_browse_area#:#Suchbereich###fau: testQuestionBrowserRoot
-assessment#:#tst_question_browse_area_all#:#Ganzes StudOn###fau: testQuestionBrowserRoot
 assessment#:#tst_question_browse_area_ref_id#:#oder Ref-ID###fau: testQuestionBrowserRoot
-assessment#:#tst_question_browse_area_ref_id_invalid#:#Die Ref-ID gibt es nicht oder Sie haben dort kein Leserecht. Es wird im ausgewählten Suchbereich gesucht.###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_area_ref_id_invalid#:#Diese Ref-ID gibt es nicht, ist die Startseite von StudOn oder Sie haben dort kein Leserecht. Es wird im ausgewählten Suchbereich gesucht.###fau: testQuestionBrowserRoot
 assessment#:#tst_question_browse_root_message#:#Die Fragen werden in „%s“ gesucht. Das können Sie mit den Filtern „Suchbereich“ oder „Ref-ID“ ändern.###fau: testQuestionBrowserRoot
 assessment#:#tst_recalculated_solutions#:#Die Ergebnisse wurden neu berechnet
 assessment#:#tst_recalculate_selected_solutions_confirm#:#Die Ergebnisse der ausgewählten Teilnehmer werden neu berechnet. Manuelle Bewertungen bleiben dabei erhalten.!

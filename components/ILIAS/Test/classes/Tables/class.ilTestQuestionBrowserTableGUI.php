@@ -107,9 +107,7 @@ class ilTestQuestionBrowserTableGUI
         unset($filter_data['area_root'], $filter_data['area_ref_id']);
         $this->main_tpl->setOnScreenMessage('info', sprintf(
             $this->lng->txt('tst_question_browse_root_message'),
-            $area_root === self::REPOSITORY_ROOT_NODE_ID
-                ? $this->lng->txt('tst_question_browse_area_all')
-                : ilObject::_lookupTitle(ilObject::_lookupObjId($area_root))
+            ilObject::_lookupTitle(ilObject::_lookupObjId($area_root))
         ));
         $question_browser_table = $this->getQuestionsBrowserTable($parent_title, $area_root);
 
@@ -148,7 +146,6 @@ class ilTestQuestionBrowserTableGUI
             }
             $options[(string) $node['child']] = $node['title'];
         }
-        $options[(string) self::REPOSITORY_ROOT_NODE_ID] = $this->lng->txt('tst_question_browse_area_all');
         return $options;
     }
 
@@ -156,7 +153,8 @@ class ilTestQuestionBrowserTableGUI
     {
         $ref_id = (int) ($filter_data['area_ref_id'] ?? 0);
         if ($ref_id > 0) {
-            if ($this->tree->isInTree($ref_id) && $this->access->checkAccess('read', '', $ref_id)) {
+            if ($ref_id !== self::REPOSITORY_ROOT_NODE_ID
+                && $this->tree->isInTree($ref_id) && $this->access->checkAccess('read', '', $ref_id)) {
                 return $ref_id;
             }
             if ($show_messages) {
