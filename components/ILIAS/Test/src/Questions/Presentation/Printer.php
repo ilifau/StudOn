@@ -230,10 +230,10 @@ class Printer
         // fau: questionPrint - print with a page break before each question or participant
         $this->toolbar->addComponent(
             $this->ui_factory->button()->standard($this->lng->txt('print_pagebreaks'), '')
-                ->withOnLoadCode(fn($id) => "$('#$id').on('click', ()=>{"
+                ->withOnLoadCode(fn($id) => "$('#$id').on('click', () => {"
                     . "document.body.classList.add('tstPrintPagebreaks');"
-                    . "window.print();"
-                    . "document.body.classList.remove('tstPrintPagebreaks');})")
+                    . "window.addEventListener('afterprint', () => document.body.classList.remove('tstPrintPagebreaks'), {once: true});"
+                    . "window.print();})")
         );
         // fau.
     }

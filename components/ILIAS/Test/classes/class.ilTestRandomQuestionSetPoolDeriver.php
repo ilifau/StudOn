@@ -195,7 +195,7 @@ class ilTestRandomQuestionSetPoolDeriver
                 )
             );
 
-            // fau: taxGroupFilter - set the original group tax id that is derived from the mapped tax id
+            // fau: taxGroupFilter - derive the original group tax id
             if (!empty($definition->getMappedGroupTaxId())) {
                 $definition->setOriginalGroupTaxId($tax_keys_map->getMappedTaxonomyId($definition->getMappedGroupTaxId()));
             }

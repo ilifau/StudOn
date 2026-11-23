@@ -101,13 +101,13 @@ class ilTestQuestionBrowserTableGUI
         $parent_title = ($mode === self::MODE_BROWSE_TESTS ? 'test_title' : 'tst_source_question_pool');
 
         $filter = $this->getQuestionsBrowserFilterComponent($parent_title, $action);
-        // fau: testQuestionBrowserRoot - search only in the selected area
+        // fau: testQuestionBrowserRoot - search in the selected area
         $filter_data = $this->ui_service->filter()->getData($filter);
         $area_root = $this->resolveAreaRoot($filter_data, true);
         unset($filter_data['area_root'], $filter_data['area_ref_id']);
         $this->main_tpl->setOnScreenMessage('info', sprintf(
             $this->lng->txt('tst_question_browse_root_message'),
-            ilObject::_lookupTitle(ilObject::_lookupObjId($area_root))
+            htmlspecialchars(ilObject::_lookupTitle(ilObject::_lookupObjId($area_root)))
         ));
         $question_browser_table = $this->getQuestionsBrowserTable($parent_title, $area_root);
 
@@ -136,7 +136,7 @@ class ilTestQuestionBrowserTableGUI
         ))->getComponent($action, $this->http_state->request());
     }
 
-    // fau: testQuestionBrowserRoot - search area from filter, default is the container of the test
+    // fau: testQuestionBrowserRoot - search area, default is the test container
     private function getAreaOptions(): array
     {
         $options = [];
@@ -170,7 +170,7 @@ class ilTestQuestionBrowserTableGUI
     }
     // fau.
 
-    // fau: testQuestionBrowserRoot - search only in the selected area
+    // fau: testQuestionBrowserRoot - search in the selected area
     private function getQuestionsBrowserTable(string $parent_title = '', int $area_root = self::REPOSITORY_ROOT_NODE_ID): QuestionsBrowserTable
     {
         $question_list = new ilAssQuestionList($this->db, $this->lng, $this->refinery, $this->component_repository);
@@ -208,7 +208,7 @@ class ilTestQuestionBrowserTableGUI
         }
 
         if (in_array('ALL_OBJECTS', $selected_array, true)) {
-            // fau: testQuestionBrowserRoot - search only in the selected area
+            // fau: testQuestionBrowserRoot - search in the selected area
             $filter_data = $this->ui_service->filter()->getData($this->getQuestionsBrowserFilterComponent()) ?? [];
             $area_root = $this->resolveAreaRoot($filter_data);
             unset($filter_data['area_root'], $filter_data['area_ref_id']);
@@ -267,7 +267,7 @@ class ilTestQuestionBrowserTableGUI
         ))->getQuestionSetConfig();
     }
 
-    // fau: testQuestionBrowserRoot - search only in the selected area
+    // fau: testQuestionBrowserRoot - search in the selected area
     private function addModeParametersToQuestionList(ilAssQuestionList $question_list, int $area_root): ilAssQuestionList
     {
         if ($this->testrequest->raw(self::MODE_PARAMETER) === self::MODE_BROWSE_TESTS) {
@@ -279,7 +279,7 @@ class ilTestQuestionBrowserTableGUI
             return $question_list;
         }
 
-        // fau: testQuestionBrowserRoot - search only in the selected area
+        // fau: testQuestionBrowserRoot - search in the selected area
         $question_list->setParentObjIdsFilter($this->getQuestionParentObjIds($area_root) ?: [0]);
         // fau.
         $question_list->setQuestionInstanceTypeFilter(\ilAssQuestionList::QUESTION_INSTANCE_TYPE_ORIGINALS);
@@ -307,7 +307,7 @@ class ilTestQuestionBrowserTableGUI
 
         $parentIds = array_map('intval', array_values($parentIds));
         $available_pools = array_map('intval', array_keys(\ilObjQuestionPool::_getAvailableQuestionpools(true)));
-        // fau: testQuestionBrowserRoot - search only in the selected area
+        // fau: testQuestionBrowserRoot - search in the selected area
         return array_values(array_intersect($parentIds, $available_pools));
         // fau.
     }

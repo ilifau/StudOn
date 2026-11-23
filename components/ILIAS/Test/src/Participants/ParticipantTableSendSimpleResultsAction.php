@@ -29,7 +29,7 @@ use ILIAS\UI\URLBuilder;
 use ILIAS\UI\URLBuilderToken;
 use Psr\Http\Message\ServerRequestInterface;
 
-// fau: sendSimpleResults - send the result of the scored attempt as mail to selected participants
+// fau: sendSimpleResults - mail the scored result to participants
 class ParticipantTableSendSimpleResultsAction implements TableAction
 {
     public const ACTION_ID = 'send_simple_results_to_participants';
@@ -99,7 +99,7 @@ class ParticipantTableSendSimpleResultsAction implements TableAction
         array $selected_participants,
         bool $all_participants_selected
     ): ?Modal {
-        if (!$this->isAvailable()) {
+        if (!$this->isAvailable() || $request->getMethod() !== 'POST') {
             $this->tpl->setOnScreenMessage(
                 \ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
                 $this->lng->txt('no_permission'),
@@ -120,14 +120,14 @@ class ParticipantTableSendSimpleResultsAction implements TableAction
         $sent = [];
         $failed = [];
         foreach ($participant_data->getActiveIds() as $active_id) {
-            $name = $participant_data->getFormatedFullnameByActiveId($active_id);
+            $name = htmlspecialchars($participant_data->getFormatedFullnameByActiveId($active_id));
             $result = $this->test_result_repository->getTestResult($active_id);
             if ($result === null) {
                 $failed[] = $name;
                 continue;
             }
             $user = new \ilObjUser($participant_data->getUserIdByActiveId($active_id));
-            $time = $this->getAttemptDate($active_id);
+            $time = $this->getScoredAttemptDate($active_id);
 
             $subject = sprintf(
                 str_replace('\n', "\n", $this->lng->txt('send_simple_results_subject')),
@@ -195,22 +195,18 @@ class ParticipantTableSendSimpleResultsAction implements TableAction
         $builder = new \ilTestGradingMessageBuilder($this->lng, $this->tpl, $this->test_obj, $result);
         $message = $builder->buildGradingMarkMsg();
         $message = str_replace('<br />', "\n", $message);
-        $message = preg_replace('/<a.*href="([^"]*)".*>(.*)<\/a>/', '$2 ($1)', $message);
+        $message = preg_replace('/<a.*?href="([^"]*)".*?>(.*?)<\/a>/', '$2 ($1)', $message);
         return htmlspecialchars_decode(strip_tags($message), ENT_QUOTES);
     }
 
-    private function getAttemptDate(int $active_id): string
+    private function getScoredAttemptDate(int $active_id): string
     {
         $row = $this->db->fetchAssoc($this->db->queryF(
-            'SELECT submittimestamp FROM tst_active WHERE active_id = %s',
-            ['integer'],
-            [$active_id]
+            'SELECT MAX(finished) finished FROM tst_times WHERE active_fi = %s AND pass = %s',
+            ['integer', 'integer'],
+            [$active_id, \ilObjTest::_getResultPass($active_id) ?? 0]
         ));
-        $timestamp = $row['submittimestamp'] ?? null;
-        if (empty($timestamp)) {
-            $timestamp = $this->test_obj->_getLastAccess($active_id);
-        }
-        return empty($timestamp) ? '' : date('d.m.Y H:i', strtotime((string) $timestamp));
+        return empty($row['finished']) ? '' : date('d.m.Y H:i', strtotime((string) $row['finished']));
     }
 }
 // fau.

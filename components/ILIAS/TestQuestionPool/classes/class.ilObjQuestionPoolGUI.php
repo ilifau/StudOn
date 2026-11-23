@@ -1221,8 +1221,8 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
     public function printObject(): void
     {
         $this->tabs_gui->activateTab('print_view');
-        // fau: questionPrint - keep page break option in mode links, add mode with scoring
-        $pagebreak = (bool) ($this->request_data_collector->raw('pagebreak') ?? false);
+        // fau: questionPrint - page break option, scoring mode
+        $pagebreak = $this->request_data_collector->int('pagebreak') === 1;
         $this->ctrl->setParameter($this, 'pagebreak', (int) $pagebreak);
         // fau.
         $this->ctrl->setParameter($this, 'output', 'overview');
@@ -1231,7 +1231,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
         $output_link_detailed = $this->ctrl->getLinkTargetByClass([ilRepositoryGUI::class, self::class], 'print');
         $this->ctrl->setParameter($this, 'output', 'detailed_output_printview');
         $output_link_printview = $this->ctrl->getLinkTargetByClass([ilRepositoryGUI::class, self::class], 'print');
-        // fau: questionPrint - keep page break option in mode links, add mode with scoring
+        // fau: questionPrint - page break option, scoring mode
         $this->ctrl->setParameter($this, 'output', 'detailed_output_scoring');
         $output_link_scoring = $this->ctrl->getLinkTargetByClass([ilRepositoryGUI::class, self::class], 'print');
         // fau.
@@ -1239,7 +1239,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
         $mode = $this->ui_factory->dropdown()->standard([
             $this->ui_factory->button()->shy($this->lng->txt('overview'), $output_link),
             $this->ui_factory->button()->shy($this->lng->txt('detailed_output_solutions'), $output_link_detailed),
-            // fau: questionPrint - keep page break option in mode links, add mode with scoring
+            // fau: questionPrint - page break option, scoring mode
             $this->ui_factory->button()->shy($this->lng->txt('detailed_output_scoring'), $output_link_scoring),
             // fau.
             $this->ui_factory->button()->shy($this->lng->txt('detailed_output_printview'), $output_link_printview)

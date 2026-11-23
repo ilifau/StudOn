@@ -136,7 +136,7 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
             }
             // fau.
 
-            // fau: taxGroupFilter - add option for group selection, only effective with amount per pool
+            // fau: taxGroupFilter - group selection, only with amount per pool
             if ($this->questionSetConfig->isQuestionAmountConfigurationModePerPool()) {
                 $group_filter = new ilCheckboxInputGUI($this->lng->txt('tst_group_filter'), 'tst_group_filter');
                 $group_filter->setInfo($this->lng->txt('tst_group_filter_info'));
@@ -274,7 +274,7 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
 
         // fau.
 
-        // fau: taxGroupFilter - submit group setting, the group taxonomy must be used in the filter
+        // fau: taxGroupFilter - submit group setting
         if ($available_taxonomy_ids !== [] && $this->questionSetConfig->isQuestionAmountConfigurationModePerPool()) {
             $group_tax_id = (int) $this->getItemByPostVar('tst_group_filter_tax')->getValue();
             if ($this->getItemByPostVar('tst_group_filter')->getChecked()

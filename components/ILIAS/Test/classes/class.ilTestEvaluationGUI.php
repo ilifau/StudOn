@@ -198,8 +198,10 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             $attempt_id = ilObjTest::_getResultPass($current_active_id);
         }
 
-        // fau: deleteTestPass - button to delete the shown attempt
-        if ($this->testAccess->checkManageParticipantsAccess()) {
+        // fau: deleteTestPass - button to delete the shown finished attempt
+        if ($this->testAccess->checkManageParticipantsAccess()
+            && $attempt_id >= 0
+            && $attempt_id <= $this->getLastFinishedAttempt($current_active_id)) {
             $this->ctrl->setParameterByClass(self::class, 'active_id', $current_active_id);
             $this->ctrl->setParameterByClass(self::class, 'pass', $attempt_id);
             $this->ctrl->setParameterByClass(self::class, 'context', ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS);
@@ -597,6 +599,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
         // fau: deleteTestPass - test admins may delete any finished attempt
         if ($context === ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS) {
+            $this->ctrl->saveParameterByClass(self::class, 'active_ids');
             $this->checkAdminPassDeletion(
                 $this->testrequest->getActiveId(),
                 $this->testrequest->int('pass')
@@ -646,9 +649,12 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $active_fi = $this->testrequest->int('active_id');
         $pass = $this->testrequest->int('pass');
 
-        // fau: deleteTestPass - test admins may delete any finished attempt, including the scored one
+        // fau: deleteTestPass - admins may delete any finished attempt
         $admin_context = $context === ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS;
         if ($admin_context) {
+            if ($this->http->request()->getMethod() !== 'POST') {
+                ilObjTestGUI::accessViolationRedirect();
+            }
             $this->checkAdminPassDeletion($active_fi, $pass);
         } elseif (!$this->object->isPassDeletionAllowed()) {
             $this->redirectToPassDeletionContext($context);
@@ -664,7 +670,13 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             $this->ctrl->redirect($this, 'outUserResultsOverview');
         }
 
-        $file_upload_data = $admin_context ? $this->collectFileUploadsOfAttempt($active_fi, $pass) : [];
+        if ($admin_context) {
+            $user_id = ilObjTest::_getUserIdFromActiveId($active_fi);
+            $file_upload_data = $this->collectFileUploadsOfAttempt($active_fi, $pass);
+            if ($pass === 0 && $this->getLastFinishedAttempt($active_fi) === 0) {
+                $this->test_result_repository->removeTestResults([$active_fi], $this->object->getId());
+            }
+        }
         // fau.
 
         // Get information
@@ -836,7 +848,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
         // fau: deleteTestPass - clean up data of the attempt that ILIAS leaves behind
         if ($admin_context) {
-            $this->cleanupDeletedAttempt($active_fi, $pass, $must_renumber, $last_pass, $file_upload_data);
+            $this->cleanupDeletedAttempt($active_fi, $pass, $must_renumber, $last_pass, $file_upload_data ?? []);
         }
         // fau.
 
@@ -844,7 +856,6 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
         // fau: deleteTestPass - update learning progress, log and show a message
         if ($admin_context) {
-            $user_id = ilObjTest::_getUserIdFromActiveId($active_fi);
             ilLPStatusWrapper::_updateStatus($this->object->getId(), $user_id);
 
             $logger = $this->object->getTestLogger();
@@ -862,6 +873,9 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
                 );
             }
             $this->tpl->setOnScreenMessage('success', $this->lng->txt('tst_attempt_deleted'), true);
+            if ($last_pass) {
+                $this->redirectBackToParticipantsScreen();
+            }
         }
         // fau.
 
@@ -871,21 +885,29 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
     // fau: deleteTestPass - helpers for the deletion by test admins
     private function checkAdminPassDeletion(int $active_id, int $pass): void
     {
+        global $DIC;
+        $user_filter = (new ilTestParticipantAccessFilterFactory($DIC->access()))
+            ->getManageParticipantsUserFilter($this->object->getRefId());
         if (!$this->testAccess->checkManageParticipantsAccess()
-            || !$this->testAccess->checkResultsAccessForActiveId($active_id, $this->object->getTestId())) {
+            || !$this->testAccess->checkResultsAccessForActiveId($active_id, $this->object->getTestId())
+            || $user_filter([ilObjTest::_getUserIdFromActiveId($active_id)]) === []) {
             ilObjTestGUI::accessViolationRedirect();
         }
 
-        $res = $this->db->queryF(
-            'SELECT last_finished_pass FROM tst_active WHERE active_id = %s',
-            ['integer'],
-            [$active_id]
-        );
-        $row = $this->db->fetchAssoc($res);
-        if ($row === null || $row['last_finished_pass'] === null || $pass > (int) $row['last_finished_pass']) {
+        if ($pass < 0 || $pass > $this->getLastFinishedAttempt($active_id)) {
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt('tst_delete_attempt_not_finished'), true);
             $this->redirectToPassDeletionContext(ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS);
         }
+    }
+
+    private function getLastFinishedAttempt(int $active_id): int
+    {
+        $row = $this->db->fetchAssoc($this->db->queryF(
+            'SELECT last_finished_pass FROM tst_active WHERE active_id = %s',
+            ['integer'],
+            [$active_id]
+        ));
+        return isset($row['last_finished_pass']) ? (int) $row['last_finished_pass'] : -1;
     }
 
     private function collectFileUploadsOfAttempt(int $active_id, int $pass): array
@@ -912,7 +934,14 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         bool $last_pass,
         array $file_upload_data
     ): void {
-        foreach ([['tst_test_rnd_qst', 'active_fi'], [PassPresentedVariablesRepo::TABLE_NAME, 'active_id']] as [$table, $column]) {
+        $tables = [
+            'tst_test_rnd_qst' => 'active_fi',
+            'tst_seq_qst_presented' => 'active_fi',
+            'tst_seq_qst_checked' => 'active_fi',
+            'tst_seq_qst_optional' => 'active_fi',
+            PassPresentedVariablesRepo::TABLE_NAME => 'active_id'
+        ];
+        foreach ($tables as $table => $column) {
             $this->db->manipulateF(
                 "DELETE FROM {$table} WHERE {$column} = %s AND pass = %s",
                 ['integer', 'integer'],
@@ -938,18 +967,18 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         global $DIC;
         $irss = $DIC->resourceStorage();
         foreach ($file_upload_data as $file) {
+            $is_rid = $file['value2'] === 'rid';
             $still_used = $this->db->fetchAssoc($this->db->queryF(
-                'SELECT COUNT(*) cnt FROM tst_solutions WHERE value1 = %s AND value2 = %s'
-                . ($file['value2'] === 'rid' ? '' : ' AND active_fi = %s AND question_fi = %s'),
-                $file['value2'] === 'rid' ? ['text', 'text'] : ['text', 'text', 'integer', 'integer'],
-                $file['value2'] === 'rid'
-                    ? [$file['value1'], 'rid']
-                    : [$file['value1'], $file['value2'], $active_id, (int) $file['question_fi']]
+                $is_rid
+                    ? "SELECT COUNT(*) cnt FROM tst_solutions WHERE value1 = %s AND value2 = 'rid'"
+                    : 'SELECT COUNT(*) cnt FROM tst_solutions WHERE value1 = %s AND active_fi = %s AND question_fi = %s',
+                $is_rid ? ['text'] : ['text', 'integer', 'integer'],
+                $is_rid ? [$file['value1']] : [$file['value1'], $active_id, (int) $file['question_fi']]
             ));
             if ((int) ($still_used['cnt'] ?? 0) > 0) {
                 continue;
             }
-            if ($file['value2'] === 'rid') {
+            if ($is_rid) {
                 $rid = $irss->manage()->find($file['value1']);
                 if ($rid !== null) {
                     $irss->manage()->remove($rid, new assFileUploadStakeholder());

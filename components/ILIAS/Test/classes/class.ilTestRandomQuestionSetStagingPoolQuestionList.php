@@ -242,7 +242,7 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
             $sort_keys[(int) $row['question_id']] = (string) $row['sort_key'];
         }
         if ($this->getOrderBy()) {
-            natsort($sort_keys);
+            natcasesort($sort_keys);
         }
         $this->questions = array_keys($sort_keys);
         // fau.
@@ -370,7 +370,7 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
         // fau.
     }
 
-    // fau: taxGroupFilter - select questions from one random group or from all questions, keeping their order
+    // fau: taxGroupFilter - select questions from a random group
     public function getSelectedQuestions(): array
     {
         if ($this->getSelectSize() <= 0) {

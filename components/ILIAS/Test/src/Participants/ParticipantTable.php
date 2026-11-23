@@ -445,7 +445,7 @@ class ParticipantTable implements DataRetrieval
         }
 
         if ($this->test_access->checkParticipantsResultsAccess()) {
-            // fau: testParticipantsResultsTable - columns for scored attempt and its last access
+            // fau: testParticipantsResultsTable - scored attempt columns
             $columns['scored_attempt'] = $column_factory->number($this->lng->txt('tst_tbl_col_scored_pass'))
                 ->withIsOptional(true, true)
                 ->withIsSortable(true);

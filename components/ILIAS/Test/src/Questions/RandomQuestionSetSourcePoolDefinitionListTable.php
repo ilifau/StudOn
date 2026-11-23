@@ -80,7 +80,7 @@ class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingRetrieva
             // fau: taxGroupFilter - show the group taxonomy
             if (!empty($qp['group_tax_id'])) {
                 $record['taxonomy_filter'] .= '<br />' . $this->lng->txt('tst_group_filter') . ': '
-                    . \ilObject::_lookupTitle((int) $qp['group_tax_id']);
+                    . htmlspecialchars(\ilObject::_lookupTitle((int) $qp['group_tax_id']));
             }
             // fau.
             // fau: randomSetOrder - show the order of the questions
@@ -107,7 +107,7 @@ class RandomQuestionSetSourcePoolDefinitionListTable implements OrderingRetrieva
             $set['lifecycle_filter'] = $source_pool_definition->getLifecycleFilter();
             $set['type_filter'] = $source_pool_definition->getTypeFilter();
             // fau.
-            // fau: taxGroupFilter - group taxonomy, original or mapped like the taxonomy filter
+            // fau: taxGroupFilter - group taxonomy
             $set['group_tax_id'] = $source_pool_definition->getOriginalTaxonomyFilter() !== []
                 ? $source_pool_definition->getOriginalGroupTaxId()
                 : $source_pool_definition->getMappedGroupTaxId();
