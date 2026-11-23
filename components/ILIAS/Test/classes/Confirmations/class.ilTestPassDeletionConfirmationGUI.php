@@ -28,6 +28,9 @@ class ilTestPassDeletionConfirmationGUI extends ilConfirmationGUI
 {
     public const CONTEXT_PASS_OVERVIEW = 'contPassOverview';
     public const CONTEXT_INFO_SCREEN = 'contInfoScreen';
+    // fau: deleteTestPass - context of the test admin in the results of participants
+    public const CONTEXT_PARTICIPANTS = 'contParticipants';
+    // fau.
 
     protected ilCtrl $ctrl;
 
@@ -49,6 +52,9 @@ class ilTestPassDeletionConfirmationGUI extends ilConfirmationGUI
         switch ($context) {
             case self::CONTEXT_PASS_OVERVIEW:
             case self::CONTEXT_INFO_SCREEN:
+            // fau: deleteTestPass - context of the test admin in the results of participants
+            case self::CONTEXT_PARTICIPANTS:
+            // fau.
 
                 $this->addHiddenItem('context', $context);
                 break;

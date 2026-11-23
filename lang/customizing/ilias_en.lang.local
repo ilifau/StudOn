@@ -49,7 +49,10 @@ assessment#:#send_simple_results_to_participants_failed#:#It was not possible to
 assessment#:#send_simple_results_to_participants_success#:#A message was sent to the following users:<br />%s
 assessment#:#sent_simple_results_to_participants#:#The results were sent to the participants.
 assessment#:#show_detailed_results_with_correct_solutions#:#Detailed examination results with correct solutions (evaluated test run)
+assessment#:#tst_attempt_deleted#:#The attempt has been deleted.###fau: deleteTestPass
 assessment#:#tst_authorship_statement#:#Declaration of originality
+assessment#:#tst_delete_attempt#:#Delete Attempt###fau: deleteTestPass
+assessment#:#tst_delete_attempt_not_finished#:#This attempt is not finished yet and cannot be deleted. First finish the test for this person (Participants → select → "Finish Test").###fau: deleteTestPass
 assessment#:#tst_filter_order_by#:#Order of the questions
 assessment#:#tst_filter_order_by_info#:#If the test does not generally mix the questions, the questions of this selection rule remain in consecutive order. You can choose how to sort them here.
 assessment#:#tst_filter_order_description#:#According to description
