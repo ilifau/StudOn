@@ -42,6 +42,7 @@ assessment#:#err_cloze_not_numeric#:#You have entered text in a space that requi
 assessment#:#fq_err_no_numeric_value#:#Please enter a numeric value or a fraction.
 assessment#:#fq_formula_desc_additional#:#atan2(y;x)' is also supported in StudOn (please separate the parameters using a semicolon).
 assessment#:#send_simple_results_body#:#%s\n\nName: %s\nStudent registration number: %s\nDate of test run: %s
+assessment#:#send_simple_results_no_valid_participants#:#None of the selected participants has a finished attempt.###fau: sendSimpleResults
 assessment#:#send_simple_results_subject#:#Result "%s" from %s
 assessment#:#send_simple_results_to_participants#:#Send simple result in an e-mail (evaluated test run)
 assessment#:#send_simple_results_to_participants_confirm#:#Send result in an e-mail to selected candidates?<br />The name, student registration number, date of the test run and the text feedback are included in the email for the evaluated test run.

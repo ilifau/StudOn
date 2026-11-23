@@ -40,6 +40,7 @@ assessment#:#err_cloze_not_numeric#:#Sie haben Text in eine Lücke eingegeben, d
 assessment#:#fq_err_no_numeric_value#:#Bitte geben Sie einen numerischen Wert oder einen Bruch ein.
 assessment#:#fq_formula_desc_additional#:#In StudOn wird auch 'atan2(y;x)' unterstützt (bitte Parameter per Semikolon trennen).
 assessment#:#send_simple_results_body#:#%s\n\nName: %s\nMatrikelnummer: %s\nDatum des Durchlaufs: %s
+assessment#:#send_simple_results_no_valid_participants#:#Keiner der ausgewählten Teilnehmer hat einen beendeten Durchlauf.###fau: sendSimpleResults
 assessment#:#send_simple_results_subject#:#Ergebnis "%s" vom %s
 assessment#:#send_simple_results_to_participants#:#Einfaches Ergebnis als Mail senden (bewerteter Testdurchlauf)
 assessment#:#send_simple_results_to_participants_confirm#:#Ergebnis als Mail an die ausgewählten Teilnehmer senden?<br />Gesendet werden für den bewerteten Testdurchlauf der Name, die Matrikelnummer, das Datum des Tests und die textuelle Rückmeldung.

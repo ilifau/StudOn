@@ -84,7 +84,9 @@ class ilTestGradingMessageBuilder
         return $this->lng->txt('grading_status_failed_msg');
     }
 
-    private function buildGradingMarkMsg()
+    // fau: sendSimpleResults - public access to the mark message
+    public function buildGradingMarkMsg()
+    // fau.
     {
         $mark_msg = $this->lng->txt('grading_mark_msg');
 
