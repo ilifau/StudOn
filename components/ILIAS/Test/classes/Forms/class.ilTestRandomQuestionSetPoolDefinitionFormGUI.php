@@ -136,25 +136,27 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
             }
             // fau.
 
-            // fau: taxGroupFilter - add option for group selection
-            $group_filter = new ilCheckboxInputGUI($this->lng->txt('tst_group_filter'), 'tst_group_filter');
-            $group_filter->setInfo($this->lng->txt('tst_group_filter_info'));
-            $group_filter->setChecked((bool) $sourcePool->getOriginalGroupTaxId());
-            $this->addItem($group_filter);
+            // fau: taxGroupFilter - add option for group selection, only effective with amount per pool
+            if ($this->questionSetConfig->isQuestionAmountConfigurationModePerPool()) {
+                $group_filter = new ilCheckboxInputGUI($this->lng->txt('tst_group_filter'), 'tst_group_filter');
+                $group_filter->setInfo($this->lng->txt('tst_group_filter_info'));
+                $group_filter->setChecked((bool) $sourcePool->getOriginalGroupTaxId());
+                $this->addItem($group_filter);
 
-            $group_filter_tax = new ilSelectInputGUI($this->lng->txt('tst_group_filter_tax'), 'tst_group_filter_tax');
-            $group_filter_tax->setInfo($this->lng->txt('tst_group_filter_tax_info'));
-            $options = [];
-            foreach ($available_taxonomy_ids as $tax_id) {
-                $options[$tax_id] = (new ilObjTaxonomy($tax_id))->getTitle();
+                $group_filter_tax = new ilSelectInputGUI($this->lng->txt('tst_group_filter_tax'), 'tst_group_filter_tax');
+                $group_filter_tax->setInfo($this->lng->txt('tst_group_filter_tax_info'));
+                $options = [];
+                foreach ($available_taxonomy_ids as $tax_id) {
+                    $options[$tax_id] = (new ilObjTaxonomy($tax_id))->getTitle();
+                }
+                $group_filter_tax->setOptions($options);
+                $group_filter_tax->setValue((string) $sourcePool->getOriginalGroupTaxId());
+                $group_filter->addSubItem($group_filter_tax);
+
+                $warning = new ilNonEditableValueGUI();
+                $warning->setInfo($this->lng->txt('tst_group_filter_info_warning'));
+                $group_filter->addSubItem($warning);
             }
-            $group_filter_tax->setOptions($options);
-            $group_filter_tax->setValue((string) $sourcePool->getOriginalGroupTaxId());
-            $group_filter->addSubItem($group_filter_tax);
-
-            $warning = new ilNonEditableValueGUI();
-            $warning->setInfo($this->lng->txt('tst_group_filter_info_warning'));
-            $group_filter->addSubItem($warning);
             // fau.
         } else {
             $hiddenNoTax = new ilHiddenInputGUI('filter_tax');
@@ -273,7 +275,7 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
         // fau.
 
         // fau: taxGroupFilter - submit group setting, the group taxonomy must be used in the filter
-        if ($available_taxonomy_ids !== []) {
+        if ($available_taxonomy_ids !== [] && $this->questionSetConfig->isQuestionAmountConfigurationModePerPool()) {
             $group_tax_id = (int) $this->getItemByPostVar('tst_group_filter_tax')->getValue();
             if ($this->getItemByPostVar('tst_group_filter')->getChecked()
                 && array_key_exists($group_tax_id, $taxonomy_filter)) {
