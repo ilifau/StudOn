@@ -158,6 +158,9 @@ class ilTestEvaluationFactory
                 if ($start_time !== null) {
                     $attempt->setStartTime($start_time);
                 }
+                // fau: testParticipantsResultsTable - last access of the attempt
+                $attempt->setLastAccessTime($this->getLastVisitForActiveIdAndAttempt($row['active_id'], $current_attempt));
+                // fau.
                 $attempt->setStatusOfAttempt(
                     StatusOfAttempt::build($current_attempt, $row['last_finished_pass'], $row['finalized_by'])
                 );
@@ -450,4 +453,18 @@ class ilTestEvaluationFactory
 
         return $times['first_access'];
     }
+
+    // fau: testParticipantsResultsTable - last access of the attempt
+    private function getLastVisitForActiveIdAndAttempt(int $active_id, int $attempt): ?string
+    {
+        $times = $this->db->fetchAssoc(
+            $this->db->queryF(
+                'SELECT MAX(finished) AS last_access FROM tst_times WHERE active_fi = %s AND pass = %s',
+                ['integer', 'integer'],
+                [$active_id, $attempt]
+            )
+        );
+        return $times['last_access'] ?? null;
+    }
+    // fau.
 }
