@@ -394,6 +394,26 @@ class ilSoapFunctions
     /**
      * @return bool|int|soap_fault|SoapFault|null
      */
+    // fau: sendSimpleResults - send mails for the exam installation
+    public static function sendUserMail(
+        string $sid,
+        string $to,
+        ?string $cc,
+        ?string $bcc,
+        ?string $sender,
+        string $subject,
+        string $message,
+        ?string $attach,
+        ?string $type,
+        $use_placeholders
+    ) {
+        $sou = new ilSoapUtils();
+        $sou->disableSOAPCheck();
+        $sou->ignoreUserAbort();
+        return $sou->sendUserMail($sid, $to, (string) $cc, (string) $bcc, $subject, $message);
+    }
+    // fau.
+
     public static function ilClone(string $sid, int $copy_identifier)
     {
         $sou = new ilSoapUtils();

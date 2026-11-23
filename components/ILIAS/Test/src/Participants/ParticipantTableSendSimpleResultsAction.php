@@ -34,6 +34,8 @@ class ParticipantTableSendSimpleResultsAction implements TableAction
 {
     public const ACTION_ID = 'send_simple_results_to_participants';
 
+    private ?\ilRemoteIliasClient $remote_client = null;
+
     public function __construct(
         private readonly Language $lng,
         private readonly \ilGlobalTemplateInterface $tpl,
@@ -117,6 +119,18 @@ class ParticipantTableSendSimpleResultsAction implements TableAction
         );
         $participant_data->load($this->test_obj->getTestId());
 
+        if (\ilRemoteIliasClient::isRemoteNotificationEnabled()) {
+            $this->remote_client = new \ilRemoteIliasClient();
+            if ($this->remote_client->login() === null) {
+                $this->tpl->setOnScreenMessage(
+                    \ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
+                    $this->lng->txt('ilias_remote_soap_login_failed'),
+                    true
+                );
+                return null;
+            }
+        }
+
         $sent = [];
         $failed = [];
         foreach ($participant_data->getActiveIds() as $active_id) {
@@ -149,6 +163,8 @@ class ParticipantTableSendSimpleResultsAction implements TableAction
             }
         }
 
+        $this->remote_client?->logout();
+
         if ($failed !== []) {
             $this->tpl->setOnScreenMessage(
                 \ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
@@ -179,6 +195,10 @@ class ParticipantTableSendSimpleResultsAction implements TableAction
 
     private function deliver(\ilObjUser $user, string $subject, string $body): bool
     {
+        if ($this->remote_client !== null) {
+            return filter_var($user->getEmail(), FILTER_VALIDATE_EMAIL) !== false
+                && $this->remote_client->sendUserMail($user->getEmail(), $subject, $body);
+        }
         $errors = (new \ilMail(ANONYMOUS_USER_ID))->enqueue(
             $user->getLogin(),
             '',
