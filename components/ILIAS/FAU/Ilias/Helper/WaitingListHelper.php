@@ -396,7 +396,7 @@ trait WaitingListHelper
      */
     public function getSubject($a_usr_id)
     {
-        return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['subject'] : '';
+        return isset($this->users[$a_usr_id]) && $this->users[$a_usr_id]['subject'] !== null ? $this->users[$a_usr_id]['subject'] : '';
     }
 
 
