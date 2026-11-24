@@ -153,6 +153,15 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
             $this->tpl->parseCurrentBlock();
         }
 
+        // fau: uiHooksCourseGroup - show plugin-provided member row warnings
+        if ($this->getParentObject() instanceof ilGroupMembershipGUI) {
+            foreach ($this->getParentObject()->getGroupMembershipRowWarnings($a_set['usr_id']) as $warning) {
+                $this->tpl->setCurrentBlock('access_warning');
+                $this->tpl->setVariable('PARENT_ACCESS', htmlspecialchars($warning, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'));
+                $this->tpl->parseCurrentBlock();
+            }
+        }
+        // fau.
 
         foreach ($this->getSelectedColumns() as $field) {
             switch ($field) {

@@ -35,6 +35,9 @@ class ilGroupMembershipGUI extends ilMembershipGUI
 {
     protected GlobalHttpState $http;
     protected Factory $refinery;
+    // fau: uiHooksCourseGroup - cache member row warning providers
+    private ?array $member_row_warning_hooks = null;
+    // fau.
 
     public function __construct(ilObjectGUI $repository_gui, ilObject $repository_obj)
     {
@@ -87,6 +90,23 @@ class ilGroupMembershipGUI extends ilMembershipGUI
         }
         return $commands;
     }
+
+    // fau: uiHooksCourseGroup - allow plugins to provide member row warnings
+    /**
+     * @return string[] Plain-text warnings for a member row.
+     */
+    public function getGroupMembershipRowWarnings(int $user_id): array
+    {
+        $this->member_row_warning_hooks ??= $this->getGroupMembershipUIHookGUIs();
+        $warnings = [];
+        foreach ($this->member_row_warning_hooks as $hook_gui) {
+            if (method_exists($hook_gui, 'getGroupMembershipRowWarnings')) {
+                $warnings = array_merge($warnings, $hook_gui->getGroupMembershipRowWarnings($this, $user_id));
+            }
+        }
+        return $warnings;
+    }
+    // fau.
 
     /**
      * @return ilUIHookPluginGUI[]
