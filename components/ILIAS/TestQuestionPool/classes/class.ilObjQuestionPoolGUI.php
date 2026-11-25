@@ -1263,8 +1263,11 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
         // fau.
 
         $table_gui = new ilQuestionPoolPrintViewTableGUI($this, 'print', $output);
-        // fau: questionPrint - toggle for page breaks
+        // fau: questionPrint - toggle for page breaks, flex layout prevents page breaks in Firefox
         $table_gui->setPageBreak($pagebreak);
+        if ($pagebreak) {
+            $this->tpl->addInlineCss('.row { display: block !important; } .il-layout-page-content { overflow: visible !important; }', 'print');
+        }
         // fau.
         $data = $this->object->getPrintviewQuestions();
         $totalPoints = 0;
