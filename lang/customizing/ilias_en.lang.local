@@ -54,6 +54,7 @@ assessment#:#tst_attempt_deleted#:#The attempt has been deleted.###fau: deleteTe
 assessment#:#tst_authorship_statement#:#Declaration of originality
 assessment#:#tst_delete_attempt#:#Delete Attempt###fau: deleteTestPass
 assessment#:#tst_delete_attempt_not_finished#:#This attempt is not finished yet and cannot be deleted. First finish the test for this person (Participants → select → "Finish Test").###fau: deleteTestPass
+assessment#:#tst_delete_attempt_other_running#:#This person still has an unfinished attempt. First finish the test for this person (Participants → select → "Finish Test"), then attempts can be deleted.###fau: deleteTestPass
 assessment#:#tst_filter_order_by#:#Order of the questions
 assessment#:#tst_filter_order_by_info#:#If the test does not generally mix the questions, the questions of this selection rule remain in consecutive order. You can choose how to sort them here.
 assessment#:#tst_filter_order_description#:#According to description

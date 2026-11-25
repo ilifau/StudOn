@@ -52,6 +52,7 @@ assessment#:#tst_attempt_deleted#:#Der Durchlauf wurde gelöscht.###fau: deleteT
 assessment#:#tst_authorship_statement#:#Eigenständigkeitserklärung
 assessment#:#tst_delete_attempt#:#Durchlauf löschen###fau: deleteTestPass
 assessment#:#tst_delete_attempt_not_finished#:#Dieser Durchlauf ist noch nicht beendet und kann nicht gelöscht werden. Beenden Sie zuerst den Test für diese Person (Teilnehmer → ankreuzen → „Test beenden“).###fau: deleteTestPass
+assessment#:#tst_delete_attempt_other_running#:#Diese Person hat noch einen offenen Durchlauf. Beenden Sie zuerst den Test für diese Person (Teilnehmer → ankreuzen → „Test beenden“), dann können Durchläufe gelöscht werden.###fau: deleteTestPass
 assessment#:#tst_filter_order_by#:#Reihenfolge der Fragen
 assessment#:#tst_filter_order_by_info#:#Wenn der Test die Fragen nicht generell mischt, bleiben die Fragen dieser Auswahlregel hintereinander. Ihre Sortierung kann hier bestimmt werden.
 assessment#:#tst_filter_order_description#:#Nach Beschreibung

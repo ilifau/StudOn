@@ -894,8 +894,19 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             ilObjTestGUI::accessViolationRedirect();
         }
 
-        if ($pass < 0 || $pass > $this->getLastFinishedAttempt($active_id)) {
+        $last_finished = $this->getLastFinishedAttempt($active_id);
+        if ($pass < 0 || $pass > $last_finished) {
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt('tst_delete_attempt_not_finished'), true);
+            $this->redirectToPassDeletionContext(ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS);
+        }
+
+        $running = $this->db->fetchAssoc($this->db->queryF(
+            'SELECT COUNT(*) cnt FROM tst_sequence WHERE active_fi = %s AND pass > %s',
+            ['integer', 'integer'],
+            [$active_id, $last_finished]
+        ));
+        if ((int) ($running['cnt'] ?? 0) > 0) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('tst_delete_attempt_other_running'), true);
             $this->redirectToPassDeletionContext(ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS);
         }
     }
