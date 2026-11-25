@@ -852,7 +852,11 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         }
         // fau.
 
-        $this->test_result_repository->updateTestResultCache((int) $active_fi);
+        // fau: deleteTestPass - no result update when the participant record of the last attempt is gone
+        if (!($admin_context && $last_pass)) {
+            $this->test_result_repository->updateTestResultCache((int) $active_fi);
+        }
+        // fau.
 
         // fau: deleteTestPass - update learning progress, log and show a message
         if ($admin_context) {
