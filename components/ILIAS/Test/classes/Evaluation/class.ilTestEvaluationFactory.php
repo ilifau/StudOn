@@ -154,12 +154,13 @@ class ilTestEvaluationFactory
                     $row
                 );
 
-                $start_time = $this->getFirstVisitForActiveIdAndAttempt($row['active_id'], $current_attempt);
+                // fau: testParticipantsResultsTable - first and last access of the attempt with one query
+                $visits = $this->getVisitsForActiveIdAndAttempt($row['active_id'], $current_attempt);
+                $start_time = $visits['first_access'] ?? null;
                 if ($start_time !== null) {
                     $attempt->setStartTime($start_time);
                 }
-                // fau: testParticipantsResultsTable - last access of the attempt
-                $attempt->setLastAccessTime($this->getLastVisitForActiveIdAndAttempt($row['active_id'], $current_attempt));
+                $attempt->setLastAccessTime($visits['last_access'] ?? null);
                 // fau.
                 $attempt->setStatusOfAttempt(
                     StatusOfAttempt::build($current_attempt, $row['last_finished_pass'], $row['finalized_by'])
@@ -454,17 +455,17 @@ class ilTestEvaluationFactory
         return $times['first_access'];
     }
 
-    // fau: testParticipantsResultsTable - last access of the attempt
-    private function getLastVisitForActiveIdAndAttempt(int $active_id, int $attempt): ?string
+    // fau: testParticipantsResultsTable - first and last access of the attempt with one query
+    private function getVisitsForActiveIdAndAttempt(int $active_id, int $attempt): array
     {
-        $times = $this->db->fetchAssoc(
+        return $this->db->fetchAssoc(
             $this->db->queryF(
-                'SELECT MAX(finished) AS last_access FROM tst_times WHERE active_fi = %s AND pass = %s',
+                'SELECT MIN(started) AS first_access, MAX(finished) AS last_access '
+                    . 'FROM tst_times WHERE active_fi = %s AND pass = %s',
                 ['integer', 'integer'],
                 [$active_id, $attempt]
             )
-        );
-        return $times['last_access'] ?? null;
+        ) ?? [];
     }
     // fau.
 }
