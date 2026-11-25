@@ -200,6 +200,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
         // fau: deleteTestPass - button to delete the shown finished attempt
         if ($this->testAccess->checkManageParticipantsAccess()
+            && $attempt_id !== null
             && $attempt_id >= 0
             && $attempt_id <= $this->getLastFinishedAttempt($current_active_id)) {
             $this->ctrl->setParameterByClass(self::class, 'active_id', $current_active_id);
@@ -673,9 +674,6 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         if ($admin_context) {
             $user_id = ilObjTest::_getUserIdFromActiveId($active_fi);
             $file_upload_data = $this->collectFileUploadsOfAttempt($active_fi, $pass);
-            if ($pass === 0 && $this->getLastFinishedAttempt($active_fi) === 0) {
-                $this->test_result_repository->removeTestResults([$active_fi], $this->object->getId());
-            }
         }
         // fau.
 
@@ -724,6 +722,12 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         } else {
             $last_pass = false;
         }
+
+        // fau: deleteTestPass - remove result data and its cache while the participant record still exists
+        if ($admin_context && $last_pass) {
+            $this->test_result_repository->removeTestResults([$active_fi], $this->object->getId());
+        }
+        // fau.
 
         // Work on tables:
         // tst_active
