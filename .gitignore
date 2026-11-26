@@ -35,6 +35,16 @@
 
 # Directories
 /public
+!/public/
+/public/*
+!/public/Customizing/
+/public/Customizing/*
+!/public/Customizing/libs/
+/public/Customizing/libs/*
+!/public/Customizing/libs/lightbox2/
+!/public/Customizing/global/
+/public/Customizing/global/*
+!/public/Customizing/global/agreement/
 /Customizing/global
 /Customizing/clients
 /Customizing/skin
