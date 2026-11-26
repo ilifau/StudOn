@@ -1110,7 +1110,6 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
      */
     public function updateRegistrationRefIdObject()
     {
-        require_once('Services/Membership/classes/class.ilMembershipRegistrationSettings.php');
         $this->initForm('edit');
         $input = $this->form->getItemByPostVar('registration_ref_id');
         $input->readFromSession();

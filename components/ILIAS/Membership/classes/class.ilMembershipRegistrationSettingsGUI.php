@@ -70,7 +70,6 @@ abstract class ilMembershipRegistrationSettingsGUI
         // fau: objectSub - add option for reference to subscription object
         global $lng;
         if (in_array(ilMembershipRegistrationSettings::TYPE_OBJECT, $this->getOptions())) {
-            require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
             $opt_obj = new ilRadioOption($lng->txt('sub_separate_object'), (string) ilMembershipRegistrationSettings::TYPE_OBJECT);
             $opt_obj->setInfo($lng->txt('sub_separate_object_info'));
             $rep_sel = new ilRepositorySelectorInputGUI($lng->txt('sub_subscription_object'), 'registration_ref_id');
@@ -83,7 +82,6 @@ abstract class ilMembershipRegistrationSettingsGUI
 
             if ($ref_id = $this->object->getRegistrationRefId()) {
                 $rep_sel->setValue($ref_id);
-                require_once('Services/Locator/classes/class.ilLocatorGUI.php');
                 $locator = new ilLocatorGUI();
                 $locator->setTextOnly(true);
                 $locator->addContextItems($ref_id);
