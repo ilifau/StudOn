@@ -312,6 +312,17 @@ class ilObjTestXMLParser extends ilSaxParser
             $source_pool_definition->setTypeFilterFromTypeTags(explode(',', $attr['typeFilter']));
         }
 
+        // fau: taxGroupFilter - import group filter
+        if (!empty($attr['GroupTaxId'])) {
+            $source_pool_definition->setMappedGroupTaxId((int) $attr['GroupTaxId']);
+        }
+        // fau.
+        // fau: randomSetOrder - import order
+        if (!empty($attr['orderBy']) && in_array($attr['orderBy'], ['random', 'title', 'description'], true)) {
+            $source_pool_definition->setOrderBy($attr['orderBy']);
+        }
+        // fau.
+
         // #21330
         if (isset($attr['tax']) && isset($attr['taxNode'])) {
             $mappedTaxFilter = [

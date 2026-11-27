@@ -128,6 +128,18 @@ class AttemptOverview
         return $this->total_time_on_task;
     }
 
+    // fau: testParticipantsResultsTable - getters for scored attempt and its last access
+    public function getScoredAttempt(): ?int
+    {
+        return $this->scored_attempt;
+    }
+
+    public function getLastAccess(): ?\DateTimeImmutable
+    {
+        return $this->last_access;
+    }
+    // fau.
+
     public function getAsDescriptiveListing(
         Language $lng,
         UIFactory $ui_factory,

@@ -391,6 +391,26 @@ class ilSoapFunctions
         return $sca->excludeGroupMember($sid, $group_id, $user_id);
     }
 
+    // fau: sendSimpleResults - send mails for the exam installation, cc and bcc are ignored
+    public static function sendUserMail(
+        string $sid,
+        string $to,
+        ?string $cc,
+        ?string $bcc,
+        ?string $sender,
+        string $subject,
+        string $message,
+        ?string $attach,
+        ?string $type,
+        $use_placeholders
+    ) {
+        $sou = new ilSoapUtils();
+        $sou->disableSOAPCheck();
+        $sou->ignoreUserAbort();
+        return $sou->sendUserMail($sid, $to, $subject, $message);
+    }
+    // fau.
+
     /**
      * @return bool|int|soap_fault|SoapFault|null
      */

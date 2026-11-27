@@ -1221,22 +1221,54 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
     public function printObject(): void
     {
         $this->tabs_gui->activateTab('print_view');
+        // fau: questionPrint - page break option, scoring mode
+        $pagebreak = $this->request_data_collector->int('pagebreak') === 1;
+        $this->ctrl->setParameter($this, 'pagebreak', (int) $pagebreak);
+        // fau.
         $this->ctrl->setParameter($this, 'output', 'overview');
         $output_link = $this->ctrl->getLinkTargetByClass([ilRepositoryGUI::class, self::class], 'print');
         $this->ctrl->setParameter($this, 'output', 'detailed_output_solutions');
         $output_link_detailed = $this->ctrl->getLinkTargetByClass([ilRepositoryGUI::class, self::class], 'print');
         $this->ctrl->setParameter($this, 'output', 'detailed_output_printview');
         $output_link_printview = $this->ctrl->getLinkTargetByClass([ilRepositoryGUI::class, self::class], 'print');
+        // fau: questionPrint - page break option, scoring mode
+        $this->ctrl->setParameter($this, 'output', 'detailed_output_scoring');
+        $output_link_scoring = $this->ctrl->getLinkTargetByClass([ilRepositoryGUI::class, self::class], 'print');
+        // fau.
 
         $mode = $this->ui_factory->dropdown()->standard([
             $this->ui_factory->button()->shy($this->lng->txt('overview'), $output_link),
             $this->ui_factory->button()->shy($this->lng->txt('detailed_output_solutions'), $output_link_detailed),
+            // fau: questionPrint - page break option, scoring mode
+            $this->ui_factory->button()->shy($this->lng->txt('detailed_output_scoring'), $output_link_scoring),
+            // fau.
             $this->ui_factory->button()->shy($this->lng->txt('detailed_output_printview'), $output_link_printview)
         ])->withLabel($this->lng->txt('output_mode'));
 
         $output = $this->request_data_collector->raw('output') ?? '';
 
+        // fau: questionPrint - toggle for page breaks
+        $this->ctrl->setParameter($this, 'output', $output);
+        $this->ctrl->setParameter($this, 'pagebreak', 1);
+        $pagebreak_on_link = $this->ctrl->getLinkTargetByClass([ilRepositoryGUI::class, self::class], 'print');
+        $this->ctrl->setParameter($this, 'pagebreak', 0);
+        $pagebreak_off_link = $this->ctrl->getLinkTargetByClass([ilRepositoryGUI::class, self::class], 'print');
+        $this->ctrl->setParameter($this, 'pagebreak', (int) $pagebreak);
+        $pagebreak_toggle = $this->ui_factory->button()->toggle(
+            $this->lng->txt('print_pagebreaks'),
+            $pagebreak_on_link,
+            $pagebreak_off_link,
+            $pagebreak
+        )->withAriaLabel($this->lng->txt('print_pagebreaks'));
+        // fau.
+
         $table_gui = new ilQuestionPoolPrintViewTableGUI($this, 'print', $output);
+        // fau: questionPrint - toggle for page breaks, flex layout prevents page breaks in Firefox
+        $table_gui->setPageBreak($pagebreak);
+        if ($pagebreak) {
+            $this->tpl->addInlineCss('@media print { .row:has(.ilTableOuter) { display: block !important; } .il-layout-page-content { overflow: visible !important; } }');
+        }
+        // fau.
         $data = $this->object->getPrintviewQuestions();
         $totalPoints = 0;
         foreach ($data as $d) {
@@ -1245,7 +1277,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI implements ilCtrlBaseClassInterfa
         $table_gui->setTotalPoints($totalPoints);
         $table_gui->initColumns();
         $table_gui->setData($data);
-        $this->tpl->setContent($this->ui_renderer->render($mode) . $table_gui->getHTML());
+        // fau: questionPrint - toggle for page breaks
+        $this->tpl->setContent($this->ui_renderer->render([$mode, $pagebreak_toggle]) . $table_gui->getHTML());
+        // fau.
     }
 
     public function updateObject(): void

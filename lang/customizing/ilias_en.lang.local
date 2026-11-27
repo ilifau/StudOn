@@ -37,11 +37,12 @@ assessment#:#ass_campo_other_fields#:#Other fields
 assessment#:#ass_campo_test_date#:#Individual examination date
 assessment#:#ass_campo_test_starttime#:#Individual examination start time
 assessment#:#ass_create_export_campo#:#Generate results file for campo
-assessment#:#detailed_output_scoring#:#Entering details with solutions and points
+assessment#:#detailed_output_scoring#:#Detailed output with solutions and points###fau: questionPrint
 assessment#:#err_cloze_not_numeric#:#You have entered text in a space that requires a numeric value.
 assessment#:#fq_err_no_numeric_value#:#Please enter a numeric value or a fraction.
 assessment#:#fq_formula_desc_additional#:#atan2(y;x)' is also supported in StudOn (please separate the parameters using a semicolon).
 assessment#:#send_simple_results_body#:#%s\n\nName: %s\nStudent registration number: %s\nDate of test run: %s
+assessment#:#send_simple_results_no_valid_participants#:#None of the selected participants has a finished attempt.###fau: sendSimpleResults
 assessment#:#send_simple_results_subject#:#Result "%s" from %s
 assessment#:#send_simple_results_to_participants#:#Send simple result in an e-mail (evaluated test run)
 assessment#:#send_simple_results_to_participants_confirm#:#Send result in an e-mail to selected candidates?<br />The name, student registration number, date of the test run and the text feedback are included in the email for the evaluated test run.
@@ -49,7 +50,11 @@ assessment#:#send_simple_results_to_participants_failed#:#It was not possible to
 assessment#:#send_simple_results_to_participants_success#:#A message was sent to the following users:<br />%s
 assessment#:#sent_simple_results_to_participants#:#The results were sent to the participants.
 assessment#:#show_detailed_results_with_correct_solutions#:#Detailed examination results with correct solutions (evaluated test run)
+assessment#:#tst_attempt_deleted#:#The attempt has been deleted.###fau: deleteTestPass
 assessment#:#tst_authorship_statement#:#Declaration of originality
+assessment#:#tst_delete_attempt#:#Delete Attempt###fau: deleteTestPass
+assessment#:#tst_delete_attempt_not_finished#:#This attempt is not finished yet and cannot be deleted. First finish the test for this person (Participants → select → "Finish Test").###fau: deleteTestPass
+assessment#:#tst_delete_attempt_other_running#:#This person still has an unfinished attempt. First finish the test for this person (Participants → select → "Finish Test"), then attempts can be deleted.###fau: deleteTestPass
 assessment#:#tst_filter_order_by#:#Order of the questions
 assessment#:#tst_filter_order_by_info#:#If the test does not generally mix the questions, the questions of this selection rule remain in consecutive order. You can choose how to sort them here.
 assessment#:#tst_filter_order_description#:#According to description
@@ -73,7 +78,10 @@ assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#No question group
 assessment#:#tst_msg_rand_quest_set_pool_not_available#:#The selected question pool is not available. It is either offline, not readable or contains questions with varying numbers of points.
 assessment#:#tst_msg_rand_quest_set_sync_duration#:#All questions that match the rules are copied into the test during synchronization. This action can take several minutes for large pools.
 assessment#:#tst_password_enter_info#:#IMPORTANT: Please do not change the password while a written examination is taking place. The participants must enter it when changing questions in order to continue. Previous auto saves will fail.
-assessment#:#tst_question_browse_root_message#:#A search is performed as standard in the category or folder that contains this test. This can be changed with the filter settings.
+assessment#:#tst_question_browse_area#:#Search Area###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_area_ref_id#:#or Ref-ID###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_area_ref_id_invalid#:#This Ref-ID does not exist, is the StudOn start page or you have no read permission there. The selected search area is used instead.###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_root_message#:#Questions are searched in "%s". You can change this with the filters "Search Area" or "Ref-ID".###fau: testQuestionBrowserRoot
 assessment#:#tst_recalculate_selected_solutions_confirm#:#The results of the selected participants will be recalculated. Manual evaluations remain intact.
 assessment#:#tst_recalculate_solutions#:#Recalculate results
 assessment#:#tst_recalculate_solutions_confirm#:#The results of all participants will be recalculated. Manual evaluations remain intact. This calculation may take a long time.

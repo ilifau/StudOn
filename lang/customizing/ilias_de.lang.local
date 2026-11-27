@@ -35,11 +35,12 @@ assessment#:#ass_campo_matriculation_numbers_info#:#Exportieren Sie die Liste de
 assessment#:#ass_campo_other_fields#:#Weitere Felder###fau: campoGrades
 assessment#:#ass_campo_test_date#:#individuelles Prüfungsdatum###fau: campoGrades
 assessment#:#ass_campo_test_starttime#:#individieller Prüfungsbeginn###fau: campoGrades
-assessment#:#detailed_output_scoring#:#Detailansgabe mit Lösungen und Punkten
+assessment#:#detailed_output_scoring#:#Detailausgabe mit Lösungen und Punkten###fau: questionPrint
 assessment#:#err_cloze_not_numeric#:#Sie haben Text in eine Lücke eingegeben, die einen Zahlenwert erfordert!
 assessment#:#fq_err_no_numeric_value#:#Bitte geben Sie einen numerischen Wert oder einen Bruch ein.
 assessment#:#fq_formula_desc_additional#:#In StudOn wird auch 'atan2(y;x)' unterstützt (bitte Parameter per Semikolon trennen).
 assessment#:#send_simple_results_body#:#%s\n\nName: %s\nMatrikelnummer: %s\nDatum des Durchlaufs: %s
+assessment#:#send_simple_results_no_valid_participants#:#Keiner der ausgewählten Teilnehmer hat einen beendeten Durchlauf.###fau: sendSimpleResults
 assessment#:#send_simple_results_subject#:#Ergebnis "%s" vom %s
 assessment#:#send_simple_results_to_participants#:#Einfaches Ergebnis als Mail senden (bewerteter Testdurchlauf)
 assessment#:#send_simple_results_to_participants_confirm#:#Ergebnis als Mail an die ausgewählten Teilnehmer senden?<br />Gesendet werden für den bewerteten Testdurchlauf der Name, die Matrikelnummer, das Datum des Tests und die textuelle Rückmeldung.
@@ -47,7 +48,11 @@ assessment#:#send_simple_results_to_participants_failed#:#Die folgenden Nutzer k
 assessment#:#send_simple_results_to_participants_success#:#Die folgenden Nutzer wurden angeschrieben:<br />%s
 assessment#:#sent_simple_results_to_participants#:#Die Ergebnisse wurden an die Teilnehmer gesendet
 assessment#:#show_detailed_results_with_correct_solutions#:#Detaillierte Testergebnisse mit korrekten Lösungen (bewerteter Testdurchlauf)
+assessment#:#tst_attempt_deleted#:#Der Durchlauf wurde gelöscht.###fau: deleteTestPass
 assessment#:#tst_authorship_statement#:#Eigenständigkeitserklärung
+assessment#:#tst_delete_attempt#:#Durchlauf löschen###fau: deleteTestPass
+assessment#:#tst_delete_attempt_not_finished#:#Dieser Durchlauf ist noch nicht beendet und kann nicht gelöscht werden. Beenden Sie zuerst den Test für diese Person (Teilnehmer → ankreuzen → „Test beenden“).###fau: deleteTestPass
+assessment#:#tst_delete_attempt_other_running#:#Diese Person hat noch einen offenen Durchlauf. Beenden Sie zuerst den Test für diese Person (Teilnehmer → ankreuzen → „Test beenden“), dann können Durchläufe gelöscht werden.###fau: deleteTestPass
 assessment#:#tst_filter_order_by#:#Reihenfolge der Fragen
 assessment#:#tst_filter_order_by_info#:#Wenn der Test die Fragen nicht generell mischt, bleiben die Fragen dieser Auswahlregel hintereinander. Ihre Sortierung kann hier bestimmt werden.
 assessment#:#tst_filter_order_description#:#Nach Beschreibung
@@ -71,7 +76,10 @@ assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#Zur Regel %s wurd
 assessment#:#tst_msg_rand_quest_set_pool_not_available#:#Der ausgewählte Fragenpool ist nicht verfügbar. Er ist entweder offline, nicht lesbar oder hat Fragen mit unterschiedlicher Punktzahl.###fau: optimizeRandomRuleSelect
 assessment#:#tst_msg_rand_quest_set_sync_duration#:#Bei der Synchronisation werden alle Fragen die zu den Regeln passen in den Test kopiert. Diese Aktion kann bei großen Pools einige Minuten dauern.
 assessment#:#tst_password_enter_info#:#WICHTIG: Änden Sie das Passwort nicht während einer laufenden Klausur! Die Teilnehmer müssen es beim Fragenwechsel eingeben, um fortzufahren. Vorherige Auto-Speicherungen schlagen fehl!
-assessment#:#tst_question_browse_root_message#:#Die Fragen werden standardmäßig in der Kategorie oder dem Ordner gesucht, in dem dieser Test liegt. Das können Sie mit den Filtereinstellungen ändern.
+assessment#:#tst_question_browse_area#:#Suchbereich###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_area_ref_id#:#oder Ref-ID###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_area_ref_id_invalid#:#Diese Ref-ID gibt es nicht, ist die Startseite von StudOn oder Sie haben dort kein Leserecht. Es wird im ausgewählten Suchbereich gesucht.###fau: testQuestionBrowserRoot
+assessment#:#tst_question_browse_root_message#:#Die Fragen werden in „%s“ gesucht. Das können Sie mit den Filtern „Suchbereich“ oder „Ref-ID“ ändern.###fau: testQuestionBrowserRoot
 assessment#:#tst_recalculated_solutions#:#Die Ergebnisse wurden neu berechnet
 assessment#:#tst_recalculate_selected_solutions_confirm#:#Die Ergebnisse der ausgewählten Teilnehmer werden neu berechnet. Manuelle Bewertungen bleiben dabei erhalten.!
 assessment#:#tst_recalculate_solutions#:#Ergebnisse neu berechnen

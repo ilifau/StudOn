@@ -29,6 +29,11 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
 
     protected $totalPoints;
 
+    // fau: questionPrint - page break option
+    private bool $pagebreak = false;
+    private bool $first_row = true;
+    // fau.
+
     public function __construct($a_parent_obj, $a_parent_cmd, $outputmode = '')
     {
         $this->setId("qpl_print");
@@ -131,6 +136,12 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
     public function fillRow(array $a_set): void
     {
         ilDatePresentation::setUseRelativeDates(false);
+        // fau: questionPrint - page break before each question except the first (block comes from the skin template)
+        if ($this->pagebreak && !$this->first_row && $this->tpl->blockExists('pagebreak')) {
+            $this->tpl->touchBlock('pagebreak');
+        }
+        $this->first_row = false;
+        // fau.
         $this->tpl->setVariable("TITLE", ilLegacyFormElementsUtil::prepareFormOutput($a_set['title']));
         foreach ($this->getSelectedColumns() as $c) {
             if (strcmp($c, 'description') == 0) {
@@ -167,12 +178,15 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
                 $this->tpl->parseCurrentBlock();
             }
         }
-        if ((strcmp($this->outputmode, "detailed_output_solutions") == 0) || (strcmp($this->outputmode, "detailed_output_printview") == 0)) {
+        // fau: questionPrint - optionally show the scoring
+        $scoring = $this->outputmode === 'detailed_output_scoring';
+        if ((strcmp($this->outputmode, "detailed_output_solutions") == 0) || (strcmp($this->outputmode, "detailed_output_printview") == 0) || $scoring) {
             $this->tpl->setCurrentBlock("overview_row_detail");
             $question_gui = assQuestion::instantiateQuestionGUI($a_set["question_id"]);
             $question_gui->setRenderPurpose(assQuestionGUI::RENDER_PURPOSE_PREVIEW);
-            if (strcmp($this->outputmode, "detailed_output_solutions") == 0) {
-                $solutionoutput = $question_gui->getSolutionOutput(0, null, false, false, false, false, true, false);
+            if (strcmp($this->outputmode, "detailed_output_solutions") == 0 || $scoring) {
+                $solutionoutput = $question_gui->getSolutionOutput(0, null, false, $scoring, false, false, true, false);
+        // fau.
                 if (strlen($solutionoutput) == 0) {
                     $solutionoutput = $question_gui->getPreview();
                 }
@@ -199,6 +213,13 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
 
         return false;
     }
+
+    // fau: questionPrint - page break option
+    public function setPageBreak(bool $pagebreak): void
+    {
+        $this->pagebreak = $pagebreak;
+    }
+    // fau.
 
     public function getTotalPoints()
     {

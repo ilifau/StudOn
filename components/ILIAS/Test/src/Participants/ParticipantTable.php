@@ -166,6 +166,16 @@ class ParticipantTable implements DataRetrieval
             if ($status_of_attempt->isFinished()) {
                 $row['test_passed'] = $record->getAttemptOverviewInformation()?->hasPassingMark() ?? false;
                 $row['mark'] = $record->getAttemptOverviewInformation()?->getMark();
+                // fau: testParticipantsResultsTable - scored attempt and its last access
+                $scored_attempt = $record->getAttemptOverviewInformation()?->getScoredAttempt();
+                if ($scored_attempt !== null) {
+                    $row['scored_attempt'] = $scored_attempt + 1;
+                }
+                $scored_attempt_last_access = $record->getAttemptOverviewInformation()?->getLastAccess();
+                if ($scored_attempt_last_access !== null) {
+                    $row['scored_attempt_last_access'] = $scored_attempt_last_access->setTimezone($current_user_timezone);
+                }
+                // fau.
             }
 
             yield $this->table_actions->onDataRow(
@@ -228,6 +238,18 @@ class ParticipantTable implements DataRetrieval
             ) => $a->getRemainingDuration($processing_time, $reset_time_on_new_attempt)
                 <=> $b->getRemainingDuration($processing_time, $reset_time_on_new_attempt),
             'last_access' => static fn(Participant $a, Participant $b) => $a->getLastAccess() <=> $b->getLastAccess(),
+            // fau: testParticipantsResultsTable - sort scored attempt and its last access
+            'scored_attempt' => static fn(
+                Participant $a,
+                Participant $b
+            ) => $a->getAttemptOverviewInformation()?->getScoredAttempt()
+                <=> $b->getAttemptOverviewInformation()?->getScoredAttempt(),
+            'scored_attempt_last_access' => static fn(
+                Participant $a,
+                Participant $b
+            ) => $a->getAttemptOverviewInformation()?->getLastAccess()
+                <=> $b->getAttemptOverviewInformation()?->getLastAccess(),
+            // fau.
             'status_of_attempt' => fn(
                 Participant $a,
                 Participant $b
@@ -397,9 +419,11 @@ class ParticipantTable implements DataRetrieval
             )->withIsSortable(true),
             'total_time_on_task' => $column_factory->text($this->lng->txt('working_time'))
                 ->withIsOptional(true, false),
-            'total_attempts' => $column_factory->number($this->lng->txt('total_attempts'))
-                ->withIsOptional(true, false)
+            // fau: testParticipantsResultsTable - started attempts shown by default
+            'total_attempts' => $column_factory->number($this->lng->txt('tst_tbl_col_started_passes'))
+                ->withIsOptional(true, true)
                 ->withIsSortable(true),
+            // fau.
         ];
 
         $columns['status_of_attempt'] = $column_factory->text($this->lng->txt('status_of_attempt'))
@@ -421,6 +445,16 @@ class ParticipantTable implements DataRetrieval
         }
 
         if ($this->test_access->checkParticipantsResultsAccess()) {
+            // fau: testParticipantsResultsTable - scored attempt columns
+            $columns['scored_attempt'] = $column_factory->number($this->lng->txt('tst_tbl_col_scored_pass'))
+                ->withIsOptional(true, true)
+                ->withIsSortable(true);
+            $columns['scored_attempt_last_access'] = $column_factory->date(
+                $this->lng->txt('tst_tbl_col_pass_finished'),
+                $this->current_user->getDateTimeFormat()
+            )->withIsOptional(true, true)
+            ->withIsSortable(true);
+            // fau.
             $columns['reached_points'] = $column_factory->text($this->lng->txt('tst_reached_points'))
                 ->withIsSortable(true)
                 ->withOrderingLabels(...$column_factory->number($this->lng->txt('tst_reached_points'))->getOrderingLabels());

@@ -27,6 +27,10 @@ use ILIAS\UI\Component\ViewControl\Mode as ViewControlMode;
 use ILIAS\UI\Component\Link\Standard as StandardLink;
 use ILIAS\UI\Component\Panel\Sub as SubPanel;
 use ILIAS\Filesystem\Stream\Streams;
+// fau: deleteTestPass - logging of the deletion by test admins
+use ILIAS\Test\Logging\TestAdministrationInteractionTypes;
+use ILIAS\Test\Logging\AdditionalInformationGenerator;
+// fau.
 
 /**
  * Output class for assessment test evaluation
@@ -193,6 +197,23 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         } else {
             $attempt_id = ilObjTest::_getResultPass($current_active_id);
         }
+
+        // fau: deleteTestPass - button to delete the shown finished attempt
+        if ($this->testAccess->checkManageParticipantsAccess()
+            && $attempt_id !== null
+            && $attempt_id >= 0
+            && $attempt_id <= $this->getLastFinishedAttempt($current_active_id)) {
+            $this->ctrl->setParameterByClass(self::class, 'active_id', $current_active_id);
+            $this->ctrl->setParameterByClass(self::class, 'pass', $attempt_id);
+            $this->ctrl->setParameterByClass(self::class, 'context', ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS);
+            $this->toolbar->addComponent($this->ui_factory->button()->standard(
+                $this->lng->txt('tst_delete_attempt'),
+                $this->ctrl->getLinkTargetByClass(self::class, 'confirmDeletePass')
+            ));
+            $this->ctrl->clearParameterByClass(self::class, 'pass');
+            $this->ctrl->clearParameterByClass(self::class, 'context');
+        }
+        // fau.
 
         $results_panel = $this->ui_factory->panel()->report(
             $this->buildResultsTitle(
@@ -577,9 +598,20 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             $context = ilTestPassDeletionConfirmationGUI::CONTEXT_PASS_OVERVIEW;
         }
 
-        if (!$this->object->isPassDeletionAllowed()) {
+        // fau: deleteTestPass - test admins may delete any finished attempt
+        if ($context === ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS) {
+            $this->ctrl->saveParameterByClass(self::class, 'active_ids');
+            $this->checkAdminPassDeletion(
+                $this->testrequest->getActiveId(),
+                $this->testrequest->int('pass')
+            );
+            if ($this->testrequest->int('pass') === ilObjTest::_getResultPass($this->testrequest->getActiveId())) {
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt('warning_delete_scored_pass'));
+            }
+        } elseif (!$this->object->isPassDeletionAllowed()) {
             $this->redirectToPassDeletionContext($context);
         }
+        // fau.
 
         $confirm = new ilTestPassDeletionConfirmationGUI($this->ctrl, $this->lng, $this);
         $confirm->build($this->testrequest->getActiveId('active_id'), $this->testrequest->int('pass'), $context);
@@ -594,6 +626,13 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
     private function redirectToPassDeletionContext(string $context): void
     {
+        // fau: deleteTestPass - back to the results of the participant
+        if ($context === ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS) {
+            $this->ctrl->saveParameterByClass(self::class, 'active_ids');
+            $this->ctrl->setParameterByClass(self::class, 'active_id', $this->testrequest->getActiveId());
+            $this->ctrl->redirectByClass(self::class, 'showResults');
+        }
+        // fau.
         switch ($context) {
             case ilTestPassDeletionConfirmationGUI::CONTEXT_PASS_OVERVIEW:
 
@@ -611,7 +650,14 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $active_fi = $this->testrequest->int('active_id');
         $pass = $this->testrequest->int('pass');
 
-        if (!$this->object->isPassDeletionAllowed()) {
+        // fau: deleteTestPass - admins may delete any finished attempt
+        $admin_context = $context === ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS;
+        if ($admin_context) {
+            if ($this->http->request()->getMethod() !== 'POST') {
+                ilObjTestGUI::accessViolationRedirect();
+            }
+            $this->checkAdminPassDeletion($active_fi, $pass);
+        } elseif (!$this->object->isPassDeletionAllowed()) {
             $this->redirectToPassDeletionContext($context);
         }
 
@@ -621,9 +667,15 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             $this->ctrl->redirect($this, 'outUserResultsOverview');
         }
 
-        if ($pass === ilObjTest::_getResultPass($active_fi)) {
+        if (!$admin_context && $pass === ilObjTest::_getResultPass($active_fi)) {
             $this->ctrl->redirect($this, 'outUserResultsOverview');
         }
+
+        if ($admin_context) {
+            $user_id = ilObjTest::_getUserIdFromActiveId($active_fi);
+            $file_upload_data = $this->collectFileUploadsOfAttempt($active_fi, $pass);
+        }
+        // fau.
 
         // Get information
         $result = $ilDB->query("
@@ -670,6 +722,12 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         } else {
             $last_pass = false;
         }
+
+        // fau: deleteTestPass - remove result data and its cache while the participant record still exists
+        if ($admin_context && $last_pass) {
+            $this->test_result_repository->removeTestResults([$active_fi], $this->object->getId());
+        }
+        // fau.
 
         // Work on tables:
         // tst_active
@@ -792,10 +850,168 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             );
         }
 
-        $this->test_result_repository->updateTestResultCache((int) $active_fi);
+        // fau: deleteTestPass - clean up data of the attempt that ILIAS leaves behind
+        if ($admin_context) {
+            $this->cleanupDeletedAttempt($active_fi, $pass, $must_renumber, $last_pass, $file_upload_data ?? []);
+        }
+        // fau.
+
+        // fau: deleteTestPass - no result update when the participant record of the last attempt is gone
+        if (!($admin_context && $last_pass)) {
+            $this->test_result_repository->updateTestResultCache((int) $active_fi);
+        }
+        // fau.
+
+        // fau: deleteTestPass - update learning progress, log and show a message
+        if ($admin_context) {
+            ilLPStatusWrapper::_updateStatus($this->object->getId(), $user_id);
+
+            $logger = $this->object->getTestLogger();
+            if ($logger->isLoggingEnabled()) {
+                $logger->logTestAdministrationInteraction(
+                    $logger->getInteractionFactory()->buildTestAdministrationInteraction(
+                        $this->object->getRefId(),
+                        $this->user->getId(),
+                        TestAdministrationInteractionTypes::PARTICIPANT_DATA_REMOVED,
+                        [
+                            AdditionalInformationGenerator::KEY_USERS => [$user_id],
+                            'tst_attempt' => $pass + 1
+                        ]
+                    )
+                );
+            }
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('tst_attempt_deleted'), true);
+            if ($last_pass) {
+                $this->redirectBackToParticipantsScreen();
+            }
+        }
+        // fau.
 
         $this->redirectToPassDeletionContext($context);
     }
+
+    // fau: deleteTestPass - helpers for the deletion by test admins
+    private function checkAdminPassDeletion(int $active_id, int $pass): void
+    {
+        global $DIC;
+        $user_filter = (new ilTestParticipantAccessFilterFactory($DIC->access()))
+            ->getManageParticipantsUserFilter($this->object->getRefId());
+        if (!$this->testAccess->checkManageParticipantsAccess()
+            || !$this->testAccess->checkResultsAccessForActiveId($active_id, $this->object->getTestId())
+            || $user_filter([ilObjTest::_getUserIdFromActiveId($active_id)]) === []) {
+            ilObjTestGUI::accessViolationRedirect();
+        }
+
+        $last_finished = $this->getLastFinishedAttempt($active_id);
+        if ($pass < 0 || $pass > $last_finished) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('tst_delete_attempt_not_finished'), true);
+            $this->redirectToPassDeletionContext(ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS);
+        }
+
+        $running = $this->db->fetchAssoc($this->db->queryF(
+            'SELECT COUNT(*) cnt FROM tst_sequence WHERE active_fi = %s AND pass > %s',
+            ['integer', 'integer'],
+            [$active_id, $last_finished]
+        ));
+        if ((int) ($running['cnt'] ?? 0) > 0) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('tst_delete_attempt_other_running'), true);
+            $this->redirectToPassDeletionContext(ilTestPassDeletionConfirmationGUI::CONTEXT_PARTICIPANTS);
+        }
+    }
+
+    private function getLastFinishedAttempt(int $active_id): int
+    {
+        $row = $this->db->fetchAssoc($this->db->queryF(
+            'SELECT last_finished_pass FROM tst_active WHERE active_id = %s',
+            ['integer'],
+            [$active_id]
+        ));
+        return isset($row['last_finished_pass']) ? (int) $row['last_finished_pass'] : -1;
+    }
+
+    private function collectFileUploadsOfAttempt(int $active_id, int $pass): array
+    {
+        $res = $this->db->queryF(
+            "SELECT s.question_fi, s.value1, s.value2 FROM tst_solutions s
+            INNER JOIN qpl_questions q ON q.question_id = s.question_fi
+            INNER JOIN qpl_qst_type t ON t.question_type_id = q.question_type_fi
+            WHERE s.active_fi = %s AND s.pass = %s AND t.type_tag = %s AND s.value1 IS NOT NULL",
+            ['integer', 'integer', 'text'],
+            [$active_id, $pass, 'assFileUpload']
+        );
+        $files = [];
+        while ($row = $this->db->fetchAssoc($res)) {
+            $files[] = $row;
+        }
+        return $files;
+    }
+
+    private function cleanupDeletedAttempt(
+        int $active_id,
+        int $pass,
+        bool $must_renumber,
+        bool $last_pass,
+        array $file_upload_data
+    ): void {
+        $tables = [
+            'tst_test_rnd_qst' => 'active_fi',
+            'tst_seq_qst_presented' => 'active_fi',
+            'tst_seq_qst_checked' => 'active_fi',
+            'tst_seq_qst_optional' => 'active_fi',
+            PassPresentedVariablesRepo::TABLE_NAME => 'active_id'
+        ];
+        foreach ($tables as $table => $column) {
+            $this->db->manipulateF(
+                "DELETE FROM {$table} WHERE {$column} = %s AND pass = %s",
+                ['integer', 'integer'],
+                [$active_id, $pass]
+            );
+            if ($must_renumber) {
+                $this->db->manipulateF(
+                    "UPDATE {$table} SET pass = pass - 1 WHERE {$column} = %s AND pass > %s",
+                    ['integer', 'integer'],
+                    [$active_id, $pass]
+                );
+            }
+        }
+
+        if ($last_pass) {
+            $this->db->manipulateF(
+                'DELETE FROM tst_result_cache WHERE active_fi = %s',
+                ['integer'],
+                [$active_id]
+            );
+        }
+
+        global $DIC;
+        $irss = $DIC->resourceStorage();
+        foreach ($file_upload_data as $file) {
+            $is_rid = $file['value2'] === 'rid';
+            $still_used = $this->db->fetchAssoc($this->db->queryF(
+                $is_rid
+                    ? "SELECT COUNT(*) cnt FROM tst_solutions WHERE value1 = %s AND value2 = 'rid'"
+                    : 'SELECT COUNT(*) cnt FROM tst_solutions WHERE value1 = %s AND active_fi = %s AND question_fi = %s',
+                $is_rid ? ['text'] : ['text', 'integer', 'integer'],
+                $is_rid ? [$file['value1']] : [$file['value1'], $active_id, (int) $file['question_fi']]
+            ));
+            if ((int) ($still_used['cnt'] ?? 0) > 0) {
+                continue;
+            }
+            if ($is_rid) {
+                $rid = $irss->manage()->find($file['value1']);
+                if ($rid !== null) {
+                    $irss->manage()->remove($rid, new assFileUploadStakeholder());
+                }
+            } else {
+                $path = CLIENT_WEB_DIR . '/assessment/tst_' . $this->object->getTestId() . '/' . $active_id
+                    . '/' . (int) $file['question_fi'] . '/files/' . basename((string) $file['value1']);
+                if (is_file($path)) {
+                    unlink($path);
+                }
+            }
+        }
+    }
+    // fau.
 
     protected function redirectBackToParticipantsScreen()
     {

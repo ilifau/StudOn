@@ -227,5 +227,14 @@ class Printer
             $this->ui_factory->button()->standard($this->lng->txt('print'), '')
                 ->withOnLoadCode(fn($id) => "$('#$id').on('click', ()=>{window.print();})")
         );
+        // fau: questionPrint - print with a page break before each question or participant
+        $this->toolbar->addComponent(
+            $this->ui_factory->button()->standard($this->lng->txt('print_pagebreaks'), '')
+                ->withOnLoadCode(fn($id) => "$('#$id').on('click', () => {"
+                    . "document.body.classList.add('tstPrintPagebreaks');"
+                    . "window.addEventListener('afterprint', () => document.body.classList.remove('tstPrintPagebreaks'), {once: true});"
+                    . "window.print();})")
+        );
+        // fau.
     }
 }

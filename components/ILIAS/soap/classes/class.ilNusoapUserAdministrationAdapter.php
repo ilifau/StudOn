@@ -791,6 +791,29 @@ class ilNusoapUserAdministrationAdapter
             'ILIAS excludeGroupMember(). Excludes an user from an existing group.'
         );
 
+        // fau: sendSimpleResults - register function to send user mails
+        $this->server->register(
+            'sendUserMail',
+            array('sid' => 'xsd:string',
+                  'rcp_to' => 'xsd:string',
+                  'rcp_cc' => 'xsd:string',
+                  'rcp_bcc' => 'xsd:string',
+                  'sender' => 'xsd:string',
+                  'subject' => 'xsd:string',
+                  'message' => 'xsd:string',
+                  'attachments' => 'xsd:string',
+                  'type' => 'xsd:string',
+                  'use_placholders' => 'xsd:boolean'
+            ),
+            array('status' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#sendUserMail',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'ILIAS sendUserMail(): Send system mails. Only for internal usage by StudOn, administrators only.'
+        );
+        // fau.
+
         // isAssignedToGroup()
         $this->server->register(
             'isAssignedToGroup',

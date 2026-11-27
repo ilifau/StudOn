@@ -34,6 +34,9 @@ use ILIAS\Test\Participants\ParticipantTableExtraTimeAction;
 use ILIAS\Test\Participants\ParticipantTableFinishTestAction;
 use ILIAS\Test\Participants\ParticipantTableDeleteResultsAction;
 use ILIAS\Test\Participants\ParticipantTableShowResultsAction;
+// fau: sendSimpleResults - action to send the results as mail
+use ILIAS\Test\Participants\ParticipantTableSendSimpleResultsAction;
+// fau.
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\Test\Results\Data\Repository as TestResultRepository;
@@ -384,6 +387,18 @@ class ilTestParticipantsGUI
                     $this->test_obj,
                     $this->test_pass_result_repository
                 ),
+                // fau: sendSimpleResults - action to send the results as mail
+                ParticipantTableSendSimpleResultsAction::ACTION_ID => new ParticipantTableSendSimpleResultsAction(
+                    $this->lng,
+                    $this->main_tpl,
+                    $this->ui_factory,
+                    $this->db,
+                    $this->participant_access_filter,
+                    $this->test_access,
+                    $this->test_obj,
+                    $this->test_pass_result_repository
+                ),
+                // fau.
                 ParticipantTableIpRangeAction::ACTION_ID => new ParticipantTableIpRangeAction(
                     $this->lng,
                     $this->main_tpl,
