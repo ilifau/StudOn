@@ -136,8 +136,8 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
     public function fillRow(array $a_set): void
     {
         ilDatePresentation::setUseRelativeDates(false);
-        // fau: questionPrint - page break before each question except the first
-        if ($this->pagebreak && !$this->first_row) {
+        // fau: questionPrint - page break before each question except the first (block comes from the skin template)
+        if ($this->pagebreak && !$this->first_row && $this->tpl->blockExists('pagebreak')) {
             $this->tpl->touchBlock('pagebreak');
         }
         $this->first_row = false;
